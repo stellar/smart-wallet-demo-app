@@ -1,0 +1,40 @@
+import { Meta, ArgTypes } from '@storybook/blocks'
+
+import * as FormStories from './index.stories'
+
+import { InputText, Select } from '../../atoms'
+
+<Meta of={FormStories} />
+
+# Form
+
+The proposal of `Form` component is help to build forms, and handle the form state
+
+The `Form` component was implemented using [React hook form](https://react-hook-form.com/)
+
+The form clones every `<Form.*>` component and injects the props that are necessary for react-hook-form.
+Components with children that do not belong to `<Form.*>` will just be rendered normally.
+
+> The motivation to not interact with all component tree to inject the form props, is to avoid performance issues in form rerender.
+
+The form handles:
+
+- Inputs state and form submit
+- Form validation state and pass it to the `LabeledInput`
+- Form field population
+
+## Supported inputs
+
+The form has the following supported inputs
+
+### `Form.InputText`
+
+The classic input text, with props:
+
+<ArgTypes of={InputText} />
+
+### `Form.Select`
+
+A select input, with props:
+
+<ArgTypes of={Select} />

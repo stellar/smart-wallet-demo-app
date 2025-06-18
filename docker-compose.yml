@@ -1,0 +1,49 @@
+volumes:
+  backend-root-node-modules:
+  backend-node-modules:
+  web-root-node-modules:
+  web-node-modules:
+
+services:
+  backend:
+    container_name: smart-wallet-backend
+    profiles: ['all', 'backend']
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+      target: local
+    environment:
+      DEPLOY_STAGE: ${DEPLOY_STAGE:-local}
+      ENVIRONMENT_NAME: ${ENVIRONMENT_NAME:-d5}
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${NODE_PORT:-8000}
+      DEBUG: ${DEBUG:-true}
+      FRONT_ADDRESS: ${FRONT_ADDRESS:-*}
+    volumes:
+      - './:/app'
+      - 'backend-root-node-modules:/app/node_modules'
+      - 'backend-node-modules:/app/apps/backend/node_modules'
+    ports:
+      - ${NODE_PORT:-8000}:${NODE_PORT:-8000}
+      - 9229:9229
+  web:
+    container_name: smart-wallet-web
+    profiles: ['all', 'web']
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: local
+      args:
+        PROD: ${PROD:-false}
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    environment:
+      DEPLOY_STAGE: ${DEPLOY_STAGE:-local}
+      PORT: ${PORT:-3000}
+      PROD: ${PROD:-false}
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    volumes:
+      - ./:/app
+      - 'web-root-node-modules:/app/node_modules'
+      - 'web-node-modules:/app/apps/web/node_modules'
+    ports:
+      - ${PORT:-3000}:${PORT:-3000}

@@ -1,0 +1,94 @@
+#!make
+
+COMPOSE = docker compose
+DETACH =
+
+PROFILE ?= all    # backend | web | all
+APP ?= backend    # backend | web
+
+help:
+	@echo ""
+	@echo "Usage:"
+	@echo "  make <command> [PROFILE=backend|web|all] [APP=backend|web] [TEST=<file-name>|<folder-name>]"
+	@echo ""
+	@echo "Docker Compose:"
+	@echo "  docker-setup-dev      Build containers using profile"
+	@echo "  docker-start-dev      Start containers using profile"
+	@echo "  docker-stop-dev       Stop containers using profile"
+	@echo ""
+	@echo "App workspace commands:"
+	@echo "  clean-setup-dev       Run clean-setup-dev on given APP"
+	@echo "  clean-setup           Run clean-setup on given APP"
+	@echo "  setup-dev             Run setup-dev on given APP"
+	@echo "  build                 Run build on given APP"
+	@echo "  start                 Run start on given APP"
+	@echo "  start-dev             Run start-dev on given APP"
+	@echo "  start-staging         Run start-staging on APP"
+	@echo "  serve                 Run serve on APP (only for web)"
+	@echo "  test                  Run test on given APP"
+	@echo "  test-coverage         Run test-coverage on given APP"
+	@echo "  storybook             Run storybook on given APP"
+	@echo "  build-storybook       Run build-storybook on given APP"
+	@echo "  type-check            Run type-check on given APP"
+	@echo "  lint                  Run eslint"
+	@echo "  lint-fix              Run eslint with --fix"
+	@echo "  format-code           Run prettier on codebase"
+
+# Docker Compose commands
+docker-setup-dev:
+	$(COMPOSE) --profile $(PROFILE) build
+
+docker-start-dev:
+	$(COMPOSE) --profile $(PROFILE) up $(DETACH)
+
+docker-stop-dev:
+	$(COMPOSE) --profile $(PROFILE) stop
+
+# NPM workspace commands
+clean-setup-dev:
+	npm run clean-setup-dev --workspace=apps/$(APP)
+
+clean-setup:
+	npm run clean-setup --workspace=apps/$(APP)
+
+setup-dev:
+	npm run setup-dev --workspace=apps/$(APP)
+
+build:
+	npm run build --workspace=apps/$(APP)
+
+start:
+	npm run start --workspace=apps/$(APP)
+
+start-dev:
+	npm run start-dev --workspace=apps/$(APP)
+
+start-staging:
+	npm run start-staging --workspace=apps/$(APP)
+
+serve:
+	npm run serve --workspace=apps/$(APP)
+
+test:
+	npm run test ${TEST} --workspace=apps/$(APP)
+
+test-coverage:
+	npm run test-coverage --workspace=apps/$(APP)
+
+storybook:
+	npm run storybook --workspace=apps/$(APP)
+
+build-storybook:
+	npm run build-storybook --workspace=apps/$(APP)
+
+type-check:
+	npm run type-check --workspace=apps/$(APP)
+
+lint:
+	npx eslint .
+
+lint-fix:
+	npx eslint . --fix
+
+format-code:
+	npx prettier --write "**/*.{js,jsx,ts,tsx,json,md}"

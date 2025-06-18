@@ -1,0 +1,27 @@
+import { Meta, ArgTypes } from '@storybook/blocks'
+
+import * as TableStories from './index.stories'
+
+import { Table } from './index'
+
+<Meta of={TableStories} />
+
+# Table
+
+<ArgTypes of={Table} />
+
+## About column props
+
+This prop describes the columns' definition of table, the order in array of columns is the same that will be rendered at
+the table
+
+### Column args
+
+| name          | type                                             | description                                                                                                                                      | required |
+| ------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
+| type          | `'string'` , `'selectRowCheckbox'`               | This type apply some helpers method to format the columns cell values                                                                            | no       |
+| property      | string                                           | The name of the attribute for that column, will look at `data` objects to get the value from that column. If not informed the cell will be empty | no       |
+| header        | `JSX.Element`                                    | The header name, can be a string or a component                                                                                                  | no       |
+| renderHeader  | `() => JSX.Element`                              | A render function to customize                                                                                                                   | no       |
+| onOrderChange | `(field: string, type: 'asc' or 'desc') => void` | A callback function when user click in header order. If informed the component if display a order icon in column header                          | no       |
+| renderRowCell | `(row: Data) => JSX.Element`                     | A custom method to render the row cell, receive the row data as a parameter. If informed ignore the `type` param                                 | no       |

@@ -1,0 +1,29 @@
+# Logs #
+/logs
+*.log
+*.log*
+
+# Node files #
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn.lock
+.env
+.env.*
+!.env.example
+
+# Typing #
+typings/
+
+# Dist #
+dist/
+tsconfig.build.json
+
+# APPLICATION #
+/src/config/.env*
+!/src/config/.env.example
+dist/
+api-docs/
+!src/public/**/*
+test/**/*.js
+coverage/

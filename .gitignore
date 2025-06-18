@@ -1,0 +1,20 @@
+# Logs #
+/logs
+*.log
+*.log*
+
+# Node files #
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn.lock
+.env
+.env.*
+!.env.example
+
+# Typing #
+typings/
+
+# Dist #
+dist/
+tsconfig.build.json

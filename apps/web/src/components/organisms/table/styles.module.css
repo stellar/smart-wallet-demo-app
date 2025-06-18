@@ -1,0 +1,47 @@
+:root {
+  --table-padding: 16px;
+  --table-border-radius: 4px;
+}
+
+.table {
+  border: 1px solid lighten(var(--color-blackish), 0.5);
+  border-radius: var(--table-border-radius);
+  border-spacing: 0;
+
+  & thead {
+    & th {
+      padding: var(--table-padding);
+      border-bottom: 1px solid lighten(var(--color-blackish), 0.5);
+    }
+  }
+
+  & tbody tr {
+    &:last-of-type td {
+      border: 0;
+    }
+
+    & td {
+      border-bottom: 1px solid lighten(var(--color-blackish), 0.5);
+      padding: var(--table-padding);
+    }
+  }
+}
+
+.headerCell {
+  display: flex;
+  align-items: center;
+}
+
+.iconOrderContainer {
+  margin-left: 4px;
+  cursor: pointer;
+  display: flex;
+}
+
+.rotate {
+  transform: rotate(180deg);
+}
+
+.active {
+  color: var(--color-primary);
+}
