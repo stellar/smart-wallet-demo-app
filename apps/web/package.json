@@ -81,7 +81,7 @@
     "start": "vite --port ${PORT:-3000} --host;",
     "start-dev": "npm start",
     "start-staging": "npm start -- --mode staging",
-    "serve": "npm serve -l ${PORT:-3000}  -s dist",
+    "serve": "npx serve -l ${PORT:-3000} -s dist",
     "test": "vitest --config vitest.config.ts",
     "test-coverage": "vitest run --config vitest.config.ts --coverage",
     "storybook": "storybook dev -p 6006",
