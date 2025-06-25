@@ -72,10 +72,10 @@ jobs:
         run: |
           echo "Branch/Tag: " ${{ github.ref }}
           echo "Event: " ${{ github.event_name }}
-          echo "Environment: " ${{ steps.set-outputs.outputs.environment }}
-          echo "Version Number: " ${{ steps.set-outputs.outputs.version_number }}
+          echo "Environment: " ${{ steps.set.outputs.environment }}
+          echo "Version Number: " ${{ steps.set.outputs.version_number }}
           echo "Build Number: " ${{ github.run_number }}
-          echo "Resource name: " ${{ steps.set-outputs.outputs.resource_name }}
+          echo "Resource name: " ${{ steps.set.outputs.resource_name }}
 
   build:
     name: Build Web
