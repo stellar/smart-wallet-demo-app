@@ -74,8 +74,10 @@
     "vitest-canvas-mock": "^0.3.3"
   },
   "scripts": {
-    "setup-dev": "npm install",
-    "clean-setup-dev": "npm ci",
+    "setup-dev-env-vars": "sh -c '[ -f src/config/.env.local ] || cp src/config/.env.example src/config/.env.local'",
+    "setup-test-env-vars": "sh -c '[ -f src/config/.env.test ] || cp src/config/.env.example src/config/.env.test'",
+    "setup-dev": "npm install && npm run setup-dev-env-vars && npm run setup-test-env-vars",
+    "clean-setup-dev": "npm ci && npm run setup-dev-env-vars && npm run setup-test-env-vars",
     "clean-setup": "npm ci --production",
     "build": "tsc && vite build",
     "start": "vite --port ${PORT:-3000} --host;",

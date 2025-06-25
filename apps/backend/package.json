@@ -4,8 +4,10 @@
   "description": "Backend",
   "main": "src/app.ts",
   "scripts": {
-    "setup-dev": "npm install",
-    "clean-setup-dev": "npm ci",
+    "setup-dev-env-vars": "sh -c '[ -f src/config/.env.development ] || cp src/config/.env.example src/config/.env.development'",
+    "setup-test-env-vars": "sh -c '[ -f src/config/.env.test ] || cp src/config/.env.example src/config/.env.test'",
+    "setup-dev": "npm install && npm run setup-dev-env-vars && npm run setup-test-env-vars",
+    "clean-setup-dev": "npm ci && npm run setup-dev-env-vars && npm run setup-test-env-vars",
     "clean-setup": "npm ci --production",
     "build": "tsc -p tsconfig-build.json",
     "start": "NODE_PATH=./dist node dist/app.js",
