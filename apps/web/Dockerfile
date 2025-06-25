@@ -22,7 +22,8 @@ ENV ENVS_TO_REPLACE="PROD VITE_API_URL"
 RUN apk add make bash npm
 RUN npm install -g serve@14.2.3
 COPY package*.json Makefile ./
-COPY apps/web/entrypoint.sh ./
+COPY .husky/install.mjs ./.husky/
+COPY apps/web/package*.json apps/web/entrypoint.sh ./apps/web/
 RUN make clean-setup APP=web
 COPY --from=builder /app/apps/web/dist/ ./apps/web/dist/
-ENTRYPOINT [ "./entrypoint.sh"]
+ENTRYPOINT [ "./apps/web/entrypoint.sh"]
