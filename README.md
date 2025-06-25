@@ -6,16 +6,12 @@ This monorepo provides a complete, modular demo application for a Stellar-based 
 
 This repository is organized as follows:
 
-```
-.
-├── [apps/](./apps)
-│   ├── [backend/](./apps/backend)               # Node.js backend (API)
-│   ├── [web/](./apps/web)                       # React-based web application
-├── [contracts/](./contracts)                    # Smart contracts (e.g., Soroban)
-├── [Makefile](./Makefile)                       # Project-level build and dev commands
-├── [docker-compose.yml](./docker-compose.yml)   # Container orchestration
-└── ...
-```
+- [apps/](./apps)
+  - [backend/](./apps/backend) | Node.js backend (API)
+  - [web/](./apps/web) | React-based web application
+- [contracts/](./contracts) | Smart contracts (e.g., Soroban)
+- [Makefile](./Makefile) | Project-level build and dev commands
+- [docker-compose.yml](./docker-compose.yml) | Container orchestration
 
 ## Requirements
 
