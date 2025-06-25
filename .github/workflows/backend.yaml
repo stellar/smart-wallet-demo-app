@@ -176,7 +176,7 @@ jobs:
   deploy-staging:
     name: Deploy to Heroku (Staging)
     needs: [set-outputs, build, code-quality]
-    if: needs.code-quality.result == 'success' && needs.build.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.resource_name == secrets.HEROKU_BACKEND_APP_NAME_STAGING
+    if: needs.code-quality.result == 'success' && needs.build.result == 'success' && needs.set-outputs.result == 'success'
     uses: ./.github/workflows/backend.deploy.yaml
     with:
       environment: ${{ needs.set-outputs.outputs.environment }}
@@ -188,7 +188,7 @@ jobs:
   deploy-prod-testnet:
     name: Deploy to Heroku (Production Testnet)
     needs: [set-outputs, deploy-staging]
-    if: needs.deploy-staging.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.resource_name == secrets.HEROKU_BACKEND_APP_NAME_PROD_TESTNET
+    if: needs.deploy-staging.result == 'success' && needs.set-outputs.result == 'success'
     uses: ./.github/workflows/backend.deploy.yaml
     with:
       environment: ${{ needs.set-outputs.outputs.environment }}
@@ -201,7 +201,7 @@ jobs:
   deploy-prod-mainnet:
     name: Deploy to Heroku (Production Mainnet)
     needs: [set-outputs, deploy-prod-testnet]
-    if: needs.deploy-prod-testnet.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.resource_name == secrets.HEROKU_BACKEND_APP_NAME_PROD_MAINNET
+    if: needs.deploy-prod-testnet.result == 'success' && needs.set-outputs.result == 'success'
     uses: ./.github/workflows/backend.deploy.yaml
     with:
       environment: ${{ needs.set-outputs.outputs.environment }}
