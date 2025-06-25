@@ -85,10 +85,10 @@ type-check:
 	npm run type-check --workspace=apps/$(APP)
 
 lint:
-	npx eslint .
+	npx --no-install eslint .
 
 lint-fix:
-	npx eslint . --fix
+	npx --no-install eslint . --fix
 
 format-code:
 	npx prettier --write "**/*.{js,jsx,ts,tsx,json,md}"
