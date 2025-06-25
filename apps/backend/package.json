@@ -15,7 +15,7 @@
     "type-check": "tsc --noEmit"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=20"
   },
   "author": "",
   "license": "ISC",

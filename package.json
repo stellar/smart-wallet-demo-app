@@ -10,7 +10,7 @@
     "prepare": "node .husky/install.mjs"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=20"
   },
   "author": "",
   "license": "ISC",

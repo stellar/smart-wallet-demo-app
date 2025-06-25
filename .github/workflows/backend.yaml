@@ -127,14 +127,14 @@ jobs:
     timeout-minutes: 15
     strategy:
       matrix:
-        node: ["22"]
+        node: ["20"]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
