@@ -10,8 +10,7 @@ on:
         type: choice
         options:
           - Code-Quality
-          - Deploy-to-Staging
-          - Deploy-to-Prod(testnet)
+          - Deploy-to-Staging(testnet)
           - Deploy-to-Prod(mainnet)
 
   pull_request:
@@ -21,6 +20,7 @@ on:
       - "develop"
       - "release/*"
       - "feature/*"
+      - "feat/*"
       - "subtask/*"
       - "hotfix/*"
     paths:
@@ -54,14 +54,10 @@ jobs:
         id: set
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Staging" ]]; then
-            echo "environment=Staging" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Staging(testnet)" ]]; then
+            echo "environment=Staging(testnet)" >> $GITHUB_OUTPUT
             echo "version_number=${{ steps.get-version.outputs.version }}" >> $GITHUB_OUTPUT
-            echo "resource_name=${{ secrets.HEROKU_BACKEND_APP_NAME_STAGING }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Prod(testnet)" ]]; then
-            echo "environment=Production(testnet)" >> $GITHUB_OUTPUT
-            echo "version_number=${{ steps.get-version.outputs.version }}" >> $GITHUB_OUTPUT
-            echo "resource_name=${{ secrets.HEROKU_BACKEND_APP_NAME_PROD_TESTNET }}" >> $GITHUB_OUTPUT
+            echo "resource_name=${{ secrets.HEROKU_BACKEND_APP_NAME_STAGING_TESTNET }}" >> $GITHUB_OUTPUT
           elif [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Prod(mainnet)" ]]; then
             echo "environment=Production(mainnet)" >> $GITHUB_OUTPUT
             echo "version_number=${{ steps.get-version.outputs.version }}" >> $GITHUB_OUTPUT
@@ -173,8 +169,8 @@ jobs:
           recreate: true
           path: code-coverage-results.md
 
-  deploy-staging:
-    name: Deploy to Heroku (Staging)
+  deploy-staging-testnet:
+    name: Deploy to Heroku (Staging Testnet)
     needs: [set-outputs, build, code-quality]
     if: needs.code-quality.result == 'success' && needs.build.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment != 'Disabled'
     uses: ./.github/workflows/backend.deploy.yaml
@@ -185,23 +181,10 @@ jobs:
     secrets:
       HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
-  deploy-prod-testnet:
-    name: Deploy to Heroku (Production Testnet)
-    needs: [set-outputs, deploy-staging]
-    if: needs.deploy-staging.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment != 'Disabled'
-    uses: ./.github/workflows/backend.deploy.yaml
-    with:
-      environment: ${{ needs.set-outputs.outputs.environment }}
-      heroku_app_name: ${{ needs.set-outputs.outputs.resource_name }}
-      version: ${{ needs.set-outputs.outputs.version_number }}
-    secrets:
-      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-
-
   deploy-prod-mainnet:
     name: Deploy to Heroku (Production Mainnet)
-    needs: [set-outputs, deploy-prod-testnet]
-    if: needs.deploy-prod-testnet.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment != 'Disabled'
+    needs: [set-outputs, deploy-staging-testnet]
+    if: needs.deploy-staging-testnet.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment != 'Disabled'
     uses: ./.github/workflows/backend.deploy.yaml
     with:
       environment: ${{ needs.set-outputs.outputs.environment }}
