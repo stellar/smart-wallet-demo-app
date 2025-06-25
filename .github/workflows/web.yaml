@@ -145,7 +145,7 @@ jobs:
         run: make clean-setup-dev APP=web
 
       - name: Run linter
-        run: make lint APP=web
+        run: npm install --no-save eslint@8.57.0 && make lint
 
       - name: Copy .env.example to .env.test
         run: |
