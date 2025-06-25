@@ -8,12 +8,12 @@ This repository is organized as follows:
 
 ```
 .
-├── apps/
-│   ├── backend/         # Node.js backend (API)
-│   ├── web/             # React-based web application
-├── contracts/           # Smart contracts (e.g., Soroban)
-├── Makefile             # Project-level build and dev commands
-├── docker-compose.yml   # Container orchestration
+├── [apps/](./apps)
+│   ├── [backend/](./apps/backend)               # Node.js backend (API)
+│   ├── [web/](./apps/web)                       # React-based web application
+├── [contracts/](./contracts)                    # Smart contracts (e.g., Soroban)
+├── [Makefile](./Makefile)                       # Project-level build and dev commands
+├── [docker-compose.yml](./docker-compose.yml)   # Container orchestration
 └── ...
 ```
 
@@ -38,6 +38,7 @@ make docker-start-dev
 Make sure to configure your environment variables before running the apps:
 
 - Backend
+
   - `apps/backend/src/config/.env.example` (used as a reference)
   - `apps/backend/src/config/.env.development`
   - `apps/backend/src/config/.env.test`
@@ -69,24 +70,24 @@ make docker-start-dev PROFILE=web
 
 All workspace apps support the following `make` commands:
 
-| Command             | Description |
-|---------------------|-------------|
-| `setup-dev`         | Installs dependencies and performs initial setup for the app |
-| `clean-setup-dev`   | Removes previous builds and sets up a clean dev environment |
-| `clean-setup`       | Cleans previous installations and prepares for new setup |
-| `build`             | Builds the selected app |
-| `start`             | Starts the app in production mode |
-| `start-dev`         | Starts the app in development mode |
-| `start-staging`     | Starts the app using staging configuration |
-| `test`              | Runs tests for the selected app |
-| `test-coverage`     | Runs tests and shows coverage |
-| `serve`             | Runs a local static server (**only for web**) |
-| `storybook`         | Runs Storybook (**only for web**) |
-| `build-storybook`   | Builds the Storybook static site (**only for web**) |
-| `lint`              | Runs ESLint on the codebase |
-| `lint-fix`          | Auto-fixes linting issues |
-| `type-check`        | Runs TypeScript type checking |
-| `format-code`       | Formats the code using Prettier |
+| Command           | Description                                                  |
+| ----------------- | ------------------------------------------------------------ |
+| `setup-dev`       | Installs dependencies and performs initial setup for the app |
+| `clean-setup-dev` | Removes previous builds and sets up a clean dev environment  |
+| `clean-setup`     | Cleans previous installations and prepares for new setup     |
+| `build`           | Builds the selected app                                      |
+| `start`           | Starts the app in production mode                            |
+| `start-dev`       | Starts the app in development mode                           |
+| `start-staging`   | Starts the app using staging configuration                   |
+| `test`            | Runs tests for the selected app                              |
+| `test-coverage`   | Runs tests and shows coverage                                |
+| `serve`           | Runs a local static server (**only for web**)                |
+| `storybook`       | Runs Storybook (**only for web**)                            |
+| `build-storybook` | Builds the Storybook static site (**only for web**)          |
+| `lint`            | Runs ESLint on the codebase                                  |
+| `lint-fix`        | Auto-fixes linting issues                                    |
+| `type-check`      | Runs TypeScript type checking                                |
+| `format-code`     | Formats the code using Prettier                              |
 
 Use these commands by specifying the `APP` variable. For example:
 
