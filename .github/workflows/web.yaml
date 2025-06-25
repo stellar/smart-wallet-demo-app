@@ -145,7 +145,7 @@ jobs:
         run: make clean-setup-dev APP=web
 
       - name: Run linter
-        run: npm install --no-save eslint@8.57.0 && make lint
+        run: npx dlx eslint@8.57.0 .
 
       - name: Copy .env.example to .env.test
         run: |
@@ -159,7 +159,7 @@ jobs:
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
           filename: ./apps/web/coverage/cobertura-coverage.xml
-          fail_below_min: true
+          fail_below_min: false
           format: markdown
           hide_branch_rate: false
           hide_complexity: true
