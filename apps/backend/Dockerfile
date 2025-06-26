@@ -18,7 +18,8 @@ WORKDIR /app
 ENV DEPLOY_STAGE=remote
 RUN apt-get update && apt-get install -y make openssl
 COPY package*.json Makefile ./
-COPY apps/backend/entrypoint.sh ./
+COPY .husky/install.mjs ./.husky/
+COPY apps/backend/package*.json apps/backend/entrypoint.sh ./apps/backend/
 RUN make clean-setup APP=backend
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
-ENTRYPOINT [ "./entrypoint.sh" ]
+ENTRYPOINT [ "./apps/backend/entrypoint.sh" ]

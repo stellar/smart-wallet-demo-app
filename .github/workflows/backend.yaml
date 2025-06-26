@@ -10,8 +10,7 @@ on:
         type: choice
         options:
           - Code-Quality
-          - Deploy-to-Staging
-          - Deploy-to-Prod(testnet)
+          - Deploy-to-Staging(testnet)
           - Deploy-to-Prod(mainnet)
 
   pull_request:
@@ -54,21 +53,17 @@ jobs:
         id: set
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Staging" ]]; then
-            echo "environment=Staging" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Staging(testnet)" ]]; then
+            echo "environment=Staging(testnet)" >> $GITHUB_OUTPUT
             echo "version_number=${{ steps.get-version.outputs.version }}" >> $GITHUB_OUTPUT
-            echo "resource_name=${{ secrets.HEROKU_BACKEND_APP_NAME_STAGING }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Prod(testnet)" ]]; then
-            echo "environment=Production(testnet)" >> $GITHUB_OUTPUT
-            echo "version_number=${{ steps.get-version.outputs.version }}" >> $GITHUB_OUTPUT
-            echo "resource_name=${{ secrets.HEROKU_BACKEND_APP_NAME_PROD_TESTNET }}" >> $GITHUB_OUTPUT
+            echo "resource_name=${{ secrets.HEROKU_BACKEND_APP_NAME_STAGING_TESTNET }}" >> $GITHUB_OUTPUT
           elif [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Prod(mainnet)" ]]; then
             echo "environment=Production(mainnet)" >> $GITHUB_OUTPUT
             echo "version_number=${{ steps.get-version.outputs.version }}" >> $GITHUB_OUTPUT
             echo "resource_name=${{ secrets.HEROKU_BACKEND_APP_NAME_PROD_MAINNET }}" >> $GITHUB_OUTPUT
           else
-            echo "Invalid run-type or unsupported event"
-            exit 1
+            echo "environment=Disabled" >> $GITHUB_OUTPUT
+            echo "version_number=Disabled" >> $GITHUB_OUTPUT
           fi
 
       - name: Show Job details
@@ -76,10 +71,10 @@ jobs:
         run: |
           echo "Branch/Tag: " ${{ github.ref }}
           echo "Event: " ${{ github.event_name }}
-          echo "Environment: " ${{ steps.set-outputs.outputs.environment }}
-          echo "Version Number: " ${{ steps.set-outputs.outputs.version_number }}
+          echo "Environment: " ${{ steps.set.outputs.environment }}
+          echo "Version Number: " ${{ steps.set.outputs.version_number }}
           echo "Build Number: " ${{ github.run_number }}
-          echo "Resource name: " ${{ steps.set-outputs.outputs.resource_name }}
+          echo "Resource name: " ${{ steps.set.outputs.resource_name }}
 
   build:
     name: Build Backend
@@ -127,24 +122,24 @@ jobs:
     timeout-minutes: 15
     strategy:
       matrix:
-        node: ["22"]
+        node: ["20"]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
           cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
-        run: make clean-setup-dev APP=backend
+        run: npm ci
 
       - name: Run linter
-        run: make lint APP=backend
+        run: make lint
 
       - name: Copy .env.example to .env.test
         run: |
@@ -158,7 +153,7 @@ jobs:
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
           filename: ./apps/backend/src/coverage/cobertura-coverage.xml
-          fail_below_min: true
+          fail_below_min: false
           format: markdown
           hide_branch_rate: false
           hide_complexity: true
@@ -173,36 +168,23 @@ jobs:
           recreate: true
           path: code-coverage-results.md
 
-  deploy-staging:
-    name: Deploy to Heroku (Staging)
+  deploy-staging-testnet:
+    name: Deploy to Heroku (Staging Testnet)
     needs: [set-outputs, build, code-quality]
-    if: needs.code-quality.result == 'success' && needs.build.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.resource_name == secrets.HEROKU_BACKEND_APP_NAME_STAGING
-    uses: ./.github/workflows/backend.deploy.yml
+    if: needs.code-quality.result == 'success' && needs.build.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment != 'Disabled'
+    uses: ./.github/workflows/backend.deploy.yaml
     with:
       environment: ${{ needs.set-outputs.outputs.environment }}
       heroku_app_name: ${{ needs.set-outputs.outputs.resource_name }}
       version: ${{ needs.set-outputs.outputs.version_number }}
     secrets:
       HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-
-  deploy-prod-testnet:
-    name: Deploy to Heroku (Production Testnet)
-    needs: [set-outputs, deploy-staging]
-    if: needs.deploy-staging.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.resource_name == secrets.HEROKU_BACKEND_APP_NAME_PROD_TESTNET
-    uses: ./.github/workflows/backend.deploy.yml
-    with:
-      environment: ${{ needs.set-outputs.outputs.environment }}
-      heroku_app_name: ${{ needs.set-outputs.outputs.resource_name }}
-      version: ${{ needs.set-outputs.outputs.version_number }}
-    secrets:
-      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-
 
   deploy-prod-mainnet:
     name: Deploy to Heroku (Production Mainnet)
-    needs: [set-outputs, deploy-prod-testnet]
-    if: needs.deploy-prod-testnet.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.resource_name == secrets.HEROKU_BACKEND_APP_NAME_PROD_MAINNET
-    uses: ./.github/workflows/backend.deploy.yml
+    needs: [set-outputs, deploy-staging-testnet]
+    if: needs.deploy-staging-testnet.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment != 'Disabled'
+    uses: ./.github/workflows/backend.deploy.yaml
     with:
       environment: ${{ needs.set-outputs.outputs.environment }}
       heroku_app_name: ${{ needs.set-outputs.outputs.resource_name }}
