@@ -45,7 +45,7 @@ jobs:
         run: rustup target add wasm32v1-none
 
       - name: Cache Cargo
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.cargo/bin
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
@@ -58,4 +58,4 @@ jobs:
 
       - name: Test
         run: |
-          make test
+          make test-contracts
