@@ -36,6 +36,14 @@ Before deploying the NFT Smart Contract, ensure the following:
    │       └── Makefile
    ├── nfts
    │   └── images/(0...MAX_SUPPLY - 1).png
+   ├── scripts
+   │   └── deploy-nft-cli.mjs
+   │   └── helpers
+   │       └── contract-helpers.mjs
+   │       └── index.mjs
+   │       └── ipfs-images.mjs
+   │       └── ipfs-helpers.mjs
+   │       └── ipfs-metadatas.mjs
    ├── packages/
    ├── Cargo.toml
    └── README.md
