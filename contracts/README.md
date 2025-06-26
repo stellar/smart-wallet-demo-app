@@ -53,14 +53,14 @@ Before deploying the NFT Smart Contract, ensure the following:
    Run the following command to build the contract and generate the `.wasm` files in the `target/wasm32v1-none/` directory:
 
    ```sh
-   make build
+   make build-contracts
    ```
 
 3. **Run Tests**
    Execute the test suite to ensure the contract works as expected:
 
    ```sh
-   make test
+   make test-contracts
    ```
 
 4. **Deploy the Contract**
