@@ -18,3 +18,9 @@ typings/
 # Dist #
 dist/
 tsconfig.build.json
+
+nfts/
+test_snapshots/
+
+# Rust build Folder #
+target/

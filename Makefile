@@ -1,94 +1,42 @@
-#!make
+# Find all Makefiles in contracts directory
+CONTRACT_MAKEFILES := $(shell find contracts -name Makefile)
 
-COMPOSE = docker compose
-DETACH =
+# Default target
+default: build
 
-PROFILE ?= all    # backend | web | all
-APP ?= backend    # backend | web
+# Execute 'all' target in all contract Makefiles
+all:
+	@for makefile in $(CONTRACT_MAKEFILES); do \
+		echo "Executing 'all' in $$(dirname $$makefile)"; \
+		$(MAKE) -C $$(dirname $$makefile) all; \
+	done
 
-help:
-	@echo ""
-	@echo "Usage:"
-	@echo "  make <command> [PROFILE=backend|web|all] [APP=backend|web] [TEST=<file-name>|<folder-name>]"
-	@echo ""
-	@echo "Docker Compose:"
-	@echo "  docker-setup-dev      Build containers using profile"
-	@echo "  docker-start-dev      Start containers using profile"
-	@echo "  docker-stop-dev       Stop containers using profile"
-	@echo ""
-	@echo "App workspace commands:"
-	@echo "  clean-setup-dev       Run clean-setup-dev on given APP"
-	@echo "  clean-setup           Run clean-setup on given APP"
-	@echo "  setup-dev             Run setup-dev on given APP"
-	@echo "  build                 Run build on given APP"
-	@echo "  start                 Run start on given APP"
-	@echo "  start-dev             Run start-dev on given APP"
-	@echo "  start-staging         Run start-staging on APP"
-	@echo "  serve                 Run serve on APP (only for web)"
-	@echo "  test                  Run test on given APP"
-	@echo "  test-coverage         Run test-coverage on given APP"
-	@echo "  storybook             Run storybook on given APP"
-	@echo "  build-storybook       Run build-storybook on given APP"
-	@echo "  type-check            Run type-check on given APP"
-	@echo "  lint                  Run eslint"
-	@echo "  lint-fix              Run eslint with --fix"
-	@echo "  format-code           Run prettier on codebase"
-
-# Docker Compose commands
-docker-setup-dev:
-	$(COMPOSE) --profile $(PROFILE) build
-
-docker-start-dev:
-	$(COMPOSE) --profile $(PROFILE) up $(DETACH)
-
-docker-stop-dev:
-	$(COMPOSE) --profile $(PROFILE) stop
-
-# NPM workspace commands
-clean-setup-dev:
-	npm run clean-setup-dev --workspace=apps/$(APP)
-
-clean-setup:
-	npm run clean-setup --workspace=apps/$(APP)
-
-setup-dev:
-	npm run setup-dev --workspace=apps/$(APP)
-
+# Execute 'build' target in all contract Makefiles
 build:
-	npm run build --workspace=apps/$(APP)
+	@for makefile in $(CONTRACT_MAKEFILES); do \
+		echo "Executing 'build' in $$(dirname $$makefile)"; \
+		$(MAKE) -C $$(dirname $$makefile) build; \
+	done
 
-start:
-	npm run start --workspace=apps/$(APP)
-
-start-dev:
-	npm run start-dev --workspace=apps/$(APP)
-
-start-staging:
-	npm run start-staging --workspace=apps/$(APP)
-
-serve:
-	npm run serve --workspace=apps/$(APP)
-
+# Execute 'test' target in all contract Makefiles
 test:
-	npm run test ${TEST} --workspace=apps/$(APP)
+	@for makefile in $(CONTRACT_MAKEFILES); do \
+		echo "Executing 'test' in $$(dirname $$makefile)"; \
+		$(MAKE) -C $$(dirname $$makefile) test; \
+	done
 
-test-coverage:
-	npm run test-coverage --workspace=apps/$(APP)
+# Execute 'fmt' target in all contract Makefiles
+fmt:
+	@for makefile in $(CONTRACT_MAKEFILES); do \
+		echo "Executing 'fmt' in $$(dirname $$makefile)"; \
+		$(MAKE) -C $$(dirname $$makefile) fmt; \
+	done
 
-storybook:
-	npm run storybook --workspace=apps/$(APP)
+# Execute 'clean' target in all contract Makefiles
+clean:
+	@for makefile in $(CONTRACT_MAKEFILES); do \
+		echo "Executing 'clean' in $$(dirname $$makefile)"; \
+		$(MAKE) -C $$(dirname $$makefile) clean; \
+	done
 
-build-storybook:
-	npm run build-storybook --workspace=apps/$(APP)
-
-type-check:
-	npm run type-check --workspace=apps/$(APP)
-
-lint:
-	npx eslint .
-
-lint-fix:
-	npx eslint . --fix
-
-format-code:
-	npx prettier --write "**/*.{js,jsx,ts,tsx,json,md}"
+.PHONY: default all build test fmt clean add_network

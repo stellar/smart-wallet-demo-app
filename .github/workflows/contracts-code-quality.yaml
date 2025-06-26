@@ -1,0 +1,59 @@
+name: 'Contracts Code Quality'
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/*
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    paths:
+      - "contracts/**"
+      - "packages/**"
+      - "scripts/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+
+      - name: Install make
+        run: |
+          sudo apt-get install make
+
+      - name: Set Target to wasm32-unknown-unknown
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: Set target to wasm32v1-none
+        run: rustup target add wasm32v1-none
+
+      - name: Cache Cargo
+        uses: actions/cache@v2
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install Stellar
+        run: |
+          sh ./install_stellar.sh
+
+      - name: Test
+        run: |
+          make test

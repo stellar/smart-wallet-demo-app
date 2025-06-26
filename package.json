@@ -15,17 +15,22 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@stellar/stellar-sdk": "^13.3.0",
     "@typescript-eslint/eslint-plugin": "^8.2.0",
     "@typescript-eslint/parser": "^8.2.0",
+    "debug": "^4.4.1",
     "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-prettier": "10.1.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-unicorn": "^55.0.0",
+    "form-data": "^4.0.3",
     "husky": "^9.1.7",
+    "node-fetch": "^3.3.2",
+    "pinata": "^2.4.8",
     "prettier": "^3.3.3"
   }
 }
