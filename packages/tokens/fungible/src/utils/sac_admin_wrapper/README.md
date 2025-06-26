@@ -8,19 +8,19 @@ sequenceDiagram
     participant AdminSigner
     participant SAC as Stellar<br/>Asset<br/>Contract
     actor User as Asset Holder
-    
+
     Note over Issuer,AdminWrapper: 1. Asset Deployment
     Issuer->>SAC: Deploy Stellar Asset Contract
     Note over SAC: Issuer is the initial admin
-    
+
     Note over Issuer,AdminWrapper: 2. AdminWrapper Deployment and Setup
     Issuer->>AdminWrapper: Deploy AdminWrapper with __constructor(SAC, AdminSigner, Minter)
     Note over AdminWrapper: Constructor stores<br/>SAC address,<br/>AdminSigner address, <br/> and Minter address
-    
+
     Note over Issuer,AdminWrapper: 3. Admin Change
     Issuer->>SAC: set_admin(AdminWrapper)
     SAC-->>Issuer: Success (AdminWrapper is now admin)
-    
+
     Note over Minter,AdminWrapper: 4. Admin Functions<br/>via AdminWrapper
     Minter->>AdminWrapper: mint(User, 1000)
     activate AdminWrapper
@@ -39,5 +39,5 @@ sequenceDiagram
     deactivate SAC
     AdminWrapper-->>Minter: Success
     deactivate AdminWrapper
-    
+
 ```

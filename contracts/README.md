@@ -79,5 +79,6 @@ Before deploying the NFT Smart Contract, ensure the following:
    ```
 
    **Note:**
+
    - To reduce terminal output, omit the `--verbose` flag.
    - Use the `--production` flag to deploy to the Stellar mainnet (currently under development).
