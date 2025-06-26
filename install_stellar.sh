@@ -17,8 +17,6 @@ if ! which cargo >/dev/null; then
 fi
 
 rustup target add wasm32v1-none
-rustup target add wasm32-unknown-unknown
-
 
 if ! which stellar >/dev/null; then
   # installs stellar
