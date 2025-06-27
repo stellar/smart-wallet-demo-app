@@ -2,7 +2,7 @@ import 'config/env'
 
 import { exceptionMiddleware } from 'api/core/middlewares/exception'
 import { httpLoggerMiddleware } from 'api/core/middlewares/http-logger'
-import { iniLogMetadata } from 'api/core/middlewares/init-log-metadata'
+import { initLogMetadata } from 'api/core/middlewares/init-log-metadata'
 import { interceptResponseDataMiddleware } from 'api/core/middlewares/intercept-response-data'
 import { requestIdMiddleware } from 'api/core/middlewares/request-id'
 import { routes } from 'api/core/routes'
@@ -34,7 +34,7 @@ class Application {
 
       this.server.use(requestIdMiddleware)
       this.server.use(interceptResponseDataMiddleware)
-      this.server.use(iniLogMetadata)
+      this.server.use(initLogMetadata)
       this.server.use(httpLoggerMiddleware())
 
       // API ROUTES

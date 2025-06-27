@@ -4,9 +4,9 @@ import { AppIcon, AppIconNames, Avatar, Button, Typography } from 'src/component
 
 type Props = {
   isAuthenticated: () => boolean
-  loggedInLabel: string
-  userName: string
-  onSignOut: () => Promise<void>
+  loggedInLabel?: string
+  userName?: string
+  onSignOut?: () => Promise<void>
   children: React.ReactNode
   links?: React.ReactNode
 }
@@ -17,16 +17,22 @@ export function Header({ isAuthenticated, loggedInLabel, userName, onSignOut, li
       return <Typography>You are not logged in</Typography>
     }
 
+    if (!(userName || loggedInLabel || onSignOut)) {
+      return <Typography>Welcome</Typography>
+    }
+
     return (
       <div className="flex flex-row gap-2 items-center">
-        <Avatar name={userName} />
-        <Typography>{loggedInLabel}</Typography>
-        <Button
-          icon={<AppIcon name={AppIconNames.logOut} />}
-          iconPosition={'right'}
-          onClick={onSignOut}
-          label="Sign out"
-        />
+        {userName && <Avatar name={userName} />}
+        {loggedInLabel && <Typography>{loggedInLabel}</Typography>}
+        {onSignOut && (
+          <Button
+            icon={<AppIcon name={AppIconNames.logOut} />}
+            iconPosition={'right'}
+            onClick={onSignOut}
+            label="Sign out"
+          />
+        )}
       </div>
     )
   }

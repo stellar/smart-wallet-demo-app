@@ -8,7 +8,6 @@ import { useAuthStore } from 'src/app/auth/store/auth-store'
 const LINK_LABELS = ['Home', 'Dashboard']
 const USER: User = {
   email: 'john.doe@test.com',
-  name: 'John Doe',
 }
 
 // FUNCTIONS
@@ -46,11 +45,8 @@ describe('Layout Component', () => {
     renderComponent()
 
     await waitFor(() => {
-      const welcomeMessage = screen.getByText(`Welcome, ${USER.name}`)
+      const welcomeMessage = screen.getByText(`Welcome`)
       expect(welcomeMessage).toBeInTheDocument()
-
-      const signOutButton = screen.getByRole('button', { name: 'Sign out' })
-      expect(signOutButton).toBeInTheDocument()
     })
   })
 })

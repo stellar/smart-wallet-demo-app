@@ -13,12 +13,12 @@ export const requireAuth = ({ location }: { location: ParsedLocation<object> }) 
     const { isAuthenticated } = useAuthStore.getState()
 
     if (!isAuthenticated()) {
-      // Redirect them to the /signin page, but save the current location they were
+      // Redirect them to the /welcome page, but save the current location they were
       // trying to go to when they were redirected. This allows us to send them
       // along to that page after they login, which is a nicer user experience
       // than dropping them off on the home page.
       throw redirect({
-        to: '/signin',
+        to: '/welcome',
         search: {
           redirect: location.href,
         },

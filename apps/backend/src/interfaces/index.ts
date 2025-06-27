@@ -9,8 +9,4 @@ if (!isTestEnv()) {
   server.listen(process.env.PORT)
 }
 
-//AWS LOAD BALANCE FIX
-server.keepAliveTimeout = 61 * 1000
-server.headersTimeout = 65 * 1000
-
 export { http }

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 
-export function iniLogMetadata(_req: Request, res: Response, next: NextFunction): void {
+export function initLogMetadata(_req: Request, res: Response, next: NextFunction): void {
   res.locals.logMetadata = new Set()
 
   const onResponseComplete = (): void => {
