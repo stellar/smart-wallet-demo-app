@@ -35,6 +35,6 @@ jobs:
     uses: ./.github/workflows/web.build.yaml
 
   code-quality:
-    name: Code Quality
+    name: Code quality
     needs: [build]
     uses: ./.github/workflows/web.code-quality.yaml
