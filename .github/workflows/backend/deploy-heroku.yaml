@@ -1,0 +1,60 @@
+name: Backend Deploy to Heroku
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      heroku_app_name:
+        type: string
+        required: true
+      version:
+        type: string
+        required: true
+    secrets:
+      HEROKU_API_KEY:
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy to Heroku
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.environment }}
+    env:
+      HEROKU_APP_NAME: ${{ inputs.heroku_app_name }}
+    permissions:
+      contents: "read"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Heroku Container Registry
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
+
+      - name: Download built image
+        uses: actions/download-artifact@v4
+        with:
+          name: docker_image_backend
+          path: /tmp
+
+      - name: Load, tag and push Docker image
+        run: |
+          docker load --input /tmp/docker_image_backend.tar
+          docker tag build-backend:${{ inputs.version }} registry.heroku.com/$HEROKU_APP_NAME/web
+          docker image ls -a
+          docker push registry.heroku.com/$HEROKU_APP_NAME/web
+
+      - name: Release Heroku App
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          curl -n -X POST https://api.heroku.com/apps/$HEROKU_APP_NAME/releases \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
+            -H "Authorization: Bearer $HEROKU_API_KEY" \
+            -d '{"updates":[{"type":"web","docker_image":"registry.heroku.com/'"$HEROKU_APP_NAME"'/web"}]}'

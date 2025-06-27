@@ -1,18 +1,6 @@
 name: Web CI/CD
 
 on:
-  workflow_dispatch:
-    inputs:
-      run-type:
-        description: "Run option"
-        required: true
-        default: "Code-Quality"
-        type: choice
-        options:
-          - Code-Quality
-          - Deploy-to-Staging(testnet)
-          - Deploy-to-Prod(mainnet)
-
   pull_request:
     types: [opened, reopened, synchronize]
     branches:
@@ -34,161 +22,19 @@ on:
 jobs:
   set-outputs:
     name: Set outputs
-    runs-on: ubuntu-latest
-    timeout-minutes: 1
-    outputs:
-      environment: ${{ steps.set.outputs.environment }}
-      version_number: ${{ steps.set.outputs.version_number }}
-      resource_name: ${{ steps.set.outputs.resource_name }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Get Web app version
-        id: get-version
-        run: |
-          VERSION=$(jq -r '.version' apps/web/package.json)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Set outputs for next jobs
-        id: set
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Staging(testnet)" ]]; then
-            echo "environment=Staging(testnet)" >> $GITHUB_OUTPUT
-            echo "version_number=${{ steps.get-version.outputs.version }}" >> $GITHUB_OUTPUT
-            echo "resource_name=${{ secrets.HEROKU_WEB_APP_NAME_STAGING_TESTNET }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Prod(mainnet)" ]]; then
-            echo "environment=Production(mainnet)" >> $GITHUB_OUTPUT
-            echo "version_number=${{ steps.get-version.outputs.version }}" >> $GITHUB_OUTPUT
-            echo "resource_name=${{ secrets.HEROKU_WEB_APP_NAME_PROD_MAINNET }}" >> $GITHUB_OUTPUT
-          else
-            echo "environment=Disabled" >> $GITHUB_OUTPUT
-            echo "version_number=Disabled" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Show Job details
-        shell: bash
-        run: |
-          echo "Branch/Tag: " ${{ github.ref }}
-          echo "Event: " ${{ github.event_name }}
-          echo "Environment: " ${{ steps.set.outputs.environment }}
-          echo "Version Number: " ${{ steps.set.outputs.version_number }}
-          echo "Build Number: " ${{ github.run_number }}
-          echo "Resource name: " ${{ steps.set.outputs.resource_name }}
+    uses: ./.github/workflows/web/set-outputs.yaml
+    with:
+      run-type: ${{ inputs.run-type }}
+    secrets:
+      HEROKU_APP_NAME_STAGING_TESTNET: ${{ secrets.HEROKU_WEB_APP_NAME_STAGING_TESTNET }}
+      HEROKU_APP_NAME_PROD_MAINNET: ${{ secrets.HEROKU_WEB_APP_NAME_PROD_MAINNET }}
 
   build:
-    name: Build Web
-    runs-on: ubuntu-latest
-    needs: ["set-outputs"]
-    timeout-minutes: 10
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Get Web app version
-        id: get-version
-        run: |
-          VERSION=$(jq -r '.version' apps/web/package.json)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          platforms: linux/amd64
-          file: apps/web/Dockerfile
-          target: remote
-          push: false
-          tags: build-web:${{ steps.get-version.outputs.version }}
-          outputs: type=docker,dest=/tmp/docker_image_web.tar
-
-      - name: Upload image artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker_image_web
-          path: /tmp/docker_image_web.tar
+    name: Build web
+    needs: [set-outputs]
+    uses: ./.github/workflows/web/build.yaml
 
   code-quality:
     name: Code Quality
-    runs-on: ubuntu-latest
     needs: [build]
-    timeout-minutes: 15
-    strategy:
-      matrix:
-        node: ["20"]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
-          cache-dependency-path: "package-lock.json"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run linter
-        run: make lint
-
-      - name: Copy .env.example to .env.test
-        run: |
-          cp ./apps/web/src/config/.env.example ./apps/web/src/config/.env.test
-          sed -i 's/NODE_ENV=.*/NODE_ENV="test"/g' ./apps/web/src/config/.env.test
-
-      - name: Run tests
-        run: make test-coverage APP=web
-
-      - name: Code Coverage Report
-        uses: irongut/CodeCoverageSummary@v1.3.0
-        with:
-          filename: ./apps/web/coverage/cobertura-coverage.xml
-          fail_below_min: false
-          format: markdown
-          hide_branch_rate: false
-          hide_complexity: true
-          indicators: true
-          output: both
-          thresholds: "80 80"
-
-      - name: Add Coverage PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
-        if: github.event_name == 'pull_request'
-        with:
-          recreate: true
-          path: code-coverage-results.md
-
-  deploy-staging-testnet:
-    name: Deploy to Heroku (Staging Testnet)
-    needs: [set-outputs, build, code-quality]
-    if: needs.code-quality.result == 'success' && needs.build.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment != 'Disabled'
-    uses: ./.github/workflows/web.deploy.yaml
-    with:
-      environment: ${{ needs.set-outputs.outputs.environment }}
-      heroku_app_name: ${{ needs.set-outputs.outputs.resource_name }}
-      version: ${{ needs.set-outputs.outputs.version_number }}
-    secrets:
-      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-
-  deploy-prod-mainnet:
-    name: Deploy to Heroku (Production Mainnet)
-    needs: [set-outputs, deploy-staging-testnet]
-    if: needs.deploy-staging-testnet.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment != 'Disabled'
-    uses: ./.github/workflows/web.deploy.yaml
-    with:
-      environment: ${{ needs.set-outputs.outputs.environment }}
-      heroku_app_name: ${{ needs.set-outputs.outputs.resource_name }}
-      version: ${{ needs.set-outputs.outputs.version_number }}
-    secrets:
-      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+    uses: ./.github/workflows/web/code-quality.yaml
