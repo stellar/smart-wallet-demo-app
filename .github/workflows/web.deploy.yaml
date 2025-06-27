@@ -1,4 +1,4 @@
-name: Web CI/CD
+name: Web Deploy
 
 on:
   workflow_dispatch:
