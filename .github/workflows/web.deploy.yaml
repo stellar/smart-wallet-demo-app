@@ -16,7 +16,7 @@ on:
 jobs:
   set-outputs:
     name: Set outputs
-    uses: ./.github/actions/web/set-outputs.yaml
+    uses: ./.github/workflows/web.set-outputs.yaml
     with:
       run-type: ${{ inputs.run-type }}
     secrets:
@@ -26,18 +26,18 @@ jobs:
   build:
     name: Build web
     needs: [set-outputs]
-    uses: ./.github/actions/web/build.yaml
+    uses: ./.github/workflows/web.build.yaml
 
   code-quality:
     name: Code Quality
     needs: [build]
-    uses: ./.github/actions/web/code-quality.yaml
+    uses: ./.github/workflows/web.code-quality.yaml
 
   deploy-staging-testnet:
     name: Deploy to Heroku (Staging Testnet)
     needs: [set-outputs, build, code-quality]
     if: needs.code-quality.result == 'success' && needs.build.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment != 'Disabled'
-    uses: ./.github/actions/web/deploy-heroku.yaml
+    uses: ./.github/workflows/web.deploy-heroku.yaml
     with:
       environment: ${{ needs.set-outputs.outputs.environment }}
       heroku_app_name: ${{ needs.set-outputs.outputs.resource_name }}
@@ -49,7 +49,7 @@ jobs:
     name: Deploy to Heroku (Production Mainnet)
     needs: [set-outputs, deploy-staging-testnet]
     if: needs.deploy-staging-testnet.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment != 'Disabled'
-    uses: ./.github/actions/web/deploy-heroku.yaml
+    uses: ./.github/workflows/web.deploy-heroku.yaml
     with:
       environment: ${{ needs.set-outputs.outputs.environment }}
       heroku_app_name: ${{ needs.set-outputs.outputs.resource_name }}

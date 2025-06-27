@@ -21,7 +21,7 @@ on:
 jobs:
   set-outputs:
     name: Set outputs
-    uses: ./.github/actions/backend/set-outputs.yaml
+    uses: ./.github/workflows/backend.set-outputs.yaml
     with:
       run-type: ${{ inputs.run-type }}
     secrets:
@@ -31,9 +31,9 @@ jobs:
   build:
     name: Build backend
     needs: [set-outputs]
-    uses: ./.github/actions/backend/build.yaml
+    uses: ./.github/workflows/backend.build.yaml
 
   code-quality:
     name: Code Quality
     needs: [build]
-    uses: ./.github/actions/backend/code-quality.yaml
+    uses: ./.github/workflows/backend.code-quality.yaml

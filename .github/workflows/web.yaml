@@ -22,7 +22,7 @@ on:
 jobs:
   set-outputs:
     name: Set outputs
-    uses: ./.github/actions/web/set-outputs.yaml
+    uses: ./.github/workflows/web.set-outputs.yaml
     with:
       run-type: ${{ inputs.run-type }}
     secrets:
@@ -32,9 +32,9 @@ jobs:
   build:
     name: Build web
     needs: [set-outputs]
-    uses: ./.github/actions/web/build.yaml
+    uses: ./.github/workflows/web.build.yaml
 
   code-quality:
     name: Code Quality
     needs: [build]
-    uses: ./.github/actions/web/code-quality.yaml
+    uses: ./.github/workflows/web.code-quality.yaml
