@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { redactUrlParams } from '../utils/redact-url-params'
 import { redactUrlQueryParams } from '../utils/redact-url-query-params'
 import { LOGGER_SERIALIZERS, loggerRedactPaths, REDACT_CENSOR } from './redact'

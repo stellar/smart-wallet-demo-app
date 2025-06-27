@@ -52,7 +52,6 @@ export abstract class UseCaseBase<UseCaseResponse extends BaseResponseSchema = B
     if (!request.success && request.error instanceof ZodError) {
       throw new ZodValidationException(request.error)
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return request.data as z.infer<typeof schema>
   }
 

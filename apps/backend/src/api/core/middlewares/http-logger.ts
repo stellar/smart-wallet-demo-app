@@ -14,12 +14,7 @@ import pinoHttpLogger, { HttpLogger } from 'pino-http'
 import { pinoLogger } from 'config/logger'
 
 export function httpLoggerMiddleware(): HttpLogger {
-  // pinoLogger instance does not match logger type but works
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   return pinoHttpLogger({
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     logger: pinoLogger,
     genReqId: (req: Request) => {
       return req.requestId || randomUUID()
@@ -44,7 +39,7 @@ export function httpLoggerMiddleware(): HttpLogger {
       return { ...object, ...customProps(res as Response) }
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    customErrorObject: (req, res, object): any => {
+    customErrorObject: (_req, res, object): any => {
       return { ...object, ...customProps(res as Response) }
     },
     customSuccessMessage: (req, res) => {
@@ -65,7 +60,7 @@ export function httpLoggerMiddleware(): HttpLogger {
         return REDACT_CENSOR
       },
     },
-  })
+  }) as unknown as HttpLogger
 }
 
 function customProps(res: Response): Record<string, unknown> {
@@ -74,7 +69,7 @@ function customProps(res: Response): Record<string, unknown> {
   const metadata =
     res?.locals?.logMetadata && res.locals.logMetadata.size > 0
       ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore spread into Object.assign works but TS is not happy
+        // @ts-ignore
         Object.assign(...Array.from(res.locals.logMetadata))
       : {}
 

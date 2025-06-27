@@ -6,6 +6,7 @@ type ExpectedState<State, T = unknown> = {
   state: (state: State) => T
   expected?: T
   customAssert?: (value: T) => void
+  customEqualityTest?: keyof jest.Matchers<void, T>
 }
 
 type ZustandTest<S, T extends StoreApi<S>> = {
@@ -29,9 +30,8 @@ export const testZustand = async <S,>(zustand: ZustandTest<S, StoreApi<S>>): Pro
     if (!expectedState) {
       throw new Error(`Expected state not found ${JSON.stringify(state)}. State Index: ${stateCount}`)
     }
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    const matcher = expectedState.customEqualityTest ?? 'toBe'
+    expect(expectedState.state(state))[matcher](expectedState.expected)
     expect(expectedState.state(state))[expectedState.customEqualityTest ?? 'toBe'](expectedState.expected)
 
     stateCount++
