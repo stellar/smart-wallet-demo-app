@@ -6,11 +6,6 @@ on:
       run-type:
         type: string
         required: true
-    secrets:
-      HEROKU_APP_NAME_STAGING_TESTNET:
-        required: true
-      HEROKU_APP_NAME_PROD_MAINNET:
-        required: true
     outputs:
       environment:
         description: "Deployment environment"
@@ -18,9 +13,6 @@ on:
       version_number:
         description: "App version"
         value: ${{ jobs.set-outputs.outputs.version_number }}
-      resource_name:
-        description: "Resource name"
-        value: ${{ jobs.set-outputs.outputs.resource_name }}
 
 jobs:
   set-outputs:
@@ -30,7 +22,6 @@ jobs:
     outputs:
       environment: ${{ steps.set.outputs.environment }}
       version_number: ${{ steps.set.outputs.version_number }}
-      resource_name: ${{ steps.set.outputs.resource_name }}
 
     steps:
       - uses: actions/checkout@v4
@@ -48,15 +39,12 @@ jobs:
           if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Staging-Testnet" ]]; then
             echo "environment=Staging-Testnet" >> $GITHUB_OUTPUT
             echo "version_number=${{ steps.get-version.outputs.version }}" >> $GITHUB_OUTPUT
-            echo "resource_name=${{ secrets.HEROKU_APP_NAME_STAGING_TESTNET }}" >> $GITHUB_OUTPUT
           elif [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Prod-Mainnet" ]]; then
             echo "environment=Production-Mainnet" >> $GITHUB_OUTPUT
             echo "version_number=${{ steps.get-version.outputs.version }}" >> $GITHUB_OUTPUT
-            echo "resource_name=${{ secrets.HEROKU_APP_NAME_PROD_MAINNET }}" >> $GITHUB_OUTPUT
           else
             echo "environment=Disabled" >> $GITHUB_OUTPUT
             echo "version_number=Disabled" >> $GITHUB_OUTPUT
-            echo "resource_name=Disabled" >> $GITHUB_OUTPUT
           fi
 
       - name: Show Job details

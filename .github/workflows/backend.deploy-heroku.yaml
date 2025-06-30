@@ -6,13 +6,12 @@ on:
       environment:
         type: string
         required: true
-      heroku_app_name:
-        type: string
-        required: true
       version:
         type: string
         required: true
     secrets:
+      HEROKU_APP_NAME:
+        required: true
       HEROKU_API_KEY:
         required: true
 
@@ -22,8 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: ${{ inputs.environment }}
-    env:
-      HEROKU_APP_NAME: ${{ inputs.heroku_app_name }}
     permissions:
       contents: "read"
 
@@ -43,6 +40,8 @@ jobs:
           path: /tmp
 
       - name: Load, tag and push Docker image
+        env:
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
         run: |
           docker load --input /tmp/docker_image_backend.tar
           docker tag build-backend:${{ inputs.version }} registry.heroku.com/$HEROKU_APP_NAME/web
@@ -51,6 +50,7 @@ jobs:
 
       - name: Release Heroku App
         env:
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
           curl -n -X POST https://api.heroku.com/apps/$HEROKU_APP_NAME/releases \
