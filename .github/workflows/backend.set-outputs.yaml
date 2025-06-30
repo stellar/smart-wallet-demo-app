@@ -35,12 +35,12 @@ jobs:
         id: set
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Staging(testnet)" ]]; then
-            echo "environment=Staging(testnet)" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Staging-Testnet" ]]; then
+            echo "environment=Staging-Testnet" >> $GITHUB_OUTPUT
             echo "version_number=${{ steps.get-version.outputs.version }}" >> $GITHUB_OUTPUT
             echo "resource_name=${{ secrets.HEROKU_APP_NAME_STAGING_TESTNET }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Prod(mainnet)" ]]; then
-            echo "environment=Production(mainnet)" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Prod-Mainnet" ]]; then
+            echo "environment=Production-Mainnet" >> $GITHUB_OUTPUT
             echo "version_number=${{ steps.get-version.outputs.version }}" >> $GITHUB_OUTPUT
             echo "resource_name=${{ secrets.HEROKU_APP_NAME_PROD_MAINNET }}" >> $GITHUB_OUTPUT
           else
@@ -52,9 +52,8 @@ jobs:
       - name: Show Job details
         shell: bash
         run: |
-          echo "Branch/Tag: " ${{ github.ref }}
-          echo "Event: " ${{ github.event_name }}
-          echo "Environment: " ${{ steps.set.outputs.environment }}
-          echo "Version Number: " ${{ steps.set.outputs.version_number }}
-          echo "Build Number: " ${{ github.run_number }}
-          echo "Resource name: " ${{ steps.set.outputs.resource_name }}
+          echo "Branch/Tag: ${{ github.ref }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Environment: ${{ steps.set.outputs.environment }}"
+          echo "Version Number: ${{ steps.set.outputs.version_number }}"
+          echo "Build Number: ${{ github.run_number }}"
