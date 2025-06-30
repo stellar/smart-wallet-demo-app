@@ -57,4 +57,5 @@ jobs:
             -H "Content-Type: application/json" \
             -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
             -H "Authorization: Bearer $HEROKU_API_KEY" \
-            -d '{"updates":[{"type":"web","docker_image":"registry.heroku.com/'"$HEROKU_APP_NAME"'/web"}]}'
+            -d "$(jq -n --arg image "registry.heroku.com/$HEROKU_APP_NAME/web" \
+              '{updates: [{type: "web", docker_image: $image}]}')"
