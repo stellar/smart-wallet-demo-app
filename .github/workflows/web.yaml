@@ -1,0 +1,40 @@
+name: Web CI/CD
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - "main"
+      - "develop"
+      - "release/*"
+      - "feature/*"
+      - "subtask/*"
+      - "hotfix/*"
+    paths:
+      - "apps/web/**/*.js"
+      - "apps/web/**/*.ts"
+      - "apps/web/**/*.tsx"
+      - "apps/web/**/*.json"
+      - "apps/web/**/*.lock"
+      - "apps/web/Dockerfile"
+      - "apps/web/src/**"
+
+jobs:
+  set-outputs:
+    name: Set outputs
+    uses: ./.github/workflows/web.set-outputs.yaml
+    with:
+      run-type: ${{ inputs.run-type }}
+    secrets:
+      HEROKU_APP_NAME_STAGING_TESTNET: ${{ secrets.HEROKU_WEB_APP_NAME_STAGING_TESTNET }}
+      HEROKU_APP_NAME_PROD_MAINNET: ${{ secrets.HEROKU_WEB_APP_NAME_PROD_MAINNET }}
+
+  build:
+    name: Build web
+    needs: [set-outputs]
+    uses: ./.github/workflows/web.build.yaml
+
+  code-quality:
+    name: Code quality
+    needs: [build]
+    uses: ./.github/workflows/web.code-quality.yaml

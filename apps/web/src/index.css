@@ -1,0 +1,5 @@
+@import 'components/atoms/custom-icon/style.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

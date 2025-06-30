@@ -1,0 +1,6 @@
+# Application specific ignores
+/.pnp
+.pnp.js
+/build
+storybook-static/
+.idea/

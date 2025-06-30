@@ -1,0 +1,65 @@
+:root {
+  /* Add as many colors as your project need */
+  --color-primary: #ff8b9f;
+  --color-secondary: #5ddeda;
+  --color-text: #000;
+  --color-background: #fff;
+  --color-whitish: #fff;
+  --color-blackish: #000;
+  --color-accent: #609;
+  --color-muted: #f6f6f6;
+  --color-success: #2fa968;
+  --color-danger: #ff3636;
+
+  --font-size-xxxs: 0.5rem;
+  /**  8px */
+  --font-size-xxs: 0.625rem;
+  /** 10px */
+  --font-size-xs: 0.75rem;
+  /**  12px */
+  --font-size-sm: 0.875rem;
+  /** 14px */
+  --font-size-md: 1rem;
+  /**  16px */
+  --font-size-lg: 1.25rem;
+  /**  20px */
+  --font-size-xl: 1.5rem;
+  /**  24px */
+  --font-size-2xl: 2rem;
+  /** 32px */
+  --font-size-3xl: 2.5rem;
+  /** 40px **/
+  --font-size-4xl: 3rem;
+  /** 48px */
+
+  --font-family: 'Lato', sans-serif;
+  --font-font-style: normal;
+
+  --font-weight-lighter: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-bolder: 900;
+
+  --border-radius-small: 4px;
+  --border-radius-default: 8px;
+  --border-radius-large: 12px;
+  --border-radius-full: 999999px;
+
+  --line-height-none: 100%;
+  --line-height-tight: 110%;
+  --line-height-normal: 120%;
+  --line-height-loose: 130%;
+}
+
+.dark {
+  /* Override some colors for dark mode */
+  --color-text: #fff;
+  --color-background: #000;
+  --color-whitish: #000;
+  --color-blackish: #fff;
+}

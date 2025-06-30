@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "lib": ["dom"]
+  },
+  "exclude": [
+    "./node_modules/*.ts",
+    "dist",
+    "**/fixtures/*.ts",
+    "**/fixtures.ts",
+    "**/factory.ts",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/setup-tests.ts"
+  ]
+}

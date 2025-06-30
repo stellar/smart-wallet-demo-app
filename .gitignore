@@ -1,0 +1,53 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+Thumbs.db
+Desktop.ini
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+/logs
+*.log
+*.log*
+*.tsbuildinfo
+
+# Build output
+dist/
+build/
+out/
+.next/
+.cache/
+coverage/
+lib/
+tsconfig.build.json
+
+# Editor/IDE config
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+
+# Typing
+typings/
+
+# OS-specific
+ehthumbs.db
+.Spotlight-V100
+.Trashes
+
+# Other Git-related
+.gitignore.local

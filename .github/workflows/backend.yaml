@@ -1,0 +1,39 @@
+name: Backend CI/CD
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - "main"
+      - "develop"
+      - "release/*"
+      - "feature/*"
+      - "subtask/*"
+      - "hotfix/*"
+    paths:
+      - "apps/backend/**/*.js"
+      - "apps/backend/**/*.ts"
+      - "apps/backend/**/*.json"
+      - "apps/backend/**/*.lock"
+      - "apps/backend/Dockerfile"
+      - "apps/backend/src/**"
+
+jobs:
+  set-outputs:
+    name: Set outputs
+    uses: ./.github/workflows/backend.set-outputs.yaml
+    with:
+      run-type: ${{ inputs.run-type }}
+    secrets:
+      HEROKU_APP_NAME_STAGING_TESTNET: ${{ secrets.HEROKU_BACKEND_APP_NAME_STAGING_TESTNET }}
+      HEROKU_APP_NAME_PROD_MAINNET: ${{ secrets.HEROKU_BACKEND_APP_NAME_PROD_MAINNET }}
+
+  build:
+    name: Build backend
+    needs: [set-outputs]
+    uses: ./.github/workflows/backend.build.yaml
+
+  code-quality:
+    name: Code quality
+    needs: [build]
+    uses: ./.github/workflows/backend.code-quality.yaml

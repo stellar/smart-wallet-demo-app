@@ -1,0 +1,58 @@
+name: Backend Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      run-type:
+        description: "Run option"
+        required: true
+        default: "Deploy-to-Staging(testnet)"
+        type: choice
+        options:
+          - Code-Quality
+          - Deploy-to-Staging(testnet)
+          - Deploy-to-Prod(mainnet)
+
+jobs:
+  set-outputs:
+    name: Set outputs
+    uses: ./.github/workflows/backend.set-outputs.yaml
+    with:
+      run-type: ${{ inputs.run-type }}
+    secrets:
+      HEROKU_APP_NAME_STAGING_TESTNET: ${{ secrets.HEROKU_BACKEND_APP_NAME_STAGING_TESTNET }}
+      HEROKU_APP_NAME_PROD_MAINNET: ${{ secrets.HEROKU_BACKEND_APP_NAME_PROD_MAINNET }}
+
+  build:
+    name: Build backend
+    needs: [set-outputs]
+    uses: ./.github/workflows/backend.build.yaml
+
+  code-quality:
+    name: Code quality
+    needs: [build]
+    uses: ./.github/workflows/backend.code-quality.yaml
+
+  deploy-staging-testnet:
+    name: Deploy to Heroku (Staging Testnet)
+    needs: [set-outputs, build, code-quality]
+    if: needs.code-quality.result == 'success' && needs.build.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment != 'Disabled'
+    uses: ./.github/workflows/backend.deploy-heroku.yaml
+    with:
+      environment: ${{ needs.set-outputs.outputs.environment }}
+      heroku_app_name: ${{ needs.set-outputs.outputs.resource_name }}
+      version: ${{ needs.set-outputs.outputs.version_number }}
+    secrets:
+      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+  deploy-prod-mainnet:
+    name: Deploy to Heroku (Production Mainnet)
+    needs: [set-outputs, deploy-staging-testnet]
+    if: needs.deploy-staging-testnet.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment != 'Disabled'
+    uses: ./.github/workflows/backend.deploy-heroku.yaml
+    with:
+      environment: ${{ needs.set-outputs.outputs.environment }}
+      heroku_app_name: ${{ needs.set-outputs.outputs.resource_name }}
+      version: ${{ needs.set-outputs.outputs.version_number }}
+    secrets:
+      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
