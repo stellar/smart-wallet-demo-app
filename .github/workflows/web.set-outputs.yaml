@@ -11,6 +11,16 @@ on:
         required: true
       HEROKU_APP_NAME_PROD_MAINNET:
         required: true
+    outputs:
+      environment:
+        description: "Deployment environment"
+        value: ${{ jobs.set-outputs.outputs.environment }}
+      version_number:
+        description: "App version"
+        value: ${{ jobs.set-outputs.outputs.version_number }}
+      resource_name:
+        description: "Resource name"
+        value: ${{ jobs.set-outputs.outputs.resource_name }}
 
 jobs:
   set-outputs:
