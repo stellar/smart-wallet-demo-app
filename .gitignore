@@ -25,14 +25,12 @@ pnpm-debug.log*
 *.tsbuildinfo
 
 # Build output
-dist/
 build/
 out/
 .next/
 .cache/
 coverage/
 lib/
-tsconfig.build.json
 
 # Editor/IDE config
 .vscode/
