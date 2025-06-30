@@ -19,9 +19,6 @@ jobs:
     uses: ./.github/workflows/backend.set-outputs.yaml
     with:
       run-type: ${{ inputs.run-type }}
-    secrets:
-      HEROKU_APP_NAME_STAGING_TESTNET: ${{ secrets.HEROKU_BACKEND_APP_NAME_STAGING_TESTNET }}
-      HEROKU_APP_NAME_PROD_MAINNET: ${{ secrets.HEROKU_BACKEND_APP_NAME_PROD_MAINNET }}
 
   build:
     name: Build backend
@@ -40,9 +37,9 @@ jobs:
     uses: ./.github/workflows/backend.deploy-heroku.yaml
     with:
       environment: ${{ needs.set-outputs.outputs.environment }}
-      heroku_app_name: ${{ needs.set-outputs.outputs.resource_name }}
       version: ${{ needs.set-outputs.outputs.version_number }}
     secrets:
+      HEROKU_APP_NAME: ${{ secrets.HEROKU_BACKEND_APP_NAME_STAGING_TESTNET }}
       HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
   deploy-prod-mainnet:
@@ -52,7 +49,7 @@ jobs:
     uses: ./.github/workflows/backend.deploy-heroku.yaml
     with:
       environment: ${{ needs.set-outputs.outputs.environment }}
-      heroku_app_name: ${{ needs.set-outputs.outputs.resource_name }}
       version: ${{ needs.set-outputs.outputs.version_number }}
     secrets:
+      HEROKU_APP_NAME: ${{ secrets.HEROKU_BACKEND_APP_NAME_PROD_MAINNET }}
       HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
