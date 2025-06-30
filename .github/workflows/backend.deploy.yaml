@@ -6,12 +6,12 @@ on:
       run-type:
         description: "Run option"
         required: true
-        default: "Deploy-to-Staging(testnet)"
+        default: "Deploy-to-Staging-Testnet"
         type: choice
         options:
           - Code-Quality
-          - Deploy-to-Staging(testnet)
-          - Deploy-to-Prod(mainnet)
+          - Deploy-to-Staging-Testnet
+          - Deploy-to-Prod-Mainnet
 
 jobs:
   set-outputs:
