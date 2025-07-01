@@ -60,18 +60,13 @@ jobs:
             password $HEROKU_API_KEY" > ~/.netrc
           chmod 600 ~/.netrc
 
-      - name: Release Heroku App
+      - name: Install Heroku CLI
+        run: curl https://cli-assets.heroku.com/install.sh | sh
+
+      - name: Release Heroku App via CLI
         env:
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: |
-          curl -n -X PATCH https://api.heroku.com/apps/$HEROKU_APP_NAME/formation \
-            -H "Content-Type: application/json" \
-            -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
-            -H "Authorization: Bearer $HEROKU_API_KEY" \
-            -d "$(jq -n --arg image "registry.heroku.com/$HEROKU_APP_NAME/web" \
-                  '{updates: [{type: "web", docker_image: $image}]}')"
+        run: heroku container:release web --app $HEROKU_APP_NAME
 
       - name: Cleanup .netrc
-        run: |
-          rm -f ~/.netrc
+        run: rm -f ~/.netrc
