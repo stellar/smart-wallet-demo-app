@@ -25,9 +25,6 @@ jobs:
     uses: ./.github/workflows/web.set-outputs.yaml
     with:
       run-type: ${{ inputs.run-type }}
-    secrets:
-      HEROKU_APP_NAME_STAGING_TESTNET: ${{ secrets.HEROKU_WEB_APP_NAME_STAGING_TESTNET }}
-      HEROKU_APP_NAME_PROD_MAINNET: ${{ secrets.HEROKU_WEB_APP_NAME_PROD_MAINNET }}
 
   build:
     name: Build web
