@@ -37,7 +37,6 @@ jobs:
     uses: ./.github/workflows/web.deploy-heroku.yaml
     with:
       environment: ${{ needs.set-outputs.outputs.environment }}
-      heroku_app_name: ${{ needs.set-outputs.outputs.resource_name }}
       version: ${{ needs.set-outputs.outputs.version_number }}
     secrets:
       HEROKU_APP_NAME: ${{ secrets.HEROKU_WEB_APP_NAME_STAGING_TESTNET }}
@@ -50,7 +49,6 @@ jobs:
     uses: ./.github/workflows/web.deploy-heroku.yaml
     with:
       environment: ${{ needs.set-outputs.outputs.environment }}
-      heroku_app_name: ${{ needs.set-outputs.outputs.resource_name }}
       version: ${{ needs.set-outputs.outputs.version_number }}
     secrets:
       HEROKU_APP_NAME: ${{ secrets.HEROKU_WEB_APP_NAME_PROD_MAINNET }}
