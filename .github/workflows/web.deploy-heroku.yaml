@@ -48,6 +48,18 @@ jobs:
           docker image ls -a
           docker push registry.heroku.com/$HEROKU_APP_NAME/web
 
+      - name: Create .netrc for Heroku API authentication
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          echo "machine api.heroku.com
+            login _
+            password $HEROKU_API_KEY
+          machine git.heroku.com
+            login _
+            password $HEROKU_API_KEY" > ~/.netrc
+          chmod 600 ~/.netrc
+
       - name: Release Heroku App
         env:
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
@@ -59,4 +71,8 @@ jobs:
             -H "Authorization: Bearer $HEROKU_API_KEY" \
             -d "$(jq -n --arg image "registry.heroku.com/$HEROKU_APP_NAME/web" \
                   '{updates: [{type: "web", docker_image: $image}]}')"
+
+      - name: Cleanup .netrc
+        run: |
+          rm -f ~/.netrc
 
