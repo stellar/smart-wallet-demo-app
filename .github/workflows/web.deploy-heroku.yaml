@@ -53,9 +53,10 @@ jobs:
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          curl -n -X POST https://api.heroku.com/apps/$HEROKU_APP_NAME/releases \
+          curl -n -X PATCH https://api.heroku.com/apps/$HEROKU_APP_NAME/formation \
             -H "Content-Type: application/json" \
             -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
             -H "Authorization: Bearer $HEROKU_API_KEY" \
             -d "$(jq -n --arg image "registry.heroku.com/$HEROKU_APP_NAME/web" \
-              '{updates: [{type: "web", docker_image: $image}]}')"
+                  '{updates: [{type: "web", docker_image: $image}]}')"
+
