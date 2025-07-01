@@ -14,7 +14,7 @@ services:
       target: local
     environment:
       DEPLOY_STAGE: ${DEPLOY_STAGE:-local}
-      ENVIRONMENT_NAME: ${ENVIRONMENT_NAME:-d5}
+      ENVIRONMENT_NAME: ${ENVIRONMENT_NAME:-staging}
       NODE_ENV: ${NODE_ENV:-development}
       PORT: ${NODE_PORT:-8000}
       DEBUG: ${DEBUG:-true}
