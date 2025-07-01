@@ -12,27 +12,15 @@ const deployStage = getValueFromEnv('DEPLOY_STAGE')
 const environmentName = deployStage === 'local' ? null : (getValueFromEnv(`ENVIRONMENT_NAME`) as EnvironmentName)
 
 switch (environmentName) {
-  case EnvironmentName.DEV:
-    servers.push({
-      url: 'https://dev/',
-      description: 'Dev server',
-    })
-    break
-  case EnvironmentName.QA:
-    servers.push({
-      url: 'https://qa/',
-      description: 'QA server',
-    })
-    break
   case EnvironmentName.STAGING:
     servers.push({
-      url: 'https://staging/',
+      url: getValueFromEnv('STAGING_SERVER_URL'),
       description: 'Staging server',
     })
     break
   case EnvironmentName.PROD:
     servers.push({
-      url: 'https://production/',
+      url: getValueFromEnv('PROD_SERVER_URL'),
       description: 'Production server',
     })
     break

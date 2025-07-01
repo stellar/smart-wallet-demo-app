@@ -9,8 +9,6 @@ export const envTypes: Record<string, EnvConfigKey> = {
 }
 
 export enum EnvironmentName {
-  DEV = 'development',
-  QA = 'qa',
   STAGING = 'staging',
   PROD = 'production',
 }
