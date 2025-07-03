@@ -243,6 +243,7 @@ fn test_bad_claim() {
 }
 
 #[test]
+#[should_panic(expected = "Error(Contract, #1000)")]
 fn test_recover_unclaimed_to_funder() {
     let e = Env::default();
     e.mock_all_auths_allowing_non_root_auth();
@@ -276,6 +277,16 @@ fn test_recover_unclaimed_to_funder() {
 
     assert_eq!(token_client.balance(&owner), 10000);
     assert_eq!(token_client.balance(&contract_id), 0);
+    assert_eq!(client.is_ended(), true);
+
+    let receiver = Address::from_str(
+        &e,
+        "CAASCQKVVBSLREPEUGPOTQZ4BC2NDBY2MW7B2LGIGFUPIY4Z3XUZRVTX",
+    );
+    let amount = 100;
+    let proofs = vec![&e];
+
+    client.claim(&3_u32, &receiver, &amount, &proofs);
 }
 
 #[test]

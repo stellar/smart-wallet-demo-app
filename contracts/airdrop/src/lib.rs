@@ -4,7 +4,7 @@
 
 #![no_std]
 use soroban_sdk::{
-    contract, contractimpl, contracttype,
+    contract, contracterror, contractimpl, contracttype, panic_with_error,
     token::{self, TokenClient},
     Address, BytesN, Env, Vec,
 };
@@ -15,8 +15,14 @@ type Distributor = MerkleDistributor<Sha256>;
 
 #[contracttype]
 enum DataKey {
+    Ended,
     TokenAddress,
     Funder,
+}
+
+#[contracterror]
+enum AirdropError {
+    Ended = 1000,
 }
 
 #[contracttype]
@@ -54,6 +60,7 @@ impl AirdropContract {
         funding_source: Address,
     ) {
         Distributor::set_root(&e, root_hash);
+        e.storage().instance().set(&DataKey::Ended, &false);
         e.storage().instance().set(&DataKey::TokenAddress, &token);
         e.storage()
             .instance()
@@ -66,7 +73,22 @@ impl AirdropContract {
         );
     }
 
+    /// Returns whether the airdrop has ended.
+    ///
+    /// # Arguments:
+    /// * `e` - The Soroban environment.
+    pub fn is_ended(e: &Env) -> bool {
+        e.storage()
+            .instance()
+            .get::<_, bool>(&DataKey::Ended)
+            .unwrap_or(false)
+    }
+
     /// Returns whether an index has been claimed.
+    ///
+    /// # Arguments:
+    /// * `e` - The Soroban environment.
+    /// * `index` - The index of the claim in the Merkle tree.
     pub fn is_claimed(e: &Env, index: u32) -> bool {
         Distributor::is_claimed(e, index)
     }
@@ -80,6 +102,10 @@ impl AirdropContract {
     /// * `amount` - The amount of tokens to be claimed.
     /// * `proof` - The Merkle proof that verifies the claim.
     pub fn claim(e: &Env, index: u32, receiver: Address, amount: i128, proof: Vec<BytesN<32>>) {
+        if Self::is_ended(e) {
+            panic_with_error!(e, AirdropError::Ended);
+        }
+
         let data = Receiver {
             index,
             address: receiver.clone(),
@@ -91,7 +117,7 @@ impl AirdropContract {
         token_client.transfer(&e.current_contract_address(), &receiver, &amount);
     }
 
-    /// Recovers any unclaimed tokens from the contract back to the funder.
+    /// Recovers any unclaimed tokens from the contract back to the funder and disables further claims.
     ///
     /// # Arguments:
     /// * `e` - The Soroban environment.
@@ -102,6 +128,7 @@ impl AirdropContract {
             .get::<_, Address>(&DataKey::Funder)
             .unwrap();
         funder.require_auth();
+        e.storage().instance().set(&DataKey::Ended, &true);
 
         let token_client = Self::token_client(e);
         let remaining = token_client.balance(&e.current_contract_address());

@@ -249,6 +249,18 @@
                         "key": {
                           "vec": [
                             {
+                              "symbol": "Ended"
+                            }
+                          ]
+                        },
+                        "val": {
+                          "bool": false
+                        }
+                      },
+                      {
+                        "key": {
+                          "vec": [
+                            {
                               "symbol": "Funder"
                             }
                           ]
