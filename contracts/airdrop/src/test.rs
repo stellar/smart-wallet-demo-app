@@ -277,7 +277,7 @@ fn test_recover_unclaimed_to_funder() {
 
     assert_eq!(token_client.balance(&owner), 10000);
     assert_eq!(token_client.balance(&contract_id), 0);
-    assert_eq!(client.is_ended(), true);
+    assert!(client.is_ended());
 
     let receiver = Address::from_str(
         &e,

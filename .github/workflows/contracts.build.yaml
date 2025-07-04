@@ -1,0 +1,58 @@
+name: Contracts Build
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    name: Build Contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: contracts
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        run: |
+          rustup update
+          rustup target add wasm32v1-none
+
+      - name: Cache Rust dependencies
+        uses: stellar/actions/rust-cache@main
+
+      - name: Setup Stellar CLI
+        uses: stellar/stellar-cli@v22.8.1
+
+      - name: Build contracts
+        run: |
+          cargo build --release --target wasm32v1-none
+          
+      - name: Build with logs (debug)
+        run: |
+          cargo build --profile release-with-logs --target wasm32v1-none
+
+      - name: Optimize contracts
+        run: |
+          # Find all WASM files and optimize them
+          find target/wasm32v1-none/release -name "*.wasm" -type f | while read -r wasm_file; do
+            echo "Optimizing: $wasm_file"
+            stellar contract optimize --wasm "$wasm_file"
+          done
+
+      - name: List built contracts
+        run: |
+          echo "### Built Contracts ###"
+          find target/wasm32v1-none/release -name "*.wasm" -type f -exec ls -lh {} \;
+
+      - name: Upload WASM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-wasm-${{ github.sha }}
+          path: |
+            contracts/target/wasm32v1-none/release/*.wasm
+            contracts/target/wasm32v1-none/release/*.optimized.wasm
+          retention-days: 30
