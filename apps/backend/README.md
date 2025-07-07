@@ -19,6 +19,8 @@ This project leverages the following core technologies:
 - [PostgreSQL](https://www.postgresql.org/) – Relational database
 - [TypeORM](https://typeorm.io/) – TypeScript ORM
 - [Express](https://expressjs.com/) – Fast, unopinionated web framework
+- [PostgreSQL](https://www.postgresql.org/) – Relational database
+- [TypeORM](https://typeorm.io/) – TypeScript ORM with auto-sync capabilities
 - [Zod](https://zod.dev/) – Schema-based validation
 - [Pino](https://getpino.io/) – High-performance JSON logger
 - [Vitest](https://vitest.dev/) – Unit and integration testing framework
