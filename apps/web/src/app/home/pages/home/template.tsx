@@ -1,6 +1,4 @@
-import { Button, Typography, TypographyVariant, TypographyWeight } from 'src/components/atoms'
-
-import { Select } from '../../../../components/atoms/select'
+import { Button, Heading, Text } from '@stellar/design-system'
 
 type Props = {
   onOpenDialog: () => void
@@ -10,24 +8,17 @@ type Props = {
 export const HomeTemplate = ({ onOpenDialog, formattedDate }: Props) => {
   return (
     <div className="text-text bg-background h-screen flex flex-col gap-4 items-center justify-center">
-      <Typography variant={TypographyVariant.h1} weight={TypographyWeight.bold}>
+      <Heading as={'h1'} size={'xs'}>
         Home screen
-      </Typography>
-      <Typography>This is not a private route</Typography>
+      </Heading>
 
-      <Typography>Today is: {formattedDate}</Typography>
+      <Text as={'p'} size={'xs'}>
+        Today is: {formattedDate}
+      </Text>
 
-      <Button label="Open Dialog" onClick={onOpenDialog} />
-
-      <Select
-        name="aaa"
-        options={[
-          { textValue: 'Carrot', value: 'Carrot' },
-          { textValue: 'Potato', value: 'Potato' },
-          { textValue: 'Onion', value: 'Onion' },
-          { textValue: 'Tomato', value: 'Tomato' },
-        ]}
-      />
+      <Button onClick={onOpenDialog} variant={'primary'} size={'lg'}>
+        Open Dialog
+      </Button>
     </div>
   )
 }

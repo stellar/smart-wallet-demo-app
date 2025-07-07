@@ -7,7 +7,8 @@
     "apps/*"
   ],
   "scripts": {
-    "prepare": "node .husky/install.mjs"
+    "prepare": "node .husky/install.mjs",
+    "postinstall": "./patches/install.sh"
   },
   "engines": {
     "node": ">=20"
@@ -27,5 +28,8 @@
     "eslint-plugin-unicorn": "^55.0.0",
     "husky": "^9.1.7",
     "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "patch-package": "^8.0.0"
   }
 }

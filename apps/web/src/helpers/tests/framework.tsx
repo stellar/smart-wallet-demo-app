@@ -26,6 +26,8 @@ const ApplicationProvidersWithRouter: FC<PropsWithChildren> = ({ children }) => 
 
 const customRender: CustomRenderFunction = (ui, options?) => render(ui, { wrapper: ApplicationProviders, ...options })
 
+const renderWithoutProviders: CustomRenderFunction = (ui, options?) => render(ui, options)
+
 // Needed to either navigate between routes or render 'react-router-dom' child components such as Link
 const renderWithRouter: CustomRenderFunction = (ui, options?) =>
   render(ui, { wrapper: ApplicationProvidersWithRouter, ...options })
@@ -38,4 +40,4 @@ export {
   act,
   // add any other exports you need from '@testing-library/react'
 } from '@testing-library/react'
-export { customRender as render, renderWithRouter }
+export { customRender as render, renderWithoutProviders, renderWithRouter }
