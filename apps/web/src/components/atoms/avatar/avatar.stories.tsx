@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
-import Logo from 'src/assets/logo.svg'
+import BlackLogo from 'src/assets/black-logo.svg'
 
 import { Avatar } from '.'
 
@@ -32,7 +32,7 @@ type Story = StoryObj<typeof meta>
 
 export const WithImage: Story = {
   args: {
-    img: Logo,
+    img: BlackLogo,
   },
 }
 

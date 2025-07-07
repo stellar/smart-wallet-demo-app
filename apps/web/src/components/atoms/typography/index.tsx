@@ -10,6 +10,7 @@ export enum TypographyVariant {
   label = 'label',
   link = 'link',
   p = 'p',
+  h1Brand = 'h1Brand',
   h1 = 'h1',
   h2 = 'h2',
   h3 = 'h3',
@@ -53,6 +54,7 @@ const typographyVariants = cva('', {
       [TypographyVariant.label]: 'leading-tight hover:text-primary transition-colors duration-300 ease-in-out',
       [TypographyVariant.link]: 'text-md px-1 py-0.5 cursor-pointer',
       [TypographyVariant.p]: 'text-sm',
+      [TypographyVariant.h1Brand]: 'text-8.5xl font-schabo',
       [TypographyVariant.h1]: 'text-4xl',
       [TypographyVariant.h2]: 'text-2xl',
       [TypographyVariant.h3]: 'text-xl',
@@ -109,6 +111,10 @@ const typographyVariants = cva('', {
       class: 'text-primary',
     },
     {
+      variant: [TypographyVariant.h1Brand],
+      class: 'text-primary leading-none',
+    },
+    {
       variant: [
         TypographyVariant.h1,
         TypographyVariant.h2,
@@ -141,6 +147,7 @@ type ICaptionProps = React.HTMLProps<'span'> & {
   variant?: TypographyVariant.caption
 }
 type IParagraphProps = React.HTMLProps<'p'> & { variant?: TypographyVariant.p }
+type IH1BrandProps = React.HTMLProps<'h1'> & { variant?: TypographyVariant.h1Brand }
 type IH1Props = React.HTMLProps<'h1'> & { variant?: TypographyVariant.h1 }
 type IH2Props = React.HTMLProps<'h2'> & { variant?: TypographyVariant.h2 }
 type IH3Props = React.HTMLProps<'h3'> & { variant?: TypographyVariant.h3 }
@@ -154,7 +161,18 @@ export type ITypographyProps = VariantProps<typeof typographyVariants> & {
    * */
   className?: string
   asChild?: boolean
-} & (ILinkProps | ILabelProps | ICaptionProps | IH1Props | IH2Props | IH3Props | IH4Props | IH5Props | IParagraphProps)
+} & (
+    | ILinkProps
+    | ILabelProps
+    | ICaptionProps
+    | IH1BrandProps
+    | IH1Props
+    | IH2Props
+    | IH3Props
+    | IH4Props
+    | IH5Props
+    | IParagraphProps
+  )
 
 const getTypographyVariantComponent = (asChild = false, variant?: TypographyVariant): React.ElementType => {
   if (asChild) {
@@ -162,6 +180,7 @@ const getTypographyVariantComponent = (asChild = false, variant?: TypographyVari
   }
 
   switch (variant) {
+    case TypographyVariant.h1Brand:
     case TypographyVariant.h1:
       return 'h1'
     case TypographyVariant.h2:

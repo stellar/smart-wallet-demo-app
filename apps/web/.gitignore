@@ -4,3 +4,5 @@
 /build
 storybook-static/
 .idea/
+assets.json
+content.json

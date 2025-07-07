@@ -1,0 +1,13 @@
+.blurred-input-container .Input__container {
+  color: var(--color-whitish);
+  background-color: rgba(170, 159, 159, 0.3);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(170, 159, 159, 0.3);
+  box-shadow: 0 0 0 var(--Input-box-shadow-size) rgba(170, 159, 159, 0.5);
+
+  ::placeholder {
+    color: rgba(253, 252, 254, 0.5);
+    opacity: 0.5;
+  }
+}

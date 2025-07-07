@@ -1,12 +1,20 @@
 :root {
-  /* Add as many colors as your project need */
-  --color-primary: #ff8b9f;
-  --color-secondary: #5ddeda;
-  --color-text: #000;
-  --color-background: #fff;
-  --color-whitish: #fff;
-  --color-blackish: #000;
-  --color-accent: #609;
+  --color-primary: #FDDA24;
+  --color-secondary: #B7ACE8;
+  --color-tertiary: #00A7B5;
+  --color-accent: #FC7D27;
+  --color-accent-black: #000000;
+  --color-accent-white: #FFFFFF;
+  --color-accent-muted: #D6D2C4;
+  --color-text: #171717;
+  --color-text-secondary: #8F8F8F;
+  --color-background: #FFFFFF;
+  --color-background-secondary: #F2F2F7;
+  --color-background-tertiary: #F3F3F3;
+  --color-border-primary: #E2E2E2;
+  --color-border-secondary: #E8E8E8;
+  --color-whitish: #FFFFFF;
+  --color-blackish: #000000;
   --color-muted: #f6f6f6;
   --color-success: #2fa968;
   --color-danger: #ff3636;
@@ -32,7 +40,7 @@
   --font-size-4xl: 3rem;
   /** 48px */
 
-  --font-family: 'Lato', sans-serif;
+  --font-family: 'Inter', sans-serif;
   --font-font-style: normal;
 
   --font-weight-lighter: 100;
