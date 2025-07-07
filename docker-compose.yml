@@ -1,10 +1,31 @@
 volumes:
+  backend-db-data:
   backend-root-node-modules:
   backend-node-modules:
   web-root-node-modules:
   web-node-modules:
 
 services:
+  # PostgreSQL Database#
+  db:
+    container_name: smart-wallet-database
+    profiles: ["all", "db", "backend"]
+    image: postgres:16-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - backend-db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      POSTGRES_DB: ${DATABASE_NAME:-smart_wallet_db}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Node Service #
   backend:
     container_name: smart-wallet-backend
     profiles: ['all', 'backend']
@@ -19,6 +40,12 @@ services:
       PORT: ${NODE_PORT:-8000}
       DEBUG: ${DEBUG:-true}
       FRONT_ADDRESS: ${FRONT_ADDRESS:-*}
+      DATABASE_TYPE: ${DATABASE_TYPE:-postgres}
+      DATABASE_NAME: ${DATABASE_NAME:-smart_wallet_db}
+      DATABASE_HOST: ${DATABASE_HOST:-smart-wallet-database}
+      DATABASE_PORT: ${DATABASE_PORT:-5432}
+      DATABASE_USER: ${DATABASE_USER:-postgres}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
     volumes:
       - './:/app'
       - 'backend-root-node-modules:/app/node_modules'
@@ -26,6 +53,11 @@ services:
     ports:
       - ${NODE_PORT:-8000}:${NODE_PORT:-8000}
       - 9229:9229
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # React Service #
   web:
     container_name: smart-wallet-web
     profiles: ['all', 'web']
