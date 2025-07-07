@@ -15,8 +15,8 @@
     "test": "DEPLOY_STAGE=local NODE_ENV=test vitest --config src/vitest.config.ts",
     "test-coverage": "DEPLOY_STAGE=local NODE_ENV=test vitest run --config src/vitest.config.ts --coverage",
     "type-check": "tsc --noEmit",
-    "migration-generate": "DEPLOY_STAGE=local NODE_ENV=development NODE_PATH=./src npx ts-node-dev -P ./tsconfig.json -r tsconfig-paths/register ../../node_modules/typeorm/cli.js migration:generate -d ./src/config/database/data-source.ts ./src/api/core/migrations/$npm_config_name",
-    "migration-run": "DEPLOY_STAGE=local NODE_ENV=development NODE_PATH=./src npx ts-node-dev -P ./tsconfig.json -r tsconfig-paths/register ../../node_modules/typeorm/cli.js migration:run -d ./src/config/database/data-source.ts"
+    "migration-generate": "DEPLOY_STAGE=local NODE_ENV=development NODE_PATH=./src npx ts-node-dev -P ./tsconfig.json -r tsconfig-paths/register ../../node_modules/typeorm/cli.js migration:generate -d ./src/config/database/index.ts ./src/api/core/migrations/$npm_config_name",
+    "migration-run": "DEPLOY_STAGE=local NODE_ENV=development NODE_PATH=./src npx ts-node-dev -P ./tsconfig.json -r tsconfig-paths/register ../../node_modules/typeorm/cli.js migration:run -d ./src/config/database/index.ts"
   },
   "engines": {
     "node": ">=20"

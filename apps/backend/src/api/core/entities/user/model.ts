@@ -6,16 +6,19 @@ export class User extends ModelBase {
   userId: string
 
   @Column({
+    type: 'varchar',
     nullable: true,
   })
   email: string
 
   @Column({
+    type: 'varchar',
     nullable: true,
   })
   uniqueToken: string
 
   @Column({
+    type: 'varchar',
     nullable: true,
   })
   publicKey: string
