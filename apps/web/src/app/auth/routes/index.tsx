@@ -1,10 +1,11 @@
 import { createRoute } from '@tanstack/react-router'
 import { rootRoute } from 'src/app/core/router/routeTree'
+import { Invite } from '../pages/invite'
 
-const welcomeRoute = createRoute({
+const inviteRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/welcome',
-  component: () => <div>Welcome route</div>,
+  path: '/invite',
+  component: Invite,
 })
 
-export const authRoutes = [welcomeRoute]
+export const authRoutes = [inviteRoute]

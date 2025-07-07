@@ -78,8 +78,6 @@ All workspace apps support the following `make` commands:
 | `test`            | Runs tests for the selected app                              |
 | `test-coverage`   | Runs tests and shows coverage                                |
 | `serve`           | Runs a local static server (**only for web**)                |
-| `storybook`       | Runs Storybook (**only for web**)                            |
-| `build-storybook` | Builds the Storybook static site (**only for web**)          |
 | `lint`            | Runs ESLint on the codebase                                  |
 | `lint-fix`        | Auto-fixes linting issues                                    |
 | `type-check`      | Runs TypeScript type checking                                |

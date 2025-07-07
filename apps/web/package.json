@@ -13,7 +13,6 @@
     "@radix-ui/react-slider": "^1.2.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@stellar/design-system": "^3.1.1",
-    "@storybook/blocks": "^8.3.5",
     "@tanstack/react-query": "^5.59.0",
     "@tanstack/react-router": "^1.121.21",
     "@tanstack/react-router-devtools": "^1.121.21",
@@ -37,16 +36,7 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
-    "@chromatic-com/storybook": "^1.9.0",
     "@csstools/postcss-global-data": "^2.1.1",
-    "@storybook/addon-a11y": "^8.3.5",
-    "@storybook/addon-actions": "^8.3.5",
-    "@storybook/addon-docs": "^8.3.5",
-    "@storybook/addon-essentials": "^8.3.5",
-    "@storybook/addon-links": "^8.3.5",
-    "@storybook/node-logger": "^8.3.5",
-    "@storybook/react": "^8.3.5",
-    "@storybook/react-vite": "^8.3.5",
     "@testing-library/jest-dom": "~6.6.3",
     "@testing-library/react": "~16.3.0",
     "@testing-library/user-event": "~14.6.1",
@@ -65,7 +55,6 @@
     "postcss-nested": "^6.0.1",
     "react-docgen-typescript-plugin": "^1.0.8",
     "react-select-event": "~5.5.1",
-    "storybook": "^8.3.5",
     "tailwindcss": "^3.4.4",
     "ts-node": "^10.9.2",
     "vite": "^6.3.5",
@@ -87,8 +76,6 @@
     "serve": "npx serve -l ${PORT:-3000} -s dist",
     "test": "vitest --config vitest.config.ts",
     "test-coverage": "vitest run --config vitest.config.ts --coverage",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
     "type-check": "tsc --noEmit"
   },
   "browserslist": {

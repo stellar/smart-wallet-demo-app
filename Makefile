@@ -27,8 +27,6 @@ help:
 	@echo "  serve                 Run serve on APP (only for web)"
 	@echo "  test                  Run test on given APP"
 	@echo "  test-coverage         Run test-coverage on given APP"
-	@echo "  storybook             Run storybook on given APP"
-	@echo "  build-storybook       Run build-storybook on given APP"
 	@echo "  type-check            Run type-check on given APP"
 	@echo "  lint                  Run eslint"
 	@echo "  lint-fix              Run eslint with --fix"
@@ -74,12 +72,6 @@ test:
 
 test-coverage:
 	npm run test-coverage --workspace=apps/$(APP)
-
-storybook:
-	npm run storybook --workspace=apps/$(APP)
-
-build-storybook:
-	npm run build-storybook --workspace=apps/$(APP)
 
 type-check:
 	npm run type-check --workspace=apps/$(APP)

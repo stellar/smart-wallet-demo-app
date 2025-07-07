@@ -17,7 +17,6 @@ This project leverages the following libraries and tools:
 - [TanStack Router](https://tanstack.com/router/latest) – App routing
 - [TanStack Query](https://tanstack.com/query/latest) – Data fetching and caching
 - [Vitest](https://vitest.dev/) – Unit and integration testing framework
-- [Storybook](https://storybook.js.org/) – UI component explorer
 
 ---
 
@@ -25,7 +24,6 @@ This project leverages the following libraries and tools:
 
 ```
 .
-├── .storybook/            # Storybook main files
 ├── public/                # Public assets (favicon, manifest, etc.)
 ├── src/                   # Main application folder
 │  ├── index.tsx           # App entry point
