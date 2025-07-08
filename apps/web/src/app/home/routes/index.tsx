@@ -1,19 +1,18 @@
 import { createRoute } from '@tanstack/react-router'
-import { requireAuth, rootRoute } from 'src/app/core/router/routeTree'
-import Dashboard from 'src/app/home/pages/dashboard'
-import Home from 'src/app/home/pages/home'
+import { rootRoute } from 'src/app/core/router/routeTree'
+import { Home, ComingSoon } from 'src/app/home/pages'
+import { HomePagesPath } from './types'
 
 const homeRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/',
+  path: HomePagesPath.HOME,
   component: Home,
 })
 
-const dashboardRoute = createRoute({
+const comingSoonRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/dashboard',
-  component: Dashboard,
-  beforeLoad: args => requireAuth(args), // Ensure the user is authenticated before loading the dashboard
+  path: HomePagesPath.COMING_SOON,
+  component: ComingSoon,
 })
 
-export const homeRoutes = [homeRoute, dashboardRoute]
+export const homeRoutes = [homeRoute, comingSoonRoute]

@@ -3,15 +3,15 @@ import { Icon, Button } from '@stellar/design-system'
 
 type Props = {
   type?: 'next' | 'previous' | 'close'
-  size?: 'small' | 'medium'
+  size?: 'sm' | 'md'
   className?: string
   onClick?: () => void
 }
 
-export const NavigateButton = ({ type = 'previous', size = 'small', onClick }: Props) => {
+export const NavigateButton = ({ type = 'previous', size = 'sm', className, onClick }: Props) => {
   const label = useMemo(() => {
-    const width = size === 'small' ? 12 : 14
-    const height = size === 'small' ? 12 : 14
+    const width = size === 'sm' ? 12 : 14
+    const height = size === 'sm' ? 12 : 14
 
     switch (type) {
       case 'next':
@@ -25,7 +25,7 @@ export const NavigateButton = ({ type = 'previous', size = 'small', onClick }: P
 
   const style = useMemo(() => {
     switch (size) {
-      case 'small':
+      case 'sm':
         return {
           width: 28,
           height: 28,
@@ -34,7 +34,7 @@ export const NavigateButton = ({ type = 'previous', size = 'small', onClick }: P
           paddingLeft: 8,
           paddingRight: 8,
         }
-      case 'medium':
+      case 'md':
         return {
           width: 34,
           height: 34,
@@ -47,16 +47,18 @@ export const NavigateButton = ({ type = 'previous', size = 'small', onClick }: P
   }, [size])
 
   return (
-    <Button
-      variant={'tertiary'}
-      size={'lg'}
-      style={{
-        borderRadius: '50%',
-        ...style,
-      }}
-      onClick={onClick}
-    >
-      {label}
-    </Button>
+    <div className={className}>
+      <Button
+        variant={'tertiary'}
+        size={'lg'}
+        style={{
+          borderRadius: '50%',
+          ...style,
+        }}
+        onClick={onClick}
+      >
+        {label}
+      </Button>
+    </div>
   )
 }

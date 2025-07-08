@@ -35,8 +35,8 @@ describe('NavigateButton', () => {
     expect(icon).toHaveAttribute('height', '12')
   })
 
-  it('uses medium icon size when size="medium"', () => {
-    render(<NavigateButton type="next" size="medium" />)
+  it('uses medium icon size when size="md"', () => {
+    render(<NavigateButton type="next" size="md" />)
     const icon = screen.getByTestId('arrow-right')
     expect(icon).toHaveAttribute('width', '14')
     expect(icon).toHaveAttribute('height', '14')
@@ -56,8 +56,8 @@ describe('NavigateButton', () => {
     })
   })
 
-  it('applies correct style for medium size', () => {
-    render(<NavigateButton size="medium" />)
+  it('applies correct style for md size', () => {
+    render(<NavigateButton size="md" />)
     const button = screen.getByRole('button')
     expect(button).toHaveStyle({
       width: '34px',

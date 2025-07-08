@@ -1,24 +1,43 @@
-import { Button, Heading, Text } from '@stellar/design-system'
+import { BrandTightHeading, GhostButton } from 'src/components/molecules'
+import { Button, Heading } from '@stellar/design-system'
+import { OnboardingBackgroundImage } from 'src/app/core/components'
+import { c } from 'src/interfaces/cms/useContent'
+import { a } from 'src/interfaces/cms/useAssets'
+import { ONBOARDING_LOGO_WIDTH } from 'src/app/core/constants/onboarding'
 
 type Props = {
-  onOpenDialog: () => void
-  formattedDate: string
+  onCreateWallet: () => void
+  onLogIn: () => void
+  onForgotPassword: () => void
 }
 
-export const HomeTemplate = ({ onOpenDialog, formattedDate }: Props) => {
+export const HomeTemplate = ({ onCreateWallet, onLogIn, onForgotPassword }: Props) => {
   return (
-    <div className="text-text bg-background h-screen flex flex-col gap-4 items-center justify-center">
-      <Heading as={'h1'} size={'xs'}>
-        Home screen
-      </Heading>
+    <div>
+      <OnboardingBackgroundImage className="bg-[60%]" />
+      <div className="mt-[calc(100vh-80vh)] flex flex-col justify-start px-8">
+        <img className="text-primary mb-6" src={a('yellowLogo')} width={ONBOARDING_LOGO_WIDTH} alt="Logo" />
 
-      <Text as={'p'} size={'xs'}>
-        Today is: {formattedDate}
-      </Text>
+        <div className="flex flex-col gap-4">
+          <BrandTightHeading className="-mb-2" lines={[c('inviteOptionATitleLine1'), c('inviteOptionATitleLine2')]} />
 
-      <Button onClick={onOpenDialog} variant={'primary'} size={'lg'}>
-        Open Dialog
-      </Button>
+          <Heading addlClassName="text-whitish leading-6" as="h2" size="xs">
+            {c('inviteSubtitle')}
+          </Heading>
+
+          <Button onClick={onCreateWallet} size="lg" variant="tertiary" isRounded isFullWidth>
+            {c('createAWallet')}
+          </Button>
+
+          <GhostButton onClick={onLogIn} size="lg" isRounded isFullWidth isBordered invertColor>
+            {c('logIn')}
+          </GhostButton>
+
+          <GhostButton onClick={onForgotPassword} size="md" isRounded isFullWidth invertColor>
+            {c('forgotPassword')}
+          </GhostButton>
+        </div>
+      </div>
     </div>
   )
 }

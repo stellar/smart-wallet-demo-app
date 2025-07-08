@@ -1,38 +1,23 @@
-import DateAdapter from 'src/app/core/adapters/date/DateAdapter'
-import logger from 'src/app/core/services/logger'
-import { DialogTypes, dialogService } from 'src/components/molecules/dialog'
-
+import { useNavigate } from '@tanstack/react-router'
 import { HomeTemplate } from './template'
+import { AuthPagesPath } from 'src/app/auth/routes/types'
 
-const Home = () => {
-  const onOpenDialog = () => {
-    dialogService.openDialog({
-      key: 'dialog-1',
-      type: DialogTypes.default,
-      dialogOptions: {
-        title: 'Dialog Title',
-        content: 'Dialog Content',
-        actions: [
-          {
-            content: 'Action 1',
-            onClick: () => {
-              dialogService.closeDialog()
-              logger.log('Action 1')
-            },
-          },
-          {
-            content: 'Action 2',
-            onClick: () => {
-              dialogService.closeDialog()
-              logger.log('Action 2')
-            },
-          },
-        ],
-      },
-    })
+export const Home = () => {
+  const navigate = useNavigate()
+
+  const handleCreateWallet = () => {
+    throw new Error('Function not implemented.')
   }
 
-  return <HomeTemplate onOpenDialog={onOpenDialog} formattedDate={DateAdapter.formatToDayMonthYear(new Date())} />
-}
+  const handleLogIn = () => {
+    navigate({ to: AuthPagesPath.INVITE_RESEND })
+  }
 
-export default Home
+  const handleForgotPassword = () => {
+    navigate({ to: AuthPagesPath.RECOVER })
+  }
+
+  return (
+    <HomeTemplate onCreateWallet={handleCreateWallet} onLogIn={handleLogIn} onForgotPassword={handleForgotPassword} />
+  )
+}

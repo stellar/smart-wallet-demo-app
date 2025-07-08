@@ -122,7 +122,7 @@ const typographyVariants = cva('', {
         TypographyVariant.h4,
         TypographyVariant.h5,
       ],
-      class: 'm-0 leading-normal',
+      class: 'm-0 leading-[1] tracking-tighter',
     },
     {
       variant: TypographyVariant.link,

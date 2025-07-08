@@ -1,44 +1,56 @@
-import { BlurredInput, BrandTightHeading, GhostButton } from 'src/components/molecules'
-
+import { BrandTightHeading, GhostButton } from 'src/components/molecules'
 import { Button, Heading } from '@stellar/design-system'
-import { NavigateButton } from 'src/components/molecules/navigate-button'
-
-import { OnboardingBackgroundImage } from '../../components'
+import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { c } from 'src/interfaces/cms/useContent'
 import { a } from 'src/interfaces/cms/useAssets'
+import { ONBOARDING_LOGO_WIDTH } from 'src/app/core/constants/onboarding'
 
 type Props = {
-  onNext: () => void
+  isReturningUser: boolean
+  onCreateWallet: () => void
+  onLogIn: () => void
+  onForgotPassword: () => void
 }
 
-export const InviteTemplate = ({ onNext }: Props) => {
+export const InviteTemplate = ({ isReturningUser, onCreateWallet, onLogIn, onForgotPassword }: Props) => {
+  const config = isReturningUser
+    ? {
+        titleLines: [c('inviteOptionBTitleLine1'), c('inviteOptionBTitleLine2')],
+        buttonText: c('logIn'),
+        buttonAction: onLogIn,
+        showForgot: true,
+      }
+    : {
+        titleLines: [c('inviteOptionATitleLine1'), c('inviteOptionATitleLine2')],
+        buttonText: c('createAWallet'),
+        buttonAction: onCreateWallet,
+        showForgot: false,
+        gradientBottomPercentage: 60,
+      }
+
   return (
     <div>
-      <OnboardingBackgroundImage className={'bg-[60%]'} />
-      <div className="h-[calc(100vh-8vh)] flex flex-col justify-end px-8">
-        <img className="text-primary mb-8" src={a('yellowLogo')} width={65} alt="Logo" style={{ color: 'red' }} />
-        {/* <Logo className="text-primary mb-8" width={65} /> */}
+      <OnboardingBackgroundImage className="bg-[60%]" gradientBottomPercentage={config.gradientBottomPercentage} />
+      <div className="mt-[calc(100vh-75vh)] flex flex-col justify-start px-8">
+        <img className="text-primary mb-6" src={a('yellowLogo')} width={ONBOARDING_LOGO_WIDTH} alt="Logo" />
 
-        <BrandTightHeading lines={[c('onboardingTitleLine1'), c('onboardingTitleLine2')]} />
+        <div className="flex flex-col gap-4">
+          <BrandTightHeading className="-mb-2" lines={config.titleLines} />
 
-        <Heading addlClassName="text-whitish mt-1 mb-3 leading-6" as="h2" size="xs">
-          {c('onboardingSubtitle')}
-        </Heading>
+          <Heading addlClassName="text-whitish leading-6" as="h2" size="xs">
+            {c('inviteSubtitle')}
+          </Heading>
 
-        <div>
-          <Button size="lg" variant="tertiary" isRounded isFullWidth>
-            Send Link
+          <Button onClick={config.buttonAction} size="lg" variant="tertiary" isRounded isFullWidth>
+            {config.buttonText}
           </Button>
-          <BlurredInput fieldSize="sm" id="input" placeholder="Enter email address" />
+
+          {config.showForgot && (
+            <GhostButton onClick={onForgotPassword} size="md" isRounded isFullWidth invertColor>
+              {c('forgotPassword')}
+            </GhostButton>
+          )}
         </div>
-
-        <NavigateButton type="next" />
-
-        <NavigateButton type="close" size="medium" />
-
-        <GhostButton size={'md'} invertColor>
-          Forgot password?
-        </GhostButton>
       </div>
     </div>
   )
