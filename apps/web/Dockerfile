@@ -1,6 +1,6 @@
 FROM node:22.14-bullseye-slim AS base
 WORKDIR /app
-RUN apt-get update && apt-get install -y make
+RUN apt-get update && apt-get install -y make patch
 COPY package*.json Makefile ./
 COPY ./patches ./patches
 COPY . .
