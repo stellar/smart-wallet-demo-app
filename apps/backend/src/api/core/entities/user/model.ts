@@ -7,13 +7,11 @@ export class User extends ModelBase {
 
   @Column({
     type: 'varchar',
-    nullable: true,
   })
   email: string
 
   @Column({
     type: 'varchar',
-    nullable: true,
   })
   uniqueToken: string
 

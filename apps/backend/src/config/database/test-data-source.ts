@@ -15,7 +15,6 @@ export const TestDataSource = new DataSource({
   username: getValueFromEnv('DATABASE_USER'),
   password: getValueFromEnv('DATABASE_PASSWORD'),
   dropSchema: true,
-  migrationsRun: true,
   synchronize: true,
   migrations: [path.join(rootDir, 'api/core/migrations/*.{js,ts}')],
   entities: [path.join(rootDir, 'api/core/entities/*/model.{js,ts}')],
