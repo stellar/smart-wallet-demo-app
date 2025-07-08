@@ -2,6 +2,7 @@ FROM node:22.14-bullseye-slim AS base
 WORKDIR /app
 RUN apt-get update && apt-get install -y make
 COPY package*.json Makefile ./
+COPY ./patches ./patches
 COPY . .
 RUN find apps/* -maxdepth 0 -type d ! -name "$(basename "apps/web")" -exec rm -rf {} +
 RUN make clean-setup-dev APP=web
@@ -22,6 +23,7 @@ ENV ENVS_TO_REPLACE="PROD VITE_API_URL"
 RUN apk add make bash npm
 RUN npm install -g serve@14.2.3
 COPY package*.json Makefile ./
+COPY ./patches ./patches
 COPY .husky/install.mjs ./.husky/
 COPY apps/web/package*.json apps/web/entrypoint.sh ./apps/web/
 RUN make clean-setup APP=web
