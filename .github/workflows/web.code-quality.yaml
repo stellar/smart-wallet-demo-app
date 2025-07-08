@@ -23,12 +23,6 @@ jobs:
           cache: "npm"
           cache-dependency-path: "package-lock.json"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run linter
-        run: make lint
-
       - name: Copy .env.example to .env.test
         run: |
           cp ./apps/web/src/config/.env.example ./apps/web/src/config/.env.test
@@ -38,6 +32,12 @@ jobs:
         run: |
           cp ./apps/web/src/config/assets.example.json ./apps/web/src/config/assets.json
           cp ./apps/web/src/config/content.example.json ./apps/web/src/config/content.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: make lint
 
       - name: Run tests
         run: make test-coverage APP=web
