@@ -20,7 +20,7 @@ FROM alpine:3.20.3 AS remote
 WORKDIR /app
 ENV DEPLOY_STAGE=remote
 ENV ENVS_TO_REPLACE="PROD VITE_API_URL"
-RUN apk add make bash npm
+RUN apk add make bash npm patch
 RUN npm install -g serve@14.2.3
 COPY package*.json Makefile ./
 COPY ./patches ./patches
