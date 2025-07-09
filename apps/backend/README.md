@@ -16,6 +16,8 @@ This project leverages the following core technologies:
 
 - [Node.js](https://nodejs.org/) – Runtime environment
 - [TypeScript](https://www.typescriptlang.org/) – Type-safe language
+- [PostgreSQL](https://www.postgresql.org/) – Relational database
+- [TypeORM](https://typeorm.io/) – TypeScript ORM
 - [Express](https://expressjs.com/) – Fast, unopinionated web framework
 - [Zod](https://zod.dev/) – Schema-based validation
 - [Pino](https://getpino.io/) – High-performance JSON logger
@@ -36,7 +38,9 @@ This project leverages the following core technologies:
 │  │  │  ├── routes.ts
 │  │  │  ├── constants/       # Shared constants/variables
 │  │  │  ├── entities/        # Shared entities
+│  │  │  ├── services/        # Shared services
 │  │  │  ├── framework/       # Core types/classes
+│  │  │  ├── migrations/      # Database migrations
 │  │  │  ├── helpers/         # Shared business logic
 │  │  │  ├── interfaces/      # Third-party integration interfaces
 │  │  │  ├── middlewares/     # Express middlewares
