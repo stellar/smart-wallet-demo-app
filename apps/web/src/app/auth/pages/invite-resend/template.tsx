@@ -1,15 +1,25 @@
-import { BlurredInput, BrandTightHeading } from 'src/components/molecules'
-import { Button, Heading } from '@stellar/design-system'
+import { useMemo } from 'react'
+import { BrandTightHeading } from 'src/components/molecules'
+import { Heading } from '@stellar/design-system'
 import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { c } from 'src/interfaces/cms/useContent'
 import { a } from 'src/interfaces/cms/useAssets'
 import { ONBOARDING_LOGO_WIDTH } from 'src/app/core/constants/onboarding'
+import { Form } from 'src/components/organisms'
+import { UseFormReturn } from 'react-hook-form'
+import { FormValues } from './schema'
 
 type Props = {
+  form: UseFormReturn<FormValues>
   onSendLink: () => void
 }
 
-export const InviteResendTemplate = ({ onSendLink }: Props) => {
+export const InviteResendTemplate = ({ form, onSendLink }: Props) => {
+  const { watch } = form
+
+  const emailValue = watch('email')
+  const isSendLinkDisabled = useMemo(() => !emailValue, [emailValue])
+
   return (
     <div>
       <OnboardingBackgroundImage className="bg-[95%]" />
@@ -23,13 +33,20 @@ export const InviteResendTemplate = ({ onSendLink }: Props) => {
             {c('inviteResendSubtitle')}
           </Heading>
 
-          <BlurredInput id={''} fieldSize={'md'} placeholder={c('inviteResendInputPlaceholder')} />
+          <Form form={form} onSubmit={onSendLink}>
+            <Form.Input
+              name="email"
+              variant="blurred"
+              fieldSize={'md'}
+              placeholder={c('inviteResendInputPlaceholder')}
+            />
 
-          <div className="mt-3">
-            <Button onClick={onSendLink} size="lg" variant="tertiary" isRounded isFullWidth>
-              {c('sendLink')}
-            </Button>
-          </div>
+            <div className="mt-3">
+              <Form.Submit disabled={isSendLinkDisabled} size="lg" variant="tertiary" isRounded isFullWidth>
+                {c('sendLink')}
+              </Form.Submit>
+            </div>
+          </Form>
         </div>
       </div>
     </div>

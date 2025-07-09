@@ -1,16 +1,25 @@
-import { Button, Heading } from '@stellar/design-system'
-import { BlurredInput } from 'src/components/molecules'
+import { useMemo } from 'react'
+import { Heading } from '@stellar/design-system'
 import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { c } from 'src/interfaces/cms/useContent'
 import { NavigateButton } from 'src/components/molecules/navigate-button'
 import { Typography, TypographyVariant, TypographyWeight } from 'src/components/atoms'
+import { UseFormReturn } from 'react-hook-form'
+import { FormValues } from './schema'
+import { Form } from 'src/components/organisms'
 
 type Props = {
+  form: UseFormReturn<FormValues>
   onGoBack: () => void
   onSendResetLink: () => void
 }
 
-export const RecoverTemplate = ({ onGoBack, onSendResetLink }: Props) => {
+export const RecoverTemplate = ({ form, onGoBack, onSendResetLink }: Props) => {
+  const { watch } = form
+
+  const emailValue = watch('email')
+  const isSendResetLinkDisabled = useMemo(() => !emailValue, [emailValue])
+
   return (
     <div>
       <OnboardingBackgroundImage className="bg-[95%]" />
@@ -26,13 +35,20 @@ export const RecoverTemplate = ({ onGoBack, onSendResetLink }: Props) => {
             {c('recoverSubtitle')}
           </Heading>
 
-          <BlurredInput id={''} fieldSize={'md'} placeholder={c('recoverEmailInputPlaceholder')} />
+          <Form form={form} onSubmit={onSendResetLink}>
+            <Form.Input
+              name="email"
+              variant="blurred"
+              fieldSize={'md'}
+              placeholder={c('recoverEmailInputPlaceholder')}
+            />
 
-          <div className="mt-3">
-            <Button onClick={onSendResetLink} size="lg" variant="tertiary" isRounded isFullWidth>
-              {c('sendResetLink')}
-            </Button>
-          </div>
+            <div className="mt-3">
+              <Form.Submit disabled={isSendResetLinkDisabled} size="lg" variant="tertiary" isRounded isFullWidth>
+                {c('sendResetLink')}
+              </Form.Submit>
+            </div>
+          </Form>
         </div>
       </div>
     </div>

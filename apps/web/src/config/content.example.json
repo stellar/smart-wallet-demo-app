@@ -1,6 +1,6 @@
 {
-  "inviteOptionATitleLine1": "SMART WALLET",
-  "inviteOptionATitleLine2": "DEMO",
+  "inviteOptionATitleLine1": "SMART",
+  "inviteOptionATitleLine2": "WALLET",
   "inviteOptionBTitleLine1": "WELCOME",
   "inviteOptionBTitleLine2": "BACK",
   "inviteSubtitle": "Smart Wallet Demo is your wallet powered by next-gen Web3 tools.",
@@ -18,8 +18,8 @@
   "recoverConfirmTitle": "Create a new Passkey",
   "recoverConfirmSubtitle": "Secure your wallet with your device — Touch ID, Face ID, or PIN. Simple, private, and safe.",
   "createAPasskey": "Create a passkey",
-  "comingSoonTitleLine1": "SMART WALLET",
-  "comingSoonTitleLine2": "KICKS OFF",
-  "comingSoonTitleLine3": "SOON",
+  "comingSoonTitleLine1": "SMART",
+  "comingSoonTitleLine2": "WALLET",
+  "comingSoonTitleLine3": "DEMO",
   "comingSoonSubtitle": "Smart wallet demo will go live soon."
 }
