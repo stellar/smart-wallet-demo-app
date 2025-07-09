@@ -6,11 +6,11 @@ export const Home = () => {
   const navigate = useNavigate()
 
   const handleCreateWallet = () => {
-    throw new Error('Function not implemented.')
+    navigate({ to: AuthPagesPath.INVITE_RESEND })
   }
 
   const handleLogIn = () => {
-    navigate({ to: AuthPagesPath.INVITE_RESEND })
+    throw new Error('Function not implemented.')
   }
 
   const handleForgotPassword = () => {

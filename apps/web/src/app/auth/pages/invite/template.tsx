@@ -30,7 +30,7 @@ export const InviteTemplate = ({ isReturningUser, onCreateWallet, onLogIn, onFor
 
   return (
     <div>
-      <OnboardingBackgroundImage className="bg-[60%]" gradientBottomPercentage={config.gradientBottomPercentage} />
+      <OnboardingBackgroundImage gradientBottomPercentage={config.gradientBottomPercentage} isAnimated />
       <div className="mt-[calc(100vh-75vh)] flex flex-col justify-start px-8">
         <img className="text-primary mb-6" src={a('yellowLogo')} width={ONBOARDING_LOGO_WIDTH} alt="Logo" />
 

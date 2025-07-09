@@ -7,6 +7,8 @@
   "createAWallet": "Create a wallet",
   "logIn": "Log in",
   "forgotPassword": "Forgot password?",
+  "inviteResendTitleLine1": "Create a",
+  "inviteResendTitleLine2": "Wallet",
   "inviteResendSubtitle": "Pop in your email and we'll send you the link.",
   "inviteResendInputPlaceholder": "Enter email address",
   "sendLink": "Send Link",

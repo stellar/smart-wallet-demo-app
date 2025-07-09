@@ -64,6 +64,15 @@ export const THEME_STYLES = {
         large: 'var(--border-radius-large)',
         full: 'var(--border-radius-full)',
       },
+      keyframes: {
+        'background-move': {
+          '0%': { backgroundPosition: '0% 0%' },
+          '100%': { backgroundPosition: '100% 0%' },
+        },
+      },
+      animation: {
+        'background-move': 'background-move 60s linear infinite alternate',
+      },
     },
   },
   plugins: [],

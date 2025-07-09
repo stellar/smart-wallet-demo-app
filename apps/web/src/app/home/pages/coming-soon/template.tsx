@@ -8,7 +8,7 @@ import { ONBOARDING_LOGO_WIDTH } from 'src/app/core/constants/onboarding'
 export const ComingSoonTemplate = () => {
   return (
     <div>
-      <OnboardingBackgroundImage className="bg-[60%]" />
+      <OnboardingBackgroundImage isAnimated />
       <div className="mt-[calc(100vh-75vh)] flex flex-col justify-start px-8">
         <img className="text-primary mb-6" src={a('yellowLogo')} width={ONBOARDING_LOGO_WIDTH} alt="Logo" />
 

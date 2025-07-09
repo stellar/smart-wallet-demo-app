@@ -14,7 +14,7 @@ type Props = {
 export const HomeTemplate = ({ onCreateWallet, onLogIn, onForgotPassword }: Props) => {
   return (
     <div>
-      <OnboardingBackgroundImage className="bg-[60%]" />
+      <OnboardingBackgroundImage isAnimated />
       <div className="mt-[calc(100vh-80vh)] flex flex-col justify-start px-8">
         <img className="text-primary mb-6" src={a('yellowLogo')} width={ONBOARDING_LOGO_WIDTH} alt="Logo" />
 
