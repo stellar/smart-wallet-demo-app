@@ -61,3 +61,5 @@ This project leverages the following core technologies:
 │  ├── logger              # Pino logger configuration
 └── errors/                # Custom exceptions
 ```
+
+---

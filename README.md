@@ -97,3 +97,5 @@ make test APP=backend
 ## Smart Contracts
 
 The `contracts` folder contains Stellar smart contracts (e.g., Soroban) used by the backend or client apps. Instructions for compiling, testing, and deploying contracts are documented in that directory’s README.
+
+---

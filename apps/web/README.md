@@ -20,6 +20,12 @@ This project leverages the following libraries and tools:
 
 ---
 
+## 📄 Additional Documentation
+
+- [Assets and Content Configuration](./docs/ASSETS_AND_CONTENT.md):  
+  Learn how to manage and load external assets (images, videos) and content (texts) in this project.  
+  This guide covers how to configure these files for local development and CI/CD pipelines, and how to use the provided helper hooks (`a()`, `c()`) in your components.
+
 ## 📁 Project Structure
 
 ```
@@ -64,3 +70,5 @@ This project leverages the following libraries and tools:
 │  │  │     ├── helpers/
 │  │  │     └── use-cases/
 ```
+
+---
