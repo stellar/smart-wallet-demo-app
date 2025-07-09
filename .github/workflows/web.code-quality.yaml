@@ -23,12 +23,12 @@ jobs:
           cache: "npm"
           cache-dependency-path: "package-lock.json"
 
-      - name: Copy .env.example to .env.test
+      - name: Prepare test environment variables
         run: |
           cp ./apps/web/src/config/.env.example ./apps/web/src/config/.env.test
           sed -i 's/NODE_ENV=.*/NODE_ENV="test"/g' ./apps/web/src/config/.env.test
 
-      - name: Copy assets and content (from .example)
+      - name: Prepare assets and content configuration
         run: |
           cp ./apps/web/src/config/assets.example.json ./apps/web/src/config/assets.json
           cp ./apps/web/src/config/content.example.json ./apps/web/src/config/content.json
