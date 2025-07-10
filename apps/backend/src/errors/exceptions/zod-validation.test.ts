@@ -9,7 +9,7 @@ describe('ZodValidationException', () => {
     const zodError = new ZodError([])
     const exception = new ZodValidationException(zodError)
 
-    expect(exception.name).toBe('ZopValidationException')
+    expect(exception.name).toBe('ZodValidationException')
     expect(exception.errorCode).toBe(ErrorCode.VALIDATION_ERROR)
     expect(exception.statusCode).toBe(HttpStatusCodes.BAD_REQUEST)
   })

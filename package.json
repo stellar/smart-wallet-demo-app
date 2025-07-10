@@ -4,7 +4,8 @@
   "description": "Smart Wallet Demo App",
   "private": true,
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "scripts"
   ],
   "scripts": {
     "prepare": "node .husky/install.mjs"
