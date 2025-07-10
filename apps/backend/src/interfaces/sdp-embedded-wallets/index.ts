@@ -1,4 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
+import { SingletonBase } from 'api/core/framework/singleton/interface'
+import { AxiosLogger } from 'config/axios-logger'
 import { getValueFromEnv } from 'config/env-utils'
 import { logger } from 'config/logger'
 import {
@@ -11,10 +13,11 @@ import {
 
 export const CONNECTION_TIMEOUT = 10000
 
-export default class SDPEmbeddedWallets implements SDPEmbeddedWalletsType {
+export default class SDPEmbeddedWallets extends SingletonBase implements SDPEmbeddedWalletsType {
   private sdpConnection: AxiosInstance
 
   constructor(connection?: AxiosInstance) {
+    super()
     this.sdpConnection =
       connection ??
       axios.create({
@@ -24,6 +27,13 @@ export default class SDPEmbeddedWallets implements SDPEmbeddedWalletsType {
         ),
         timeout: CONNECTION_TIMEOUT,
       })
+
+    const axiosLogger = new AxiosLogger(this.constructor.name)
+    this.sdpConnection.interceptors.request.use(axiosLogger.createRequestInterceptor)
+    this.sdpConnection.interceptors.response.use(
+      axiosLogger.createFulfilledResponseInterceptor,
+      axiosLogger.createRejectedResponseInterceptor
+    )
   }
 
   public async createWallet(input: CreateWalletRequest): Promise<CreateWalletResponse> {
