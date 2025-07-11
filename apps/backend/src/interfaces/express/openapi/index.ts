@@ -41,8 +41,13 @@ export const swaggerDefinition = {
   openapi: '3.0.3',
   info: {
     version: '1.0.0',
-    title: 'Node-API',
-    description: 'Node API',
+    title: 'Smart Wallet Backend API',
+    description: 'Smart Wallet Backend API',
+    contact: {
+      name: 'Stellar Development Foundation',
+      url: 'https://www.stellar.org',
+    },
+    // TODO: update license information
     license: {
       name: 'Apache 2.0',
       url: 'https://www.apache.org/licenses/LICENSE-2.0.html',
