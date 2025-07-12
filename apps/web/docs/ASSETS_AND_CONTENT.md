@@ -70,8 +70,7 @@ Load an image/video from your assets:
 
 ```tsx
 import { a } from 'src/interfaces/cms/useAssets'
-
-<img src={a('logo')} alt="Logo" />
+;<img src={a('logo')} alt="Logo" />
 ```
 
 The `a()` helper automatically:

@@ -38,7 +38,7 @@ export class ZodValidationException extends BaseException {
 
   constructor(zodError: ZodError) {
     super(ErrorCode.VALIDATION_ERROR, HttpStatusCodes.BAD_REQUEST)
-    this.name = 'ZopValidationException'
+    this.name = 'ZodValidationException'
     this.zodError = zodError
   }
 }

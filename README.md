@@ -10,6 +10,7 @@ This repository is organized as follows:
   - [backend/](./apps/backend) | Node.js backend (API)
   - [web/](./apps/web) | React-based web application
 - [contracts/](./contracts) | Smart contracts (e.g., Soroban)
+- [scripts/](./scripts) | Utility scripts for setting up and managing the environment
 - [Makefile](./Makefile) | Project-level build and dev commands
 - [docker-compose.yml](./docker-compose.yml) | Container orchestration
 
@@ -97,5 +98,16 @@ make test APP=backend
 ## Smart Contracts
 
 The `contracts` folder contains Stellar smart contracts (e.g., Soroban) used by the backend or client apps. Instructions for compiling, testing, and deploying contracts are documented in that directory’s README.
+
+## Proofs API
+
+The backend includes a proofs API for Merkle proof verification and airdrop claims. The airdrop contract needs to be deployed and proofs need to be uploaded to the backend before users can claim their airdrops.
+
+### Setup
+
+1. Deploy an airdrop contract (see [contracts/](./contracts))
+2. Generate proofs: `npm run --workspace=scripts generate-proofs`
+3. Upload proofs: `npm run --workspace=scripts upload-proofs`
+4. Query proofs: `GET /api/proofs/{address}`
 
 ---
