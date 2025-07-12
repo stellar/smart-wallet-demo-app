@@ -78,13 +78,11 @@ All workspace apps support the following `make` commands:
 | `start-staging`                 | Starts the app using staging configuration                                                         |
 | `test`                          | Runs tests for the selected app                                                                    |
 | `test-coverage`                 | Runs tests and shows coverage                                                                      |
-| `serve`                         | Runs a local static server (**only for web**)                                                      |
-| `storybook`                     | Runs Storybook (**only for web**)                                                                  |
-| `build-storybook`               | Builds the Storybook static site (**only for web**)                                                |
 | `lint`                          | Runs ESLint on the codebase                                                                        |
 | `lint-fix`                      | Auto-fixes linting issues                                                                          |
 | `type-check`                    | Runs TypeScript type checking                                                                      |
 | `format-code`                   | Formats the code using Prettier                                                                    |
+| `serve`                         | Runs a local static server (**only for web**)                                                      |
 | `migration-run`                 | Runs database migrations (**only for backend**)                                                    |
 | `migration-generate`            | Generates a new migration based on entities changes (**only for backend**)                         |
 | `docker-run-migration-run`      | Runs database migrations - on a Docker container (**only for backend**)                            |
@@ -101,7 +99,6 @@ make test APP=backend
 
 The `contracts` folder contains Stellar smart contracts (e.g., Soroban) used by the backend or client apps. Instructions for compiling, testing, and deploying contracts are documented in that directory’s README.
 
-
 ## Proofs API
 
 The backend includes a proofs API for Merkle proof verification and airdrop claims. The airdrop contract needs to be deployed and proofs need to be uploaded to the backend before users can claim their airdrops.
@@ -112,3 +109,5 @@ The backend includes a proofs API for Merkle proof verification and airdrop clai
 2. Generate proofs: `npm run --workspace=scripts generate-proofs`
 3. Upload proofs: `npm run --workspace=scripts upload-proofs`
 4. Query proofs: `GET /api/proofs/{address}`
+
+---

@@ -1,33 +1,43 @@
-import { Button, Typography, TypographyVariant, TypographyWeight } from 'src/components/atoms'
-
-import { Select } from '../../../../components/atoms/select'
+import { BrandTightHeading, GhostButton } from 'src/components/molecules'
+import { Button, Heading } from '@stellar/design-system'
+import { OnboardingBackgroundImage } from 'src/app/core/components'
+import { c } from 'src/interfaces/cms/useContent'
+import { a } from 'src/interfaces/cms/useAssets'
+import { ONBOARDING_LOGO_WIDTH } from 'src/app/core/constants/onboarding'
 
 type Props = {
-  onOpenDialog: () => void
-  formattedDate: string
+  onCreateWallet: () => void
+  onLogIn: () => void
+  onForgotPassword: () => void
 }
 
-export const HomeTemplate = ({ onOpenDialog, formattedDate }: Props) => {
+export const HomeTemplate = ({ onCreateWallet, onLogIn, onForgotPassword }: Props) => {
   return (
-    <div className="text-text bg-background h-screen flex flex-col gap-4 items-center justify-center">
-      <Typography variant={TypographyVariant.h1} weight={TypographyWeight.bold}>
-        Home screen
-      </Typography>
-      <Typography>This is not a private route</Typography>
+    <div>
+      <OnboardingBackgroundImage isAnimated />
+      <div className="mt-[calc(100vh-80vh)] flex flex-col justify-start px-8">
+        <img className="text-primary mb-6" src={a('yellowLogo')} width={ONBOARDING_LOGO_WIDTH} alt="Logo" />
 
-      <Typography>Today is: {formattedDate}</Typography>
+        <div className="flex flex-col gap-4">
+          <BrandTightHeading className="-mb-2" lines={[c('inviteOptionATitleLine1'), c('inviteOptionATitleLine2')]} />
 
-      <Button label="Open Dialog" onClick={onOpenDialog} />
+          <Heading addlClassName="text-whitish leading-6" as="h2" size="xs">
+            {c('inviteSubtitle')}
+          </Heading>
 
-      <Select
-        name="aaa"
-        options={[
-          { textValue: 'Carrot', value: 'Carrot' },
-          { textValue: 'Potato', value: 'Potato' },
-          { textValue: 'Onion', value: 'Onion' },
-          { textValue: 'Tomato', value: 'Tomato' },
-        ]}
-      />
+          <Button onClick={onCreateWallet} size="lg" variant="tertiary" isRounded isFullWidth>
+            {c('createAWallet')}
+          </Button>
+
+          <GhostButton onClick={onLogIn} size="lg" isRounded isFullWidth isBordered invertColor>
+            {c('logIn')}
+          </GhostButton>
+
+          <GhostButton onClick={onForgotPassword} size="md" isRounded isFullWidth invertColor>
+            {c('forgotPassword')}
+          </GhostButton>
+        </div>
+      </div>
     </div>
   )
 }

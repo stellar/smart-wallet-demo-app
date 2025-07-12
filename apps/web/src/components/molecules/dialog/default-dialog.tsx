@@ -2,16 +2,8 @@ import * as React from 'react'
 import { useMemo } from 'react'
 
 import * as ReactDialog from '@radix-ui/react-dialog'
-
-import {
-  Button,
-  ButtonVariant,
-  CustomIcon,
-  CustomIconNames,
-  Typography,
-  TypographyVariant,
-  TypographyWeight,
-} from 'src/components/atoms'
+import { Button, Heading, Icon, Text } from '@stellar/design-system'
+import { GhostButton } from '../ghost-button'
 
 import { DialogAction, DialogControllingProps, DistributiveOmit } from './types'
 
@@ -67,26 +59,28 @@ export const DefaultDialog: React.FC<DefaultDialogProps> = ({
           className="flex flex-col justify-between z-[12] bg-white rounded-default fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-8 shadow-md text-secondary md:min-w-[680px] transition"
         >
           <ReactDialog.Title className="flex justify-between items-center pb-4 gap-4">
-            <Typography
-              asChild={typeof title !== 'string'}
-              weight={TypographyWeight.semibold}
-              className="text-primary text-xl"
-            >
+            <Heading addlClassName="text-primary text-xl" as="h1" size="xs" weight="semi-bold">
               {title}
-            </Typography>
+            </Heading>
             {showCloseButton && (
               <ReactDialog.Close
-                className="rounded-default size-8 hover:bg-gray-100 transition"
+                className="rounded-default size-8 hover:bg-gray-100 transition flex items-center justify-center"
                 onClick={'onClose' in rest ? rest.onClose : undefined}
               >
-                <CustomIcon name={CustomIconNames.close} />
+                <Icon.XClose />
               </ReactDialog.Close>
             )}
           </ReactDialog.Title>
 
           {content && (
             <ReactDialog.Description asChild={typeof content === 'string'} className="mb-8">
-              {typeof content === 'string' ? <Typography variant={TypographyVariant.p}>{content}</Typography> : content}
+              {typeof content === 'string' ? (
+                <Text as="p" size="xs">
+                  {content}
+                </Text>
+              ) : (
+                content
+              )}
             </ReactDialog.Description>
           )}
 
@@ -96,17 +90,30 @@ export const DefaultDialog: React.FC<DefaultDialogProps> = ({
                 const lastIndex = index === actions.length - 1
                 let variant = action.variant
                 if (!variant) {
-                  variant = lastIndex ? ButtonVariant.primary : ButtonVariant.ghost
+                  variant = lastIndex ? 'primary' : 'ghost'
                 }
                 return (
                   <ActionWrapper key={index}>
-                    <Button
-                      label={action.content}
-                      variant={variant}
-                      onClick={action.onClick}
-                      loading={lastIndex && isLoading}
-                      disabled={isLoading || action.disabled}
-                    />
+                    {variant === 'ghost' ? (
+                      <GhostButton
+                        size="md"
+                        onClick={action.onClick}
+                        isLoading={lastIndex && isLoading}
+                        disabled={isLoading || action.disabled}
+                      >
+                        {action.content}
+                      </GhostButton>
+                    ) : (
+                      <Button
+                        variant={variant}
+                        size="md"
+                        onClick={action.onClick}
+                        isLoading={lastIndex && isLoading}
+                        disabled={isLoading || action.disabled}
+                      >
+                        {action.content}
+                      </Button>
+                    )}
                   </ActionWrapper>
                 )
               }

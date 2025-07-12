@@ -5,6 +5,19 @@
 import '@testing-library/jest-dom'
 import 'vitest-canvas-mock'
 
+// SDS MOCK
+vi.mock('@stellar/design-system', async () => {
+  const actual = await vi.importActual<typeof import('@stellar/design-system')>('@stellar/design-system')
+
+  const iconKeys = Object.keys(actual.Icon ?? {})
+  const mockedIcons = Object.fromEntries(iconKeys.map(key => [key, key]))
+
+  return {
+    ...actual,
+    Icon: mockedIcons,
+  }
+})
+
 // GLOBAL MOCKS
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
@@ -29,3 +42,15 @@ window.PointerEvent = MockPointerEvent as unknown as typeof PointerEvent
 window.HTMLElement.prototype.scrollIntoView = vi.fn()
 window.HTMLElement.prototype.releasePointerCapture = vi.fn()
 window.HTMLElement.prototype.hasPointerCapture = vi.fn()
+
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+})

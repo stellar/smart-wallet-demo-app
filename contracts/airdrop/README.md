@@ -3,12 +3,15 @@
 ## Contract Overview
 
 ### Constructor
+
 ```rust
 __constructor(root_hash: BytesN<32>, token: Address, funding_amount: i128, funding_source: Address)
 ```
+
 Initialize the airdrop with Merkle root and funding parameters.
 
 ### Public Functions
+
 - `claim(index: u32, receiver: Address, amount: i128, proof: Vec<BytesN<32>>)` - Claim tokens using Merkle proof
 - `is_claimed(index: u32) -> bool` - Check if an index has been claimed
 - `is_ended() -> bool` - Check if the airdrop has ended
@@ -17,11 +20,13 @@ Initialize the airdrop with Merkle root and funding parameters.
 ## Deployment
 
 Build the contract:
+
 ```bash
 stellar contract build --package airdrop
 ```
 
 Deploy the contract with constructor arguments:
+
 ```bash
 stellar contract deploy \
   --wasm target/wasm32v1-none/release/airdrop.wasm \
@@ -33,6 +38,7 @@ stellar contract deploy \
   --funding_amount $AMOUNT \
   --funding_source IDENTITY
 ```
+
 You must ensure that the `IDENTITY` account has enough of the token to fund the airdrop.
 
 ## Integration with Backend

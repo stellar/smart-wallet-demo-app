@@ -11,16 +11,25 @@ export interface ISliderProps extends RadixSlider.SliderProps {
 }
 
 const SLIDER_COLOR_STYLE: Record<ThemeColor, string> = {
-  accent: 'bg-accent',
-  background: 'bg-background',
-  blackish: 'bg-blackish',
-  danger: 'bg-danger',
-  muted: 'bg-muted',
+  text: 'bg-text',
   primary: 'bg-primary',
   secondary: 'bg-secondary',
-  success: 'bg-success',
-  text: 'bg-text',
+  tertiary: 'bg-tertiary',
+  accent: 'bg-accent',
+  accentBlack: 'bg-accent-black',
+  accentWhite: 'bg-accent-white',
+  accentMuted: 'bg-accent-muted',
+  textSecondary: 'bg-text-secondary',
+  background: 'bg-background',
+  backgroundSecondary: 'bg-background-secondary',
+  backgroundTertiary: 'bg-background-tertiary',
+  borderPrimary: 'bg-border-primary',
+  borderSecondary: 'bg-border-secondary',
   whitish: 'bg-whitish',
+  blackish: 'bg-blackish',
+  muted: 'bg-muted',
+  success: 'bg-success',
+  danger: 'bg-danger',
 }
 
 export const Slider = ({

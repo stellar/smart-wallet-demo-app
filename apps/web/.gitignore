@@ -2,5 +2,8 @@
 /.pnp
 .pnp.js
 /build
-storybook-static/
 .idea/
+assets*.json
+!assets.example.json
+content*.json
+!content.example.json

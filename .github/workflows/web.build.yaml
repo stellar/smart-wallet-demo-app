@@ -2,6 +2,11 @@ name: Web Build
 
 on:
   workflow_call:
+    secrets:
+      APP_ASSETS_URL:
+        required: true
+      APP_CONTENT_URL:
+        required: true
 
 jobs:
   build:
@@ -12,6 +17,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Download assets and content
+        run: |
+          curl -sSL --fail ${{ secrets.APP_ASSETS_URL }} -o apps/web/src/config/assets.json
+          curl -sSL --fail ${{ secrets.APP_CONTENT_URL }} -o apps/web/src/config/content.json
 
       - name: Get web app version
         id: get-version
