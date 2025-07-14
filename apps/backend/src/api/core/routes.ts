@@ -1,3 +1,4 @@
+import 'express-async-errors'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import express, { NextFunction, Request, Response, Router } from 'express'
 import proofRoutes from '../proofs/routes'
