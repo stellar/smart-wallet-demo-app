@@ -1,20 +1,28 @@
 import { useState } from 'react'
 import { InviteTemplate } from './template'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useParams } from '@tanstack/react-router'
 import { AuthPagesPath } from '../../routes/types'
+import { useCreateWallet } from '../../queries/use-create-wallet'
+import { useLogIn } from '../../queries/use-log-in'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { getInvitationInfoOptions } from '../../queries/use-get-invitation-info'
 
 export const Invite = () => {
-  // TODO: manage returning user state
   const [isReturningUser] = useState(false)
 
+  const params = useParams({ from: AuthPagesPath.INVITE })
   const navigate = useNavigate()
 
-  const handleCreateWallet = () => {
-    throw new Error('Function not implemented.')
+  const createWallet = useCreateWallet()
+  const logIn = useLogIn()
+  const getInvitationInfo = useSuspenseQuery(getInvitationInfoOptions({ uniqueToken: params.uniqueToken }))
+
+  const handleCreateWallet = async () => {
+    createWallet.mutate({ email: getInvitationInfo.data.email })
   }
 
   const handleLogIn = () => {
-    throw new Error('Function not implemented.')
+    logIn.mutate({ email: getInvitationInfo.data.email })
   }
 
   const handleForgotPassword = () => {

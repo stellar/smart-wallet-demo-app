@@ -1,9 +1,10 @@
 import { FC, PropsWithChildren, ReactElement } from 'react'
 
 import { render, RenderOptions, RenderResult } from '@testing-library/react'
+import { createRouter, RouterProvider } from '@tanstack/react-router'
+import { QueryClient } from '@tanstack/react-query'
 
 import { Providers } from 'src/app/core/providers'
-import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { routeTree } from 'src/app/core/router/routeTree'
 
 type CustomRenderFunction = (ui: ReactElement, options?: Omit<RenderOptions, 'queries'>) => RenderResult
@@ -14,7 +15,10 @@ const ApplicationProviders: FC<PropsWithChildren> = ({ children }) => <Providers
 const ApplicationProvidersWithRouter: FC<PropsWithChildren> = ({ children }) => {
   const router = createRouter({
     routeTree,
-    defaultComponent: () => <div>{children}</div>, // Test component
+    defaultComponent: () => <div>{children}</div>,
+    context: {
+      client: new QueryClient(),
+    },
   })
 
   return (

@@ -8,4 +8,9 @@ import viteTsconfigPaths from 'vite-tsconfig-paths'
 export default defineConfig({
   envDir: './src/config/',
   plugins: [react(), viteTsconfigPaths(), svgrPlugin()],
+  resolve: {
+    alias: {
+      buffer: 'buffer',
+    },
+  },
 })

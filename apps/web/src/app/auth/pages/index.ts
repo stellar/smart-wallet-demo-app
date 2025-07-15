@@ -1,3 +1,4 @@
+export * from './welcome'
 export * from './invite'
 export * from './invite-resend'
 export * from './recover'

@@ -1,5 +1,6 @@
 export enum AuthPagesPath {
-  INVITE = '/invite',
+  WELCOME = '/',
+  INVITE = '/invite/$uniqueToken',
   INVITE_RESEND = '/invite/resend',
   RECOVER = '/recover',
   RECOVER_CONFIRM = '/recover/confirm',
