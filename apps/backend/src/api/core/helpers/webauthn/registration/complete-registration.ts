@@ -15,7 +15,7 @@ export const completeRegistration = async ({
   registrationResponseJSON: string
   passkeyRepository: PasskeyRepositoryType
   webauthnChallengeService: IWebauthnChallengeService
-}): Promise<{ passkey: Passkey; publicKeyHex: string | null }> => {
+}): Promise<{ passkey: Passkey; publicKeyHex: string | null } | false> => {
   const relyingPartyOrigin = getValueFromEnv('WEBAUTHN_RP_ORIGIN')
   const relyingPartyId = new URL(relyingPartyOrigin).hostname
 
@@ -34,11 +34,14 @@ export const completeRegistration = async ({
     expectedOrigin: relyingPartyOrigin,
     expectedRPID: relyingPartyId,
   })
+  webauthnChallengeService.deleteChallenge(userIdentifier)
 
   if (!registrationInfo)
     throw Error(`completeRegistration | verifyRegistrationResponse | Missing registrationInfo for ${userIdentifier}`)
 
-  const { credential, credentialDeviceType, credentialBackedUp } = registrationInfo
+  const { userVerified, credential, credentialDeviceType, credentialBackedUp } = registrationInfo
+
+  if (!userVerified) return false
 
   const passkey = await passkeyRepository.createPasskey({
     user,
