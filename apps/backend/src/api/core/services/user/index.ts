@@ -23,6 +23,11 @@ export default class UserRepository extends SingletonBase implements UserReposit
     return newUser
   }
 
+  async updateUser(userId: string, data: Partial<User>): Promise<User> {
+    await UserModel.update(userId, data)
+    return this.getUserById(userId) as Promise<User>
+  }
+
   async saveUser(user: User): Promise<User> {
     return UserModel.save(user)
   }

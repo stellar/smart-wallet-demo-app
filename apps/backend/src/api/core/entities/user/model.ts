@@ -19,5 +19,5 @@ export class User extends ModelBase {
     type: 'varchar',
     nullable: true,
   })
-  publicKey: string
+  publicKey?: string
 }

@@ -6,6 +6,7 @@ export function mockUserRepository(): Mocked<UserRepositoryType> {
     getUserById: vi.fn(),
     getUserByToken: vi.fn(),
     createUser: vi.fn(),
+    updateUser: vi.fn(),
     saveUser: vi.fn(),
   }
 }
