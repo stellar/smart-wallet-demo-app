@@ -1,6 +1,5 @@
+import { ButtonProps } from '@stellar/design-system'
 import * as React from 'react'
-
-import { ButtonVariant } from 'src/components/atoms'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never
@@ -9,7 +8,7 @@ export type DialogAction = {
   content: string | React.ReactElement
   onClick?: () => void
   disabled?: boolean
-  variant?: ButtonVariant
+  variant?: ButtonProps['variant'] | 'ghost'
 }
 
 export type DialogWithTriggerElementProps = {

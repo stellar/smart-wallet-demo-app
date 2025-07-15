@@ -17,15 +17,19 @@ This project leverages the following libraries and tools:
 - [TanStack Router](https://tanstack.com/router/latest) – App routing
 - [TanStack Query](https://tanstack.com/query/latest) – Data fetching and caching
 - [Vitest](https://vitest.dev/) – Unit and integration testing framework
-- [Storybook](https://storybook.js.org/) – UI component explorer
 
 ---
+
+## 📄 Additional Documentation
+
+- [Assets and Content Configuration](./docs/ASSETS_AND_CONTENT.md):  
+  Learn how to manage and load external assets (images, videos) and content (texts) in this project.  
+  This guide covers how to configure these files for local development and CI/CD pipelines, and how to use the provided helper hooks (`a()`, `c()`) in your components.
 
 ## 📁 Project Structure
 
 ```
 .
-├── .storybook/            # Storybook main files
 ├── public/                # Public assets (favicon, manifest, etc.)
 ├── src/                   # Main application folder
 │  ├── index.tsx           # App entry point
@@ -66,3 +70,5 @@ This project leverages the following libraries and tools:
 │  │  │     ├── helpers/
 │  │  │     └── use-cases/
 ```
+
+---

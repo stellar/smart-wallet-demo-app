@@ -68,11 +68,13 @@ services:
       args:
         PROD: ${PROD:-false}
         VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+        VITE_THEME_SWITCH_ENABLED: ${VITE_THEME_SWITCH_ENABLED:-false}
     environment:
       DEPLOY_STAGE: ${DEPLOY_STAGE:-local}
       PORT: ${PORT:-3000}
       PROD: ${PROD:-false}
       VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+      VITE_THEME_SWITCH_ENABLED: ${VITE_THEME_SWITCH_ENABLED:-false}
     volumes:
       - ./:/app
       - 'web-root-node-modules:/app/node_modules'

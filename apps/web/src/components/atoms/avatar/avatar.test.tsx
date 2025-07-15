@@ -2,13 +2,13 @@ import '@testing-library/jest-dom'
 
 import { render, screen } from '@testing-library/react'
 
-import Logo from 'src/assets/logo.svg'
+import BlackLogo from 'src/assets/black-logo.svg'
 
 import { Avatar } from '.'
 
 describe('Avatar Component', () => {
   it('renders correctly with default logo', () => {
-    render(<Avatar img={Logo} />)
+    render(<Avatar img={BlackLogo} />)
 
     const root = screen.getByRole('presentation')
     expect(root).toHaveClass('rounded-full', 'bg-secondary', 'size-10')
@@ -25,7 +25,7 @@ describe('Avatar Component', () => {
   })
 
   it('renders both logo and initials when both props are provided', () => {
-    render(<Avatar img={Logo} name="John Doe" />)
+    render(<Avatar img={BlackLogo} name="John Doe" />)
 
     const initials = screen.getByText('JD')
     expect(initials).toBeInTheDocument()
@@ -50,7 +50,7 @@ describe('Avatar Component', () => {
   })
 
   it('applies custom className correctly', () => {
-    render(<Avatar img={Logo} className="custom-test-class" />)
+    render(<Avatar img={BlackLogo} className="custom-test-class" />)
 
     const root = screen.getByRole('presentation')
     expect(root).toHaveClass('custom-test-class')
@@ -60,7 +60,7 @@ describe('Avatar Component', () => {
   })
 
   it('maintains proper structure and styling', () => {
-    render(<Avatar img={Logo} name="John Doe" className="test-class" />)
+    render(<Avatar img={BlackLogo} name="John Doe" className="test-class" />)
 
     const root = screen.getByRole('presentation')
     expect(root).toHaveClass('test-class')

@@ -1,0 +1,1 @@
+export const ONBOARDING_LOGO_WIDTH = 65
