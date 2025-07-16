@@ -1,6 +1,6 @@
 import path from 'path'
 import { DataSource, DataSourceOptions } from 'typeorm'
-import { getValueFromEnv, rootDir } from 'config/env-utils'
+import { getValueFromEnv, isProdEnv, rootDir } from 'config/env-utils'
 import { SnakeNamingStrategy } from 'api/core/framework/orm/naming-strategy'
 
 export const AppDataSource = new DataSource({
@@ -14,4 +14,5 @@ export const AppDataSource = new DataSource({
   migrations: [path.join(rootDir, 'api/core/migrations/*.{js,ts}')],
   entities: [path.join(rootDir, 'api/core/entities/*/model.{js,ts}')],
   namingStrategy: new SnakeNamingStrategy(),
+  ssl: isProdEnv(),
 } as DataSourceOptions)
