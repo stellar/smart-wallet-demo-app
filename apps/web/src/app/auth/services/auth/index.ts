@@ -50,10 +50,11 @@ export class AuthService implements IAuthService {
   }
 
   async postLogIn(input: PostLogInInput): Promise<PostLogInResult> {
-    const { authenticationResponseJSON } = input
+    const { email, authenticationResponseJSON } = input
 
     const response = await http.post(`/api/embedded-wallets/login/complete`, {
-      authenticationResponseJSON,
+      email,
+      authentication_response_json: authenticationResponseJSON,
     })
 
     return response.data

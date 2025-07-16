@@ -4,7 +4,7 @@ import { useNavigate, useSearch } from '@tanstack/react-router'
 import { AuthPagesPath } from '../../routes/types'
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
 import { useCreateWallet } from '../../queries/use-create-wallet'
-import { useLogIn } from '../../queries/use-log-in'
+import { useLogIn } from '../../queries/use-login'
 import { useEmailStore } from '../../store'
 import { getInvitationInfoOptions } from '../../queries/use-get-invitation-info'
 import { InviteTemplate } from './template'
@@ -18,7 +18,11 @@ export const Invite = () => {
       navigate({ to: WalletPagesPath.HOME })
     },
   })
-  const logIn = useLogIn()
+  const logIn = useLogIn({
+    onSuccess: () => {
+      navigate({ to: WalletPagesPath.HOME })
+    },
+  })
   const getInvitationInfo = useSuspenseQuery(getInvitationInfoOptions({ uniqueToken: search.token }))
 
   const isReturningUser = useMemo(() => getInvitationInfo.data.status === 'SUCCESS', [getInvitationInfo.data.status])

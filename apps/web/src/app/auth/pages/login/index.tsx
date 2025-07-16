@@ -1,18 +1,23 @@
 import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
-import { LogInTemplate } from './template'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { FormValues, schema } from './schema'
 import { AuthPagesPath } from '../../routes/types'
+import { WalletPagesPath } from 'src/app/wallet/routes/types'
 import { useEmailStore } from '../../store'
-import { useLogIn } from '../../queries/use-log-in'
+import { useLogIn } from '../../queries/use-login'
+import { LogInTemplate } from './template'
 
 export const LogIn = () => {
   const router = useRouter()
   const navigate = useNavigate()
   const canGoBack = useCanGoBack()
 
-  const logIn = useLogIn()
+  const logIn = useLogIn({
+    onSuccess: () => {
+      navigate({ to: WalletPagesPath.HOME })
+    },
+  })
 
   const { email } = useEmailStore()
 

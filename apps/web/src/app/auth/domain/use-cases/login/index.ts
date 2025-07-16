@@ -19,13 +19,14 @@ export class LogInUseCase extends UseCaseBase<void> {
     const { email } = input
 
     const { data: logInOptions } = await this.authService.getLogInOptions({ email })
-    const optionsJSON = JSON.parse(logInOptions.optionsJSON)
+    const optionsJSON = JSON.parse(logInOptions.options_json)
 
     const { rawResponse: authenticateWithPasskeyResponse } = await this.webauthnService.authenticateWithPasskey({
       optionsJSON,
     })
 
     const { data: logInResult } = await this.authService.postLogIn({
+      email,
       authenticationResponseJSON: JSON.stringify(authenticateWithPasskeyResponse),
     })
 
