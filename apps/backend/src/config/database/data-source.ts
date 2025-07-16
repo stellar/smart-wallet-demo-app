@@ -3,6 +3,17 @@ import { DataSource, DataSourceOptions } from 'typeorm'
 import { getValueFromEnv, isProdEnv, rootDir } from 'config/env-utils'
 import { SnakeNamingStrategy } from 'api/core/framework/orm/naming-strategy'
 
+const deploymentOptions = isProdEnv()
+  ? {
+      ssl: true,
+      extra: {
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      },
+    }
+  : {}
+
 export const AppDataSource = new DataSource({
   name: 'default',
   type: getValueFromEnv('DATABASE_TYPE'),
@@ -14,5 +25,5 @@ export const AppDataSource = new DataSource({
   migrations: [path.join(rootDir, 'api/core/migrations/*.{js,ts}')],
   entities: [path.join(rootDir, 'api/core/entities/*/model.{js,ts}')],
   namingStrategy: new SnakeNamingStrategy(),
-  ssl: isProdEnv(),
+  ...deploymentOptions,
 } as DataSourceOptions)
