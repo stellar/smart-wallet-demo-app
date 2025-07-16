@@ -1,6 +1,7 @@
 import { createRoute } from '@tanstack/react-router'
+import * as yup from 'yup'
 import { rootRoute } from 'src/app/core/router/routeTree'
-import { Welcome, Invite, InviteResend, Recover, RecoverConfirm } from '../pages'
+import { Welcome, Invite, InviteResend, Recover, RecoverConfirm, LogIn } from '../pages'
 import { AuthPagesPath } from './types'
 import { getInvitationInfoOptions } from '../queries/use-get-invitation-info'
 
@@ -14,14 +15,29 @@ const inviteRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: AuthPagesPath.INVITE,
   component: Invite,
-  beforeLoad: ({ context: { client: queryClient }, params }) =>
-    queryClient.ensureQueryData(getInvitationInfoOptions({ uniqueToken: params.uniqueToken })),
+  validateSearch: search =>
+    yup
+      .object({
+        token: yup.string().required(),
+      })
+      .validateSync(search),
+  loaderDeps: ({ search }) => ({
+    token: search.token,
+  }),
+  loader: ({ context: { client: queryClient }, deps }) =>
+    queryClient.ensureQueryData(getInvitationInfoOptions({ uniqueToken: deps.token })),
 })
 
 const inviteResendRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: AuthPagesPath.INVITE_RESEND,
   component: InviteResend,
+})
+
+const logInRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: AuthPagesPath.LOGIN,
+  component: LogIn,
 })
 
 const recoverRoute = createRoute({
@@ -36,4 +52,4 @@ const recoverConfirmRoute = createRoute({
   component: RecoverConfirm,
 })
 
-export const authRoutes = [welcomeRoute, inviteRoute, inviteResendRoute, recoverRoute, recoverConfirmRoute]
+export const authRoutes = [welcomeRoute, inviteRoute, inviteResendRoute, logInRoute, recoverRoute, recoverConfirmRoute]

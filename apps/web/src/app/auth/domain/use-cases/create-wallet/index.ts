@@ -19,13 +19,14 @@ export class CreateWalletUseCase extends UseCaseBase<void> {
     const { email } = input
 
     const { data: registerOptions } = await this.authService.getRegisterOptions({ email })
-    const optionsJSON = JSON.parse(registerOptions.optionsJSON)
+    const optionsJSON = JSON.parse(registerOptions.options_json)
 
     const { rawResponse: createPasskeyResponse } = await this.webauthnService.createPasskey({
       optionsJSON,
     })
 
     const { data: registerResult } = await this.authService.postRegister({
+      email,
       registrationResponseJSON: JSON.stringify(createPasskeyResponse),
     })
 

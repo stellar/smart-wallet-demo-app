@@ -1,8 +1,9 @@
 import { createRootRouteWithContext, ParsedLocation, redirect } from '@tanstack/react-router'
+import { QueryClient } from '@tanstack/react-query'
 import { Layout } from './components/layout'
 import { homeRoutes } from 'src/app/home/routes'
 import { authRoutes } from 'src/app/auth/routes'
-import { QueryClient } from '@tanstack/react-query'
+import { walletRoutes } from 'src/app/wallet/routes'
 
 export const rootRoute = createRootRouteWithContext<{ client: QueryClient }>()({
   component: Layout,
@@ -26,4 +27,4 @@ export const requireAuth = ({ location }: { location: ParsedLocation<object> }) 
   }
 }
 
-export const routeTree = rootRoute.addChildren([...authRoutes, ...homeRoutes])
+export const routeTree = rootRoute.addChildren([...authRoutes, ...homeRoutes, ...walletRoutes])

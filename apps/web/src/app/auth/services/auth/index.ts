@@ -31,10 +31,11 @@ export class AuthService implements IAuthService {
   }
 
   async postRegister(input: PostRegisterInput): Promise<PostRegisterResult> {
-    const { registrationResponseJSON } = input
+    const { email, registrationResponseJSON } = input
 
-    const response = await http.post(`/api/embedded-wallets/register/options/complete`, {
-      registrationResponseJSON,
+    const response = await http.post(`/api/embedded-wallets/register/complete`, {
+      email,
+      registration_response_json: registrationResponseJSON,
     })
 
     return response.data
@@ -51,7 +52,7 @@ export class AuthService implements IAuthService {
   async postLogIn(input: PostLogInInput): Promise<PostLogInResult> {
     const { authenticationResponseJSON } = input
 
-    const response = await http.post(`/api/embedded-wallets/login/options/complete`, {
+    const response = await http.post(`/api/embedded-wallets/login/complete`, {
       authenticationResponseJSON,
     })
 

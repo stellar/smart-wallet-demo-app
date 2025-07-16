@@ -1,28 +1,37 @@
-import { useState } from 'react'
-import { InviteTemplate } from './template'
-import { useNavigate, useParams } from '@tanstack/react-router'
+import { useMemo } from 'react'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { AuthPagesPath } from '../../routes/types'
+import { WalletPagesPath } from 'src/app/wallet/routes/types'
 import { useCreateWallet } from '../../queries/use-create-wallet'
 import { useLogIn } from '../../queries/use-log-in'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useEmailStore } from '../../store'
 import { getInvitationInfoOptions } from '../../queries/use-get-invitation-info'
+import { InviteTemplate } from './template'
 
 export const Invite = () => {
-  const [isReturningUser] = useState(false)
-
-  const params = useParams({ from: AuthPagesPath.INVITE })
+  const search = useSearch({ from: AuthPagesPath.INVITE })
   const navigate = useNavigate()
 
-  const createWallet = useCreateWallet()
+  const createWallet = useCreateWallet({
+    onSuccess: () => {
+      navigate({ to: WalletPagesPath.HOME })
+    },
+  })
   const logIn = useLogIn()
-  const getInvitationInfo = useSuspenseQuery(getInvitationInfoOptions({ uniqueToken: params.uniqueToken }))
+  const getInvitationInfo = useSuspenseQuery(getInvitationInfoOptions({ uniqueToken: search.token }))
 
-  const handleCreateWallet = async () => {
+  const isReturningUser = useMemo(() => getInvitationInfo.data.status === 'SUCCESS', [getInvitationInfo.data.status])
+  const { email } = useEmailStore()
+
+  const handleCreateWallet = () => {
     createWallet.mutate({ email: getInvitationInfo.data.email })
   }
 
   const handleLogIn = () => {
-    logIn.mutate({ email: getInvitationInfo.data.email })
+    if (!email) return navigate({ to: AuthPagesPath.LOGIN })
+
+    logIn.mutate({ email })
   }
 
   const handleForgotPassword = () => {
@@ -32,6 +41,8 @@ export const Invite = () => {
   return (
     <InviteTemplate
       isReturningUser={isReturningUser}
+      isCreatingWallet={createWallet.isPending}
+      isLoggingIn={createWallet.isPending}
       onCreateWallet={handleCreateWallet}
       onLogIn={handleLogIn}
       onForgotPassword={handleForgotPassword}

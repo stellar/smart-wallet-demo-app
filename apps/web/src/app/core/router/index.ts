@@ -1,5 +1,5 @@
 import { createRouter } from '@tanstack/react-router'
-import { QueryClient } from '@tanstack/react-query'
+import { queryClient } from 'src/interfaces/query-client'
 import { routeTree } from './routeTree'
 
 export const router = createRouter({
@@ -7,6 +7,6 @@ export const router = createRouter({
   defaultPreload: 'intent',
   scrollRestoration: true,
   context: {
-    client: new QueryClient(),
+    client: queryClient,
   },
 })

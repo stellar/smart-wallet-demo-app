@@ -21,10 +21,11 @@ export type GetRegisterOptionsInput = {
   email: string
 }
 export type GetRegisterOptionsResult = IHTTPResponse<{
-  optionsJSON: string
+  options_json: string
 }>
 
 export type PostRegisterInput = {
+  email: string
   registrationResponseJSON: string
 }
 export type PostRegisterResult = IHTTPResponse<{

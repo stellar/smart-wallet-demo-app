@@ -2,8 +2,8 @@ import { FC, PropsWithChildren, ReactElement } from 'react'
 
 import { render, RenderOptions, RenderResult } from '@testing-library/react'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
-import { QueryClient } from '@tanstack/react-query'
 
+import { queryClient } from 'src/interfaces/query-client'
 import { Providers } from 'src/app/core/providers'
 import { routeTree } from 'src/app/core/router/routeTree'
 
@@ -17,7 +17,7 @@ const ApplicationProvidersWithRouter: FC<PropsWithChildren> = ({ children }) => 
     routeTree,
     defaultComponent: () => <div>{children}</div>,
     context: {
-      client: new QueryClient(),
+      client: queryClient,
     },
   })
 
