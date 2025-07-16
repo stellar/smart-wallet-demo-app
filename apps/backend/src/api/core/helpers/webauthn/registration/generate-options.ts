@@ -1,4 +1,5 @@
-import { generateRegistrationOptions as generateOptions } from '@simplewebauthn/server'
+import { AuthenticatorTransportFuture, generateRegistrationOptions as generateOptions } from '@simplewebauthn/server'
+import base64url from 'base64url'
 import { getValueFromEnv } from 'config/env-utils'
 import { User } from 'api/core/entities/user/types'
 import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
@@ -22,7 +23,7 @@ export const generateRegistrationOptions = async ({
   const options = await generateOptions({
     rpName: relyingPartyName,
     rpID: relyingPartyId,
-    userID: Buffer.from(userIdentifier),
+    userID: base64url.toBuffer(userIdentifier),
     userName: userIdentifier,
     userDisplayName: userDisplayName,
     challenge: challenge,
@@ -30,7 +31,7 @@ export const generateRegistrationOptions = async ({
     attestationType: 'none',
     excludeCredentials: user.passkeys.map(passkey => ({
       id: passkey.credentialId,
-      transports: passkey.transportsArray,
+      transports: passkey.transports?.split(',') as AuthenticatorTransportFuture[] | undefined,
     })),
     authenticatorSelection: {
       authenticatorAttachment: 'platform',
@@ -39,6 +40,7 @@ export const generateRegistrationOptions = async ({
     },
   })
 
+  webauthnChallengeService.storeChallenge(userIdentifier, options.challenge)
   webauthnChallengeService.setMetadata(userIdentifier, { label: userDisplayName, userId: options.user.id })
 
   return JSON.stringify(options)

@@ -1,4 +1,4 @@
-import type { Base64URLString, CredentialDeviceType, AuthenticatorTransportFuture } from '@simplewebauthn/server'
+import type { Base64URLString, CredentialDeviceType } from '@simplewebauthn/server'
 import { Passkey, PasskeyRepositoryType } from 'api/core/entities/passkey/types'
 import { Passkey as PasskeyModel } from 'api/core/entities/passkey/model'
 import { SingletonBase } from 'api/core/framework/singleton/interface'
@@ -23,8 +23,7 @@ export default class PasskeyRepository extends SingletonBase implements PasskeyR
       label: string
       deviceType: CredentialDeviceType
       backedUp: boolean
-      transports?: string // raw DB value
-      transportsArray?: AuthenticatorTransportFuture[] // derived (not persisted)
+      transports?: string
       user: User
     },
     save?: boolean
@@ -36,22 +35,9 @@ export default class PasskeyRepository extends SingletonBase implements PasskeyR
     return newPasskey
   }
 
-  async updatePasskey(id: string, passkey: Partial<Passkey>): Promise<Passkey> {
-    await PasskeyModel.update(id, {
-      ...(passkey.credentialId && { credentialId: passkey.credentialId }),
-      ...(passkey.credentialPublicKey && { credentialPublicKey: passkey.credentialPublicKey }),
-      ...(passkey.webauthnUserId && { webauthnUserId: passkey.webauthnUserId }),
-      ...(passkey.counter && { counter: passkey.counter }),
-      ...(passkey.label && { label: passkey.label }),
-      ...(passkey.deviceType && { deviceType: passkey.deviceType }),
-      ...(passkey.backedUp && { backedUp: passkey.backedUp }),
-      ...(passkey.transportsArray && { transportsArray: passkey.transportsArray }),
-      ...(passkey.user && { user: passkey.user }),
-    })
-
-    const updatedPasskey = await this.getPasskeyById(id)
-
-    return updatedPasskey as Passkey
+  async updatePasskey(id: string, data: Partial<Passkey>): Promise<Passkey> {
+    await PasskeyModel.update(id, data)
+    return this.getPasskeyById(id) as Promise<Passkey>
   }
 
   async deletePasskey(id: string): Promise<DeleteResult> {

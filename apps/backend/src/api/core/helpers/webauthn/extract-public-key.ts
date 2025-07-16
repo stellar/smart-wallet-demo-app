@@ -1,11 +1,12 @@
 import { AuthenticatorAttestationResponseJSON } from '@simplewebauthn/server'
+import base64url from 'base64url'
 
 export const extractPublicKey = (response: AuthenticatorAttestationResponseJSON): string | null => {
   // Try to extract public key from different response formats
 
   // Method 1: Direct publicKey field
   if (response.publicKey) {
-    const publicKeyBuffer = Buffer.from(response.publicKey)
+    const publicKeyBuffer = base64url.toBuffer(response.publicKey)
     // Check if it's already in the right format
     if (publicKeyBuffer.length === 65 && publicKeyBuffer[0] === 0x04) {
       return parsePublicKey(new Uint8Array(publicKeyBuffer))
@@ -22,7 +23,7 @@ export const extractPublicKey = (response: AuthenticatorAttestationResponseJSON)
 
   // Method 2: Parse from attestationObject
   if (response.attestationObject) {
-    const attestationObject = Buffer.from(response.attestationObject)
+    const attestationObject = base64url.toBuffer(response.attestationObject)
 
     // Search for COSE key structure
     // Looking for the x and y coordinates in CBOR format
@@ -52,7 +53,7 @@ export const extractPublicKey = (response: AuthenticatorAttestationResponseJSON)
 
   // Method 3: Parse from authenticatorData if available
   if (response.authenticatorData) {
-    const authData = Buffer.from(response.authenticatorData)
+    const authData = base64url.toBuffer(response.authenticatorData)
 
     // Skip RP ID hash (32) + flags (1) + counter (4) = 37 bytes
     // Check if credential data is present (bit 6 of flags byte)

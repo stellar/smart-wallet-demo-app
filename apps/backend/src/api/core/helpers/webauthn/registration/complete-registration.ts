@@ -43,17 +43,20 @@ export const completeRegistration = async ({
 
   if (!userVerified) return false
 
-  const passkey = await passkeyRepository.createPasskey({
-    user,
-    webauthnUserId: getChallenge.metadata.userId,
-    label: getChallenge.metadata.label,
-    credentialId: credential.id,
-    credentialPublicKey: credential.publicKey,
-    counter: credential.counter,
-    transportsArray: credential.transports,
-    deviceType: credentialDeviceType,
-    backedUp: credentialBackedUp,
-  })
+  const passkey = await passkeyRepository.createPasskey(
+    {
+      user,
+      webauthnUserId: getChallenge.metadata.userId,
+      label: getChallenge.metadata.label,
+      credentialId: credential.id,
+      credentialPublicKey: credential.publicKey,
+      counter: credential.counter,
+      transports: credential.transports?.join(','),
+      deviceType: credentialDeviceType,
+      backedUp: credentialBackedUp,
+    },
+    true
+  )
 
   return { passkey, publicKeyHex: extractPublicKey(registrationResponse.response) }
 }

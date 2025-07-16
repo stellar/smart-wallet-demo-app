@@ -10,11 +10,14 @@ export class WebAuthnChallengeService extends SingletonBase implements IWebauthn
     this.store = new Map()
   }
 
-  createChallenge(identifier: string): string {
+  createChallenge(): string {
     const challenge = crypto.randomBytes(32).toString('base64url')
+    return challenge
+  }
+
+  storeChallenge(identifier: string, challenge: string): void {
     const expiresAt = Date.now() + 5 * 60 * 1000 // 5 min TTL
     this.store.set(identifier, { challenge, expiresAt })
-    return challenge
   }
 
   setMetadata(identifier: string, metadata: WebauthnChallengeStoreState['metadata']): void {

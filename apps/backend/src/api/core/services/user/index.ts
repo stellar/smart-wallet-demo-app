@@ -1,3 +1,4 @@
+import { FindOneOptions } from 'typeorm'
 import { User, UserRepositoryType } from 'api/core/entities/user/types'
 import { User as UserModel } from 'api/core/entities/user/model'
 import { SingletonBase } from 'api/core/framework/singleton/interface'
@@ -13,6 +14,10 @@ export default class UserRepository extends SingletonBase implements UserReposit
 
   async getUserByToken(token: string): Promise<User | null> {
     return UserModel.findOneBy({ uniqueToken: token })
+  }
+
+  async getUserByEmail(email: string, options?: FindOneOptions<User>): Promise<User | null> {
+    return UserModel.findOne({ where: { email: email }, ...options })
   }
 
   async createUser(user: { uniqueToken: string; email: string }, save?: boolean): Promise<User> {

@@ -12,7 +12,7 @@ interface PasskeyFactoryArgs {
   label?: string
   deviceType?: CredentialDeviceType
   backedUp?: boolean
-  transportsArray?: AuthenticatorTransportFuture[]
+  transports?: AuthenticatorTransportFuture[]
   user?: User
 }
 
@@ -24,7 +24,7 @@ export const passkeyFactory = ({
   label,
   deviceType,
   backedUp,
-  transportsArray,
+  transports,
   user,
 }: PasskeyFactoryArgs): Passkey => {
   const passkey = new Passkey()
@@ -37,7 +37,7 @@ export const passkeyFactory = ({
   passkey.label = label ?? faker.word.noun()
   passkey.deviceType = deviceType ?? 'singleDevice'
   passkey.backedUp = backedUp ?? faker.datatype.boolean()
-  passkey.transportsArray = transportsArray ?? ['ble', 'cable', 'usb']
+  passkey.transports = transports?.join(',') ?? ['ble', 'cable', 'usb'].join(',')
   passkey.user = user ?? userFactory({})
   return passkey
 }

@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn, Index, ModelBase } from 'api/core/framework/orm/base'
-import type { CredentialDeviceType, Base64URLString, AuthenticatorTransportFuture } from '@simplewebauthn/server'
+import type { CredentialDeviceType, Base64URLString } from '@simplewebauthn/server'
 import { User } from '../user/model'
 
 @Entity()
@@ -27,19 +27,11 @@ export class Passkey extends ModelBase {
   backedUp: boolean
 
   // SQL: `VARCHAR(255)` and store string array as a CSV string
-  // Ex: ['ble' | 'cable' | 'hybrid' | 'internal' | 'nfc' | 'smart-card' | 'usb']
+  // Ex: "ble,cable,hybrid,internal,nfc,smart-card,usb"
   @Column('varchar', { length: 255, nullable: true })
   transports?: string
 
   @ManyToOne(() => User, user => user.userId, { nullable: false })
   @JoinColumn({ name: 'user_id' })
   user: User
-
-  get transportsArray(): AuthenticatorTransportFuture[] | undefined {
-    return this.transports?.split(',') as AuthenticatorTransportFuture[] | undefined
-  }
-
-  set transportsArray(value: AuthenticatorTransportFuture[] | undefined) {
-    this.transports = value?.join(',')
-  }
 }

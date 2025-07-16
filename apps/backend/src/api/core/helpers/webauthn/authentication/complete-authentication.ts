@@ -1,4 +1,10 @@
-import { AuthenticationResponseJSON, Base64URLString, verifyAuthenticationResponse } from '@simplewebauthn/server'
+import {
+  AuthenticationResponseJSON,
+  AuthenticatorTransportFuture,
+  Base64URLString,
+  verifyAuthenticationResponse,
+} from '@simplewebauthn/server'
+import base64url from 'base64url'
 import { getValueFromEnv } from 'config/env-utils'
 import { Passkey, PasskeyRepositoryType } from 'api/core/entities/passkey/types'
 import { User } from 'api/core/entities/user/types'
@@ -51,7 +57,7 @@ export const completeAuthentication = async ({
       id: passkey.credentialId,
       publicKey: passkey.credentialPublicKey,
       counter: passkey.counter,
-      transports: passkey.transportsArray,
+      transports: passkey.transports?.split(',') as AuthenticatorTransportFuture[] | undefined,
     },
   })
   webauthnChallengeService.deleteChallenge(userIdentifier)
@@ -66,6 +72,6 @@ export const completeAuthentication = async ({
     passkey: updatedPasskey,
     clientDataJSON: authenticationResponse.response.clientDataJSON,
     authenticatorData: authenticationResponse.response.authenticatorData,
-    signatureDER: Buffer.from(authenticationResponse.response.signature),
+    signatureDER: base64url.toBuffer(authenticationResponse.response.signature),
   }
 }

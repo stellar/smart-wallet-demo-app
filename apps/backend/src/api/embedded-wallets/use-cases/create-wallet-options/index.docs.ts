@@ -1,13 +1,13 @@
-import { badRequest, conflict, notFound, unauthorized } from 'api/core/utils/docs/error.docs'
+import { badRequest, notFound } from 'api/core/utils/docs/error.docs'
 import { Tags } from 'api/core/utils/docs/tags'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { zodToSchema } from 'api/core/utils/zod'
-import { RequestSchema, ResponseSchema } from './types'
+import { ResponseSchema } from './types'
 
 export default {
-  post: {
+  get: {
     tags: [Tags.EMBEDDED_WALLETS],
-    summary: 'Create a new wallet',
+    summary: 'Get create wallet options',
     responses: {
       [HttpStatusCodes.OK]: {
         type: 'object',
@@ -17,17 +17,18 @@ export default {
           },
         },
       },
-      ...unauthorized,
       ...badRequest,
-      ...conflict,
       ...notFound,
     },
-    requestBody: {
-      content: {
-        'application/json': {
-          schema: zodToSchema(RequestSchema),
+    parameters: [
+      {
+        in: 'path',
+        name: 'email',
+        required: true,
+        schema: {
+          type: 'string',
         },
       },
-    },
+    ],
   },
 }

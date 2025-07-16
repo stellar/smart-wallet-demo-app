@@ -2,6 +2,7 @@ FROM node:22.14-bullseye-slim AS base
 WORKDIR /app
 RUN apt-get update && apt-get install -y make
 COPY package*.json Makefile ./
+COPY ./patches ./patches
 COPY . .
 RUN find apps/* -maxdepth 0 -type d ! -name "$(basename "apps/backend")" -exec rm -rf {} +
 RUN make clean-setup-dev APP=backend
