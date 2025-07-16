@@ -25,5 +25,7 @@ export const generateAuthenticationOptions = async ({
     })),
   })
 
+  webauthnChallengeService.storeChallenge(userIdentifier, options.challenge)
+
   return JSON.stringify(options)
 }
