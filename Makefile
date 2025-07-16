@@ -27,8 +27,8 @@ help:
 	@echo "  test                  																		Run test on given APP"
 	@echo "  test-coverage         																		Run test-coverage on given APP"
 	@echo "  type-check            																		Run type-check on given APP"
-	@echo "  lint                  																		Run eslint"
-	@echo "  lint-fix              																		Run eslint with --fix"
+	@echo "  lint                  																		Run eslint on given APP"
+	@echo "  lint-fix              																		Run eslint with --fix on given APP"
 	@echo "  format-code           																		Run prettier on codebase"
 	@echo ""
 	@echo "Web exclusive commands:"
@@ -82,10 +82,10 @@ type-check:
 	npm run type-check --workspace=apps/$(APP)
 
 lint:
-	npx --no-install eslint .
+	npx --no-install eslint ./apps/$(APP)
 
 lint-fix:
-	npx --no-install eslint . --fix
+	npx --no-install eslint ./apps/$(APP) --fix
 
 format-code:
 	npx prettier --write "**/*.{js,jsx,ts,tsx,json,md}"

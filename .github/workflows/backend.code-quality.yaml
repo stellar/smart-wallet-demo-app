@@ -32,7 +32,7 @@ jobs:
         run: npm ci
 
       - name: Run linter
-        run: make lint
+        run: make lint APP=backend
 
       - name: Run tests
         run: make test-coverage APP=backend

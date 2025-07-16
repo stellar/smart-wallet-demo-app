@@ -6,5 +6,6 @@ export type UserRepositoryType = {
   getUserById(userId: string): Promise<User | null>
   getUserByToken(token: string): Promise<User | null>
   createUser(user: { uniqueToken: string; email: string }, save?: boolean): Promise<User>
+  updateUser(userId: string, data: Partial<User>): Promise<User>
   saveUser(user: User): Promise<User>
 }

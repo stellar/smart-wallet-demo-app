@@ -37,7 +37,7 @@ jobs:
         run: npm ci
 
       - name: Run linter
-        run: make lint
+        run: make lint APP=web
 
       - name: Run tests
         run: make test-coverage APP=web
