@@ -1,12 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { GetInvitationInfo, endpoint } from './index'
+import { AxiosError } from 'axios'
 import { Request, Response } from 'express'
-import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+import { userFactory } from 'api/core/entities/user/factory'
 import { mockUserRepository } from 'api/core/services/user/mocks'
+import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
 import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
-import { userFactory } from 'api/core/entities/user/factory'
-import { AxiosError } from 'axios'
+
+import { GetInvitationInfo, endpoint } from './index'
 
 const mockedUserRepository = mockUserRepository()
 const mockedSDPEmbeddedWallets = mockSDPEmbeddedWallets()

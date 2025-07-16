@@ -4,7 +4,6 @@ import 'config/env'
 
 import { useCasesCli } from 'api/core/cli'
 import { IUseCaseCli } from 'api/core/framework/use-case/cli'
-
 import { logger } from 'config/logger'
 
 const ERROR_CODE = 1

@@ -1,8 +1,10 @@
 import axios, { AxiosInstance } from 'axios'
+
 import { SingletonBase } from 'api/core/framework/singleton/interface'
 import { AxiosLogger } from 'config/axios-logger'
 import { getValueFromEnv } from 'config/env-utils'
 import { logger } from 'config/logger'
+
 import {
   CheckWalletStatusResponse,
   CreateWalletRequest,

@@ -1,6 +1,6 @@
 import { GetProofByAddressUseCase } from './get-proof-by-address'
-import { HttpStatusCodes } from '../core/utils/http/status-code'
 import { mockProofRepository } from '../core/services/proof/mocks'
+import { HttpStatusCodes } from '../core/utils/http/status-code'
 
 const mockedRepository = mockProofRepository()
 

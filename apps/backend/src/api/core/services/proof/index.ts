@@ -1,8 +1,10 @@
+import { Repository } from 'typeorm'
+
 import { AppDataSource } from 'config/database'
+
+import { logger } from '../../../../config/logger'
 import { Proof } from '../../entities/proof/model'
 import { ProofRepositoryType } from '../../entities/proof/types'
-import { logger } from '../../../../config/logger'
-import { Repository } from 'typeorm'
 
 export default class ProofRepository implements ProofRepositoryType {
   private repository: Repository<Proof> = AppDataSource.getRepository(Proof)

@@ -1,6 +1,6 @@
-import { LOGGER_SERIALIZERS, loggerRedactPaths, REDACT_CENSOR } from 'api/core/constants/redact'
 import pino, { LoggerOptions, stdTimeFunctions } from 'pino'
 
+import { LOGGER_SERIALIZERS, loggerRedactPaths, REDACT_CENSOR } from 'api/core/constants/redact'
 import { EnvConfigKey } from 'config/env-utils'
 
 const prettyPinoConfig = {

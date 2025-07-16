@@ -1,6 +1,7 @@
-import { ZodValidationException } from 'errors/exceptions/zod-validation'
 import { Request } from 'express'
 import { z, ZodError, ZodType } from 'zod'
+
+import { ZodValidationException } from 'errors/exceptions/zod-validation'
 
 type ResponseSchema<T extends z.ZodTypeAny> = z.ZodObject<{
   message: z.ZodString

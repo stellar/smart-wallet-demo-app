@@ -1,5 +1,4 @@
 import Docs from 'api/core/docs'
-
 import { EnvironmentName, getValueFromEnv } from 'config/env-utils'
 
 const servers: {

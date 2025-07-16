@@ -1,5 +1,8 @@
 import { randomUUID } from 'crypto'
 
+import { Request, Response } from 'express'
+import pinoHttpLogger, { HttpLogger } from 'pino-http'
+
 import {
   REDACT_BANNED_HEADERS,
   REDACT_BANNED_METADATA,
@@ -8,9 +11,6 @@ import {
 } from 'api/core/constants/redact'
 import { redactUrlParams } from 'api/core/utils/redact-url-params'
 import { redactUrlQueryParams } from 'api/core/utils/redact-url-query-params'
-import { Request, Response } from 'express'
-import pinoHttpLogger, { HttpLogger } from 'pino-http'
-
 import { pinoLogger } from 'config/logger'
 
 export function httpLoggerMiddleware(): HttpLogger {

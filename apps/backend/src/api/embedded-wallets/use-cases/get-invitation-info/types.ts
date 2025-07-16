@@ -1,4 +1,5 @@
 import { z } from 'zod'
+
 import { createResponseSchema } from 'api/core/framework/use-case/base'
 import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 
