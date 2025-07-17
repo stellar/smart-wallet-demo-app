@@ -1,5 +1,5 @@
-import { passkeyFactory } from '../passkey/factory'
 import { userFactory } from './factory'
+import { passkeyFactory } from '../passkey/factory'
 
 describe('User factory tests', () => {
   it('Should fill in random values', async () => {
@@ -8,7 +8,7 @@ describe('User factory tests', () => {
     expect(mockedUser.userId).not.toBeUndefined()
     expect(mockedUser.email).not.toBeUndefined()
     expect(mockedUser.uniqueToken).not.toBeUndefined()
-    expect(mockedUser.publicKey).not.toBeUndefined()
+    expect(mockedUser.contractAddress).not.toBeUndefined()
     expect(mockedUser.passkeys).toStrictEqual([])
   })
 
@@ -18,14 +18,14 @@ describe('User factory tests', () => {
       userId: 'abc123',
       email: 'test@email.com',
       uniqueToken: 'def456',
-      publicKey: 'xyz789',
+      contractAddress: 'CC2L43QJRYCUUEJNSKDEWZBDOOROOL6KSXDCMQKATWJX7YSWGJ2MDT7T',
       passkeys: [passkey],
     })
 
     expect(mockedUser.userId).toBe('abc123')
     expect(mockedUser.email).toBe('test@email.com')
     expect(mockedUser.uniqueToken).toBe('def456')
-    expect(mockedUser.publicKey).toBe('xyz789')
+    expect(mockedUser.contractAddress).toBe('CC2L43QJRYCUUEJNSKDEWZBDOOROOL6KSXDCMQKATWJX7YSWGJ2MDT7T')
     expect(mockedUser.passkeys[0]).toBe(passkey)
   })
 })

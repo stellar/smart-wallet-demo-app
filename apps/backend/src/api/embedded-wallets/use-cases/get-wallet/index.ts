@@ -25,11 +25,10 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     this.sdpEmbeddedWallets = sdpEmbeddedWallets || SDPEmbeddedWallets.getInstance()
   }
 
-  async executeHttp(_request: Request, response: Response<ResponseSchemaT>) {
-    // TODO: Implement authentication middleware to set response.locals.tokenData
-    // Extract user ID from the token in response locals
-    // This assumes that the token has been validated and user ID is available in response.locals.token
-    const payload = { id: response.locals.tokenData?.userId } as RequestSchemaT
+  async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
+    // TODO: Implement authentication middleware to set request.userId
+    // This assumes that the token has been validated and user ID is available
+    const payload = { id: request.userId } as RequestSchemaT
     if (!payload.id) {
       throw new UnauthorizedException('Not authorized')
     }
@@ -37,6 +36,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     return response.status(HttpStatusCodes.OK).json(result)
   }
 
+  // TODO: Return balance and other wallet details if needed in the future
   parseResponse(status: WalletStatus, address?: string): ResponseSchemaT {
     return {
       data: {
@@ -57,8 +57,8 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     }
 
     // Check if user already has a wallet
-    if (user.publicKey) {
-      return this.parseResponse(WalletStatus.SUCCESS, user.publicKey)
+    if (user.contractAddress) {
+      return this.parseResponse(WalletStatus.SUCCESS, user.contractAddress)
     }
 
     // Check updated wallet status
@@ -69,14 +69,14 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       walletStatus = updatedStatus.status
       if (updatedStatus.contract_address) {
         // Update user with the new wallet address
-        user = await this.userRepository.updateUser(user.userId, { publicKey: updatedStatus.contract_address })
+        user = await this.userRepository.updateUser(user.userId, { contractAddress: updatedStatus.contract_address })
         break
       }
       // If the address is not yet available, wait for a while before checking again
       await sleepInSeconds(1)
     }
 
-    return this.parseResponse(walletStatus, user.publicKey)
+    return this.parseResponse(walletStatus, user.contractAddress)
   }
 }
 

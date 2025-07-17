@@ -72,7 +72,7 @@ export class CreateWallet extends UseCaseBase implements IUseCaseHttp<ResponseSc
     }
 
     // Check if user already has a wallet
-    if (user.publicKey) {
+    if (user.contractAddress) {
       throw new ResourceConflictedException(`User with email ${requestBody.email} already has a wallet`)
     }
 

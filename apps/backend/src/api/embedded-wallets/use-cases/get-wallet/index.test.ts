@@ -16,7 +16,7 @@ const mockedSDPEmbeddedWallets = mockSDPEmbeddedWallets()
 
 const user = userFactory({
   userId: 'user-123',
-  publicKey: 'wallet-address',
+  contractAddress: 'wallet-address',
   uniqueToken: 'unique-token',
 })
 
@@ -51,7 +51,7 @@ describe('GetWallet', () => {
     await expect(getWallet.handle(payload)).rejects.toThrow(ResourceNotFoundException)
   })
 
-  it('should return wallet details if user already has a publicKey', async () => {
+  it('should return wallet details if user already has a contractAddress', async () => {
     mockedUserRepository.getUserById.mockResolvedValue(user)
     const payload = { id: 'user-123' }
 
@@ -63,7 +63,7 @@ describe('GetWallet', () => {
   })
 
   it('should check wallet status and update user if contract_address is returned', async () => {
-    mockedUserRepository.getUserById.mockResolvedValue({ ...user, publicKey: undefined } as User)
+    mockedUserRepository.getUserById.mockResolvedValue({ ...user, contractAddress: undefined } as User)
     mockedSDPEmbeddedWallets.checkWalletStatus.mockResolvedValueOnce({
       status: WalletStatus.PENDING,
       contract_address: undefined,
@@ -72,18 +72,18 @@ describe('GetWallet', () => {
       status: WalletStatus.SUCCESS,
       contract_address: 'new-wallet-address',
     } as CheckWalletStatusResponse)
-    mockedUserRepository.updateUser.mockResolvedValue({ ...user, publicKey: 'new-wallet-address' } as User)
+    mockedUserRepository.updateUser.mockResolvedValue({ ...user, contractAddress: 'new-wallet-address' } as User)
 
     const payload = { id: 'user-123' }
     const result = await getWallet.handle(payload)
     expect(result.data.status).toBe(WalletStatus.SUCCESS)
     expect(result.data.address).toBe('new-wallet-address')
     expect(mockedSDPEmbeddedWallets.checkWalletStatus).toHaveBeenCalledTimes(2)
-    expect(mockedUserRepository.updateUser).toHaveBeenCalledWith('user-123', { publicKey: 'new-wallet-address' })
+    expect(mockedUserRepository.updateUser).toHaveBeenCalledWith('user-123', { contractAddress: 'new-wallet-address' })
   })
 
   it('should return pending status if wallet is not created after retries', async () => {
-    mockedUserRepository.getUserById.mockResolvedValue({ ...user, publicKey: undefined } as User)
+    mockedUserRepository.getUserById.mockResolvedValue({ ...user, contractAddress: undefined } as User)
     mockedSDPEmbeddedWallets.checkWalletStatus.mockResolvedValue({
       status: WalletStatus.PENDING,
       contract_address: undefined,
