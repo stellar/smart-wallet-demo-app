@@ -1,5 +1,6 @@
-import { Controller, useFormContext } from 'react-hook-form'
 import { Toggle as SDSToggle } from '@stellar/design-system'
+import { Controller, useFormContext } from 'react-hook-form'
+
 import { useFormContextExtra } from '../provider'
 
 type Props = {

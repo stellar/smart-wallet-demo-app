@@ -1,9 +1,11 @@
-import { createRootRouteWithContext, ParsedLocation, redirect } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
-import { Layout } from './components/layout'
-import { homeRoutes } from 'src/app/home/routes'
+import { createRootRouteWithContext, ParsedLocation, redirect } from '@tanstack/react-router'
+
 import { authRoutes } from 'src/app/auth/routes'
+import { homeRoutes } from 'src/app/home/routes'
 import { walletRoutes } from 'src/app/wallet/routes'
+
+import { Layout } from './components/layout'
 
 export const rootRoute = createRootRouteWithContext<{ client: QueryClient }>()({
   component: Layout,

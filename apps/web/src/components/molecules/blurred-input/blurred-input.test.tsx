@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
+
 import { render, screen } from 'src/helpers/tests'
+
 import { BlurredInput } from './index'
 
 describe('BlurredInput', () => {

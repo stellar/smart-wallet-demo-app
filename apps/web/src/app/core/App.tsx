@@ -1,6 +1,7 @@
+import { RouterProvider } from '@tanstack/react-router'
+
 import ErrorBoundary from './error-boundary'
 import { Providers } from './providers'
-import { RouterProvider } from '@tanstack/react-router'
 import { router } from './router'
 import { useSyncAccessToken } from '../auth/hooks/use-sync-access-token'
 

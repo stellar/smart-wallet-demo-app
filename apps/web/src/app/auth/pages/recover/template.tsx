@@ -1,12 +1,14 @@
-import { useMemo } from 'react'
 import { Heading } from '@stellar/design-system'
-import { OnboardingBackgroundImage } from 'src/app/core/components'
-import { c } from 'src/interfaces/cms/useContent'
-import { NavigateButton } from 'src/components/molecules/navigate-button'
-import { Typography, TypographyVariant, TypographyWeight } from 'src/components/atoms'
+import { useMemo } from 'react'
 import { UseFormReturn } from 'react-hook-form'
-import { FormValues } from './schema'
+
+import { OnboardingBackgroundImage } from 'src/app/core/components'
+import { Typography, TypographyVariant, TypographyWeight } from 'src/components/atoms'
+import { NavigateButton } from 'src/components/molecules/navigate-button'
 import { Form } from 'src/components/organisms'
+import { c } from 'src/interfaces/cms/useContent'
+
+import { FormValues } from './schema'
 
 type Props = {
   form: UseFormReturn<FormValues>

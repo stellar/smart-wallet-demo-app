@@ -1,14 +1,13 @@
 import { FieldValues, FormProvider as RHFFormProvider, useForm } from 'react-hook-form'
 
-import { FormProvider } from './provider'
-
 // Import fields
-import { Input } from './fields/input'
 import { Checkbox } from './fields/checkbox'
+import { Input } from './fields/input'
 import { Radio } from './fields/radio'
 import { Select } from './fields/select'
 import { Textarea } from './fields/textarea'
 import { Toggle } from './fields/toggle'
+import { FormProvider } from './provider'
 import { Submit } from './submit'
 
 type FormProps<T extends FieldValues> = {

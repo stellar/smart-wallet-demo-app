@@ -1,4 +1,5 @@
 import { render, screen } from 'src/helpers/tests'
+
 import { BrandTightHeading } from './index'
 
 describe('BrandTightHeading', () => {

@@ -1,6 +1,8 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, fireEvent, screen } from 'src/helpers/tests'
 import { useForm } from 'react-hook-form'
+import { describe, it, expect, vi } from 'vitest'
+
+import { render, fireEvent, screen } from 'src/helpers/tests'
+
 import { Form } from './index'
 
 describe('Form', () => {

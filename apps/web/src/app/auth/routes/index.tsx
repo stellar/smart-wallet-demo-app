@@ -1,6 +1,8 @@
 import { createRoute } from '@tanstack/react-router'
 import * as yup from 'yup'
+
 import { rootRoute } from 'src/app/core/router/routeTree'
+
 import { Welcome, Invite, InviteResend, Recover, RecoverConfirm, LogIn } from '../pages'
 import { AuthPagesPath } from './types'
 import { getInvitationInfoOptions } from '../queries/use-get-invitation-info'

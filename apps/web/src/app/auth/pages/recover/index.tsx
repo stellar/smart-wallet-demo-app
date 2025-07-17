@@ -1,8 +1,9 @@
-import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
-import { RecoverTemplate } from './template'
-import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
+import { useForm } from 'react-hook-form'
+
 import { FormValues, schema } from './schema'
+import { RecoverTemplate } from './template'
 import { AuthPagesPath } from '../../routes/types'
 
 export const Recover = () => {

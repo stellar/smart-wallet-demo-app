@@ -1,10 +1,9 @@
+import * as ReactDialog from '@radix-ui/react-dialog'
+import { Button, Heading, Icon, Text } from '@stellar/design-system'
 import * as React from 'react'
 import { useMemo } from 'react'
 
-import * as ReactDialog from '@radix-ui/react-dialog'
-import { Button, Heading, Icon, Text } from '@stellar/design-system'
 import { GhostButton } from '../ghost-button'
-
 import { DialogAction, DialogControllingProps, DistributiveOmit } from './types'
 
 export type DefaultDialogProps = {

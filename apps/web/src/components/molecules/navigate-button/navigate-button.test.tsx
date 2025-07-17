@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
+
 import { render, screen, fireEvent } from 'src/helpers/tests'
+
 import { NavigateButton } from './index'
 
 // Mock @stellar/design-system

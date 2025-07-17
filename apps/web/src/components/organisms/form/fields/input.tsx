@@ -1,6 +1,8 @@
-import { Controller, useFormContext } from 'react-hook-form'
 import { Input as SDSInput } from '@stellar/design-system'
+import { Controller, useFormContext } from 'react-hook-form'
+
 import { BlurredInput } from 'src/components/molecules'
+
 import { useFormContextExtra } from '../provider'
 
 type Props = {

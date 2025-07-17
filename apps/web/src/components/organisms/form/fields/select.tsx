@@ -1,7 +1,8 @@
-import { Controller, useFormContext } from 'react-hook-form'
 import { Select as SDSSelect } from '@stellar/design-system'
-import { useFormContextExtra } from '../provider'
 import { ChangeEvent } from 'react'
+import { Controller, useFormContext } from 'react-hook-form'
+
+import { useFormContextExtra } from '../provider'
 
 type Props = {
   name: string

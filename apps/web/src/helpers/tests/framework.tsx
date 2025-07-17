@@ -1,11 +1,10 @@
+import { createRouter, RouterProvider } from '@tanstack/react-router'
+import { render, RenderOptions, RenderResult } from '@testing-library/react'
 import { FC, PropsWithChildren, ReactElement } from 'react'
 
-import { render, RenderOptions, RenderResult } from '@testing-library/react'
-import { createRouter, RouterProvider } from '@tanstack/react-router'
-
-import { queryClient } from 'src/interfaces/query-client'
 import { Providers } from 'src/app/core/providers'
 import { routeTree } from 'src/app/core/router/routeTree'
+import { queryClient } from 'src/interfaces/query-client'
 
 type CustomRenderFunction = (ui: ReactElement, options?: Omit<RenderOptions, 'queries'>) => RenderResult
 

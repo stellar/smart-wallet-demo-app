@@ -1,9 +1,10 @@
-import { BrandTightHeading, GhostButton } from 'src/components/molecules'
 import { Button, Heading } from '@stellar/design-system'
+
 import { OnboardingBackgroundImage } from 'src/app/core/components'
-import { c } from 'src/interfaces/cms/useContent'
-import { a } from 'src/interfaces/cms/useAssets'
 import { ONBOARDING_LOGO_WIDTH } from 'src/app/core/constants/onboarding'
+import { BrandTightHeading, GhostButton } from 'src/components/molecules'
+import { a } from 'src/interfaces/cms/useAssets'
+import { c } from 'src/interfaces/cms/useContent'
 
 type Props = {
   onCreateWallet: () => void
