@@ -3,7 +3,7 @@ import { getValueFromEnv } from 'config/env-utils'
 import { Passkey, PasskeyRepositoryType } from 'api/core/entities/passkey/types'
 import { User } from 'api/core/entities/user/types'
 import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
-import { extractPublicKey } from '../extract-public-key'
+import { extractPublicKey } from './extract-public-key'
 
 export const completeRegistration = async ({
   user,
