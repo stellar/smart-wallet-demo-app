@@ -18,7 +18,8 @@ export class GetInvitationInfoUseCase extends UseCaseBase<GetInvitationInfoResul
     const { data: invitationInfo } = await this.authService.getInvitationInfo({ uniqueToken })
 
     const email = invitationInfo.email
-    useEmailStore.getState().setEmail(email)
+
+    if (email) useEmailStore.getState().setEmail(email)
 
     return { email, status: invitationInfo.status }
   }

@@ -6,7 +6,7 @@ import { User } from '../user/types'
 export type Passkey = PasskeyModel
 
 export type PasskeyRepositoryType = {
-  getPasskeyById(id: string, options?: Record<string, unknown>): Promise<Passkey | null>
+  getPasskeyById(id: string): Promise<Passkey | null>
   createPasskey(
     passkey: {
       credentialId: Base64URLString

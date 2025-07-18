@@ -3,6 +3,7 @@ import { DataSource, DataSourceOptions } from 'typeorm'
 import { getValueFromEnv, isProdEnv, rootDir } from 'config/env-utils'
 import { SnakeNamingStrategy } from 'api/core/framework/orm/naming-strategy'
 
+// Current rules applied here are focused on Heroku environment
 const deploymentOptions = isProdEnv()
   ? {
       ssl: true,

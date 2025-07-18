@@ -5,7 +5,6 @@ import { AuthPagesPath } from '../../routes/types'
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
 import { useCreateWallet } from '../../queries/use-create-wallet'
 import { useLogIn } from '../../queries/use-login'
-import { useEmailStore } from '../../store'
 import { getInvitationInfoOptions } from '../../queries/use-get-invitation-info'
 import { InviteTemplate } from './template'
 
@@ -26,10 +25,12 @@ export const Invite = () => {
   const getInvitationInfo = useSuspenseQuery(getInvitationInfoOptions({ uniqueToken: search.token }))
 
   const isReturningUser = useMemo(() => getInvitationInfo.data.status === 'SUCCESS', [getInvitationInfo.data.status])
-  const { email } = useEmailStore()
+  const email = useMemo(() => getInvitationInfo.data.email, [getInvitationInfo.data.email])
 
   const handleCreateWallet = () => {
-    createWallet.mutate({ email: getInvitationInfo.data.email })
+    if (!email) return navigate({ to: AuthPagesPath.INVITE_RESEND })
+
+    createWallet.mutate({ email })
   }
 
   const handleLogIn = () => {

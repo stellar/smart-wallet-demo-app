@@ -5,6 +5,6 @@ export type GetInvitationInfoInput = {
 }
 
 export type GetInvitationInfoResult = {
-  email: string
   status: AuthServiceGetInvitationInfoResult['data']['status']
+  email?: string
 }

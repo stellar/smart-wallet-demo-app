@@ -14,7 +14,7 @@ export type GetInvitationInfoInput = {
 }
 export type GetInvitationInfoResult = IHTTPResponse<{
   status: WalletStatus | 'NOT_ALLOWED'
-  email: string
+  email?: string
 }>
 
 export type GetRegisterOptionsInput = {
