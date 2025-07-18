@@ -1,9 +1,9 @@
 import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
 import { RecoverTemplate } from './template'
-import { HomePagesPath } from 'src/app/home/routes/types'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { FormValues, schema } from './schema'
+import { AuthPagesPath } from '../../routes/types'
 
 export const Recover = () => {
   const router = useRouter()
@@ -18,7 +18,7 @@ export const Recover = () => {
   const handleGoBack = () => {
     if (canGoBack) router.history.back()
 
-    navigate({ to: HomePagesPath.HOME })
+    navigate({ to: AuthPagesPath.WELCOME })
   }
 
   const handleResetLink = () => {

@@ -1,7 +1,19 @@
 import path from 'path'
 import { DataSource, DataSourceOptions } from 'typeorm'
-import { getValueFromEnv, rootDir } from 'config/env-utils'
+import { getValueFromEnv, isProdEnv, rootDir } from 'config/env-utils'
 import { SnakeNamingStrategy } from 'api/core/framework/orm/naming-strategy'
+
+// Current rules applied here are focused on Heroku environment
+const deploymentOptions = isProdEnv()
+  ? {
+      ssl: true,
+      extra: {
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      },
+    }
+  : {}
 
 export const AppDataSource = new DataSource({
   name: 'default',
@@ -14,4 +26,5 @@ export const AppDataSource = new DataSource({
   migrations: [path.join(rootDir, 'api/core/migrations/*.{js,ts}')],
   entities: [path.join(rootDir, 'api/core/entities/*/model.{js,ts}')],
   namingStrategy: new SnakeNamingStrategy(),
+  ...deploymentOptions,
 } as DataSourceOptions)

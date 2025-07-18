@@ -1,20 +1,42 @@
-import { useState } from 'react'
-import { InviteTemplate } from './template'
-import { useNavigate } from '@tanstack/react-router'
+import { useMemo } from 'react'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { AuthPagesPath } from '../../routes/types'
+import { WalletPagesPath } from 'src/app/wallet/routes/types'
+import { useCreateWallet } from '../../queries/use-create-wallet'
+import { useLogIn } from '../../queries/use-login'
+import { getInvitationInfoOptions } from '../../queries/use-get-invitation-info'
+import { InviteTemplate } from './template'
 
 export const Invite = () => {
-  // TODO: manage returning user state
-  const [isReturningUser] = useState(false)
-
+  const search = useSearch({ from: AuthPagesPath.INVITE })
   const navigate = useNavigate()
 
+  const createWallet = useCreateWallet({
+    onSuccess: () => {
+      navigate({ to: WalletPagesPath.HOME })
+    },
+  })
+  const logIn = useLogIn({
+    onSuccess: () => {
+      navigate({ to: WalletPagesPath.HOME })
+    },
+  })
+  const getInvitationInfo = useSuspenseQuery(getInvitationInfoOptions({ uniqueToken: search.token }))
+
+  const isReturningUser = useMemo(() => getInvitationInfo.data.status === 'SUCCESS', [getInvitationInfo.data.status])
+  const email = useMemo(() => getInvitationInfo.data.email, [getInvitationInfo.data.email])
+
   const handleCreateWallet = () => {
-    throw new Error('Function not implemented.')
+    if (!email) return navigate({ to: AuthPagesPath.INVITE_RESEND })
+
+    createWallet.mutate({ email })
   }
 
   const handleLogIn = () => {
-    throw new Error('Function not implemented.')
+    if (!email) return navigate({ to: AuthPagesPath.LOGIN })
+
+    logIn.mutate({ email })
   }
 
   const handleForgotPassword = () => {
@@ -24,6 +46,8 @@ export const Invite = () => {
   return (
     <InviteTemplate
       isReturningUser={isReturningUser}
+      isCreatingWallet={createWallet.isPending}
+      isLoggingIn={createWallet.isPending}
       onCreateWallet={handleCreateWallet}
       onLogIn={handleLogIn}
       onForgotPassword={handleForgotPassword}

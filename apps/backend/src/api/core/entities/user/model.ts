@@ -1,4 +1,5 @@
-import { Column, Entity, ModelBase, PrimaryGeneratedColumn } from 'api/core/framework/orm/base'
+import { Column, Entity, ModelBase, OneToMany, PrimaryGeneratedColumn } from 'api/core/framework/orm/base'
+import { Passkey } from '../passkey/model'
 
 @Entity()
 export class User extends ModelBase {
@@ -20,4 +21,7 @@ export class User extends ModelBase {
     nullable: true,
   })
   publicKey?: string
+
+  @OneToMany(() => Passkey, passkey => passkey.user)
+  passkeys: Passkey[]
 }

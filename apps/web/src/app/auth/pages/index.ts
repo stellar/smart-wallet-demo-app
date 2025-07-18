@@ -1,4 +1,6 @@
+export * from './welcome'
 export * from './invite'
 export * from './invite-resend'
+export * from './login'
 export * from './recover'
 export * from './recover-confirm'

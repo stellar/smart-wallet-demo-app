@@ -1,18 +1,18 @@
-import { createRootRoute, ParsedLocation, redirect } from '@tanstack/react-router'
+import { createRootRouteWithContext, ParsedLocation, redirect } from '@tanstack/react-router'
+import { QueryClient } from '@tanstack/react-query'
 import { Layout } from './components/layout'
 import { homeRoutes } from 'src/app/home/routes'
 import { authRoutes } from 'src/app/auth/routes'
-import { useAuthStore } from 'src/app/auth/store/auth-store'
+import { walletRoutes } from 'src/app/wallet/routes'
 
-export const rootRoute = createRootRoute({
+export const rootRoute = createRootRouteWithContext<{ client: QueryClient }>()({
   component: Layout,
 })
 
 export const requireAuth = ({ location }: { location: ParsedLocation<object> }) => {
   {
-    const { isAuthenticated } = useAuthStore.getState()
-
-    if (!isAuthenticated()) {
+    // TODO: manage user session
+    if (false as const) {
       // Redirect them to the /welcome page, but save the current location they were
       // trying to go to when they were redirected. This allows us to send them
       // along to that page after they login, which is a nicer user experience
@@ -27,4 +27,4 @@ export const requireAuth = ({ location }: { location: ParsedLocation<object> }) 
   }
 }
 
-export const routeTree = rootRoute.addChildren([...authRoutes, ...homeRoutes])
+export const routeTree = rootRoute.addChildren([...authRoutes, ...homeRoutes, ...walletRoutes])

@@ -11,7 +11,7 @@ type Props = {
   onForgotPassword: () => void
 }
 
-export const HomeTemplate = ({ onCreateWallet, onLogIn, onForgotPassword }: Props) => {
+export const WelcomeTemplate = ({ onCreateWallet, onLogIn, onForgotPassword }: Props) => {
   return (
     <div>
       <OnboardingBackgroundImage isAnimated />

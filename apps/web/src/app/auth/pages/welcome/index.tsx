@@ -1,8 +1,8 @@
 import { useNavigate } from '@tanstack/react-router'
-import { HomeTemplate } from './template'
+import { WelcomeTemplate } from './template'
 import { AuthPagesPath } from 'src/app/auth/routes/types'
 
-export const Home = () => {
+export const Welcome = () => {
   const navigate = useNavigate()
 
   const handleCreateWallet = () => {
@@ -10,7 +10,7 @@ export const Home = () => {
   }
 
   const handleLogIn = () => {
-    throw new Error('Function not implemented.')
+    navigate({ to: AuthPagesPath.LOGIN })
   }
 
   const handleForgotPassword = () => {
@@ -18,6 +18,10 @@ export const Home = () => {
   }
 
   return (
-    <HomeTemplate onCreateWallet={handleCreateWallet} onLogIn={handleLogIn} onForgotPassword={handleForgotPassword} />
+    <WelcomeTemplate
+      onCreateWallet={handleCreateWallet}
+      onLogIn={handleLogIn}
+      onForgotPassword={handleForgotPassword}
+    />
   )
 }

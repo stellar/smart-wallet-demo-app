@@ -39,7 +39,7 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: ${NODE_PORT:-8000}
       DEBUG: ${DEBUG:-true}
-      FRONT_ADDRESS: ${FRONT_ADDRESS:-*}
+      FRONT_ADDRESS: ${FRONT_ADDRESS:-http://localhost:3000}
       DATABASE_TYPE: ${DATABASE_TYPE:-postgres}
       DATABASE_NAME: ${DATABASE_NAME:-smart_wallet_db}
       DATABASE_HOST: ${DATABASE_HOST:-smart-wallet-database}

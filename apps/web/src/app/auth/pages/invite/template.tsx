@@ -7,12 +7,21 @@ import { ONBOARDING_LOGO_WIDTH } from 'src/app/core/constants/onboarding'
 
 type Props = {
   isReturningUser: boolean
+  isCreatingWallet: boolean
+  isLoggingIn: boolean
   onCreateWallet: () => void
   onLogIn: () => void
   onForgotPassword: () => void
 }
 
-export const InviteTemplate = ({ isReturningUser, onCreateWallet, onLogIn, onForgotPassword }: Props) => {
+export const InviteTemplate = ({
+  isReturningUser,
+  isCreatingWallet,
+  isLoggingIn,
+  onCreateWallet,
+  onLogIn,
+  onForgotPassword,
+}: Props) => {
   const config = isReturningUser
     ? {
         titleLines: [c('inviteOptionBTitleLine1'), c('inviteOptionBTitleLine2')],
@@ -41,7 +50,14 @@ export const InviteTemplate = ({ isReturningUser, onCreateWallet, onLogIn, onFor
             {c('inviteSubtitle')}
           </Heading>
 
-          <Button onClick={config.buttonAction} size="lg" variant="tertiary" isRounded isFullWidth>
+          <Button
+            onClick={config.buttonAction}
+            isLoading={isCreatingWallet || isLoggingIn}
+            size="lg"
+            variant="tertiary"
+            isRounded
+            isFullWidth
+          >
             {config.buttonText}
           </Button>
 
