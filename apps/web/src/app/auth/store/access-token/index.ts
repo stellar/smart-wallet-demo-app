@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
 import { ACCESS_TOKEN_STORAGE_KEY, AUTH_TOKEN_CHANNEL_KEY } from 'src/app/auth/constants/storage'
+
 import { AccessTokenStoreFields, AccessTokenStoreState } from './types'
 
 const INITIAL_STATE: AccessTokenStoreFields = {

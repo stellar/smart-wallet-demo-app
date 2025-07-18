@@ -1,4 +1,5 @@
 import { Mocked } from 'vitest'
+
 import { IWebauthnChallengeService } from './types'
 
 export function mockWebauthnChallenge(): Mocked<IWebauthnChallengeService> {

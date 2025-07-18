@@ -1,4 +1,5 @@
 import { FindOneOptions } from 'typeorm'
+
 import { User as UserModel } from 'api/core/entities/user/model'
 
 export type User = UserModel

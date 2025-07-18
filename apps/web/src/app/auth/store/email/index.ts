@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
 import { EMAIL_STORAGE_KEY } from 'src/app/auth/constants/storage'
+
 import { EmailStoreFields, EmailStoreState } from './types'
 
 const INITIAL_STATE: EmailStoreFields = {

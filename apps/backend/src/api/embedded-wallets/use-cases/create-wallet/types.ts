@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
 import { createResponseSchema } from 'api/core/framework/use-case/base'
-import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 import { refineJsonString } from 'api/core/utils/zod'
+import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 
 export const RequestSchema = z.object({
   email: z.string().email(),

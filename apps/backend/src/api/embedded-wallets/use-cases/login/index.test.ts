@@ -1,14 +1,16 @@
+import base64url from 'base64url'
 import { Request, Response } from 'express'
+
+import { passkeyFactory } from 'api/core/entities/passkey/factory'
+import { userFactory } from 'api/core/entities/user/factory'
+import { mockPasskeyRepository } from 'api/core/services/passkey/mocks'
+import { mockUserRepository } from 'api/core/services/user/mocks'
+import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
-import { LogIn } from '.'
-import { mockUserRepository } from 'api/core/services/user/mocks'
-import { mockPasskeyRepository } from 'api/core/services/passkey/mocks'
 import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
-import { userFactory } from 'api/core/entities/user/factory'
-import { passkeyFactory } from 'api/core/entities/passkey/factory'
-import { HttpStatusCodes } from 'api/core/utils/http/status-code'
-import base64url from 'base64url'
+
+import { LogIn } from '.'
 
 const mockPasskeys = [
   passkeyFactory({

@@ -1,8 +1,9 @@
-import { IAuthService } from 'src/app/auth/services/auth/types'
-import { UseCaseBase } from 'src/app/core/framework/use-case/base'
-import { GetInvitationInfoInput, GetInvitationInfoResult } from './types'
 import { authService } from 'src/app/auth/services'
+import { IAuthService } from 'src/app/auth/services/auth/types'
 import { useEmailStore } from 'src/app/auth/store'
+import { UseCaseBase } from 'src/app/core/framework/use-case/base'
+
+import { GetInvitationInfoInput, GetInvitationInfoResult } from './types'
 
 export class GetInvitationInfoUseCase extends UseCaseBase<GetInvitationInfoResult> {
   private authService: IAuthService

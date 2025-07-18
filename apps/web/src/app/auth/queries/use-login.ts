@@ -1,6 +1,8 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query'
+
 import { logInUseCase } from 'src/app/auth/domain/use-cases/login'
 import { LogInInput } from 'src/app/auth/domain/use-cases/login/types'
+
 import { AuthQueryKeys } from './query-keys'
 
 type UseCaseInput = LogInInput

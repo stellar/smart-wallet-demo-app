@@ -1,9 +1,10 @@
+import { authService, webauthnService } from 'src/app/auth/services'
 import { IAuthService } from 'src/app/auth/services/auth/types'
 import { IWebAuthnService } from 'src/app/auth/services/webauthn/types'
-import { UseCaseBase } from 'src/app/core/framework/use-case/base'
-import { CreateWalletInput } from './types'
-import { authService, webauthnService } from 'src/app/auth/services'
 import { useAccessTokenStore } from 'src/app/auth/store'
+import { UseCaseBase } from 'src/app/core/framework/use-case/base'
+
+import { CreateWalletInput } from './types'
 
 export class CreateWalletUseCase extends UseCaseBase<void> {
   private authService: IAuthService

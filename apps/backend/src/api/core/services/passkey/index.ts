@@ -1,9 +1,10 @@
 import type { Base64URLString, CredentialDeviceType } from '@simplewebauthn/server'
-import { Passkey, PasskeyRepositoryType } from 'api/core/entities/passkey/types'
-import { Passkey as PasskeyModel } from 'api/core/entities/passkey/model'
-import { SingletonBase } from 'api/core/framework/singleton/interface'
-import { User } from 'api/core/entities/user/types'
 import { DeleteResult } from 'typeorm'
+
+import { Passkey as PasskeyModel } from 'api/core/entities/passkey/model'
+import { Passkey, PasskeyRepositoryType } from 'api/core/entities/passkey/types'
+import { User } from 'api/core/entities/user/types'
+import { SingletonBase } from 'api/core/framework/singleton/interface'
 
 export default class PasskeyRepository extends SingletonBase implements PasskeyRepositoryType {
   constructor() {

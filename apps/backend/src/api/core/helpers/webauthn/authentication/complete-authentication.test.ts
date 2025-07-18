@@ -1,10 +1,12 @@
+import base64url from 'base64url'
+
+import { passkeyFactory } from 'api/core/entities/passkey/factory'
 import { Passkey } from 'api/core/entities/passkey/types'
-import { completeAuthentication } from './complete-authentication'
+import { userFactory } from 'api/core/entities/user/factory'
 import { mockPasskeyRepository } from 'api/core/services/passkey/mocks'
 import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
-import { passkeyFactory } from 'api/core/entities/passkey/factory'
-import { userFactory } from 'api/core/entities/user/factory'
-import base64url from 'base64url'
+
+import { completeAuthentication } from './complete-authentication'
 
 const mockChallenge = {
   challenge: 'mockChallenge',

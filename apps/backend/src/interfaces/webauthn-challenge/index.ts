@@ -1,6 +1,8 @@
 import crypto from 'crypto'
-import { IWebauthnChallengeService, WebauthnChallengeStoreState } from './types'
+
 import { SingletonBase } from 'api/core/framework/singleton/interface'
+
+import { IWebauthnChallengeService, WebauthnChallengeStoreState } from './types'
 
 export class WebAuthnChallengeService extends SingletonBase implements IWebauthnChallengeService {
   private store: Map<string, WebauthnChallengeStoreState>

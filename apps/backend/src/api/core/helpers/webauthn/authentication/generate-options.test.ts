@@ -1,7 +1,8 @@
-import { generateAuthenticationOptions } from './generate-options'
-import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
 import { passkeyFactory } from 'api/core/entities/passkey/factory'
 import { userFactory } from 'api/core/entities/user/factory'
+import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
+
+import { generateAuthenticationOptions } from './generate-options'
 
 const mockPasskeys = [
   passkeyFactory({

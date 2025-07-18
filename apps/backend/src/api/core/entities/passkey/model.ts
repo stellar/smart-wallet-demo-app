@@ -1,5 +1,7 @@
-import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn, Index, ModelBase } from 'api/core/framework/orm/base'
 import type { CredentialDeviceType, Base64URLString } from '@simplewebauthn/server'
+
+import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn, Index, ModelBase } from 'api/core/framework/orm/base'
+
 import { User } from '../user/model'
 
 @Entity()

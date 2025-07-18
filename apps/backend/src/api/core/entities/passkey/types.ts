@@ -1,6 +1,8 @@
 import type { Base64URLString, CredentialDeviceType } from '@simplewebauthn/server'
-import { Passkey as PasskeyModel } from 'api/core/entities/passkey/model'
 import { DeleteResult } from 'typeorm'
+
+import { Passkey as PasskeyModel } from 'api/core/entities/passkey/model'
+
 import { User } from '../user/types'
 
 export type Passkey = PasskeyModel
