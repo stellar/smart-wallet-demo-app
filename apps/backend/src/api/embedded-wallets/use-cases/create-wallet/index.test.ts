@@ -50,7 +50,7 @@ describe('CreateWallet UseCase', () => {
       email,
       registration_response_json: '{"id":"TestPayload123"}',
     }
-    mockedUserRepository.getUserByToken.mockResolvedValue({ ...user, contractAddress: undefined } as User)
+    mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
     mockedSDPEmbeddedWallets.createWallet.mockResolvedValue(sdpCreateWalletResponse)
     mockedCompleteRegistration.mockResolvedValueOnce({
       passkey: { credentialId: 'test-credential-id' },
@@ -106,7 +106,7 @@ describe('CreateWallet UseCase', () => {
   })
 
   it('should handle wallet creation errors', async () => {
-    mockedUserRepository.getUserByToken.mockResolvedValue({ ...user, contractAddress: undefined } as User)
+    mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
     mockedCompleteRegistration.mockResolvedValueOnce({
       passkey: { credentialId: 'test-credential-id' },
       publicKeyHex: 'CBY...MNV',
