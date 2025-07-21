@@ -32,6 +32,7 @@ const SLIDER_COLOR_STYLE: Record<ThemeColor, string> = {
   muted: 'bg-muted',
   success: 'bg-success',
   danger: 'bg-danger',
+  brandPrimary: 'bg-brand-primary',
 }
 
 export const Slider = ({
