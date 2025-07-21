@@ -46,6 +46,9 @@ services:
       DATABASE_PORT: ${DATABASE_PORT:-5432}
       DATABASE_USER: ${DATABASE_USER:-postgres}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      SDP_EMBEDDED_WALLETS_URL: ${SDP_EMBEDDED_WALLETS_URL:-https://stellar-disbursement-platform-backend-dev.stellar.org/embedded-wallets}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-string-at-least-256-bits-long}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-1h}
     volumes:
       - './:/app'
       - 'backend-root-node-modules:/app/node_modules'

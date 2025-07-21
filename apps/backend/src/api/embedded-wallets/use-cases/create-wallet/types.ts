@@ -14,6 +14,7 @@ export type RequestSchemaT = z.infer<typeof RequestSchema>
 export const ResponseSchema = createResponseSchema(
   z.object({
     status: z.nativeEnum(WalletStatus),
+    token: z.string(),
   })
 )
 

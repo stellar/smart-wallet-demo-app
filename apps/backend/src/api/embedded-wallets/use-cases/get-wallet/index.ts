@@ -26,9 +26,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
-    // TODO: Implement authentication middleware to set request.userId
-    // This assumes that the token has been validated and user ID is available
-    const payload = { id: request.userId } as RequestSchemaT
+    const payload = { id: request.userData?.userId } as RequestSchemaT
     if (!payload.id) {
       throw new UnauthorizedException('Not authorized')
     }

@@ -11,6 +11,7 @@ import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
+import { generateToken } from 'interfaces/jwt'
 import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
 import { SDPEmbeddedWalletsType, WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 import { WebAuthnChallengeService } from 'interfaces/webauthn-challenge'
@@ -97,9 +98,13 @@ export class CreateWallet extends UseCaseBase implements IUseCaseHttp<ResponseSc
       public_key: publicKeyHex,
     })
 
+    // Generate JWT token
+    const authToken = generateToken(user.userId, user.email)
+
     return {
       data: {
         status: newWallet.status,
+        token: authToken,
       },
       message: this.parseResponseMessage(newWallet.status),
     }

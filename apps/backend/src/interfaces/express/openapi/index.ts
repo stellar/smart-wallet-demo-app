@@ -55,7 +55,7 @@ export const swaggerDefinition = {
   servers,
   components: {
     securitySchemes: {
-      bearerAuth: {
+      BearerToken: {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',

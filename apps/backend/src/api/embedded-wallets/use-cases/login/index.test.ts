@@ -8,6 +8,7 @@ import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
+import { generateToken } from 'interfaces/jwt'
 import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
 
 import { LogIn } from '.'
@@ -58,7 +59,7 @@ describe('LogIn', () => {
 
     const result = await useCase.handle(payload)
 
-    expect(result.data.token).toBe('valid-token')
+    expect(result.data.token).toEqual(generateToken(mockUser.userId, mockUser.email))
     expect(result.message).toBe('Log in completed successfully')
   })
 
@@ -101,7 +102,7 @@ describe('LogIn', () => {
     expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.OK)
     expect(res.json).toHaveBeenCalledWith({
       data: {
-        token: 'valid-token',
+        token: generateToken(mockUser.userId, mockUser.email),
       },
       message: 'Log in completed successfully',
     })
