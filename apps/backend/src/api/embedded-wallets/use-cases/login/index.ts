@@ -1,17 +1,19 @@
 import { Request, Response } from 'express'
-import { UserRepositoryType } from 'api/core/entities/user/types'
+
 import { PasskeyRepositoryType } from 'api/core/entities/passkey/types'
+import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
-import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
-import { HttpStatusCodes } from 'api/core/utils/http/status-code'
-import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
-import { WebAuthnChallengeService } from 'interfaces/webauthn-challenge'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
-import UserRepository from 'api/core/services/user'
+import { completeAuthentication } from 'api/core/helpers/webauthn/authentication/complete-authentication'
 import PasskeyRepository from 'api/core/services/passkey'
+import UserRepository from 'api/core/services/user'
+import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
-import { completeAuthentication } from 'api/core/helpers/webauthn/authentication/complete-authentication'
+import { WebAuthnChallengeService } from 'interfaces/webauthn-challenge'
+import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
+
+import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
 const endpoint = '/login/complete'
 

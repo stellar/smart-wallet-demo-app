@@ -1,5 +1,6 @@
-import { PasskeyRepositoryType } from 'api/core/entities/passkey/types'
 import { Mocked } from 'vitest'
+
+import { PasskeyRepositoryType } from 'api/core/entities/passkey/types'
 
 export function mockPasskeyRepository(): Mocked<PasskeyRepositoryType> {
   return {

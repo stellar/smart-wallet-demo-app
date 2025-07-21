@@ -1,8 +1,10 @@
-import type { Base64URLString, CredentialDeviceType, AuthenticatorTransportFuture } from '@simplewebauthn/server'
 import { faker } from '@faker-js/faker'
+import type { Base64URLString, CredentialDeviceType, AuthenticatorTransportFuture } from '@simplewebauthn/server'
+
 import { Passkey } from 'api/core/entities/passkey/model'
-import { User } from '../user/types'
+
 import { userFactory } from '../user/factory'
+import { User } from '../user/types'
 
 interface PasskeyFactoryArgs {
   credentialId?: Base64URLString

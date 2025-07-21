@@ -1,7 +1,10 @@
 import axios from 'axios'
+
 import { getValueFromEnv } from 'config/env-utils'
-import SDPEmbeddedWallets, { CONNECTION_TIMEOUT } from '.'
+
 import { WalletStatus } from './types'
+
+import SDPEmbeddedWallets, { CONNECTION_TIMEOUT } from '.'
 
 describe('SDPEmbeddedWallets', () => {
   const connection = axios.create({

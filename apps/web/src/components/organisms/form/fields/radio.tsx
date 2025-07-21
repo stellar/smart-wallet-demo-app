@@ -1,5 +1,6 @@
-import { Controller, useFormContext } from 'react-hook-form'
 import { RadioButton as SDSRadio } from '@stellar/design-system'
+import { Controller, useFormContext } from 'react-hook-form'
+
 import { useFormContextExtra } from '../provider'
 
 type Option = { label: string; value: string } & React.ComponentProps<typeof SDSRadio>

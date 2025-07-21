@@ -1,12 +1,12 @@
 import * as React from 'react'
-
 import { createRoot } from 'react-dom/client'
 
 import 'react-toastify/dist/ReactToastify.min.css'
 import '@stellar/design-system/build/styles.min.css'
 
-import reportWebVitals from './config/reportWebVitals'
 import App from 'src/app/core/App'
+
+import reportWebVitals from './config/reportWebVitals'
 
 import './index.css'
 

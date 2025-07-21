@@ -1,10 +1,11 @@
-import { z } from 'zod'
 import { StrKey } from '@stellar/stellar-sdk'
+import { z } from 'zod'
+
+import { logger } from '../../config/logger'
 import { UseCaseBase } from '../core/framework/use-case/base'
 import { Request, Response } from '../core/routes'
 import ProofRepository from '../core/services/proof'
 import { HttpStatusCodes } from '../core/utils/http/status-code'
-import { logger } from '../../config/logger'
 
 const stellarAddressSchema = z
   .string()

@@ -5,9 +5,10 @@ import {
   verifyAuthenticationResponse,
 } from '@simplewebauthn/server'
 import base64url from 'base64url'
-import { getValueFromEnv } from 'config/env-utils'
+
 import { Passkey, PasskeyRepositoryType } from 'api/core/entities/passkey/types'
 import { User } from 'api/core/entities/user/types'
+import { getValueFromEnv } from 'config/env-utils'
 import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
 
 export const completeAuthentication = async ({

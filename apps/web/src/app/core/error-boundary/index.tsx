@@ -1,4 +1,5 @@
 import { ErrorBoundary as ReactErrorBoundary, FallbackProps } from 'react-error-boundary'
+
 import styles from './styles.module.css'
 
 export type ErrorBoundaryFallback = ({

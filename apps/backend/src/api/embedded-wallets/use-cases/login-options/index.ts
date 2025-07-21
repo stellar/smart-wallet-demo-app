@@ -1,14 +1,16 @@
 import { Request, Response } from 'express'
+
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
-import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
-import { HttpStatusCodes } from 'api/core/utils/http/status-code'
-import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
-import { WebAuthnChallengeService } from 'interfaces/webauthn-challenge'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
-import UserRepository from 'api/core/services/user'
-import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { generateAuthenticationOptions } from 'api/core/helpers/webauthn/authentication/generate-options'
+import UserRepository from 'api/core/services/user'
+import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
+import { WebAuthnChallengeService } from 'interfaces/webauthn-challenge'
+import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
+
+import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
 const endpoint = '/login/options/:email'
 

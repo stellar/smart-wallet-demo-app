@@ -1,5 +1,6 @@
-import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ZodError } from 'zod/lib/ZodError'
+
+import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 
 import { ErrorCode } from '../types'
 import { BaseException } from './base'

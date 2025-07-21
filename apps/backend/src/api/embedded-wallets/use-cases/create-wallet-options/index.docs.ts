@@ -2,6 +2,7 @@ import { badRequest, notFound } from 'api/core/utils/docs/error.docs'
 import { Tags } from 'api/core/utils/docs/tags'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { zodToSchema } from 'api/core/utils/zod'
+
 import { ResponseSchema } from './types'
 
 export default {

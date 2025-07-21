@@ -1,12 +1,14 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { FormValues, schema } from './schema'
-import { AuthPagesPath } from '../../routes/types'
+
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
-import { useEmailStore } from '../../store'
-import { useLogIn } from '../../queries/use-login'
+
+import { FormValues, schema } from './schema'
 import { LogInTemplate } from './template'
+import { useLogIn } from '../../queries/use-login'
+import { AuthPagesPath } from '../../routes/types'
+import { useEmailStore } from '../../store'
 
 export const LogIn = () => {
   const router = useRouter()

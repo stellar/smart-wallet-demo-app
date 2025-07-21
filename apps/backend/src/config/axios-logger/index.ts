@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto'
 
-import { parseIfJson } from 'api/core/utils/parse-if-json'
 import { AxiosError, AxiosHeaders, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 
+import { parseIfJson } from 'api/core/utils/parse-if-json'
 import { logger } from 'config/logger'
 
 type AdditionalAxiosRequestConfig = InternalAxiosRequestConfig & {

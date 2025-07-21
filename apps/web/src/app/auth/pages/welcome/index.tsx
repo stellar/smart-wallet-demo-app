@@ -1,6 +1,8 @@
 import { useNavigate } from '@tanstack/react-router'
-import { WelcomeTemplate } from './template'
+
 import { AuthPagesPath } from 'src/app/auth/routes/types'
+
+import { WelcomeTemplate } from './template'
 
 export const Welcome = () => {
   const navigate = useNavigate()

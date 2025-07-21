@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
-import { useAccessTokenStore } from '../store/access-token'
+
 import { AUTH_TOKEN_CHANNEL_KEY } from '../constants/storage'
+import { useAccessTokenStore } from '../store/access-token'
 
 export const useSyncAccessToken = () => {
   const { setAccessToken, clearAccessToken } = useAccessTokenStore()

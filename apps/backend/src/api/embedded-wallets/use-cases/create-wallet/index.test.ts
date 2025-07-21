@@ -1,17 +1,18 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { CreateWallet, endpoint } from './index'
 import { Request, Response } from 'express'
-import { HttpStatusCodes } from 'api/core/utils/http/status-code'
-import { mockUserRepository } from 'api/core/services/user/mocks'
-import { mockPasskeyRepository } from 'api/core/services/passkey/mocks'
-import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
-import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
-import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
+
 import { userFactory } from 'api/core/entities/user/factory'
 import { User } from 'api/core/entities/user/types'
-import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
+import { mockPasskeyRepository } from 'api/core/services/passkey/mocks'
+import { mockUserRepository } from 'api/core/services/user/mocks'
+import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
+import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
+import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
+import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
+import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
+
+import { CreateWallet, endpoint } from './index'
 
 const mockedUserRepository = mockUserRepository()
 const mockedPasskeyRepository = mockPasskeyRepository()
@@ -49,7 +50,7 @@ describe('CreateWallet UseCase', () => {
       email,
       registration_response_json: '{"id":"TestPayload123"}',
     }
-    mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, publicKey: undefined } as User)
+    mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
     mockedSDPEmbeddedWallets.createWallet.mockResolvedValue(sdpCreateWalletResponse)
     mockedCompleteRegistration.mockResolvedValueOnce({
       passkey: { credentialId: 'test-credential-id' },
@@ -74,7 +75,7 @@ describe('CreateWallet UseCase', () => {
   it('should throw error if user already has a wallet', async () => {
     mockedUserRepository.getUserByEmail.mockResolvedValue({
       ...user,
-      publicKey: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
+      contractAddress: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
     } as User)
 
     const payload = { email, registration_response_json: '{"id":"TestPayload123"}' }
@@ -84,7 +85,7 @@ describe('CreateWallet UseCase', () => {
   })
 
   it('should throw error if authentication failed', async () => {
-    mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, publicKey: undefined } as User)
+    mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
     mockedCompleteRegistration.mockResolvedValueOnce(false)
 
     const payload = { email, registration_response_json: '{"id":"TestPayload123"}' }
@@ -93,7 +94,7 @@ describe('CreateWallet UseCase', () => {
   })
 
   it('should throw error if authentication pass but publicKeyHex is missing', async () => {
-    mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, publicKey: undefined } as User)
+    mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
     mockedCompleteRegistration.mockResolvedValueOnce({
       passkey: { credentialId: 'test-credential-id' },
       publicKeyHex: undefined,
@@ -105,7 +106,7 @@ describe('CreateWallet UseCase', () => {
   })
 
   it('should handle wallet creation errors', async () => {
-    mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, publicKey: undefined } as User)
+    mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
     mockedCompleteRegistration.mockResolvedValueOnce({
       passkey: { credentialId: 'test-credential-id' },
       publicKeyHex: 'CBY...MNV',

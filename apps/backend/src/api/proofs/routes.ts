@@ -1,4 +1,5 @@
 import { Router } from 'express'
+
 import { GetProofByAddressUseCase } from './get-proof-by-address'
 
 const router = Router()

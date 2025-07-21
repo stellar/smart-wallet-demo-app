@@ -1,4 +1,5 @@
 import { IHTTPResponse } from 'src/interfaces/http/types'
+
 import { WalletStatus } from '../../domain/models/user'
 
 export interface IAuthService {

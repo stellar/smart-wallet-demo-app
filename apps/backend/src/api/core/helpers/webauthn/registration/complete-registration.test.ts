@@ -1,8 +1,9 @@
-import { completeRegistration } from './complete-registration'
-import { mockPasskeyRepository } from 'api/core/services/passkey/mocks'
-import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
 import { passkeyFactory } from 'api/core/entities/passkey/factory'
 import { userFactory } from 'api/core/entities/user/factory'
+import { mockPasskeyRepository } from 'api/core/services/passkey/mocks'
+import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
+
+import { completeRegistration } from './complete-registration'
 
 const mockChallenge = {
   challenge: 'mockChallenge',

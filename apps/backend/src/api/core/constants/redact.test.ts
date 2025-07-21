@@ -1,6 +1,6 @@
+import { LOGGER_SERIALIZERS, loggerRedactPaths, REDACT_CENSOR } from './redact'
 import { redactUrlParams } from '../utils/redact-url-params'
 import { redactUrlQueryParams } from '../utils/redact-url-query-params'
-import { LOGGER_SERIALIZERS, loggerRedactPaths, REDACT_CENSOR } from './redact'
 
 vi.mock('../utils/redact-url-params', () => ({
   redactUrlParams: vi.fn(url => url.replace(/pathSensitive/gi, REDACT_CENSOR)),

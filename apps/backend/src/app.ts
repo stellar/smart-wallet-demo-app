@@ -1,4 +1,6 @@
 import 'config/env'
+import express, { Router } from 'express'
+
 import { exceptionMiddleware } from 'api/core/middlewares/exception'
 import { httpLoggerMiddleware } from 'api/core/middlewares/http-logger'
 import { initLogMetadata } from 'api/core/middlewares/init-log-metadata'
@@ -6,7 +8,6 @@ import { interceptResponseDataMiddleware } from 'api/core/middlewares/intercept-
 import { requestIdMiddleware } from 'api/core/middlewares/request-id'
 import { routes } from 'api/core/routes'
 import { initializeDatabase } from 'config/database'
-import express, { Router } from 'express'
 import { getValueFromEnv, isTestEnv } from 'config/env-utils'
 import { logger } from 'config/logger'
 

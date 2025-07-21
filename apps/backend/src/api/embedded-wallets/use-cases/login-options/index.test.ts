@@ -1,12 +1,14 @@
 import { Request, Response } from 'express'
-import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
-import { LogInOptions } from '.'
-import { mockUserRepository } from 'api/core/services/user/mocks'
-import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
-import { userFactory } from 'api/core/entities/user/factory'
+
 import { passkeyFactory } from 'api/core/entities/passkey/factory'
-import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { userFactory } from 'api/core/entities/user/factory'
 import { User } from 'api/core/entities/user/types'
+import { mockUserRepository } from 'api/core/services/user/mocks'
+import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
+import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
+
+import { LogInOptions } from '.'
 
 const mockPasskeys = [
   passkeyFactory({

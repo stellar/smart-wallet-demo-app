@@ -1,7 +1,8 @@
 import { Button, Heading } from '@stellar/design-system'
+
 import { OnboardingBackgroundImage } from 'src/app/core/components'
-import { c } from 'src/interfaces/cms/useContent'
 import { Typography, TypographyVariant, TypographyWeight } from 'src/components/atoms'
+import { c } from 'src/interfaces/cms/useContent'
 
 type Props = {
   onCreatePasskey: () => void

@@ -1,5 +1,8 @@
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser'
 import base64url from 'base64url'
+
+import logger from 'src/app/core/services/logger'
+
 import {
   WebAuthnAuthenticateWithPasskeyInput,
   WebAuthnAuthenticateWithPasskeyResult,
@@ -7,7 +10,6 @@ import {
   WebAuthnCreatePasskeyResult,
   IWebAuthnService,
 } from './types'
-import logger from 'src/app/core/services/logger'
 
 export class WebAuthnService implements IWebAuthnService {
   private webAuthnClient: {

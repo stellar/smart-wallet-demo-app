@@ -1,7 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { LayoutProvider, useLayout } from './index'
-import { renderWithoutProviders, screen, waitFor } from 'src/helpers/tests'
 import { act } from 'react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
+import { renderWithoutProviders, screen, waitFor } from 'src/helpers/tests'
+
+import { LayoutProvider, useLayout } from './index'
 
 const TestComponent = () => {
   const layout = useLayout()

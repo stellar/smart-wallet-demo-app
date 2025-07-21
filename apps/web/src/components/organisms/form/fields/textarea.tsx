@@ -1,5 +1,6 @@
-import { Controller, useFormContext } from 'react-hook-form'
 import { Textarea as SDSTextarea } from '@stellar/design-system'
+import { Controller, useFormContext } from 'react-hook-form'
+
 import { useFormContextExtra } from '../provider'
 
 type Props = {

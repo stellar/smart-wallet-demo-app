@@ -1,4 +1,5 @@
 import { Mocked } from 'vitest'
+
 import { SDPEmbeddedWalletsType } from './types'
 
 export function mockSDPEmbeddedWallets(): Mocked<SDPEmbeddedWalletsType> {

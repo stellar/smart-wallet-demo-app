@@ -1,5 +1,6 @@
-import { UserRepositoryType } from 'api/core/entities/user/types'
 import { Mocked } from 'vitest'
+
+import { UserRepositoryType } from 'api/core/entities/user/types'
 
 export function mockUserRepository(): Mocked<UserRepositoryType> {
   return {

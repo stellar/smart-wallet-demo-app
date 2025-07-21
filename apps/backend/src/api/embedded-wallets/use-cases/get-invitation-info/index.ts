@@ -1,13 +1,15 @@
+import axios from 'axios'
 import { Request, Response } from 'express'
+
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
-import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
+import { IUseCaseHttp } from 'api/core/framework/use-case/http'
+import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
 import { CheckWalletStatusResponse, SDPEmbeddedWalletsType } from 'interfaces/sdp-embedded-wallets/types'
-import { IUseCaseHttp } from 'api/core/framework/use-case/http'
-import UserRepository from 'api/core/services/user'
-import axios from 'axios'
+
+import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
 const endpoint = '/invitation-info/:token'
 

@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { Layout } from './index'
+
 import { renderWithRouter, screen, waitFor } from 'src/helpers/tests'
+
+import { Layout } from './index'
 
 // Mock Outlet
 vi.mock('@tanstack/react-router', async () => {

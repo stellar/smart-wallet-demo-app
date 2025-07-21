@@ -1,4 +1,5 @@
 import EmbeddedWallets from 'api/embedded-wallets/docs'
+
 import { HttpStatusCodes } from './utils/http/status-code'
 
 export default {

@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
 import { Icon, Button } from '@stellar/design-system'
+import { useMemo } from 'react'
 
 type Props = {
   type?: 'next' | 'previous' | 'close'

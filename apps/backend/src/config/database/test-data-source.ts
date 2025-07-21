@@ -1,7 +1,9 @@
 import path from 'path'
+
 import { DataSource, DataSourceOptions } from 'typeorm'
-import { getValueFromEnv } from 'config/env-utils'
+
 import { SnakeNamingStrategy } from 'api/core/framework/orm/naming-strategy'
+import { getValueFromEnv } from 'config/env-utils'
 
 const rootDir = `${__dirname}/../..`
 

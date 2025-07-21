@@ -1,6 +1,8 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query'
+
 import { createWalletUseCase } from 'src/app/auth/domain/use-cases/create-wallet'
 import { CreateWalletInput } from 'src/app/auth/domain/use-cases/create-wallet/types'
+
 import { AuthQueryKeys } from './query-keys'
 
 type UseCaseInput = CreateWalletInput

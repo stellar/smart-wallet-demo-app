@@ -1,9 +1,10 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
+import { useForm } from 'react-hook-form'
+
+import { FormValues, schema } from './schema'
 import { InviteResendTemplate } from './template'
 import { AuthPagesPath } from '../../routes/types'
-import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { FormValues, schema } from './schema'
 
 export const InviteResend = () => {
   const router = useRouter()

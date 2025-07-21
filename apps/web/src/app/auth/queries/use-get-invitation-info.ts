@@ -1,9 +1,11 @@
 import { queryOptions, useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
+
 import { getInvitationInfoUseCase } from 'src/app/auth/domain/use-cases/get-invitation-info'
 import {
   GetInvitationInfoInput,
   GetInvitationInfoResult,
 } from 'src/app/auth/domain/use-cases/get-invitation-info/types'
+
 import { AuthQueryKeys } from './query-keys'
 
 type UseCaseInput = GetInvitationInfoInput

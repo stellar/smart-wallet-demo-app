@@ -1,6 +1,7 @@
 import { FindOneOptions } from 'typeorm'
-import { User, UserRepositoryType } from 'api/core/entities/user/types'
+
 import { User as UserModel } from 'api/core/entities/user/model'
+import { User, UserRepositoryType } from 'api/core/entities/user/types'
 import { SingletonBase } from 'api/core/framework/singleton/interface'
 
 export default class UserRepository extends SingletonBase implements UserRepositoryType {

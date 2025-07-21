@@ -1,12 +1,14 @@
-import { useMemo } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { AuthPagesPath } from '../../routes/types'
+import { useMemo } from 'react'
+
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
-import { useCreateWallet } from '../../queries/use-create-wallet'
-import { useLogIn } from '../../queries/use-login'
-import { getInvitationInfoOptions } from '../../queries/use-get-invitation-info'
+
 import { InviteTemplate } from './template'
+import { useCreateWallet } from '../../queries/use-create-wallet'
+import { getInvitationInfoOptions } from '../../queries/use-get-invitation-info'
+import { useLogIn } from '../../queries/use-login'
+import { AuthPagesPath } from '../../routes/types'
 
 export const Invite = () => {
   const search = useSearch({ from: AuthPagesPath.INVITE })

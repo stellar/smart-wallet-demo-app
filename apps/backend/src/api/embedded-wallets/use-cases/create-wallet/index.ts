@@ -1,20 +1,22 @@
 import { Request, Response } from 'express'
-import { UserRepositoryType } from 'api/core/entities/user/types'
+
 import { PasskeyRepositoryType } from 'api/core/entities/passkey/types'
+import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
-import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
+import { IUseCaseHttp } from 'api/core/framework/use-case/http'
+import { completeRegistration } from 'api/core/helpers/webauthn/registration/complete-registration'
+import PasskeyRepository from 'api/core/services/passkey'
+import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
+import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
+import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
 import { SDPEmbeddedWalletsType, WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
-import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
 import { WebAuthnChallengeService } from 'interfaces/webauthn-challenge'
-import { IUseCaseHttp } from 'api/core/framework/use-case/http'
-import UserRepository from 'api/core/services/user'
-import PasskeyRepository from 'api/core/services/passkey'
-import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
-import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
-import { UnauthorizedException } from 'errors/exceptions/unauthorized'
-import { completeRegistration } from 'api/core/helpers/webauthn/registration/complete-registration'
+import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
+
+import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
 const endpoint = '/register/complete'
 
@@ -70,7 +72,7 @@ export class CreateWallet extends UseCaseBase implements IUseCaseHttp<ResponseSc
     }
 
     // Check if user already has a wallet
-    if (user.publicKey) {
+    if (user.contractAddress) {
       throw new ResourceConflictedException(`User with email ${requestBody.email} already has a wallet`)
     }
 
