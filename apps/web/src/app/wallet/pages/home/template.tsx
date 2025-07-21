@@ -1,6 +1,8 @@
 import { Button, Icon, Text } from '@stellar/design-system'
-import { c } from 'src/interfaces/cms/useContent'
+
 import { Carousel, SafeAreaView, ImageCard, Collapse, CollapseItem } from 'src/components/organisms'
+import { c } from 'src/interfaces/cms/useContent'
+
 import { Amount } from '../../components'
 
 type NavbarItemType = 'nft' | 'history' | 'profile'

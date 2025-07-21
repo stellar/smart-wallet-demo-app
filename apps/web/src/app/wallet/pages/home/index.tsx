@@ -1,4 +1,5 @@
 import { c } from 'src/interfaces/cms/useContent'
+
 import { HomeTemplate } from './template'
 
 export const Home = () => {
