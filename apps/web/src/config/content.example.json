@@ -42,5 +42,11 @@
   "airdropBannerTitle": "Your assets are here!",
   "airdropBannerDescriptionA": "Claim to get free airdrop!",
   "airdropBannerDescriptionB": "Woohoo! We airdropped assets to your wallet. Claim to get free asset with your passkey!",
-  "airdropBannerButtonTitle": "Claim your assets"
+  "airdropBannerButtonTitle": "Claim your assets",
+  "walletInfoTitle": "Wallet Info",
+  "emailLabel": "Email",
+  "stellarWalletAddressLabel": "Stellar Wallet Address",
+  "viewInExplorer": "View in Explorer",
+  "signOut": "Sign Out",
+  "copyAddressTitle": "Copy address"
 }
