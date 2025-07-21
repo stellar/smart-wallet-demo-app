@@ -1,4 +1,4 @@
-import { Button, Heading } from '@stellar/design-system'
+import { Button, Text } from '@stellar/design-system'
 
 import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { Typography, TypographyVariant, TypographyWeight } from 'src/components/atoms'
@@ -18,9 +18,9 @@ export const RecoverConfirmTemplate = ({ onCreatePasskey }: Props) => {
             {c('recoverConfirmTitle')}
           </Typography>
 
-          <Heading addlClassName="text-whitish leading-6" as="h2" size="xs">
+          <Text addlClassName="text-whitish leading-6" as="h3" size="md">
             {c('recoverConfirmSubtitle')}
-          </Heading>
+          </Text>
 
           <div className="mt-3">
             <Button onClick={onCreatePasskey} size="lg" variant="tertiary" isRounded isFullWidth>

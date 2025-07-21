@@ -1,4 +1,4 @@
-import { Heading } from '@stellar/design-system'
+import { Text } from '@stellar/design-system'
 
 import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { ONBOARDING_LOGO_WIDTH } from 'src/app/core/constants/onboarding'
@@ -19,9 +19,11 @@ export const ComingSoonTemplate = () => {
             lines={[c('comingSoonTitleLine1'), c('comingSoonTitleLine2'), c('comingSoonTitleLine3')]}
           />
 
-          <Heading addlClassName="text-whitish leading-6" as="h2" size="xs">
-            {c('comingSoonSubtitle')}
-          </Heading>
+          <Text addlClassName="text-whitish leading-6" as="h3" size="md">
+            {c('comingSoonSubtitleLine1')}
+            <br />
+            {c('comingSoonSubtitleLine2')}
+          </Text>
         </div>
       </div>
     </div>

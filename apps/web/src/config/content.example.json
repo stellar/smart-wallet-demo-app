@@ -26,5 +26,17 @@
   "comingSoonTitleLine1": "SMART",
   "comingSoonTitleLine2": "WALLET",
   "comingSoonTitleLine3": "DEMO",
-  "comingSoonSubtitle": "Smart wallet demo will go live soon."
+  "comingSoonSubtitleLine1": "Smart wallet demo will go live soon.",
+  "comingSoonSubtitleLine2": "See you then!",
+  "navbarItemATitle": "NFTs",
+  "navbarItemBTitle": "History",
+  "navbarItemCTitle": "Profile",
+  "balance": "Balance",
+  "pay": "Pay",
+  "walletHomeProductListTitle": "Check the product list",
+  "walletHomeProductListLeftBadgeOptionALabel": "Available",
+  "walletHomeProductListLeftBadgeOptionBLabel": "Unavailable",
+  "walletHomeProductListButtonText": "Buy product",
+  "walletHomeProductListButtonDescription": "Check the vendor's store before buying",
+  "frequentlyAskedQuestions": "Frequently Asked Questions"
 }

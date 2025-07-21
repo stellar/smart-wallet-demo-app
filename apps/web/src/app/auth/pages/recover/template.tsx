@@ -1,4 +1,4 @@
-import { Heading } from '@stellar/design-system'
+import { Text } from '@stellar/design-system'
 import { useMemo } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 
@@ -33,9 +33,9 @@ export const RecoverTemplate = ({ form, onGoBack, onSendResetLink }: Props) => {
             {c('recoverTitle')}
           </Typography>
 
-          <Heading addlClassName="text-whitish leading-6" as="h2" size="xs">
+          <Text addlClassName="text-whitish leading-6" as="h3" size="md">
             {c('recoverSubtitle')}
-          </Heading>
+          </Text>
 
           <Form form={form} onSubmit={onSendResetLink}>
             <Form.Input

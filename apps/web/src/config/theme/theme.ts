@@ -12,8 +12,9 @@ export const THEME_STYLES = {
         accentBlack: 'var(--color-accent-black)',
         accentWhite: 'var(--color-accent-white)',
         accentMuted: 'var(--color-accent-muted)',
-        text: 'var(--color-text-secondary)',
-        textSecondary: 'var(--color-text)',
+        text: 'var(--color-text)',
+        textSecondary: 'var(--color-text-secondary)',
+        foreground: 'var(--color-foreground-primary)',
         background: 'var(--color-background)',
         backgroundSecondary: 'var(--color-background-secondary)',
         backgroundTertiary: 'var(--color-background-tertiary)',
@@ -34,6 +35,7 @@ export const THEME_STYLES = {
         xxs: 'var(--font-size-xxs)',
         xs: 'var(--font-size-xs)',
         sm: 'var(--font-size-sm)',
+        md: 'var(--font-size-md)',
         lg: 'var(--font-size-lg)',
         xl: 'var(--font-size-xl)',
         '2xl': 'var(--font-size-2xl)',
@@ -75,5 +77,6 @@ export const THEME_STYLES = {
       },
     },
   },
-  plugins: [],
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  plugins: [require('tailwind-scrollbar-hide')],
 }

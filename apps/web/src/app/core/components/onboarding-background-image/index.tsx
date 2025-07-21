@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { a } from 'src/interfaces/cms/useAssets'
 
 type Props = {
@@ -15,7 +16,7 @@ export const OnboardingBackgroundImage = ({
 }: Props) => {
   return (
     <div
-      className={`fixed inset-0 bg-cover z-[-1] ${isAnimated ? 'animate-background-move' : ''} ${className}`}
+      className={clsx('fixed', 'inset-0', 'bg-cover', 'z-[-1]', isAnimated && 'animate-background-move', className)}
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) ${gradientTopPercentage}%, rgba(10, 10, 10, 0.8) ${gradientBottomPercentage}%), url(${a('onboardingBackground')}`,
       }}

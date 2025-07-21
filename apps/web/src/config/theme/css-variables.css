@@ -7,7 +7,8 @@
   --color-accent-white: #FFFFFF;
   --color-accent-muted: #D6D2C4;
   --color-text: #171717;
-  --color-text-secondary: #8F8F8F;
+  --color-text-secondary: #6F6F6F;
+  --color-foreground-primary: #8F8F8F;
   --color-background: #FFFFFF;
   --color-background-secondary: #F2F2F7;
   --color-background-tertiary: #F3F3F3;
@@ -62,12 +63,4 @@
   --line-height-tight: 110%;
   --line-height-normal: 120%;
   --line-height-loose: 130%;
-}
-
-.dark {
-  /* Override some colors for dark mode */
-  --color-text: #fff;
-  --color-background: #000;
-  --color-whitish: #000;
-  --color-blackish: #fff;
 }

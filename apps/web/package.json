@@ -34,6 +34,7 @@
     "react-toastify": "^10.0.5",
     "remark-gfm": "^4.0.0",
     "tailwind-merge": "^2.3.0",
+    "tailwind-scrollbar-hide": "^4.0.0",
     "typescript": "^5.4.5",
     "web-vitals": "^4.1.1",
     "yup": "^1.4.0",

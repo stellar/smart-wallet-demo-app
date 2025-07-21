@@ -1,4 +1,4 @@
-import { Button, Heading } from '@stellar/design-system'
+import { Button, Text } from '@stellar/design-system'
 
 import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { ONBOARDING_LOGO_WIDTH } from 'src/app/core/constants/onboarding'
@@ -22,9 +22,9 @@ export const WelcomeTemplate = ({ onCreateWallet, onLogIn, onForgotPassword }: P
         <div className="flex flex-col gap-4">
           <BrandTightHeading className="-mb-2" lines={[c('inviteOptionATitleLine1'), c('inviteOptionATitleLine2')]} />
 
-          <Heading addlClassName="text-whitish leading-6" as="h2" size="xs">
+          <Text addlClassName="text-whitish leading-6" as="h3" size="md">
             {c('inviteSubtitle')}
-          </Heading>
+          </Text>
 
           <Button onClick={onCreateWallet} size="lg" variant="tertiary" isRounded isFullWidth>
             {c('createAWallet')}
