@@ -1,4 +1,5 @@
 import { getValueFromEnv } from 'config/env-utils'
+
 import { StellarConfig } from './types'
 
 // STELLAR constants for the project, used to get data and submit transaction to the Horizon and Soroban servers.
