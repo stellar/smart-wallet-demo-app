@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from 'src/helpers/tests'
+
 import { ImageCard } from '.'
 
 const defaultProps = {

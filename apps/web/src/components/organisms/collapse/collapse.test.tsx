@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from 'src/helpers/tests'
+
 import { Collapse, CollapseItem } from '.'
 
 describe('CollapseItem', () => {
