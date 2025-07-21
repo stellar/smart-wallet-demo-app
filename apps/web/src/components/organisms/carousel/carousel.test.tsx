@@ -1,5 +1,4 @@
 import { render, screen } from 'src/helpers/tests'
-
 import { Carousel } from './index'
 
 describe('Carousel', () => {

@@ -1,7 +1,6 @@
+import { useMemo } from 'react'
 import { Badge, Icon, Text } from '@stellar/design-system'
 import clsx from 'clsx'
-import { useMemo } from 'react'
-
 import styles from './styles.module.css'
 
 type Props = {

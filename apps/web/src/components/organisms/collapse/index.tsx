@@ -1,6 +1,6 @@
-import { Icon, Text } from '@stellar/design-system'
-import clsx from 'clsx'
 import { useState, useRef, useEffect, useMemo } from 'react'
+import clsx from 'clsx'
+import { Icon, Text } from '@stellar/design-system'
 
 type CollapseItemProps = {
   title: string

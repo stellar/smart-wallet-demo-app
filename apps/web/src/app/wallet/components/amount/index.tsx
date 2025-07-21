@@ -1,5 +1,4 @@
 import { Heading, Text } from '@stellar/design-system'
-
 import { formatNumber } from 'src/app/core/utils'
 
 type Props = {
