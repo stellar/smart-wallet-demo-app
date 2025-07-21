@@ -8,9 +8,9 @@ const SECRET_KEY = getValueFromEnv('JWT_SECRET_KEY')
 const EXPIRES_IN = getValueFromEnv('JWT_EXPIRATION', '1h') as jwt.SignOptions['expiresIn'] // Default to 1 hour if not set
 
 /**
- * Generate a JWT token with the given userId and roles.
+ * Generate a JWT token with the given userId and email.
  * @param userId The user ID to include in the token
- * @param roles The roles to include in the token
+ * @param email The email to include in the token
  * @returns The generated JWT token
  */
 export function generateToken(userId: string, email: string): string {
@@ -20,7 +20,7 @@ export function generateToken(userId: string, email: string): string {
 
 /**
  * Verify a JWT token. This function will throw an UnauthorizedException if the token
- * is invalid or does not contain a userId and roles.
+ * is invalid or does not contain a userId and email.
  * @param token The JWT token to verify
  * @returns The decoded payload if the token is valid
  * @throws UnauthorizedException if the token is invalid
