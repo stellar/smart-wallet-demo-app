@@ -1,7 +1,7 @@
 import { createRoute } from '@tanstack/react-router'
 
 import { privateRootRoute } from 'src/app/core/router/routeTree'
-import { Home, Scan } from 'src/app/wallet/pages'
+import { Home, Scan, Profile } from 'src/app/wallet/pages'
 import { qrScanner } from 'src/interfaces/qr-scanner'
 
 import { WalletPagesPath } from './types'
@@ -30,6 +30,12 @@ const scanRoute = createRoute({
   },
 })
 
-walletRootRoute.addChildren([homeRoute, scanRoute])
+const profileRoute = createRoute({
+  getParentRoute: () => walletRootRoute,
+  path: filterHomePath(WalletPagesPath.PROFILE),
+  component: Profile,
+})
+
+walletRootRoute.addChildren([homeRoute, scanRoute, profileRoute])
 
 export const walletRoutes = [walletRootRoute]
