@@ -1,13 +1,26 @@
+import { useNavigate } from '@tanstack/react-router'
+
+import { AuthPagesPath } from 'src/app/auth/routes/types'
+import { useAccessTokenStore, useEmailStore } from 'src/app/auth/store'
+
 import { ProfileTemplate } from './template'
 
 export const Profile = () => {
+  const navigate = useNavigate()
+  const { clearAccessToken } = useAccessTokenStore()
+  const { clearEmail } = useEmailStore()
+
   // Static data for now
   const email = 'email@test.org'
   const fullWalletAddress = 'CJKSJU2N9M1EXAMPLEFULLADDRESS'
 
   const handleSignOut = () => {
-    // TODO: Implement sign out logic
-    // For now, just a placeholder
+    // Clear session data
+    clearAccessToken()
+    clearEmail()
+
+    // Navigate to welcome page
+    navigate({ to: AuthPagesPath.WELCOME })
   }
 
   // Validate required data
