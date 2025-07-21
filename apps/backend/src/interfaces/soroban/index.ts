@@ -15,9 +15,10 @@ import {
 
 import { SingletonBase } from 'api/core/framework/singleton/interface'
 
+import { logger } from 'config/logger'
 import { STELLAR } from 'config/stellar'
 import { ERRORS } from './helpers/errors'
-import { logger } from 'config/logger'
+
 import { ISorobanService, SimulateContract, SimulationResult } from './types'
 
 export class Soroban extends SingletonBase implements ISorobanService {
