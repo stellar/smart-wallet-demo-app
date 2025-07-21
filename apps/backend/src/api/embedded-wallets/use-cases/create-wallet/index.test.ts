@@ -8,6 +8,7 @@ import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
+import { generateToken } from 'interfaces/jwt'
 import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
 import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
@@ -60,6 +61,7 @@ describe('CreateWallet UseCase', () => {
     const result = await useCase.handle(payload)
 
     expect(result.data.status).toBe(WalletStatus.PROCESSING)
+    expect(result.data.token).toBe(generateToken(user.userId, user.email))
     expect(result.message).toBe(useCase.parseResponseMessage(WalletStatus.PROCESSING))
   })
 
@@ -138,6 +140,7 @@ describe('CreateWallet UseCase', () => {
     expect(res.json).toHaveBeenCalledWith({
       data: {
         status: WalletStatus.PROCESSING,
+        token: generateToken(user.userId, user.email),
       },
       message: useCase.parseResponseMessage(WalletStatus.PROCESSING),
     })

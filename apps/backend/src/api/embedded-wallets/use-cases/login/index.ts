@@ -10,6 +10,7 @@ import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
+import { generateToken } from 'interfaces/jwt'
 import { WebAuthnChallengeService } from 'interfaces/webauthn-challenge'
 import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
 
@@ -61,10 +62,12 @@ export class LogIn extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> 
 
     if (!challengeResult) throw new UnauthorizedException(`User authentication failed`)
 
+    // Generate JWT token
+    const authToken = generateToken(user.userId, user.email)
+
     return {
       data: {
-        //TODO: update with session management token
-        token: 'valid-token',
+        token: authToken,
       },
       message: 'Log in completed successfully',
     }

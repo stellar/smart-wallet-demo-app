@@ -4,7 +4,10 @@ declare global {
   namespace Express {
     interface Request {
       requestId?: string
-      userId?: string
+      userData?: {
+        userId: string
+        email: string
+      }
     }
     interface Locals {
       responseData?: unknown

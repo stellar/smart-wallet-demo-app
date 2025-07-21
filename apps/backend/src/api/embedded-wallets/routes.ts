@@ -1,5 +1,7 @@
 import { Router } from 'express'
 
+import { authentication } from 'api/core/middlewares/authentication'
+
 import { CreateWallet, endpoint as CreateWalletEndpoint } from './use-cases/create-wallet'
 import { CreateWalletOptions, endpoint as CreateWalletOptionsEndpoint } from './use-cases/create-wallet-options'
 import { GetInvitationInfo, endpoint as GetInvitationInfoEndpoint } from './use-cases/get-invitation-info'
@@ -14,9 +16,6 @@ router.get(`${CreateWalletOptionsEndpoint}`, async (req, res) => CreateWalletOpt
 router.post(`${CreateWalletEndpoint}`, async (req, res) => CreateWallet.init().executeHttp(req, res))
 router.get(`${LogInOptionsEndpoint}`, async (req, res) => LogInOptions.init().executeHttp(req, res))
 router.post(`${LogInEndpoint}`, async (req, res) => LogIn.init().executeHttp(req, res))
-router.get(
-  `${GetWalletEndpoint}`,
-  /* TODO: use authMiddleware here ,*/ async (req, res) => GetWallet.init().executeHttp(req, res)
-)
+router.get(`${GetWalletEndpoint}`, authentication, async (req, res) => GetWallet.init().executeHttp(req, res))
 
 export default router
