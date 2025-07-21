@@ -41,6 +41,6 @@ export type SorobanEntryAddress = {
   scAddress: xdr.ScAddress
 }
 
-export interface SorobanService {
+export interface ISorobanService {
   simulateContract({ contractId, method, args, signers }: SimulateContract): Promise<SimulationResult>
 }
