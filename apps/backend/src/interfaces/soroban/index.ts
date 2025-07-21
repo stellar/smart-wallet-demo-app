@@ -35,7 +35,7 @@ export class Soroban extends SingletonBase implements ISorobanService {
     this.networkPassphrase = STELLAR.NETWORK_PASSPHRASE
     this.timeoutInSeconds = 60
     this.fee = STELLAR.MAX_FEE
-    this.sourceAccountKP = Keypair.fromSecret(STELLAR.SOURCE_ACCOUNT.PRIVATE_KEY);
+    this.sourceAccountKP = Keypair.fromSecret(STELLAR.SOURCE_ACCOUNT.PRIVATE_KEY)
   }
 
   /**

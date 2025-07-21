@@ -4,7 +4,7 @@ export type StellarConfig = {
   HORIZON_URL: string
   SOROBAN_RPC_URL: string
   MAX_FEE: string
-  SOURCE_ACCOUNT: SignerKeypair;
+  SOURCE_ACCOUNT: SignerKeypair
 }
 
 export type ProjectConfig = {
