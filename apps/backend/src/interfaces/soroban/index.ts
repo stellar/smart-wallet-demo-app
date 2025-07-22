@@ -11,15 +11,12 @@ import {
   // Transaction,
   TransactionBuilder,
   // xdr,
-} from '@stellar/stellar-sdk'
-
-import { SingletonBase } from 'api/core/framework/singleton/interface'
-
-import { logger } from 'config/logger'
-import { STELLAR } from 'config/stellar'
-import { ERRORS } from './helpers/errors'
-
-import { ISorobanService, SimulateContract, SimulationResult } from './types'
+} from '@stellar/stellar-sdk';
+import { SingletonBase } from 'api/core/framework/singleton/interface';
+import { logger } from 'config/logger';
+import { STELLAR } from 'config/stellar';
+import { ERRORS } from './helpers/errors';
+import { ISorobanService, SimulateContract, SimulationResult } from './types';
 
 export class Soroban extends SingletonBase implements ISorobanService {
   public rpcClient: rpc.Server
@@ -36,7 +33,7 @@ export class Soroban extends SingletonBase implements ISorobanService {
     this.networkPassphrase = STELLAR.NETWORK_PASSPHRASE
     this.timeoutInSeconds = 60
     this.fee = STELLAR.MAX_FEE
-    this.sourceAccountKP = Keypair.fromSecret(STELLAR.SOURCE_ACCOUNT.PRIVATE_KEY)
+    this.sourceAccountKP = Keypair.fromSecret(STELLAR.SOURCE_ACCOUNT.PRIVATE_KEY) // TODO: get account KP data with passkey
   }
 
   /**
@@ -54,7 +51,7 @@ export class Soroban extends SingletonBase implements ISorobanService {
   }: SimulateContract): Promise<SimulationResult> {
     try {
       // Fetch source account
-      const sourceAcc = await this.rpcClient.getAccount(this.sourceAccountKP.publicKey())
+      const sourceAcc = await this.rpcClient.getAccount(this.sourceAccountKP.publicKey()) // TODO: get account KP data with passkey
 
       // Initialize the contract
       const tokenContract = new Contract(contractId)
