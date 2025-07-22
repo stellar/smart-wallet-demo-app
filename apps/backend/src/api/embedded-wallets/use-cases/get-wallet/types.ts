@@ -1,7 +1,7 @@
 import { z } from 'zod'
-import { STELLAR } from 'config/stellar';
 
 import { createResponseSchema } from 'api/core/framework/use-case/base'
+import { STELLAR } from 'config/stellar'
 import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 
 export const RequestSchema = z.object({

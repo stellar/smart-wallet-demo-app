@@ -11,12 +11,14 @@ import {
   // Transaction,
   TransactionBuilder,
   // xdr,
-} from '@stellar/stellar-sdk';
-import { SingletonBase } from 'api/core/framework/singleton/interface';
-import { logger } from 'config/logger';
-import { STELLAR } from 'config/stellar';
-import { ERRORS } from './helpers/errors';
-import { ISorobanService, SimulateContract, SimulationResult } from './types';
+} from '@stellar/stellar-sdk'
+
+import { SingletonBase } from 'api/core/framework/singleton/interface'
+import { logger } from 'config/logger'
+import { STELLAR } from 'config/stellar'
+
+import { ERRORS } from './helpers/errors'
+import { ISorobanService, SimulateContract, SimulationResult } from './types'
 
 export default class Soroban extends SingletonBase implements ISorobanService {
   public rpcClient: rpc.Server

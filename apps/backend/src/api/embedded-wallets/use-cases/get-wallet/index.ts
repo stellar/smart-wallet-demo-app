@@ -6,15 +6,15 @@ import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { sleepInSeconds } from 'api/core/utils/sleep'
+import { STELLAR } from 'config/stellar'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
 import { SDPEmbeddedWalletsType, WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 import Soroban from 'interfaces/soroban'
-import { ISorobanService, SimulateContract } from 'interfaces/soroban/types'
 import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
+import { ISorobanService, SimulateContract } from 'interfaces/soroban/types'
 
-import { STELLAR } from 'config/stellar';
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
 const endpoint = '/'
@@ -24,7 +24,11 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
   private sdpEmbeddedWallets: SDPEmbeddedWalletsType
   private sorobanService: ISorobanService
 
-  constructor(userRepository?: UserRepositoryType, sdpEmbeddedWallets?: SDPEmbeddedWalletsType, sorobanService?: ISorobanService) {
+  constructor(
+    userRepository?: UserRepositoryType,
+    sdpEmbeddedWallets?: SDPEmbeddedWalletsType,
+    sorobanService?: ISorobanService
+  ) {
     super()
     this.userRepository = userRepository || UserRepository.getInstance()
     this.sdpEmbeddedWallets = sdpEmbeddedWallets || SDPEmbeddedWallets.getInstance()
@@ -81,15 +85,13 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       await sleepInSeconds(1)
     }
 
-    let walletBalance: BigInt;
+    let walletBalance: bigint
     const { simulationResponse } = await this.sorobanService.simulateContract({
       contractId: STELLAR.TOKEN_CONTRACT.NATIVE, // TODO: get balance for another assets?
       method: 'balance',
-      args: [
-        ScConvert.accountIdToScVal(user.contractAddress as string),
-      ],
+      args: [ScConvert.accountIdToScVal(user.contractAddress as string)],
     } as SimulateContract)
-    walletBalance = ScConvert.scValToBigInt(simulationResponse.result!.retval);
+    walletBalance = ScConvert.scValToBigInt(simulationResponse.result!.retval)
 
     return this.parseResponse(walletStatus, user.contractAddress, walletBalance.toString() as string)
   }
