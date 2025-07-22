@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { STELLAR } from 'config/stellar';
 
 import { createResponseSchema } from 'api/core/framework/use-case/base'
 import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
@@ -13,6 +14,7 @@ export const ResponseSchema = createResponseSchema(
   z.object({
     status: z.nativeEnum(WalletStatus),
     address: z.string().optional(),
+    balance: z.string().optional(),
   })
 )
 

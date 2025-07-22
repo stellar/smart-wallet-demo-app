@@ -10,7 +10,11 @@ import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
 import { SDPEmbeddedWalletsType, WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
+import Soroban from 'interfaces/soroban'
+import { ISorobanService, SimulateContract } from 'interfaces/soroban/types'
+import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
 
+import { STELLAR } from 'config/stellar';
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
 const endpoint = '/'
@@ -18,11 +22,13 @@ const endpoint = '/'
 export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
   private userRepository: UserRepositoryType
   private sdpEmbeddedWallets: SDPEmbeddedWalletsType
+  private sorobanService: ISorobanService
 
-  constructor(userRepository?: UserRepositoryType, sdpEmbeddedWallets?: SDPEmbeddedWalletsType) {
+  constructor(userRepository?: UserRepositoryType, sdpEmbeddedWallets?: SDPEmbeddedWalletsType, sorobanService?: ISorobanService) {
     super()
     this.userRepository = userRepository || UserRepository.getInstance()
     this.sdpEmbeddedWallets = sdpEmbeddedWallets || SDPEmbeddedWallets.getInstance()
+    this.sorobanService = sorobanService || Soroban.getInstance()
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
@@ -35,11 +41,12 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
   }
 
   // TODO: Return balance and other wallet details if needed in the future
-  parseResponse(status: WalletStatus, address?: string): ResponseSchemaT {
+  parseResponse(status: WalletStatus, address?: string, balance?: string): ResponseSchemaT {
     return {
       data: {
         status,
         address,
+        balance,
       },
       message: 'Wallet details retrieved successfully',
     }
@@ -74,7 +81,17 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       await sleepInSeconds(1)
     }
 
-    return this.parseResponse(walletStatus, user.contractAddress)
+    let walletBalance: BigInt;
+    const { simulationResponse } = await this.sorobanService.simulateContract({
+      contractId: STELLAR.TOKEN_CONTRACT.NATIVE, // TODO: get balance for another assets?
+      method: 'balance',
+      args: [
+        ScConvert.accountIdToScVal(user.contractAddress as string),
+      ],
+    } as SimulateContract)
+    walletBalance = ScConvert.scValToBigInt(simulationResponse.result!.retval);
+
+    return this.parseResponse(walletStatus, user.contractAddress, walletBalance.toString() as string)
   }
 }
 
