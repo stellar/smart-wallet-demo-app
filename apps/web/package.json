@@ -24,6 +24,7 @@
     "class-variance-authority": "^0.7.0",
     "color": "^4.2.3",
     "dayjs": "^1.11.11",
+    "html5-qrcode": "^2.3.8",
     "jsonwebtoken": "^9.0.2",
     "lodash": "~4.17.21",
     "patch-package": "^8.0.0",

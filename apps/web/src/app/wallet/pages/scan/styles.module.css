@@ -1,0 +1,12 @@
+.cutout {
+  position: absolute;
+  top: calc(50% - 40vw);
+  left: calc(50% - 40vw);
+  width: 80vw;
+  height: 80vw;
+  border-radius: 16px;
+  background-color: 'transparent';
+  box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.7);
+  pointer-events: 'none';
+  box-sizing: 'border-box';
+}
