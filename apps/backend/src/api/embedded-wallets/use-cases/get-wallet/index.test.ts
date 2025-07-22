@@ -97,14 +97,14 @@ describe('GetWallet', () => {
   })
 
   it('should parse response message correctly', () => {
-    expect(getWallet.parseResponse({status: WalletStatus.SUCCESS, address: 'wallet-address'})).toEqual({
+    expect(getWallet.parseResponse({ status: WalletStatus.SUCCESS, address: 'wallet-address' })).toEqual({
       data: {
         status: WalletStatus.SUCCESS,
         address: 'wallet-address',
       },
       message: 'Wallet details retrieved successfully',
     })
-    expect(getWallet.parseResponse({status: WalletStatus.PENDING})).toEqual({
+    expect(getWallet.parseResponse({ status: WalletStatus.PENDING })).toEqual({
       data: {
         status: WalletStatus.PENDING,
       },

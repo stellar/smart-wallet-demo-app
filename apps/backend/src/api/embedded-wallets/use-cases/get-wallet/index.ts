@@ -44,7 +44,6 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     return response.status(HttpStatusCodes.OK).json(result)
   }
 
-  // parseResponse(status: WalletStatus, address?: string, email?: string, balance?: string): ResponseSchemaT {
   parseResponse(response: ParseSchemaT): ResponseSchemaT {
     return {
       data: {
@@ -65,15 +64,14 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
 
     // Check if user already has a wallet
     if (user.contractAddress) {
-
       // Get wallet balance
-      let walletBalance: string
       const { simulationResponse } = await this.sorobanService.simulateContract({
         contractId: STELLAR.TOKEN_CONTRACT.NATIVE, // TODO: get balance for another assets?
         method: 'balance',
         args: [ScConvert.accountIdToScVal(user.contractAddress as string)],
       } as SimulateContract)
-      walletBalance = ScConvert.scValToFormatString(simulationResponse.result!.retval)
+
+      const walletBalance: string = ScConvert.scValToFormatString(simulationResponse.result!.retval)
 
       return this.parseResponse({
         status: WalletStatus.SUCCESS,
@@ -97,7 +95,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       // If the address is not yet available, wait for a while before checking again
       await sleepInSeconds(1)
     }
-    
+
     return this.parseResponse({
       status: walletStatus,
       address: user.contractAddress,

@@ -18,8 +18,6 @@ export const RequestSchema = z.object({
 
 export type RequestSchemaT = z.infer<typeof RequestSchema>
 
-export const ResponseSchema = createResponseSchema(
-  ParseSchema
-)
+export const ResponseSchema = createResponseSchema(ParseSchema)
 
 export type ResponseSchemaT = z.infer<typeof ResponseSchema>
