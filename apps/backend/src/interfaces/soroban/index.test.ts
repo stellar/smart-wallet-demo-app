@@ -3,7 +3,7 @@ import { getValueFromEnv } from 'config/env-utils'
 import { ScConvert } from './helpers/sc-convert'
 import { SimulateContract } from './types'
 
-import { Soroban } from '.'
+import Soroban from '.'
 
 describe('Soroban', () => {
   const sorobanService = new Soroban()

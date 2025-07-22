@@ -1,5 +1,7 @@
 import { Address, scValToBigInt, StrKey, xdr, XdrLargeInt } from '@stellar/stellar-sdk'
 
+import Big from 'big.js'
+
 import { SorobanEntryAddress } from '../types'
 
 export const ScConvert = {
@@ -11,6 +13,18 @@ export const ScConvert = {
   },
   scValToBigInt: (scVal: xdr.ScVal): bigint => {
     return scValToBigInt(scVal)
+  },
+  scValToFormatString(scVal: xdr.ScVal): string {
+    const biVal: bigint = this.scValToBigInt(scVal).valueOf();
+    if (biVal > 0) {
+      const convVal = Big(this.scValToBigInt(scVal).valueOf().toString()).div(1e7).toString().split('.')
+      return `${convVal[0]}.${convVal[1].padEnd(7, '0')}`
+    }
+    return biVal.toString()
+  },
+  bigIntToFormatString(value: bigint): string {
+    const convVal = Big(value.toString()).div(1e7).toString().split('.')
+    return `${convVal[0]}.${convVal[1].padEnd(7, '0')}`
   },
   sorobanEntryAddressFromScAddress: (scAddress: xdr.ScAddress): SorobanEntryAddress => {
     switch (scAddress.switch()) {

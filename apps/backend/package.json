@@ -48,6 +48,7 @@
     "axios": "^1.8.4",
     "base64url": "^3.0.1",
     "bcryptjs": "^2.4.3",
+    "big.js": "^7.0.1",
     "body-parser": "^1.20.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
