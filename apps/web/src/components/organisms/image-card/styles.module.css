@@ -1,0 +1,21 @@
+.card {
+  border: 0;
+  cursor: pointer;
+
+  transition:
+    color cubic-bezier(0.65, 0.05, 0.36, 1) 100ms,
+    border-color cubic-bezier(0.65, 0.05, 0.36, 1) 100ms,
+    box-shadow cubic-bezier(0.65, 0.05, 0.36, 1) 100ms;
+
+  box-shadow: none;
+
+  &:hover,
+  &:focus {
+    box-shadow: 0 0 0 var(0, 3px) var(--color-border-primary, var(--color-border-primary));
+    outline: none;
+  }
+
+  &:active {
+    box-shadow: 0 0 0 calc(var(0, 3px) + 1px) var(--color-border-primary, var(--color-border-primary));
+  }
+}
