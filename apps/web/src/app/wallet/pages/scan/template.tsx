@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { useEffect } from 'react'
 
 import { NavigateButton } from 'src/components/molecules/navigate-button'
@@ -33,7 +34,7 @@ export const ScanTemplate = ({ onGoBack }: Props) => {
 
           {/* Layer 2: Overlay with transparent hole */}
           <div className="absolute inset-0 z-[-1]">
-            <div className={styles.cutout} />
+            <div className={clsx('border-2', 'border-whitish', styles.cutout)} />
           </div>
         </div>
       </div>
