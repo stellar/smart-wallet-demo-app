@@ -1,14 +1,35 @@
 import { createRoute } from '@tanstack/react-router'
 
-import { rootRoute } from 'src/app/core/router/routeTree'
-import { Home } from 'src/app/wallet/pages'
+import { privateRootRoute } from 'src/app/core/router/routeTree'
+import { Home, Scan } from 'src/app/wallet/pages'
+import { qrScanner } from 'src/interfaces/qr-scanner'
 
 import { WalletPagesPath } from './types'
+import { getWallet } from '../queries/use-get-wallet'
 
-const homeRoute = createRoute({
-  getParentRoute: () => rootRoute,
+const filterHomePath = (path: WalletPagesPath): string => path.split(WalletPagesPath.HOME)[1]
+
+const walletRootRoute = createRoute({
+  getParentRoute: () => privateRootRoute,
   path: WalletPagesPath.HOME,
-  component: Home,
 })
 
-export const walletRoutes = [homeRoute]
+const homeRoute = createRoute({
+  getParentRoute: () => walletRootRoute,
+  path: '/',
+  component: Home,
+  loader: ({ context }) => context.client.ensureQueryData(getWallet()),
+})
+
+const scanRoute = createRoute({
+  getParentRoute: () => walletRootRoute,
+  path: filterHomePath(WalletPagesPath.SCAN),
+  component: Scan,
+  onLeave: async () => {
+    await qrScanner.stop()
+  },
+})
+
+walletRootRoute.addChildren([homeRoute, scanRoute])
+
+export const walletRoutes = [walletRootRoute]

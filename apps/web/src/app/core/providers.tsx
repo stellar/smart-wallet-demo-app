@@ -4,8 +4,11 @@ import { ThemeProvider } from 'src/config/theme/provider'
 
 import { QueryClientProvider } from './queries/client'
 import { LayoutProvider } from './router/components/service'
+import { useSyncAccessToken } from '../auth/hooks/use-sync-access-token'
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
+  useSyncAccessToken()
+
   return (
     <QueryClientProvider>
       <ThemeProvider>

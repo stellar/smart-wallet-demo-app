@@ -1,5 +1,6 @@
 import { Button, Icon, Text } from '@stellar/design-system'
 
+import { useAccessTokenStore } from 'src/app/auth/store'
 import { Carousel, SafeAreaView, ImageCard, Collapse, CollapseItem } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
@@ -18,6 +19,7 @@ type Props = {
     }[]
   }
   onNavbarButtonClick: (item: NavbarItemType) => void
+  onPayClick: () => void
 }
 
 export const HomeTemplate = ({
@@ -48,6 +50,7 @@ export const HomeTemplate = ({
     },
   ],
   onNavbarButtonClick,
+  onPayClick,
 }: Props) => {
   const HorizontalRule = () => <div className="border-t border-borderPrimary w-full" />
 
@@ -97,7 +100,7 @@ export const HomeTemplate = ({
         <Amount amount={balanceAmount} asset={'XLM'} />
       </div>
 
-      <Button variant={'secondary'} size={'lg'} icon={<Icon.Scan />} iconPosition="left">
+      <Button variant={'secondary'} size={'lg'} icon={<Icon.Scan />} iconPosition="left" onClick={onPayClick}>
         {c('pay')}
       </Button>
     </div>
@@ -113,7 +116,13 @@ export const HomeTemplate = ({
 
   const ProductActionButton = () => (
     <div className="flex flex-col items-center gap-3">
-      <Button variant={'secondary'} size={'lg'} isRounded isFullWidth>
+      <Button
+        variant={'secondary'}
+        size={'lg'}
+        isRounded
+        isFullWidth
+        onClick={() => useAccessTokenStore.getState().clearAccessToken()}
+      >
         {c('walletHomeProductListButtonText')}
       </Button>
       <div className="text-textSecondary">

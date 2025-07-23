@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "@peculiar/x509": "^1.12.3",
+    "@sendgrid/mail": "^8.1.5",
     "@simplewebauthn/server": "^13.1.2",
     "@stellar/stellar-sdk": "^13.3.0",
     "@types/jsonwebtoken": "^9.0.10",
