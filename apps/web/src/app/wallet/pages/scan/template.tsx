@@ -14,6 +14,7 @@ type Props = {
 export const ScanTemplate = ({ onGoBack }: Props) => {
   useEffect(() => {
     qrScanner.start(decoded => {
+      // TODO: redirect to payment flow
       alert(`Scanned: ${decoded}`)
     })
   }, [])
