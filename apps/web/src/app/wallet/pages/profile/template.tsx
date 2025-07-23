@@ -19,6 +19,7 @@ interface ProfileTemplateProps {
   email: string
   walletAddress: string
   onSignOut: () => void
+  onGoBack: () => void
 }
 
 interface SectionProps {
@@ -94,11 +95,11 @@ const ProfileCard = ({ email, walletAddress }: ProfileData) => (
   </div>
 )
 
-export const ProfileTemplate = ({ email, walletAddress, onSignOut }: ProfileTemplateProps) => {
+export const ProfileTemplate = ({ email, walletAddress, onSignOut, onGoBack }: ProfileTemplateProps) => {
   return (
     <SafeAreaView>
       <div className="flex flex-col gap-8 mb-7">
-        <NavigateButton variant="dark" size="sm" onClick={() => window.history.back()} />
+        <NavigateButton variant="secondary" onClick={onGoBack} />
         <Typography variant={TypographyVariant.h1} weight={TypographyWeight.semibold} className="text-xl leading-8">
           {c('walletInfoTitle')}
         </Typography>

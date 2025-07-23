@@ -1,26 +1,32 @@
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useCanGoBack, useRouter } from '@tanstack/react-router'
 
 import { AuthPagesPath } from 'src/app/auth/routes/types'
 import { useAccessTokenStore, useEmailStore } from 'src/app/auth/store'
 
 import { ProfileTemplate } from './template'
+import { WalletPagesPath } from '../../routes/types'
 
 export const Profile = () => {
   const navigate = useNavigate()
   const { clearAccessToken } = useAccessTokenStore()
   const { clearEmail } = useEmailStore()
+  const canGoBack = useCanGoBack()
+  const router = useRouter()
 
   // Static data for now
   const email = 'email@test.org'
   const fullWalletAddress = 'CJKSJU2N9M1EXAMPLEFULLADDRESS'
 
-  const handleSignOut = () => {
-    // Clear session data
-    clearAccessToken()
-    clearEmail()
+  const handleGoBack = () => {
+    if (canGoBack) router.history.back()
 
-    // Navigate to welcome page
-    navigate({ to: AuthPagesPath.WELCOME })
+    navigate({ to: WalletPagesPath.HOME })
+  }
+
+  const handleSignOut = () => {
+    // Clear session data and redirect to welcome page
+    clearAccessToken(AuthPagesPath.WELCOME)
+    clearEmail()
   }
 
   // Validate required data
@@ -29,5 +35,12 @@ export const Profile = () => {
     return null
   }
 
-  return <ProfileTemplate email={email} walletAddress={fullWalletAddress} onSignOut={handleSignOut} />
+  return (
+    <ProfileTemplate
+      email={email}
+      walletAddress={fullWalletAddress}
+      onSignOut={handleSignOut}
+      onGoBack={handleGoBack}
+    />
+  )
 }
