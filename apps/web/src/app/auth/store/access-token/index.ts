@@ -20,13 +20,19 @@ export const useAccessTokenStore = create<AccessTokenStoreState>()(
       setAccessToken: (token, redirectTo, broadcast = true) => {
         set({ accessToken: token })
         if (broadcast) channel.postMessage({ type: 'SET_TOKEN', token })
-        if (redirectTo) router.history.push(redirectTo)
+        if (redirectTo) {
+          router.history.destroy()
+          router.history.push(redirectTo)
+        }
       },
 
       clearAccessToken: (redirectTo = AuthPagesPath.LOGIN, broadcast = true) => {
         set({ accessToken: null })
         if (broadcast) channel.postMessage({ type: 'CLEAR_TOKEN' })
-        if (redirectTo) router.history.push(redirectTo)
+        if (redirectTo) {
+          router.history.destroy()
+          router.history.push(redirectTo)
+        }
       },
     }),
     {
