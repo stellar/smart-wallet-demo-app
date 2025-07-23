@@ -6,7 +6,6 @@ import { getValueFromEnv } from 'config/env-utils'
 import { logger } from 'config/logger'
 
 import { generateToken } from './auth/jwt'
-
 import {
   AccountRequest,
   PaymentResponse,

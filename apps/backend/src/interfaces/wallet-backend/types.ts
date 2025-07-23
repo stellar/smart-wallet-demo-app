@@ -31,8 +31,8 @@ export type PaymentResponse = {
 }
 
 export type WalletBackendType = {
-  registerAccount(account: AccountRequest): Promise<any>
-  deregisterAccount(account: AccountRequest): Promise<any>
+  registerAccount(account: AccountRequest): Promise<object>
+  deregisterAccount(account: AccountRequest): Promise<object>
   getPayments(account: AccountRequest): Promise<PaymentResponse>
   buildTransaction(account: AccountRequest, transactions: TransactionBuildRequest): Promise<TransactionBuildResponse>
   createFeeBumpTransaction(account: AccountRequest, transactions: TransactionRequest): Promise<TransactionResponse>
