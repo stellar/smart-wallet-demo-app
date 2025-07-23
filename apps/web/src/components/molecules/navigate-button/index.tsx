@@ -1,14 +1,15 @@
-import { Icon, Button } from '@stellar/design-system'
+import { Icon, Button, ButtonProps } from '@stellar/design-system'
 import { useMemo } from 'react'
 
 type Props = {
   type?: 'next' | 'previous' | 'close'
+  variant?: ButtonProps['variant']
   size?: 'sm' | 'md'
   className?: string
   onClick?: () => void
 }
 
-export const NavigateButton = ({ type = 'previous', size = 'sm', className, onClick }: Props) => {
+export const NavigateButton = ({ type = 'previous', variant = 'tertiary', size = 'sm', className, onClick }: Props) => {
   const label = useMemo(() => {
     const width = size === 'sm' ? 12 : 14
     const height = size === 'sm' ? 12 : 14
@@ -49,7 +50,7 @@ export const NavigateButton = ({ type = 'previous', size = 'sm', className, onCl
   return (
     <div className={className}>
       <Button
-        variant={'tertiary'}
+        variant={variant}
         size={'lg'}
         style={{
           borderRadius: '50%',
