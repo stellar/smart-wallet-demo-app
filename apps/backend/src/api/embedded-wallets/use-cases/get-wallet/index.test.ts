@@ -16,7 +16,7 @@ const mockedSDPEmbeddedWallets = mockSDPEmbeddedWallets()
 
 const user = userFactory({
   userId: 'user-123',
-  contractAddress: 'wallet-address',
+  contractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
   uniqueToken: 'unique-token',
 })
 
@@ -57,7 +57,7 @@ describe('GetWallet', () => {
 
     const result = await getWallet.handle(payload)
     expect(result.data.status).toBe(WalletStatus.SUCCESS)
-    expect(result.data.address).toBe('wallet-address')
+    expect(result.data.address).toBe('CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE')
     expect(mockedSDPEmbeddedWallets.checkWalletStatus).not.toHaveBeenCalled()
     expect(mockedUserRepository.updateUser).not.toHaveBeenCalled()
   })
@@ -97,14 +97,14 @@ describe('GetWallet', () => {
   })
 
   it('should parse response message correctly', () => {
-    expect(getWallet.parseResponse(WalletStatus.SUCCESS, 'wallet-address')).toEqual({
+    expect(getWallet.parseResponse({ status: WalletStatus.SUCCESS, address: 'wallet-address' })).toEqual({
       data: {
         status: WalletStatus.SUCCESS,
         address: 'wallet-address',
       },
       message: 'Wallet details retrieved successfully',
     })
-    expect(getWallet.parseResponse(WalletStatus.PENDING)).toEqual({
+    expect(getWallet.parseResponse({ status: WalletStatus.PENDING })).toEqual({
       data: {
         status: WalletStatus.PENDING,
       },
