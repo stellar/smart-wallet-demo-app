@@ -53,16 +53,16 @@ export default class Soroban extends SingletonBase implements ISorobanService {
   }: SimulateContract): Promise<SimulationResult> {
     try {
       // Fetch source account
-          logger.info(
-      {
-        input: {
+      logger.info(
+        {
+          input: {
             contractId,
             method,
-            args
-        }
-      },
-      `${this.constructor.name} | simulateContractMethod | Request Sent`
-    )
+            args,
+          },
+        },
+        `${this.constructor.name} | simulateContractMethod | Request Sent`
+      )
       const sourceAcc = await this.rpcClient.getAccount(this.sourceAccountKP.publicKey()) // TODO: get account KP data with passkey
 
       // Initialize the contract
@@ -97,23 +97,23 @@ export default class Soroban extends SingletonBase implements ISorobanService {
           throw new Error(`${ERRORS.TX_SIM_FAILED} (simulation 2): ${simulationResponse}`);
         }
       } */
-    logger.info(
-      {
-        result: {
+      logger.info(
+        {
+          result: {
             tx,
-            simulationResponse
-        }
-      },
-      `${this.constructor.name} | simulateContractMethod | Request Received`
-    )
+            simulationResponse,
+          },
+        },
+        `${this.constructor.name} | simulateContractMethod | Request Received`
+      )
       return { tx, simulationResponse }
     } catch (error) {
-    logger.info(
-      {
-        error
-      },
-      `${this.constructor.name} | simulateContractMethod | Request Failed`
-    )
+      logger.info(
+        {
+          error,
+        },
+        `${this.constructor.name} | simulateContractMethod | Request Failed`
+      )
       throw error
     }
   }
