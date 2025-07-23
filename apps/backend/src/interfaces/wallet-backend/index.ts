@@ -43,7 +43,7 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
     )
   }
 
-  public async registerAccount(account: AccountRequest): Promise<any> {
+  public async registerAccount(account: AccountRequest): Promise<object> {
     const registerUrl = `/accounts?address=${account.address}`
 
     // TODO: intercept the request, generate and inject the auth token automatically
@@ -66,7 +66,7 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
     }
   }
 
-  public async deregisterAccount(account: AccountRequest): Promise<any> {
+  public async deregisterAccount(account: AccountRequest): Promise<object> {
     const deregisterUrl = `/accounts?address=${account.address}`
 
     const authToken = generateToken({
