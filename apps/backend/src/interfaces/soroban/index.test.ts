@@ -1,3 +1,5 @@
+import { xdr } from '@stellar/stellar-sdk'
+
 import { getValueFromEnv } from 'config/env-utils'
 
 import { ScConvert } from './helpers/sc-convert'
@@ -29,7 +31,7 @@ describe('Soroban', () => {
       } as SimulateContract)
 
       expect(simulationResponse).toBeTypeOf('object')
-      expect(ScConvert.scValToBigInt(simulationResponse.result!.retval)).toBeTypeOf('bigint')
+      expect(ScConvert.scValToBigInt(simulationResponse.result?.retval as xdr.ScVal)).toBeTypeOf('bigint')
       // expect(response).toEqual({
       //   tx: {},
       //   simulationResponse: {},

@@ -1,3 +1,4 @@
+import { xdr } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { UserRepositoryType } from 'api/core/entities/user/types'
@@ -71,7 +72,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
         args: [ScConvert.accountIdToScVal(user.contractAddress as string)],
       } as SimulateContract)
 
-      const walletBalance: string = ScConvert.scValToFormatString(simulationResponse.result!.retval)
+      const walletBalance: string = ScConvert.scValToFormatString(simulationResponse.result?.retval as xdr.ScVal)
 
       return this.parseResponse({
         status: WalletStatus.SUCCESS,
