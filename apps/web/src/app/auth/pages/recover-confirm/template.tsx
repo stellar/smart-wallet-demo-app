@@ -18,7 +18,7 @@ export const RecoverConfirmTemplate = ({ onCreatePasskey }: Props) => {
             {c('recoverConfirmTitle')}
           </Typography>
 
-          <Text addlClassName="text-whitish leading-6" as="h3" size="md">
+          <Text addlClassName="text-whitish" as="h3" size="md">
             {c('recoverConfirmSubtitle')}
           </Text>
 

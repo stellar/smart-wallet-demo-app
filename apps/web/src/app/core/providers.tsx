@@ -1,5 +1,5 @@
 import { Toast } from 'src/app/core/services/toast'
-import { DialogProvider } from 'src/components/molecules/dialog'
+import { ModalProvider } from 'src/components/molecules/modal/provider'
 import { ThemeProvider } from 'src/config/theme/provider'
 
 import { QueryClientProvider } from './queries/client'
@@ -14,7 +14,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       <ThemeProvider>
         <Toast.Provider />
         <LayoutProvider>
-          <DialogProvider>{children}</DialogProvider>
+          <ModalProvider>{children}</ModalProvider>
         </LayoutProvider>
       </ThemeProvider>
     </QueryClientProvider>

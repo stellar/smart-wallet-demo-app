@@ -19,7 +19,7 @@ export const ComingSoonTemplate = () => {
             lines={[c('comingSoonTitleLine1'), c('comingSoonTitleLine2'), c('comingSoonTitleLine3')]}
           />
 
-          <Text addlClassName="text-whitish leading-6" as="h3" size="md">
+          <Text addlClassName="text-whitish" as="h3" size="md">
             {c('comingSoonSubtitleLine1')}
             <br />
             {c('comingSoonSubtitleLine2')}

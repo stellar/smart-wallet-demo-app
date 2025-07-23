@@ -33,7 +33,7 @@ export const RecoverTemplate = ({ form, onGoBack, onSendResetLink }: Props) => {
             {c('recoverTitle')}
           </Typography>
 
-          <Text addlClassName="text-whitish leading-6" as="h3" size="md">
+          <Text addlClassName="text-whitish" as="h3" size="md">
             {c('recoverSubtitle')}
           </Text>
 

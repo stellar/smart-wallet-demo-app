@@ -47,7 +47,7 @@ export const InviteTemplate = ({
         <div className="flex flex-col gap-4">
           <BrandTightHeading className="-mb-2" lines={config.titleLines} />
 
-          <Text addlClassName="text-whitish leading-6" as="h3" size="md">
+          <Text addlClassName="text-whitish" as="h3" size="md">
             {c('inviteSubtitle')}
           </Text>
 

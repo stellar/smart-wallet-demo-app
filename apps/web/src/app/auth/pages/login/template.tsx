@@ -35,7 +35,7 @@ export const LogInTemplate = ({ form, onGoBack, onLogIn }: Props) => {
             {c('logInTitleLine2')}
           </Typography>
 
-          <Text addlClassName="text-whitish leading-6" as="h3" size="md">
+          <Text addlClassName="text-whitish" as="h3" size="md">
             {c('logInSubtitle')}
           </Text>
 

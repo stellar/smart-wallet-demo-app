@@ -14,6 +14,7 @@ export const THEME_STYLES = {
         accentMuted: 'var(--color-accent-muted)',
         text: 'var(--color-text)',
         textSecondary: 'var(--color-text-secondary)',
+        textTertiary: 'var(--color-text-tertiary)',
         foreground: 'var(--color-foreground-primary)',
         background: 'var(--color-background)',
         backgroundSecondary: 'var(--color-background-secondary)',

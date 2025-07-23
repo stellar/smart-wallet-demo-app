@@ -13,6 +13,7 @@ export interface ISliderProps extends RadixSlider.SliderProps {
 const SLIDER_COLOR_STYLE: Record<ThemeColor, string> = {
   text: 'bg-text',
   textSecondary: 'bg-text-secondary',
+  textTertiary: 'bg-text-tertiary',
   primary: 'bg-primary',
   secondary: 'bg-secondary',
   tertiary: 'bg-tertiary',

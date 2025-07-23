@@ -1,9 +1,11 @@
 import { Icon, Button, ButtonProps } from '@stellar/design-system'
 import { useMemo } from 'react'
 
+import { GhostButton } from '../ghost-button'
+
 type Props = {
   type?: 'next' | 'previous' | 'close'
-  variant?: ButtonProps['variant']
+  variant?: ButtonProps['variant'] | 'ghost'
   size?: 'sm' | 'md'
   className?: string
   onClick?: () => void
@@ -49,17 +51,32 @@ export const NavigateButton = ({ type = 'previous', variant = 'tertiary', size =
 
   return (
     <div className={className}>
-      <Button
-        variant={variant}
-        size={'lg'}
-        style={{
-          borderRadius: '50%',
-          ...style,
-        }}
-        onClick={onClick}
-      >
-        {label}
-      </Button>
+      {variant === 'ghost' ? (
+        <GhostButton
+          size={'lg'}
+          style={{
+            borderRadius: '50%',
+            ...style,
+          }}
+          isBordered
+          invertColor
+          onClick={onClick}
+        >
+          {label}
+        </GhostButton>
+      ) : (
+        <Button
+          variant={variant}
+          size={'lg'}
+          style={{
+            borderRadius: '50%',
+            ...style,
+          }}
+          onClick={onClick}
+        >
+          {label}
+        </Button>
+      )}
     </div>
   )
 }

@@ -1,5 +1,7 @@
 {
   "blackLogo": "src/assets/black-logo.svg",
   "yellowLogo": "src/assets/yellow-logo.svg",
-  "onboardingBackground": "src/assets/images/onboarding-background.png"
+  "onboardingBackground": "src/assets/images/onboarding-background.png",
+  "airdropBannerBackground": "src/assets/images/airdrop-banner-background.png",
+  "airdropDefaultBackground": "src/assets/images/airdrop-default-background.png"
 }
