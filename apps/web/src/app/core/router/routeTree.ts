@@ -5,20 +5,24 @@ import { authRoutes } from 'src/app/auth/routes'
 import { AuthPagesPath } from 'src/app/auth/routes/types'
 import { useAccessTokenStore } from 'src/app/auth/store'
 import { homeRoutes } from 'src/app/home/routes'
+import { HomePagesPath } from 'src/app/home/routes/types'
 import { walletRoutes } from 'src/app/wallet/routes'
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
 
+import { featureFlagsState } from '../helpers'
 import { Layout } from './components/layout'
+import { getFeatureFlags } from '../queries/use-get-feature-flags'
 
 export const rootRoute = createRootRouteWithContext<{ client: QueryClient }>()({
   component: Layout,
+  beforeLoad: ({ context }) => context.client.ensureQueryData(getFeatureFlags()),
 })
 
 // Public routes
 export const publicRootRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: 'public',
-  beforeLoad: () => {
+  beforeLoad: ({ location }) => {
     const accessTokenStore = useAccessTokenStore.getState()
     const isAuthenticated = !!accessTokenStore.accessToken
 
@@ -26,6 +30,15 @@ export const publicRootRoute = createRoute({
     if (isAuthenticated) {
       throw redirect({
         to: WalletPagesPath.HOME,
+      })
+    }
+
+    const [isComingSoonActive] = featureFlagsState(['coming-soon'])
+    const comingSoonPath = HomePagesPath.COMING_SOON
+
+    if (isComingSoonActive && location.href !== comingSoonPath) {
+      throw redirect({
+        to: comingSoonPath,
       })
     }
   },
