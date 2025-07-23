@@ -46,6 +46,7 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
   public async registerAccount(account: AccountRequest): Promise<any> {
     const registerUrl = `/accounts?address=${account.address}`
 
+    // TODO: intercept the request, generate and inject the auth token automatically
     const authToken = generateToken({
       sub: account.address,
       methodAndPath: `POST ${registerUrl}`,
