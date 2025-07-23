@@ -22,7 +22,7 @@ export const WelcomeTemplate = ({ onCreateWallet, onLogIn, onForgotPassword }: P
         <div className="flex flex-col gap-4">
           <BrandTightHeading className="-mb-2" lines={[c('inviteOptionATitleLine1'), c('inviteOptionATitleLine2')]} />
 
-          <Text addlClassName="text-whitish leading-6" as="h3" size="md">
+          <Text addlClassName="text-whitish" as="h3" size="md">
             {c('inviteSubtitle')}
           </Text>
 
