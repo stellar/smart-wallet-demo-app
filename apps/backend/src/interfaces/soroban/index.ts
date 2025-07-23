@@ -97,7 +97,15 @@ export default class Soroban extends SingletonBase implements ISorobanService {
           throw new Error(`${ERRORS.TX_SIM_FAILED} (simulation 2): ${simulationResponse}`);
         }
       } */
-
+    logger.info(
+      {
+        result: {
+            tx,
+            simulationResponse
+        }
+      },
+      `${this.constructor.name} | simulateContractMethod | Request Received`
+    )
       return { tx, simulationResponse }
     } catch (error) {
     logger.info(
