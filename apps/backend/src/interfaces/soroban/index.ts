@@ -53,6 +53,16 @@ export default class Soroban extends SingletonBase implements ISorobanService {
   }: SimulateContract): Promise<SimulationResult> {
     try {
       // Fetch source account
+          logger.info(
+      {
+        input: {
+            contractId,
+            method,
+            args
+        }
+      },
+      `${this.constructor.name} | simulateContractMethod | Request Sent`
+    )
       const sourceAcc = await this.rpcClient.getAccount(this.sourceAccountKP.publicKey()) // TODO: get account KP data with passkey
 
       // Initialize the contract
