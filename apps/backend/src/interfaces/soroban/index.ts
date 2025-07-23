@@ -100,7 +100,12 @@ export default class Soroban extends SingletonBase implements ISorobanService {
 
       return { tx, simulationResponse }
     } catch (error) {
-      logger.error(error, 'Soroban - Error simulating transaction')
+    logger.info(
+      {
+        error
+      },
+      `${this.constructor.name} | simulateContractMethod | Request Failed`
+    )
       throw error
     }
   }
