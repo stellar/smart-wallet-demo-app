@@ -2,14 +2,17 @@ import crypto from 'crypto'
 
 import * as jose from 'jose'
 
-import { Keypair, StrKey} from "@stellar/stellar-sdk";
+import { Keypair, StrKey } from '@stellar/stellar-sdk'
 
 import { getValueFromEnv } from 'config/env-utils'
 
 import { TokenPayload } from './types'
 
 const SECRET_KEY = getValueFromEnv('JWT_SECRET_KEY_WALLET_BACKEND')
-const AUDIENCE = getValueFromEnv('STELLAR_WALLET_BACKEND_URL', 'https://wallet-backend-testnet-21ac687b8418.herokuapp.com')
+const AUDIENCE = getValueFromEnv(
+  'STELLAR_WALLET_BACKEND_URL',
+  'https://wallet-backend-testnet-21ac687b8418.herokuapp.com'
+)
 const EXPIRES_IN = '10s' // As per wallet-backend requirements, expires in less than 15 seconds
 const ALGORITHM = 'EdDSA' // Algorithm used for signing the JWT
 
@@ -25,8 +28,8 @@ export async function generateToken(payload: TokenPayload): Promise<string> {
   const keypair = Keypair.fromSecret(SECRET_KEY)
 
   // Decode StrKey to raw bytes
-  const rawPublicKey = StrKey.decodeEd25519PublicKey(keypair.publicKey()); // Uint8Array(32)
-  const rawSecretKey = StrKey.decodeEd25519SecretSeed(keypair.secret());   // Uint8Array(32)
+  const rawPublicKey = StrKey.decodeEd25519PublicKey(keypair.publicKey()) // Uint8Array(32)
+  const rawSecretKey = StrKey.decodeEd25519SecretSeed(keypair.secret()) // Uint8Array(32)
 
   // Construct the key in format JWK
   const jwk = {
@@ -34,10 +37,10 @@ export async function generateToken(payload: TokenPayload): Promise<string> {
     crv: 'Ed25519',
     x: Buffer.from(rawPublicKey).toString('base64url'),
     d: Buffer.from(rawSecretKey).toString('base64url'),
-  };
+  }
 
   // Import the JWK
-  const privateKey = await jose.importJWK(jwk, ALGORITHM);
+  const privateKey = await jose.importJWK(jwk, ALGORITHM)
 
   const token = await new jose.SignJWT({ ...payload, aud: AUDIENCE })
     .setProtectedHeader({ alg: ALGORITHM, typ: 'JWT' })
@@ -45,5 +48,5 @@ export async function generateToken(payload: TokenPayload): Promise<string> {
     .setExpirationTime(EXPIRES_IN)
     .sign(privateKey)
 
-    return token
+  return token
 }
