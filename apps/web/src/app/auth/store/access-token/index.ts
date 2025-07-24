@@ -17,6 +17,21 @@ export const useAccessTokenStore = create<AccessTokenStoreState>()(
   persist(
     set => ({
       ...INITIAL_STATE,
+      /**
+       * Sets the access token and broadcasts the change to other tabs.
+       *
+       * If `redirectTo` is provided, the user is redirected to the given path
+       * after setting the access token. By default, the user is not redirected.
+       * Also, the current router cache is cleaned.
+       *
+       * If `broadcast` is false, the change is not broadcasted to other tabs.
+       *
+       * @param token - The access token to set.
+       * @param redirectTo - The path to redirect the user to after setting the
+       * access token. Defaults to `undefined`.
+       * @param broadcast - Whether to broadcast the change to other tabs.
+       * Defaults to `true`.
+       */
       setAccessToken: (token, redirectTo, broadcast = true) => {
         set({ accessToken: token })
         if (broadcast) channel.postMessage({ type: 'SET_TOKEN', token })
@@ -26,6 +41,20 @@ export const useAccessTokenStore = create<AccessTokenStoreState>()(
         }
       },
 
+      /**
+       * Clears the access token and broadcasts the change to other tabs.
+       *
+       * If `redirectTo` is provided, the user is redirected to the given path
+       * after clearing the access token. By default, the user is redirected to
+       * the login page. Also, the current router cache is cleaned.
+       *
+       * If `broadcast` is false, the change is not broadcasted to other tabs.
+       *
+       * @param redirectTo - The path to redirect the user to after clearing the
+       * access token. Defaults to `AuthPagesPath.LOGIN`.
+       * @param broadcast - Whether to broadcast the change to other tabs.
+       * Defaults to `true`.
+       */
       clearAccessToken: (redirectTo = AuthPagesPath.LOGIN, broadcast = true) => {
         set({ accessToken: null })
         if (broadcast) channel.postMessage({ type: 'CLEAR_TOKEN' })

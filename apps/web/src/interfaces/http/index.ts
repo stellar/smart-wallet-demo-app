@@ -21,6 +21,7 @@ http.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === HttpStatusCode.Unauthorized) {
+      // Clear the access token and redirect to the login page
       useAccessTokenStore.getState().clearAccessToken()
     }
 

@@ -14,6 +14,7 @@ export const rootRoute = createRootRouteWithContext<{ client: QueryClient }>()({
   component: Layout,
 })
 
+// Public routes
 export const publicRootRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: 'public',
@@ -21,6 +22,7 @@ export const publicRootRoute = createRoute({
     const accessTokenStore = useAccessTokenStore.getState()
     const isAuthenticated = !!accessTokenStore.accessToken
 
+    // If the user is authenticated, redirect to the home page
     if (isAuthenticated) {
       throw redirect({
         to: WalletPagesPath.HOME,
@@ -29,6 +31,7 @@ export const publicRootRoute = createRoute({
   },
 })
 
+// Private routes
 export const privateRootRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: 'private',
