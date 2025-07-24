@@ -43,16 +43,13 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
   }
 
   public async registerAccount(account: AccountRequest): Promise<object> {
-    const registerUrl = `/accounts?address=${account.address}`
+    const registerUrl = `/accounts/${account.address}`
 
     // TODO: intercept the request, generate and inject the auth token automatically. See line 38 example above.
     const authToken = await generateToken({
-      // sub: account.address,
       methodAndPath: `POST ${registerUrl.split('?')[0]}`.trim(),
       bodyHash: '',
     })
-
-    console.log('authToken >>>', authToken)
 
     try {
       const response = await this.connection.post(registerUrl, '', {
@@ -68,15 +65,12 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
   }
 
   public async deregisterAccount(account: AccountRequest): Promise<object> {
-    const deregisterUrl = `/accounts?address=${account.address}`
+    const deregisterUrl = `/accounts/${account.address}`
 
     const authToken = await generateToken({
-      // sub: account.address,
       methodAndPath: `DELETE ${deregisterUrl.split('?')[0]}`.trim(),
       bodyHash: '',
     })
-
-    // console.log('authToken >>>', authToken)
 
     try {
       const response = await this.connection.delete(deregisterUrl, {
@@ -85,8 +79,6 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
         },
       })
 
-      console.log('response >>>', response.data)
-
       return response.data
     } catch (error) {
       logger.error(error, 'Wallet Backend - Error deregistering account')
@@ -94,7 +86,13 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
     }
   }
 
+  /**
+   * DEPRECATED: This endpoint changed to a GraphQL query.
+   * @param account
+   * @returns
+   */
   public async getPayments(account: AccountRequest): Promise<PaymentResponse> {
+    // TODO: Update to use the new GraphQL endpoint
     const paymentsUrl = `/payments?address=${account.address}&sort=DESC&limit=50` // TODO: get pagination params
 
     const authToken = await generateToken({

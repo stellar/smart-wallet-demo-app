@@ -18,63 +18,71 @@ describe('WalletBackend', () => {
 
   describe('registerAccount', () => {
     test('should register an account within wallet backend service', async () => {
-      /* vi.spyOn(connection, 'post').mockResolvedValue({
-        data: {
-          // status: 'PENDING',
-        },
+      vi.spyOn(connection, 'post').mockResolvedValue({
+        data: {},
         status: 200,
-      }) */
+      })
 
       const response = await walletBackend.registerAccount({
         address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
       })
 
-      console.log('response >>>', response)
-
-      // expect(response).toEqual({})
+      expect(response).toEqual({})
     })
 
-    /* test('should throw an error if the request fails', async () => {
+    test('should throw an error if the request fails', async () => {
       vi.spyOn(connection, 'post').mockRejectedValueOnce(new Error('Request failed'))
 
-      await expect(
-        sdpEmbeddedWallets.createWallet({
-          token: 'token',
-          public_key: 'public_key',
-          credential_id: 'credential_id',
-        })
-      ).rejects.toThrowError()
-    }) */
-  })
-
-  /* describe('deregisterAccount', () => {
-    test('should deregister an account from wallet backend service', async () => {
       vi.spyOn(connection, 'post').mockResolvedValue({
         data: {
-          // status: 'PENDING',
+          error: 'Validation error.',
+          extras: {
+            address: 'Invalid public key provided',
+          },
         },
+        status: 400,
+      })
+
+      await expect(
+        walletBackend.registerAccount({
+          address: 'invalid_address',
+        })
+      ).rejects.toThrowError()
+    })
+  })
+
+  describe('deregisterAccount', () => {
+    test('should deregister an account from wallet backend service', async () => {
+      vi.spyOn(connection, 'post').mockResolvedValue({
+        data: {},
         status: 200,
       })
 
       const response = await walletBackend.deregisterAccount({
-        address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE'
+        address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
       })
 
-      console.log('response >>>', response)
-      
-      expect(response).toEqual({})
+      expect(response).toEqual('')
     })
 
-    // test('should throw an error if the request fails', async () => {
-    //   vi.spyOn(connection, 'post').mockRejectedValueOnce(new Error('Request failed'))
+    test('should throw an error if the request fails', async () => {
+      vi.spyOn(connection, 'post').mockRejectedValueOnce(new Error('Request failed'))
 
-    //   await expect(
-    //     sdpEmbeddedWallets.createWallet({
-    //       token: 'token',
-    //       public_key: 'public_key',
-    //       credential_id: 'credential_id',
-    //     })
-    //   ).rejects.toThrowError()
-    // })
-  }) */
+      vi.spyOn(connection, 'post').mockResolvedValue({
+        data: {
+          error: 'Validation error.',
+          extras: {
+            address: 'Invalid public key provided',
+          },
+        },
+        status: 400,
+      })
+
+      await expect(
+        walletBackend.deregisterAccount({
+          address: 'invalid_address',
+        })
+      ).rejects.toThrowError()
+    })
+  })
 })
