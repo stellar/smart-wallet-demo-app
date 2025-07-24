@@ -44,9 +44,8 @@ export class RecoverWalletOptions extends UseCaseBase implements IUseCaseHttp<Re
       throw new BadRequestException(`OTP with code ${code} has expired`)
     }
 
-    const user = otp.user
     const optionsJSON = await generateRegistrationOptions({
-      user,
+      user: otp.user,
       webauthnChallengeService: this.webauthnChallengeService,
     })
 
