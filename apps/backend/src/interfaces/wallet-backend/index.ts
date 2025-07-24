@@ -45,12 +45,14 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
   public async registerAccount(account: AccountRequest): Promise<object> {
     const registerUrl = `/accounts?address=${account.address}`
 
-    // TODO: intercept the request, generate and inject the auth token automatically
-    const authToken = generateToken({
+    // TODO: intercept the request, generate and inject the auth token automatically. See line 38 example above.
+    const authToken = await generateToken({
       sub: account.address,
       methodAndPath: `POST ${registerUrl}`,
       bodyHash: '',
     })
+
+    console.log('authToken >>>', authToken)
 
     try {
       const response = await this.connection.post(registerUrl, '', {
@@ -68,11 +70,13 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
   public async deregisterAccount(account: AccountRequest): Promise<object> {
     const deregisterUrl = `/accounts?address=${account.address}`
 
-    const authToken = generateToken({
+    const authToken = await generateToken({
       sub: account.address,
       methodAndPath: `DELETE ${deregisterUrl}`,
       bodyHash: '',
     })
+
+    // console.log('authToken >>>', authToken)
 
     try {
       const response = await this.connection.delete(deregisterUrl, {
@@ -90,7 +94,7 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
   public async getPayments(account: AccountRequest): Promise<PaymentResponse> {
     const paymentsUrl = `/payments?address=${account.address}&sort=DESC&limit=50` // TODO: get pagination params
 
-    const authToken = generateToken({
+    const authToken = await generateToken({
       sub: account.address,
       methodAndPath: `GET ${paymentsUrl}`,
       bodyHash: '',
@@ -115,7 +119,7 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
   ): Promise<TransactionBuildResponse> {
     const buildTransactionUrl = '/transactions/build'
 
-    const authToken = generateToken({
+    const authToken = await generateToken({
       sub: account.address,
       methodAndPath: `POST ${buildTransactionUrl}`,
       bodyHash: JSON.stringify(transactions),
@@ -140,7 +144,7 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
   ): Promise<TransactionResponse> {
     const feeBumpTransactionUrl = '/tx/create-fee-bump'
 
-    const authToken = generateToken({
+    const authToken = await generateToken({
       sub: account.address,
       methodAndPath: `POST ${feeBumpTransactionUrl}`,
       bodyHash: JSON.stringify(transaction),
