@@ -1,8 +1,11 @@
+import { Request, Response } from 'express'
+
 import { Otp } from 'api/core/entities/otp/types'
 import { userFactory } from 'api/core/entities/user/factory'
 import { User } from 'api/core/entities/user/types'
 import { mockOtpRepository } from 'api/core/services/otp/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
+import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
@@ -10,7 +13,7 @@ import { mockEmailService } from 'interfaces/email-provider/mock'
 
 import { RequestSchemaT } from './types'
 
-import { GenerateRecoveryLink } from '.'
+import { endpoint, GenerateRecoveryLink } from '.'
 
 const mockedOtpRepository = mockOtpRepository()
 const mockedUserRepository = mockUserRepository()
@@ -36,7 +39,7 @@ describe('GenerateRecoveryLink', () => {
     mockedUserRepository.getUserByEmail.mockResolvedValue(mockedUser)
     mockedOtpRepository.createOtp.mockResolvedValue({
       code: 'ABC123',
-      expiresAt: new Date(),
+      expiresAt: new Date(Date.now() + 1000 * 60 * 5),
     } as Otp)
     mockedEmailService.sendEmail.mockResolvedValue()
 
@@ -87,7 +90,7 @@ describe('GenerateRecoveryLink', () => {
     mockedUserRepository.getUserByEmail.mockResolvedValue(mockedUser)
     mockedOtpRepository.createOtp.mockResolvedValue({
       code: 'ABC123',
-      expiresAt: new Date(),
+      expiresAt: new Date(Date.now() + 1000 * 60 * 5),
     } as Otp)
 
     await useCase.handle({ email: mockedEmail })
@@ -104,5 +107,34 @@ describe('GenerateRecoveryLink', () => {
       text: expect.stringContaining('This is your recovery link: http://example.com/recovery?code=ABC123'),
       html: expect.stringContaining('<a href="http://example.com/recovery?code=ABC123">'),
     })
+  })
+
+  it('should call response with correct status and json in executeHttp', async () => {
+    const req = { body: { email: mockedEmail } } as unknown as Request
+    const res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    } as unknown as Response
+
+    mockedUserRepository.getUserByEmail.mockResolvedValue(mockedUser)
+    mockedOtpRepository.createOtp.mockResolvedValue({
+      code: 'ABC123',
+      expiresAt: new Date(Date.now() + 1000 * 60 * 5),
+    } as Otp)
+    mockedEmailService.sendEmail.mockResolvedValue()
+
+    await useCase.executeHttp(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.OK)
+    expect(res.json).toHaveBeenCalledWith({
+      data: {
+        email_sent: true,
+      },
+      message: 'Recovery link sent successfully',
+    })
+  })
+
+  it('should export endpoint', () => {
+    expect(endpoint).toBe('/send-recovery-link')
   })
 })
