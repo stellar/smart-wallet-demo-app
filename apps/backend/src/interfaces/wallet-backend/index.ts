@@ -47,8 +47,8 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
 
     // TODO: intercept the request, generate and inject the auth token automatically. See line 38 example above.
     const authToken = await generateToken({
-      sub: account.address,
-      methodAndPath: `POST ${registerUrl}`,
+      // sub: account.address,
+      methodAndPath: `POST ${registerUrl.split('?')[0]}`.trim(),
       bodyHash: '',
     })
 
@@ -71,8 +71,8 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
     const deregisterUrl = `/accounts?address=${account.address}`
 
     const authToken = await generateToken({
-      sub: account.address,
-      methodAndPath: `DELETE ${deregisterUrl}`,
+      // sub: account.address,
+      methodAndPath: `DELETE ${deregisterUrl.split('?')[0]}`.trim(),
       bodyHash: '',
     })
 
@@ -84,6 +84,9 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
           Authorization: `Bearer ${authToken}`,
         },
       })
+
+      console.log('response >>>', response.data)
+
       return response.data
     } catch (error) {
       logger.error(error, 'Wallet Backend - Error deregistering account')
@@ -95,7 +98,7 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
     const paymentsUrl = `/payments?address=${account.address}&sort=DESC&limit=50` // TODO: get pagination params
 
     const authToken = await generateToken({
-      sub: account.address,
+      // sub: account.address,
       methodAndPath: `GET ${paymentsUrl}`,
       bodyHash: '',
     })
@@ -120,7 +123,7 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
     const buildTransactionUrl = '/transactions/build'
 
     const authToken = await generateToken({
-      sub: account.address,
+      // sub: account.address,
       methodAndPath: `POST ${buildTransactionUrl}`,
       bodyHash: JSON.stringify(transactions),
     })
@@ -145,7 +148,7 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
     const feeBumpTransactionUrl = '/tx/create-fee-bump'
 
     const authToken = await generateToken({
-      sub: account.address,
+      // sub: account.address,
       methodAndPath: `POST ${feeBumpTransactionUrl}`,
       bodyHash: JSON.stringify(transaction),
     })

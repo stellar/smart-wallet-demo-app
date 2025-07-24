@@ -1,5 +1,5 @@
 export type TokenPayload = {
-  sub: string
+  // sub: string
   methodAndPath: string
   bodyHash: string
 }
