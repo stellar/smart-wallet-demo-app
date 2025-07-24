@@ -2,8 +2,8 @@ import { useNavigate, useCanGoBack, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import { TransactionsTemplate } from './template'
-import { WalletPagesPath } from '../../routes/types'
 import { Transaction } from './types'
+import { WalletPagesPath } from '../../routes/types'
 
 // Mock data for transactions
 const mockTransactions = [

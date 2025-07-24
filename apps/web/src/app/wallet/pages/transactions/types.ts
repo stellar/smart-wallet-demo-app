@@ -6,4 +6,4 @@ export interface Transaction {
   asset: string
   date: string
   txId: string
-} 
+}

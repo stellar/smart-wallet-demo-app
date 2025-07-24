@@ -4,6 +4,7 @@ import { Modal } from 'src/components/molecules/modal'
 import { NavigateButton } from 'src/components/molecules/navigate-button'
 import { SafeAreaView } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
+
 import { Transaction } from './types'
 
 interface TransactionsTemplateProps {
