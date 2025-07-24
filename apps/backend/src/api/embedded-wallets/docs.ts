@@ -5,7 +5,7 @@ import GetInvitationInfoDocs from 'api/embedded-wallets/use-cases/get-invitation
 import GetWalletDocs from 'api/embedded-wallets/use-cases/get-wallet/index.docs'
 import LogInDocs from 'api/embedded-wallets/use-cases/login/index.docs'
 import LogInOptionsDocs from 'api/embedded-wallets/use-cases/login-options/index.docs'
-import RecoverOptionsDocs from 'api/embedded-wallets/use-cases/recover-wallet-options/index.docs'
+import RecoverWalletOptionsDocs from 'api/embedded-wallets/use-cases/recover-wallet-options/index.docs'
 import ValidateRecoveryLinkDocs from 'api/embedded-wallets/use-cases/validate-recovery-link/index.docs'
 
 export default {
@@ -33,7 +33,7 @@ export default {
   '/api/embedded-wallets/validate-recovery-link': {
     ...ValidateRecoveryLinkDocs,
   },
-  '/api/embedded-wallets/recover-wallet/options/{code}': {
-    ...RecoverOptionsDocs,
+  '/api/embedded-wallets/recover/options/{code}': {
+    ...RecoverWalletOptionsDocs,
   },
 }
