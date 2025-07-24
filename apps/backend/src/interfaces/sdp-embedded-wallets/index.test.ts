@@ -13,6 +13,9 @@ describe('SDPEmbeddedWallets', () => {
       'https://stellar-disbursement-platform-backend-dev.stellar.org/embedded-wallets'
     ),
     timeout: CONNECTION_TIMEOUT,
+    headers: {
+      Authorization: getValueFromEnv('SDP_EMBEDDED_WALLETS_API_KEY'),
+    },
   })
   const sdpEmbeddedWallets = new SDPEmbeddedWallets(connection)
 
