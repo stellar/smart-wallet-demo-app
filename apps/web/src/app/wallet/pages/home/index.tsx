@@ -1,6 +1,7 @@
 import { useNavigate } from '@tanstack/react-router'
 
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
+
 import { HomeTemplate } from './template'
 
 export const Home = () => {

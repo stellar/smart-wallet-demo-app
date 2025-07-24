@@ -1,6 +1,5 @@
 import { Text, Button, CopyText, Icon } from '@stellar/design-system'
 
-import { Typography, TypographyVariant, TypographyWeight } from 'src/components/atoms/typography'
 import { NavigateButton } from 'src/components/molecules/navigate-button'
 import { SafeAreaView } from 'src/components/organisms'
 import { createShortWalletAddress } from 'src/helpers/format'
@@ -28,17 +27,13 @@ interface WalletSectionProps {
 }
 
 const EmailSection = ({ email }: SectionProps) => (
-  <div className="flex flex-col gap-2">
+  <div className="flex flex-col">
     <Text as="span" size="sm" className="text-textSecondary font-medium mb-1">
       {c('emailLabel')}
     </Text>
-    <Typography
-      variant={TypographyVariant.h3}
-      weight={TypographyWeight.medium}
-      className="text-lg text-text leading-[26px] mb-2"
-    >
+    <Text as="div" size="lg" className="text-lg text-text leading-[26px] mb-2 font-medium">
       {email}
-    </Typography>
+    </Text>
   </div>
 )
 
@@ -46,18 +41,14 @@ const WalletAddressSection = ({ walletAddress }: WalletSectionProps) => {
   const shortWalletAddress = createShortWalletAddress(walletAddress)
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col">
       <Text as="span" size="sm" className="text-textSecondary font-medium mb-1">
         {c('stellarWalletAddressLabel')}
       </Text>
-      <div className="flex justify-between items-center gap-2 mb-2">
-        <Typography
-          variant={TypographyVariant.h3}
-          weight={TypographyWeight.medium}
-          className="text-lg text-text leading-[26px]"
-        >
+      <div className="flex justify-between items-center mb-2">
+        <Text as="div" size="lg" className="text-lg text-text leading-[26px] font-medium">
           {shortWalletAddress}
-        </Typography>
+        </Text>
         <CopyText textToCopy={walletAddress} title={c('copyAddressTitle')}>
           <Button
             variant="tertiary"
@@ -75,10 +66,10 @@ const WalletAddressSection = ({ walletAddress }: WalletSectionProps) => {
 
 const ExplorerLink = ({ walletAddress }: WalletSectionProps) => {
   const isProduction = import.meta.env.PROD === true
-  const explorerUrl = isProduction 
+  const explorerUrl = isProduction
     ? 'https://stellar.expert/explorer/public/contract'
     : 'https://stellar.expert/explorer/testnet/contract'
-  
+
   return (
     <a
       href={`${explorerUrl}/${walletAddress}`}
@@ -104,9 +95,9 @@ export const ProfileTemplate = ({ email, walletAddress, onSignOut, onGoBack }: P
     <SafeAreaView>
       <div className="flex flex-col gap-8 mb-7">
         <NavigateButton variant="secondary" onClick={onGoBack} />
-        <Typography variant={TypographyVariant.h1} weight={TypographyWeight.semibold} className="text-xl leading-8">
+        <Text as="h1" size="xl" className="text-xl leading-8 font-semibold">
           {c('walletInfoTitle')}
-        </Typography>
+        </Text>
         <ProfileCard email={email} walletAddress={walletAddress} />
         <Button variant={'secondary'} size={'lg'} isRounded isFullWidth onClick={onSignOut}>
           {c('signOut')}

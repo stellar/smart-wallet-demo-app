@@ -5,6 +5,7 @@ import { modalService } from 'src/components/molecules/modal/provider'
 import { Carousel, SafeAreaView, ImageCard, Collapse, CollapseItem } from 'src/components/organisms'
 import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
+
 import { Amount } from '../../components'
 
 type NavbarItemType = 'nft' | 'history' | 'profile'
