@@ -1,6 +1,5 @@
-import { FindOneOptions } from 'typeorm'
-
 import { User as UserModel } from 'api/core/entities/user/model'
+import { FindOneOptions } from 'api/core/framework/orm/base'
 
 export type User = UserModel
 
