@@ -28,9 +28,9 @@ const mockedOtp = otpFactory({ user: mockedUser })
 const mockedOtpRepository = mockOtpRepository()
 const mockedWebauthnChallenge = mockWebauthnChallenge()
 
-const mockedGenerateAuthenticationOptions = vi.fn()
-vi.mock('api/core/helpers/webauthn/authentication/generate-options', () => ({
-  generateAuthenticationOptions: (args: unknown) => mockedGenerateAuthenticationOptions(args),
+const mockedGenerateRegistrationOptions = vi.fn()
+vi.mock('api/core/helpers/webauthn/registration/generate-options', () => ({
+  generateRegistrationOptions: (args: unknown) => mockedGenerateRegistrationOptions(args),
 }))
 
 let useCase: RecoverWalletOptions
@@ -48,7 +48,7 @@ describe('RecoverWalletOptions', () => {
     const optionsJSON = { challenge: 'abc123' }
 
     mockedOtpRepository.getOtpByCode.mockResolvedValue(mockedOtp)
-    mockedGenerateAuthenticationOptions.mockResolvedValue(optionsJSON)
+    mockedGenerateRegistrationOptions.mockResolvedValue(optionsJSON)
 
     const result = await useCase.handle(payload)
 
@@ -63,7 +63,7 @@ describe('RecoverWalletOptions', () => {
     mockedOtpRepository.getOtpByCode.mockResolvedValue(null)
 
     await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
-    expect(mockedGenerateAuthenticationOptions).not.toHaveBeenCalled()
+    expect(mockedGenerateRegistrationOptions).not.toHaveBeenCalled()
   })
 
   it('should throw BadRequestException when otp is expired', async () => {
@@ -73,7 +73,7 @@ describe('RecoverWalletOptions', () => {
     mockedOtpRepository.getOtpByCode.mockResolvedValue({ ...mockedOtp, expiresAt: new Date(Date.now() - 1000) } as Otp)
 
     await expect(useCase.handle(payload)).rejects.toBeInstanceOf(BadRequestException)
-    expect(mockedGenerateAuthenticationOptions).not.toHaveBeenCalled()
+    expect(mockedGenerateRegistrationOptions).not.toHaveBeenCalled()
   })
 
   it('should call response with correct status and json in executeHttp', async () => {
@@ -87,7 +87,7 @@ describe('RecoverWalletOptions', () => {
     const optionsJSON = { challenge: 'abc123' }
 
     mockedOtpRepository.getOtpByCode.mockResolvedValue(mockedOtp)
-    mockedGenerateAuthenticationOptions.mockResolvedValue(optionsJSON)
+    mockedGenerateRegistrationOptions.mockResolvedValue(optionsJSON)
 
     await useCase.executeHttp(req, res)
 

@@ -3,7 +3,7 @@ import { Request, Response } from 'express'
 import { OtpRepositoryType } from 'api/core/entities/otp/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
-import { generateAuthenticationOptions } from 'api/core/helpers/webauthn/authentication/generate-options'
+import { generateRegistrationOptions } from 'api/core/helpers/webauthn/registration/generate-options'
 import OtpRepository from 'api/core/services/otp'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { BadRequestException } from 'errors/exceptions/bad-request'
@@ -45,7 +45,7 @@ export class RecoverWalletOptions extends UseCaseBase implements IUseCaseHttp<Re
     }
 
     const user = otp.user
-    const optionsJSON = await generateAuthenticationOptions({
+    const optionsJSON = await generateRegistrationOptions({
       user,
       webauthnChallengeService: this.webauthnChallengeService,
     })
