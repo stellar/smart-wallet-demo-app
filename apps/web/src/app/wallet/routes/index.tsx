@@ -34,6 +34,7 @@ const profileRoute = createRoute({
   getParentRoute: () => walletRootRoute,
   path: filterHomePath(WalletPagesPath.PROFILE),
   component: Profile,
+  loader: ({ context }) => context.client.ensureQueryData(getWallet()),
 })
 
 walletRootRoute.addChildren([homeRoute, scanRoute, profileRoute])

@@ -8,4 +8,6 @@ export interface IWalletService {
 export type GetWalletResult = IHTTPResponse<{
   status: WalletStatus
   address?: string
+  email?: string
+  balance?: string
 }>

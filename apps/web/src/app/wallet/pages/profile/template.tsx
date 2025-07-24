@@ -6,9 +6,6 @@ import { SafeAreaView } from 'src/components/organisms'
 import { createShortWalletAddress } from 'src/helpers/format'
 import { c } from 'src/interfaces/cms/useContent'
 
-// Constants
-const EXPLORER_BASE_URL = 'https://stellar.expert/explorer/public/account'
-
 // Types
 interface ProfileData {
   email: string
@@ -76,16 +73,23 @@ const WalletAddressSection = ({ walletAddress }: WalletSectionProps) => {
   )
 }
 
-const ExplorerLink = ({ walletAddress }: WalletSectionProps) => (
-  <a
-    href={`${EXPLORER_BASE_URL}/${walletAddress}`}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-brandPrimary font-semibold text-sm flex items-center gap-1 h-5 hover:underline"
-  >
-    {c('viewInExplorer')} <Icon.LinkExternal01 width={14} height={14} />
-  </a>
-)
+const ExplorerLink = ({ walletAddress }: WalletSectionProps) => {
+  const isProduction = import.meta.env.PROD === true
+  const explorerUrl = isProduction 
+    ? 'https://stellar.expert/explorer/public/contract'
+    : 'https://stellar.expert/explorer/testnet/contract'
+  
+  return (
+    <a
+      href={`${explorerUrl}/${walletAddress}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-brandPrimary font-semibold text-sm flex items-center gap-1 h-5 hover:underline"
+    >
+      {c('viewInExplorer')} <Icon.LinkExternal01 width={14} height={14} />
+    </a>
+  )
+}
 
 const ProfileCard = ({ email, walletAddress }: ProfileData) => (
   <div className="bg-background rounded-default p-6 flex flex-col gap-4 w-full">
