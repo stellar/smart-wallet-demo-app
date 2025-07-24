@@ -8,6 +8,10 @@ export interface IAuthService {
   postRegister: (input: PostRegisterInput) => Promise<PostRegisterResult>
   getLogInOptions: (input: GetLogInOptionsInput) => Promise<GetLogInOptionsResult>
   postLogIn: (input: PostLogInInput) => Promise<PostLogInResult>
+  sendRecoveryLink: (input: SendRecoveryLinkInput) => Promise<SendRecoveryLinkResult>
+  validateRecoveryLink: (input: ValidateRecoveryLinkInput) => Promise<ValidateRecoveryLinkResult>
+  getRecoverWalletOptions: (input: GetRecoverWalletOptionsInput) => Promise<GetRecoverWalletOptionsResult>
+  postRecoverWallet: (input: PostRecoverWalletInput) => Promise<PostRecoverWalletResult>
 }
 
 export type GetInvitationInfoInput = {
@@ -45,5 +49,34 @@ export type PostLogInInput = {
   authenticationResponseJSON: string
 }
 export type PostLogInResult = IHTTPResponse<{
+  token: string
+}>
+
+export type SendRecoveryLinkInput = {
+  email: string
+}
+export type SendRecoveryLinkResult = IHTTPResponse<{
+  email_sent: boolean
+}>
+
+export type ValidateRecoveryLinkInput = {
+  code: string
+}
+export type ValidateRecoveryLinkResult = IHTTPResponse<{
+  is_valid: boolean
+}>
+
+export type GetRecoverWalletOptionsInput = {
+  code: string
+}
+export type GetRecoverWalletOptionsResult = IHTTPResponse<{
+  options_json: string
+}>
+
+export type PostRecoverWalletInput = {
+  code: string
+  registrationResponseJSON: string
+}
+export type PostRecoverWalletResult = IHTTPResponse<{
   token: string
 }>

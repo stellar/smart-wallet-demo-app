@@ -9,14 +9,16 @@ import { Form } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { FormValues } from './schema'
+import { EmailSent } from '../../components'
 
 type Props = {
   form: UseFormReturn<FormValues>
+  isResetLinkSent: boolean
   onGoBack: () => void
-  onSendResetLink: () => void
+  onSendResetLink: (values: FormValues) => void
 }
 
-export const RecoverTemplate = ({ form, onGoBack, onSendResetLink }: Props) => {
+export const RecoverTemplate = ({ form, isResetLinkSent, onGoBack, onSendResetLink }: Props) => {
   const { watch } = form
 
   const emailValue = watch('email')
@@ -46,9 +48,13 @@ export const RecoverTemplate = ({ form, onGoBack, onSendResetLink }: Props) => {
             />
 
             <div className="mt-3">
-              <Form.Submit disabled={isSendResetLinkDisabled} size="lg" variant="tertiary" isRounded isFullWidth>
-                {c('sendResetLink')}
-              </Form.Submit>
+              {isResetLinkSent ? (
+                <EmailSent />
+              ) : (
+                <Form.Submit disabled={isSendResetLinkDisabled} size="lg" variant="tertiary" isRounded isFullWidth>
+                  {c('sendResetLink')}
+                </Form.Submit>
+              )}
             </div>
           </Form>
         </div>
