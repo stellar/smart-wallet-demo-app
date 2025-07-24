@@ -6,6 +6,7 @@ import { publicRootRoute } from 'src/app/core/router/routeTree'
 import { Welcome, Invite, InviteResend, Recover, RecoverConfirm, LogIn } from '../pages'
 import { AuthPagesPath } from './types'
 import { getInvitationInfoOptions } from '../queries/use-get-invitation-info'
+import { AuthRouteLoading } from './components/auth-route-loading'
 
 const welcomeRoute = createRoute({
   getParentRoute: () => publicRootRoute,
@@ -13,10 +14,11 @@ const welcomeRoute = createRoute({
   component: Welcome,
 })
 
-const inviteRoute = createRoute({
+export const inviteRoute = createRoute({
   getParentRoute: () => publicRootRoute,
   path: AuthPagesPath.INVITE,
   component: Invite,
+  pendingComponent: AuthRouteLoading,
   validateSearch: search =>
     yup
       .object({
