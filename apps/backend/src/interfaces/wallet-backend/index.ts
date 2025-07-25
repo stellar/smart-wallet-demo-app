@@ -155,7 +155,6 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
       })
       return response.data as TransactionBuildResponse
     } catch (error) {
-      logger.error(error, 'Wallet Backend - Error building transaction')
       throw error
     }
   }
