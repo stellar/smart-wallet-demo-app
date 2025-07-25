@@ -49,8 +49,6 @@ services:
       SDP_EMBEDDED_WALLETS_URL: ${SDP_EMBEDDED_WALLETS_URL:-https://stellar-disbursement-platform-backend-dev.stellar.org/embedded-wallets}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-string-at-least-256-bits-long}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-1h}
-      TWILIO_SENDGRID_API_KEY: ${TWILIO_SENDGRID_API_KEY:-your-sendgrid-api-key}
-      TWILIO_SENDGRID_SENDER_ADDRESS: ${TWILIO_SENDGRID_SENDER_ADDRESS:-your@email.com}
     volumes:
       - './:/app'
       - 'backend-root-node-modules:/app/node_modules'

@@ -14,6 +14,6 @@ export class Otp extends ModelBase {
   expiresAt: Date
 
   @ManyToOne(() => User, user => user.userId, { nullable: false })
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'user_id', foreignKeyConstraintName: 'otp_user_id_fkey' })
   user: User
 }

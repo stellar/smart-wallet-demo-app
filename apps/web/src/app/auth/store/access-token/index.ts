@@ -21,7 +21,7 @@ export const useAccessTokenStore = create<AccessTokenStoreState>()(
         set({ accessToken: token })
         if (broadcast) channel.postMessage({ type: 'SET_TOKEN', token })
         if (redirectTo) {
-          router.history.destroy()
+          router.clearCache()
           router.history.push(redirectTo)
         }
       },
@@ -30,7 +30,7 @@ export const useAccessTokenStore = create<AccessTokenStoreState>()(
         set({ accessToken: null })
         if (broadcast) channel.postMessage({ type: 'CLEAR_TOKEN' })
         if (redirectTo) {
-          router.history.destroy()
+          router.clearCache()
           router.history.push(redirectTo)
         }
       },

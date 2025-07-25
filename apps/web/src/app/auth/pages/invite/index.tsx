@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { useNavigate, useSearch } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { useMemo } from 'react'
 
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
@@ -8,10 +8,11 @@ import { InviteTemplate } from './template'
 import { useCreateWallet } from '../../queries/use-create-wallet'
 import { getInvitationInfoOptions } from '../../queries/use-get-invitation-info'
 import { useLogIn } from '../../queries/use-login'
+import { inviteRoute } from '../../routes'
 import { AuthPagesPath } from '../../routes/types'
 
 export const Invite = () => {
-  const search = useSearch({ from: AuthPagesPath.INVITE })
+  const search = inviteRoute.useSearch()
   const navigate = useNavigate()
 
   const createWallet = useCreateWallet({

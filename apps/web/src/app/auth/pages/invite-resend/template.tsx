@@ -35,7 +35,7 @@ export const InviteResendTemplate = ({ form, onGoBack, onSendLink }: Props) => {
             {c('inviteResendTitleLine2')}
           </Typography>
 
-          <Text addlClassName="text-whitish leading-6" as="h3" size="md">
+          <Text addlClassName="text-whitish" as="h3" size="md">
             {c('inviteResendSubtitle')}
           </Text>
 
