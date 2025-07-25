@@ -1,8 +1,6 @@
 import crypto from 'crypto'
-
-import { SignJWT } from 'jose'
-
 import { Keypair, StrKey } from '@stellar/stellar-sdk'
+import { SignJWT } from 'jose'
 
 import { getValueFromEnv } from 'config/env-utils'
 
