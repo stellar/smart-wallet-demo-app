@@ -72,14 +72,19 @@ describe('GetWallet', () => {
       status: WalletStatus.SUCCESS,
       contract_address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
     } as CheckWalletStatusResponse)
-    mockedUserRepository.updateUser.mockResolvedValue({ ...user, contractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE' } as User)
+    mockedUserRepository.updateUser.mockResolvedValue({
+      ...user,
+      contractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+    } as User)
 
     const payload = { id: 'user-123' }
     const result = await getWallet.handle(payload)
     expect(result.data.status).toBe(WalletStatus.SUCCESS)
     expect(result.data.address).toBe('CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE')
     expect(mockedSDPEmbeddedWallets.checkWalletStatus).toHaveBeenCalledTimes(2)
-    expect(mockedUserRepository.updateUser).toHaveBeenCalledWith('user-123', { contractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE' })
+    expect(mockedUserRepository.updateUser).toHaveBeenCalledWith('user-123', {
+      contractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+    })
   })
 
   it('should return pending status if wallet is not created after retries', async () => {
