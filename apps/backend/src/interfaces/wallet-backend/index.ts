@@ -129,7 +129,6 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
     const buildTransactionUrl = '/transactions/build'
 
     const authToken = await generateToken({
-      // sub: account.address,
       methodAndPath: `POST ${buildTransactionUrl}`,
       bodyHash: JSON.stringify(transactions),
     })
@@ -149,7 +148,6 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
     const feeBumpTransactionUrl = '/tx/create-fee-bump'
 
     const authToken = await generateToken({
-      // sub: account.address,
       methodAndPath: `POST ${feeBumpTransactionUrl}`,
       bodyHash: JSON.stringify(transaction),
     })
