@@ -80,7 +80,6 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
 
       return response.data
     } catch (error) {
-      logger.error(error, 'Wallet Backend - Error deregistering account')
       throw error
     }
   }
