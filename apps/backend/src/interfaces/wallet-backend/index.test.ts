@@ -85,4 +85,40 @@ describe('WalletBackend', () => {
       ).rejects.toThrowError()
     })
   })
+
+  describe('getTransactions', () => {
+    test('should get transactions from wallet backend service', async () => {
+      const mockResponse = {
+        data: {
+          account: {
+            address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+            transactions: [],
+          },
+        },
+        status: 200,
+      }
+
+      vi.spyOn(connection, 'post').mockResolvedValue(mockResponse)
+
+      const response = await walletBackend.getTransactions({
+        address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+      })
+
+      expect(response).toEqual(mockResponse.data)
+    })
+
+    test('should throw if the request fails', async () => {
+      vi.spyOn(connection, 'post').mockRejectedValueOnce(new Error('Network error'))
+      await expect(walletBackend.getTransactions({ address: 'CAZDTOP...' })).rejects.toThrowError()
+    })
+
+    test('should handle missing transactions field', async () => {
+      vi.spyOn(connection, 'post').mockResolvedValue({
+        data: { account: { address: 'CAZDTOP...' } },
+        status: 200,
+      })
+      const response = await walletBackend.getTransactions({ address: 'CAZDTOP...' })
+      expect(response.account.transactions).toBeUndefined()
+    })
+  })
 })

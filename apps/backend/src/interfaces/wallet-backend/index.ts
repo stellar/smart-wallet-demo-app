@@ -8,7 +8,7 @@ import { logger } from 'config/logger'
 import { generateToken } from './auth/jwt'
 import {
   AccountRequest,
-  PaymentResponse,
+  GetTransactionsResponse,
   TransactionBuildRequest,
   TransactionBuildResponse,
   TransactionRequest,
@@ -87,29 +87,53 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
   }
 
   /**
-   * DEPRECATED: This endpoint changed to a GraphQL query.
    * @param account
    * @returns
    */
-  public async getPayments(account: AccountRequest): Promise<PaymentResponse> {
-    // TODO: Update to use the new GraphQL endpoint
-    const paymentsUrl = `/payments?address=${account.address}&sort=DESC&limit=50` // TODO: get pagination params
+  public async getTransactions(account: AccountRequest): Promise<GetTransactionsResponse> {
+    const transactionsUrl = `/graphql/query`
+
+    const query = `
+    query GetAccount($address: String!) {
+      account(address: $address) {
+        address
+        transactions {
+          hash
+          envelopeXdr
+          operations {
+            id
+            operationXdr
+          }
+        }
+      }
+    }
+    `
+
+    const variables = {
+      address: account.address,
+    }
 
     const authToken = await generateToken({
-      // sub: account.address,
-      methodAndPath: `GET ${paymentsUrl}`,
-      bodyHash: '',
+      methodAndPath: `POST ${transactionsUrl}`,
+      bodyHash: JSON.stringify({ query, variables }),
     })
 
     try {
-      const response = await this.connection.get(paymentsUrl, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
+      const response = await this.connection.post(
+        transactionsUrl,
+        {
+          query,
+          variables,
         },
-      })
-      return response.data as PaymentResponse
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      )
+      return response.data as GetTransactionsResponse
     } catch (error) {
-      logger.error(error, 'Wallet Backend - Error fetching payments')
+      logger.error(error, 'Wallet Backend - Error fetching transactions')
       throw error
     }
   }
