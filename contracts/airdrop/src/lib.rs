@@ -106,6 +106,8 @@ impl AirdropContract {
             panic_with_error!(e, AirdropError::Ended);
         }
 
+        receiver.require_auth();
+
         let data = Receiver {
             index,
             address: receiver.clone(),
