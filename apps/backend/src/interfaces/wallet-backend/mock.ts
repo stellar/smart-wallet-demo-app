@@ -6,7 +6,7 @@ export function mockWalletBackend(): Mocked<WalletBackendType> {
   return {
     registerAccount: vi.fn(),
     deregisterAccount: vi.fn(),
-    getPayments: vi.fn(),
+    getTransactions: vi.fn(),
     buildTransaction: vi.fn(),
     createFeeBumpTransaction: vi.fn(),
   }
