@@ -344,6 +344,29 @@ fn test_recover_unclaimed_to_funder() {
 }
 
 #[test]
+#[should_panic(expected = "Error(Contract, #1000)")]
+fn test_recover_unclaimed_after_ended() {
+    let e = Env::default();
+    e.mock_all_auths_allowing_non_root_auth();
+
+    let owner = Address::generate(&e);
+    let token_client = create_token_contract(&e, &owner);
+
+    let args = make_args(
+        &e,
+        hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
+        token_client.address.clone(),
+        1000,
+        owner.clone(),
+    );
+    let contract_id = e.register(AirdropContract, args);
+    let client = AirdropContractClient::new(&e, &contract_id);
+
+    client.recover_unclaimed();
+    client.recover_unclaimed();
+}
+
+#[test]
 fn test_recover_unclaimed_no_funder_auth() {
     let e = Env::default();
     e.mock_all_auths_allowing_non_root_auth();

@@ -1,0 +1,1 @@
+make format-code && make lint-fix APP=web && make lint-fix APP=backend && make type-check APP=web && make type-check APP=backend

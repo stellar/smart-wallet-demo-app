@@ -11,6 +11,11 @@ use soroban_sdk::{
 use stellar_crypto::sha256::Sha256;
 use stellar_merkle_distributor::{IndexableLeaf, MerkleDistributor};
 
+pub const DAY_IN_LEDGERS: u32 = 17280;
+
+pub const INSTANCE_EXTEND_AMOUNT: u32 = 7 * DAY_IN_LEDGERS;
+pub const INSTANCE_TTL_THRESHOLD: u32 = INSTANCE_EXTEND_AMOUNT - DAY_IN_LEDGERS;
+
 type Distributor = MerkleDistributor<Sha256>;
 
 #[contracttype]
@@ -117,6 +122,10 @@ impl AirdropContract {
 
         let token_client = Self::token_client(e);
         token_client.transfer(&e.current_contract_address(), &receiver, &amount);
+
+        e.storage()
+            .instance()
+            .extend_ttl(INSTANCE_TTL_THRESHOLD, INSTANCE_EXTEND_AMOUNT);
     }
 
     /// Recovers any unclaimed tokens from the contract back to the funder and disables further claims.
@@ -124,6 +133,10 @@ impl AirdropContract {
     /// # Arguments:
     /// * `e` - The Soroban environment.
     pub fn recover_unclaimed(e: &Env) {
+        if Self::is_ended(e) {
+            panic_with_error!(e, AirdropError::Ended);
+        }
+
         let funder = e
             .storage()
             .instance()
