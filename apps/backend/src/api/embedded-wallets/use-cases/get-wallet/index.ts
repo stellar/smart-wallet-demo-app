@@ -15,6 +15,7 @@ import { SDPEmbeddedWalletsType, WalletStatus } from 'interfaces/sdp-embedded-wa
 import Soroban from 'interfaces/soroban'
 import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
 import { ISorobanService, SimulateContract } from 'interfaces/soroban/types'
+import WalletBackend from 'interfaces/wallet-backend'
 
 import { ParseSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
@@ -24,16 +25,19 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
   private userRepository: UserRepositoryType
   private sdpEmbeddedWallets: SDPEmbeddedWalletsType
   private sorobanService: ISorobanService
+  private walletBackend: WalletBackend
 
   constructor(
     userRepository?: UserRepositoryType,
     sdpEmbeddedWallets?: SDPEmbeddedWalletsType,
-    sorobanService?: ISorobanService
+    sorobanService?: ISorobanService,
+    walletBackend?: WalletBackend
   ) {
     super()
     this.userRepository = userRepository || UserRepository.getInstance()
     this.sdpEmbeddedWallets = sdpEmbeddedWallets || SDPEmbeddedWallets.getInstance()
     this.sorobanService = sorobanService || Soroban.getInstance()
+    this.walletBackend = walletBackend || WalletBackend.getInstance()
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
@@ -91,6 +95,9 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       if (updatedStatus.contract_address) {
         // Update user with the new wallet address
         user = await this.userRepository.updateUser(user.userId, { contractAddress: updatedStatus.contract_address })
+
+        // Register the account in the wallet backend
+        await this.walletBackend.registerAccount({ address: updatedStatus.contract_address })
         break
       }
       // If the address is not yet available, wait for a while before checking again
