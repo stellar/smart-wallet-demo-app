@@ -9,6 +9,8 @@ import { GetInvitationInfo, endpoint as GetInvitationInfoEndpoint } from './use-
 import { GetWallet, endpoint as GetWalletEndpoint } from './use-cases/get-wallet'
 import { LogIn, endpoint as LogInEndpoint } from './use-cases/login'
 import { LogInOptions, endpoint as LogInOptionsEndpoint } from './use-cases/login-options'
+import { RecoverWalletOptions, endpoint as RecoverWalletOptionsEndpoint } from './use-cases/recover-wallet-options'
+import { ValidateRecoveryLink, endpoint as ValidateRecoveryLinkEndpoint } from './use-cases/validate-recovery-link'
 
 const router = Router()
 
@@ -19,5 +21,7 @@ router.get(`${LogInOptionsEndpoint}`, async (req, res) => LogInOptions.init().ex
 router.post(`${LogInEndpoint}`, async (req, res) => LogIn.init().executeHttp(req, res))
 router.get(`${GetWalletEndpoint}`, authentication, async (req, res) => GetWallet.init().executeHttp(req, res))
 router.post(`${GenerateRecoveryLinkEndpoint}`, async (req, res) => GenerateRecoveryLink.init().executeHttp(req, res))
+router.post(`${ValidateRecoveryLinkEndpoint}`, async (req, res) => ValidateRecoveryLink.init().executeHttp(req, res))
+router.get(`${RecoverWalletOptionsEndpoint}`, async (req, res) => RecoverWalletOptions.init().executeHttp(req, res))
 
 export default router

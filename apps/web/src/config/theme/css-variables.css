@@ -8,6 +8,7 @@
   --color-accent-muted: #D6D2C4;
   --color-text: #171717;
   --color-text-secondary: #6F6F6F;
+  --color-text-tertiary: #DFE3E6;
   --color-foreground-primary: #8F8F8F;
   --color-background: #FFFFFF;
   --color-background-secondary: #F2F2F7;
@@ -19,6 +20,7 @@
   --color-muted: #f6f6f6;
   --color-success: #2fa968;
   --color-danger: #ff3636;
+  --color-brand-primary: #5746AF;
 
   --font-size-xxxs: 0.5rem;
   /**  8px */

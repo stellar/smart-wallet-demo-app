@@ -1,7 +1,9 @@
 import { Button, Icon, Text } from '@stellar/design-system'
+import clsx from 'clsx'
 
-import { useAccessTokenStore } from 'src/app/auth/store'
+import { modalService } from 'src/components/molecules/modal/provider'
 import { Carousel, SafeAreaView, ImageCard, Collapse, CollapseItem } from 'src/components/organisms'
+import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { Amount } from '../../components'
@@ -10,13 +12,22 @@ type NavbarItemType = 'nft' | 'history' | 'profile'
 
 type Props = {
   balanceAmount: number
-  products: React.ComponentProps<typeof ImageCard>[]
-  faq: {
+  products?: React.ComponentProps<typeof ImageCard>[]
+  faq?: {
     title: string
     items: {
       title: string
       description: string
     }[]
+  }
+  banner?: {
+    backgroundImageUri: string
+    label: {
+      title: string
+      description: string
+      variant: 'primary' | 'secondary'
+    }
+    button: Omit<React.ComponentProps<typeof Button>, 'variant' | 'size' | 'isRounded'>
   }
   onNavbarButtonClick: (item: NavbarItemType) => void
   onPayClick: () => void
@@ -49,6 +60,38 @@ export const HomeTemplate = ({
       leftBadge: { label: c('walletHomeProductListLeftBadgeOptionBLabel'), variant: 'disabled' },
     },
   ],
+  banner = {
+    backgroundImageUri: a('airdropBannerBackground'),
+    label: {
+      title: c('airdropBannerTitle'),
+      description: c('airdropBannerDescriptionA'),
+      variant: 'primary',
+    },
+    button: {
+      title: c('airdropBannerButtonTitle'),
+      onClick: () =>
+        modalService.open({
+          key: 'airdrop-modal',
+          title: {
+            text: c('airdropBannerTitle'),
+            image: {
+              source: 'blank-space',
+            },
+          },
+          description: c('airdropBannerDescriptionB'),
+          backgroundImageUri: a('airdropDefaultBackground'),
+          button: {
+            children: c('airdropBannerButtonTitle'),
+            variant: 'secondary',
+            size: 'lg',
+            isRounded: true,
+            onClick: () => {
+              alert('Airdrop claim button pressed')
+            },
+          },
+        }),
+    },
+  },
   onNavbarButtonClick,
   onPayClick,
 }: Props) => {
@@ -106,6 +149,37 @@ export const HomeTemplate = ({
     </div>
   )
 
+  const Banner = () =>
+    banner && (
+      <div
+        className="flex flex-col rounded-[10px] p-4 gap-4 bg-cover"
+        style={{ backgroundImage: `url(${banner.backgroundImageUri})` }}
+      >
+        <div className="flex flex-col">
+          <Text
+            addlClassName={clsx(banner.label.variant === 'secondary' && 'text-whitish')}
+            as={'h4'}
+            size={'md'}
+            weight="bold"
+          >
+            {banner.label.title}
+          </Text>
+          <Text
+            addlClassName={clsx(banner.label.variant === 'secondary' && 'text-textTertiary')}
+            as={'span'}
+            size={'sm'}
+          >
+            {banner.label.description}
+          </Text>
+        </div>
+        <div className="flex">
+          <Button variant={'secondary'} size={'sm'} isRounded {...banner.button}>
+            {banner.button.title}
+          </Button>
+        </div>
+      </div>
+    )
+
   const ProductList = () => (
     <Carousel title={c('walletHomeProductListTitle')} className="gap-3 py-2 px-4 -mx-4">
       {products.map((product, index) => (
@@ -116,13 +190,7 @@ export const HomeTemplate = ({
 
   const ProductActionButton = () => (
     <div className="flex flex-col items-center gap-3">
-      <Button
-        variant={'secondary'}
-        size={'lg'}
-        isRounded
-        isFullWidth
-        onClick={() => useAccessTokenStore.getState().clearAccessToken()}
-      >
+      <Button variant={'secondary'} size={'lg'} isRounded isFullWidth>
         {c('walletHomeProductListButtonText')}
       </Button>
       <div className="text-textSecondary">
@@ -150,6 +218,7 @@ export const HomeTemplate = ({
       <div className="flex flex-col gap-8 mb-7">
         <Navbar />
         <Balance />
+        <Banner />
         <HorizontalRule />
         <ProductList />
         <ProductActionButton />
