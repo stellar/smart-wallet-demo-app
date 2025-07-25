@@ -3,7 +3,6 @@ import axios, { AxiosInstance } from 'axios'
 import { SingletonBase } from 'api/core/framework/singleton/interface'
 import { AxiosLogger } from 'config/axios-logger'
 import { getValueFromEnv } from 'config/env-utils'
-import { logger } from 'config/logger'
 
 import { generateToken } from './auth/jwt'
 import {
@@ -51,17 +50,12 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
       bodyHash: '',
     })
 
-    try {
-      const response = await this.connection.post(registerUrl, '', {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      })
-      return response.data
-    } catch (error) {
-      logger.error(error, 'Wallet Backend - Error registering account')
-      throw error
-    }
+    const response = await this.connection.post(registerUrl, '', {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
+    return response.data
   }
 
   public async deregisterAccount(account: AccountRequest): Promise<object> {
@@ -72,18 +66,13 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
       bodyHash: '',
     })
 
-    try {
-      const response = await this.connection.delete(deregisterUrl, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      })
+    const response = await this.connection.delete(deregisterUrl, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
 
-      return response.data
-    } catch (error) {
-      logger.error(error, 'Wallet Backend - Error deregistering account')
-      throw error
-    }
+    return response.data
   }
 
   /**
@@ -118,24 +107,19 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
       bodyHash: JSON.stringify({ query, variables }),
     })
 
-    try {
-      const response = await this.connection.post(
-        transactionsUrl,
-        {
-          query,
-          variables,
+    const response = await this.connection.post(
+      transactionsUrl,
+      {
+        query,
+        variables,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      )
-      return response.data as GetTransactionsResponse
-    } catch (error) {
-      logger.error(error, 'Wallet Backend - Error fetching transactions')
-      throw error
-    }
+      }
+    )
+    return response.data as GetTransactionsResponse
   }
 
   public async buildTransaction(
@@ -145,22 +129,16 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
     const buildTransactionUrl = '/transactions/build'
 
     const authToken = await generateToken({
-      // sub: account.address,
       methodAndPath: `POST ${buildTransactionUrl}`,
       bodyHash: JSON.stringify(transactions),
     })
 
-    try {
-      const response = await this.connection.post(buildTransactionUrl, transactions, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      })
-      return response.data as TransactionBuildResponse
-    } catch (error) {
-      logger.error(error, 'Wallet Backend - Error building transaction')
-      throw error
-    }
+    const response = await this.connection.post(buildTransactionUrl, transactions, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
+    return response.data as TransactionBuildResponse
   }
 
   public async createFeeBumpTransaction(
@@ -170,21 +148,15 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
     const feeBumpTransactionUrl = '/tx/create-fee-bump'
 
     const authToken = await generateToken({
-      // sub: account.address,
       methodAndPath: `POST ${feeBumpTransactionUrl}`,
       bodyHash: JSON.stringify(transaction),
     })
 
-    try {
-      const response = await this.connection.post(feeBumpTransactionUrl, transaction, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      })
-      return response.data as TransactionResponse
-    } catch (error) {
-      logger.error(error, 'Wallet Backend - Error building transaction')
-      throw error
-    }
+    const response = await this.connection.post(feeBumpTransactionUrl, transaction, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
+    return response.data as TransactionResponse
   }
 }
