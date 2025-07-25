@@ -14,7 +14,6 @@ import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { generateToken } from 'interfaces/jwt'
 import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
 import { SDPEmbeddedWalletsType, WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
-import WalletBackend from 'interfaces/wallet-backend'
 import { WebAuthnChallengeService } from 'interfaces/webauthn-challenge'
 import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
 
@@ -27,21 +26,18 @@ export class CreateWallet extends UseCaseBase implements IUseCaseHttp<ResponseSc
   private passkeyRepository: PasskeyRepositoryType
   private webauthnChallengeService: IWebauthnChallengeService
   private sdpEmbeddedWallets: SDPEmbeddedWalletsType
-  private walletBackend: WalletBackend
 
   constructor(
     userRepository?: UserRepositoryType,
     passkeyRepository?: PasskeyRepositoryType,
     webauthnChallengeService?: IWebauthnChallengeService,
-    sdpEmbeddedWallets?: SDPEmbeddedWalletsType,
-    walletBackend?: WalletBackend
+    sdpEmbeddedWallets?: SDPEmbeddedWalletsType
   ) {
     super()
     this.userRepository = userRepository || UserRepository.getInstance()
     this.passkeyRepository = passkeyRepository || PasskeyRepository.getInstance()
     this.webauthnChallengeService = webauthnChallengeService || WebAuthnChallengeService.getInstance()
     this.sdpEmbeddedWallets = sdpEmbeddedWallets || SDPEmbeddedWallets.getInstance()
-    this.walletBackend = walletBackend || WalletBackend.getInstance()
   }
 
   parseResponseMessage(status: WalletStatus): string {
