@@ -75,7 +75,7 @@ describe('GetWalletHistory', () => {
 
       expect(result.data.address).toBe(mockWalletHistory.account.address)
       expect(result.data.transactions).toEqual(mockWalletHistory.account.transactions)
-      expect(result.message).toBe('Wallet details retrieved successfully')
+      expect(result.message).toBe('Transaction history retrieved successfully')
       expect(mockedUserRepository.getUserById).toHaveBeenCalledWith(mockUser.userId)
       expect(mockedWalletBackend.getTransactions).toHaveBeenCalledWith({
         address: mockUser.contractAddress,
@@ -98,7 +98,7 @@ describe('GetWalletHistory', () => {
 
       expect(result.data.address).toBe(mockUser.contractAddress)
       expect(result.data.transactions).toEqual([])
-      expect(result.message).toBe('Wallet details retrieved successfully')
+      expect(result.message).toBe('Transaction history retrieved successfully')
     })
 
     it('should return wallet history with user contract address when wallet backend returns null account', async () => {
@@ -114,7 +114,7 @@ describe('GetWalletHistory', () => {
 
       expect(result.data.address).toBe(mockUser.contractAddress)
       expect(result.data.transactions).toEqual([])
-      expect(result.message).toBe('Wallet details retrieved successfully')
+      expect(result.message).toBe('Transaction history retrieved successfully')
     })
 
     it('should throw ResourceNotFoundException when user does not exist', async () => {
@@ -159,7 +159,7 @@ describe('GetWalletHistory', () => {
           address: mockWalletHistory.account.address,
           transactions: mockWalletHistory.account.transactions,
         },
-        message: 'Wallet details retrieved successfully',
+        message: 'Transaction history retrieved successfully',
       })
     })
 
@@ -219,7 +219,7 @@ describe('GetWalletHistory', () => {
           address: 'test-address',
           transactions: [{ hash: 'test-hash' }],
         },
-        message: 'Wallet details retrieved successfully',
+        message: 'Transaction history retrieved successfully',
       })
     })
   })

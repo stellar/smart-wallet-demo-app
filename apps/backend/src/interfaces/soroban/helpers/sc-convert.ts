@@ -15,7 +15,9 @@ export const ScConvert = {
   },
   scValToFormatString(scVal: xdr.ScVal): string {
     const biVal: bigint = this.scValToBigInt(scVal).valueOf()
-    if (biVal > 0) {
+    const strVal = Big(biVal.toString()).div(1e7).toString()
+    // If the value is positive and has a decimal point, ensure it has 7 decimal places by padding with zeros if necessary.
+    if (biVal > 0 && strVal.indexOf('.') !== -1) {
       const convVal = Big(this.scValToBigInt(scVal).valueOf().toString()).div(1e7).toString().split('.')
       return `${convVal[0]}.${convVal[1].padEnd(7, '0')}`
     }
