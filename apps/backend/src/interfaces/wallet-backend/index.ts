@@ -119,6 +119,7 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
         },
       }
     )
+
     return response.data.data as GetTransactionsResponse
   }
 

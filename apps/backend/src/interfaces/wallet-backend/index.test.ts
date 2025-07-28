@@ -53,7 +53,7 @@ describe('WalletBackend', () => {
 
   describe('deregisterAccount', () => {
     test('should deregister an account from wallet backend service', async () => {
-      vi.spyOn(connection, 'post').mockResolvedValue({
+      vi.spyOn(connection, 'delete').mockResolvedValue({
         data: {},
         status: 200,
       })
@@ -62,13 +62,13 @@ describe('WalletBackend', () => {
         address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
       })
 
-      expect(response).toEqual('')
+      expect(response).toEqual({})
     })
 
     test('should throw an error if the request fails', async () => {
-      vi.spyOn(connection, 'post').mockRejectedValueOnce(new Error('Request failed'))
+      vi.spyOn(connection, 'delete').mockRejectedValueOnce(new Error('Request failed'))
 
-      vi.spyOn(connection, 'post').mockResolvedValue({
+      vi.spyOn(connection, 'delete').mockResolvedValue({
         data: {
           error: 'Validation error.',
           extras: {
@@ -90,9 +90,11 @@ describe('WalletBackend', () => {
     test('should get transactions from wallet backend service', async () => {
       const mockResponse = {
         data: {
-          account: {
-            address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
-            transactions: [],
+          data: {
+            account: {
+              address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+              transactions: [],
+            },
           },
         },
         status: 200,
@@ -104,7 +106,7 @@ describe('WalletBackend', () => {
         address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
       })
 
-      expect(response).toEqual(mockResponse.data)
+      expect(response).toEqual(mockResponse.data.data)
     })
 
     test('should throw if the request fails', async () => {
@@ -114,7 +116,13 @@ describe('WalletBackend', () => {
 
     test('should handle missing transactions field', async () => {
       vi.spyOn(connection, 'post').mockResolvedValue({
-        data: { account: { address: 'CAZDTOP...' } },
+        data: {
+          data: {
+            account: {
+              address: 'CAZDTOP...',
+            },
+          },
+        },
         status: 200,
       })
       const response = await walletBackend.getTransactions({ address: 'CAZDTOP...' })
