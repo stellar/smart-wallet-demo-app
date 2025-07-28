@@ -69,6 +69,9 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
 
     // Check if user already has a wallet
     if (user.contractAddress) {
+      // Register the account in the wallet backend service
+      await this.walletBackend.registerAccount({ address: user.contractAddress })
+
       // Get wallet balance
       const { simulationResponse } = await this.sorobanService.simulateContract({
         contractId: STELLAR.TOKEN_CONTRACT.NATIVE, // TODO: get balance for another assets?
@@ -96,7 +99,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
         // Update user with the new wallet address
         user = await this.userRepository.updateUser(user.userId, { contractAddress: updatedStatus.contract_address })
 
-        // Register the account in the wallet backend
+        // Register the account in the wallet backend service
         await this.walletBackend.registerAccount({ address: updatedStatus.contract_address })
         break
       }
