@@ -1,11 +1,10 @@
 import { z } from 'zod'
 
 import { createResponseSchema } from 'api/core/framework/use-case/base'
-// import { GetTransactionsResponse, AccountWithTransactions } from 'interfaces/wallet-backend/types'
 
 export const ParseSchema = z.object({
   address: z.string(),
-  transactions: z.array(z.object({})),
+  transactions: z.array(z.object({})), // TODO: Define a more specific schema for transactions. Get vendor data from backoffice.
 })
 
 export type ParseSchemaT = z.infer<typeof ParseSchema>

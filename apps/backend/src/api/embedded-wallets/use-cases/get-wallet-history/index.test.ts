@@ -127,14 +127,6 @@ describe('GetWalletHistory', () => {
       expect(mockedWalletBackend.getTransactions).not.toHaveBeenCalled()
     })
 
-    // it('should validate payload and throw on invalid data', async () => {
-    //   const invalidPayload = { id: 123 } as any // Invalid type for id
-
-    //   await expect(useCase.handle(invalidPayload)).rejects.toThrow()
-    //   expect(mockedUserRepository.getUserById).not.toHaveBeenCalled()
-    //   expect(mockedWalletBackend.getTransactions).not.toHaveBeenCalled()
-    // })
-
     it('should propagate wallet backend errors', async () => {
       const payload = { id: mockUser.userId }
       const walletError = new Error('Wallet backend error')
