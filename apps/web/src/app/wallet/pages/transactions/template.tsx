@@ -4,6 +4,7 @@ import { Modal } from 'src/components/molecules/modal'
 import { NavigateButton } from 'src/components/molecules/navigate-button'
 import { SafeAreaView } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
+import { a } from 'src/interfaces/cms/useAssets'
 
 import { Transaction } from './types'
 
@@ -46,7 +47,7 @@ export const TransactionsTemplate = ({
         </Text>
         {isEmpty ? (
           <div className="flex flex-col items-center justify-center h-96">
-            <img src="/src/assets/images/transactions-history-empty-list.png" alt="No transactions" className="mb-6" />
+            <img src={a('transactionsHistoryEmptyList')} alt="No transactions" className="mb-6" />
             <Text as="div" size="lg" className="font-semibold mb-2">
               {c('noTransactionHistoryTitle')}
             </Text>
@@ -70,7 +71,7 @@ export const TransactionsTemplate = ({
                         tx.type === 'airdrop'
                           ? {
                               background:
-                                'url(/src/assets/images/transactions-history-list-background.png) center/cover no-repeat, #ffe066',
+                                `url(${a('transactionsHistoryListBackground')}) center/cover no-repeat, #ffe066`,
                             }
                           : {}
                       }
@@ -113,7 +114,7 @@ export const TransactionsTemplate = ({
             }}
             description={`Transaction ID\n${selectedTransaction.txId}`}
             backgroundImageUri={
-              selectedTransaction.type === 'airdrop' ? '/src/assets/images/airdrop-default-background.png' : undefined
+              selectedTransaction.type === 'airdrop' ? a('airdropDefaultBackground') : undefined
             }
             button={{
               children: c('close'),

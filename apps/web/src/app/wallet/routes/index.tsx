@@ -6,6 +6,7 @@ import { qrScanner } from 'src/interfaces/qr-scanner'
 
 import { WalletPagesPath } from './types'
 import { getWallet } from '../queries/use-get-wallet'
+import { getTransactionHistory } from '../queries/use-get-transaction-history'
 
 const filterHomePath = (path: WalletPagesPath): string => path.split(WalletPagesPath.HOME)[1]
 
@@ -41,6 +42,7 @@ const transactionsRoute = createRoute({
   getParentRoute: () => walletRootRoute,
   path: filterHomePath(WalletPagesPath.TRANSACTIONS),
   component: Transactions,
+  loader: ({ context }) => context.client.ensureQueryData(getTransactionHistory()),
 })
 
 walletRootRoute.addChildren([homeRoute, scanRoute, profileRoute, transactionsRoute])

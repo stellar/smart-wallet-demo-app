@@ -3,5 +3,8 @@
   "yellowLogo": "src/assets/yellow-logo.svg",
   "onboardingBackground": "src/assets/images/onboarding-background.png",
   "airdropBannerBackground": "src/assets/images/airdrop-banner-background.png",
-  "airdropDefaultBackground": "src/assets/images/airdrop-default-background.png"
+  "airdropDefaultBackground": "src/assets/images/airdrop-default-background.png",
+  "transactionsHistoryEmptyList": "src/assets/images/transactions-history-empty-list.png",
+  "transactionsHistoryListBackground": "src/assets/images/transactions-history-list-background.png",
+  "transactionsHistoryDefaultBackground": "src/assets/images/transactions-history-default-background.png"
 }
