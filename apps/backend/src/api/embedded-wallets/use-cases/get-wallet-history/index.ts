@@ -37,7 +37,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       data: {
         ...response,
       },
-      message: 'Wallet details retrieved successfully',
+      message: 'Transaction history retrieved successfully',
     }
   }
 
