@@ -21,4 +21,4 @@ export const useGetTransactionHistory = (
     ...getTransactionHistory(),
     ...options,
   })
-} 
+}

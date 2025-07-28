@@ -4,8 +4,8 @@ import { useState } from 'react'
 
 import { TransactionsTemplate } from './template'
 import { Transaction } from './types'
-import { WalletPagesPath } from '../../routes/types'
 import { getTransactionHistory } from '../../queries/use-get-transaction-history'
+import { WalletPagesPath } from '../../routes/types'
 import { mapBackendTransactionsToUI } from '../../services/wallet/transaction-mapper'
 
 export const Transactions = () => {
@@ -16,9 +16,7 @@ export const Transactions = () => {
 
   const transactionHistoryData = useSuspenseQuery(getTransactionHistory())
 
-  const transactions: Transaction[] = mapBackendTransactionsToUI(
-    transactionHistoryData.data.data.transactions || []
-  )
+  const transactions: Transaction[] = mapBackendTransactionsToUI(transactionHistoryData.data.data.transactions || [])
 
   const handleGoBack = () => {
     if (canGoBack) router.history.back()

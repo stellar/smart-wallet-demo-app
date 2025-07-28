@@ -3,8 +3,8 @@ import { Text, Icon } from '@stellar/design-system'
 import { Modal } from 'src/components/molecules/modal'
 import { NavigateButton } from 'src/components/molecules/navigate-button'
 import { SafeAreaView } from 'src/components/organisms'
-import { c } from 'src/interfaces/cms/useContent'
 import { a } from 'src/interfaces/cms/useAssets'
+import { c } from 'src/interfaces/cms/useContent'
 
 import { Transaction } from './types'
 
@@ -70,8 +70,7 @@ export const TransactionsTemplate = ({
                       style={
                         tx.type === 'airdrop'
                           ? {
-                              background:
-                                `url(${a('transactionsHistoryListBackground')}) center/cover no-repeat, #ffe066`,
+                              background: `url(${a('transactionsHistoryListBackground')}) center/cover no-repeat, #ffe066`,
                             }
                           : {}
                       }
@@ -113,9 +112,7 @@ export const TransactionsTemplate = ({
               image: selectedTransaction.type === 'airdrop' ? { source: 'blank-space', variant: 'md' } : undefined,
             }}
             description={`Transaction ID\n${selectedTransaction.txId}`}
-            backgroundImageUri={
-              selectedTransaction.type === 'airdrop' ? a('airdropDefaultBackground') : undefined
-            }
+            backgroundImageUri={selectedTransaction.type === 'airdrop' ? a('airdropDefaultBackground') : undefined}
             button={{
               children: c('close'),
               variant: 'primary',

@@ -22,4 +22,4 @@ export const mapBackendTransactionToUI = (tx: Transaction, index: number): UITra
  */
 export const mapBackendTransactionsToUI = (transactions: Transaction[]): UITransaction[] => {
   return transactions.map((tx, index) => mapBackendTransactionToUI(tx, index))
-} 
+}

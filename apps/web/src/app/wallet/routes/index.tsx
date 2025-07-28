@@ -5,8 +5,8 @@ import { Home, Scan, Profile, Transactions } from 'src/app/wallet/pages'
 import { qrScanner } from 'src/interfaces/qr-scanner'
 
 import { WalletPagesPath } from './types'
-import { getWallet } from '../queries/use-get-wallet'
 import { getTransactionHistory } from '../queries/use-get-transaction-history'
+import { getWallet } from '../queries/use-get-wallet'
 
 const filterHomePath = (path: WalletPagesPath): string => path.split(WalletPagesPath.HOME)[1]
 
