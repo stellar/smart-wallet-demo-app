@@ -47,7 +47,7 @@ export const TransactionsTemplate = ({
         </Text>
         {isEmpty ? (
           <div className="flex flex-col items-center justify-center h-96">
-            <img src={a('transactionsHistoryEmptyList')} alt="No transactions" className="mb-6" />
+            <img src={a('transactionsHistoryEmptyList')} alt="No transactions" className="mb-6 max-w-[60%]" />
             <Text as="div" size="lg" className="font-semibold mb-2">
               {c('noTransactionHistoryTitle')}
             </Text>
