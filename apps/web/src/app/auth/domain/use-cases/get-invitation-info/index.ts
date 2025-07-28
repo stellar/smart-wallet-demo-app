@@ -16,6 +16,7 @@ export class GetInvitationInfoUseCase extends UseCaseBase<GetInvitationInfoResul
   async handle(input: GetInvitationInfoInput): Promise<GetInvitationInfoResult> {
     const { uniqueToken } = input
 
+    // Get invitation info from server
     const { data: invitationInfo } = await this.authService.getInvitationInfo({ uniqueToken })
 
     const email = invitationInfo.email

@@ -24,6 +24,16 @@ export class WebAuthnService implements IWebAuthnService {
     this.webAuthnClient = webAuthn || { startRegistration, startAuthentication }
   }
 
+  /**
+   * Initiates the passkey registration flow using WebAuthn.
+   * The {@link WebAuthnCreatePasskeyInput} is used to construct the `PublicKeyCredentialCreationOptions` object
+   * which will be passed to the `startRegistration` method.
+   *
+   * @param input The options which will be used to construct the `PublicKeyCredentialCreationOptions` object.
+   *
+   * @returns A promise that resolves with the raw response from the registration flow and the credentialId.
+   * If the registration fails, the promise will be rejected with an error.
+   */
   async createPasskey(input: WebAuthnCreatePasskeyInput): Promise<WebAuthnCreatePasskeyResult> {
     try {
       logger.debug(`${this.constructor.name}.createPasskey | Input`, input)
@@ -43,6 +53,15 @@ export class WebAuthnService implements IWebAuthnService {
     }
   }
 
+  /**
+   * Authenticates a user using a WebAuthn passkey.
+   * The {@link WebAuthnAuthenticateWithPasskeyInput} provides the necessary options for the authentication process.
+   *
+   * @param input The options which will be used to construct the `PublicKeyCredentialRequestOptions` object.
+   *
+   * @returns A promise that resolves with the raw response and authentication details.
+   * If the authentication fails, the promise will be rejected with an error.
+   */
   async authenticateWithPasskey(
     input: WebAuthnAuthenticateWithPasskeyInput
   ): Promise<WebAuthnAuthenticateWithPasskeyResult> {
