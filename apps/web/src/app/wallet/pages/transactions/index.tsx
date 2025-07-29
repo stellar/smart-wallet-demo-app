@@ -3,10 +3,9 @@ import { useNavigate, useCanGoBack, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import { TransactionsTemplate } from './template'
-import { Transaction } from './types'
 import { getTransactionHistory } from '../../queries/use-get-transaction-history'
 import { WalletPagesPath } from '../../routes/types'
-import { mapBackendTransactionsToUI } from '../../services/wallet/transaction-mapper'
+import { Transaction } from '../../services/wallet/types'
 
 export const Transactions = () => {
   const navigate = useNavigate()
@@ -16,7 +15,7 @@ export const Transactions = () => {
 
   const transactionHistoryData = useSuspenseQuery(getTransactionHistory())
 
-  const transactions: Transaction[] = mapBackendTransactionsToUI(transactionHistoryData.data.data.transactions || [])
+  const transactions: Transaction[] = transactionHistoryData.data.data.transactions || []
 
   const handleGoBack = () => {
     if (canGoBack) router.history.back()

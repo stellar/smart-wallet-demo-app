@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from 'src/helpers/tests'
 import { Modal, ModalProps } from '.'
 
 describe('Modal', () => {
-  const defaultProps: ModalProps = {
+  const defaultProps: Required<Pick<ModalProps, 'title' | 'description' | 'button' | 'onClose'>> = {
     title: {
       text: 'Test Modal Title',
       image: {
@@ -74,5 +74,28 @@ describe('Modal', () => {
     })
 
     expect(blankDiv).toBeInTheDocument()
+  })
+
+  it('renders transaction variant with transaction data', () => {
+    const transaction = {
+      hash: 'test-hash-123',
+      type: 'CREDIT' as const,
+      vendor: 'Test Vendor',
+      amount: '1000',
+      asset: 'XLM',
+      date: '2025-01-15T10:30:00Z',
+    }
+
+    renderModal({
+      variant: 'transaction',
+      transaction,
+      onClose: vi.fn(),
+    })
+
+    // Check that transaction-specific content is rendered
+    expect(screen.getByText('Test Vendor')).toBeInTheDocument()
+    expect(screen.getByText('1,000 XLM')).toBeInTheDocument()
+    expect(screen.getByText('Transaction ID')).toBeInTheDocument()
+    expect(screen.getByText('test-hash-123')).toBeInTheDocument()
   })
 })

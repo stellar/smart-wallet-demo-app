@@ -6,7 +6,7 @@ import { SafeAreaView } from 'src/components/organisms'
 import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 
-import { Transaction } from './types'
+import { Transaction } from '../../services/wallet/types'
 
 interface TransactionsTemplateProps {
   transactions: Transaction[]
@@ -65,33 +65,25 @@ export const TransactionsTemplate = ({
                 <div className="flex flex-col gap-3">
                   {grouped[date].map(tx => (
                     <button
-                      key={tx.id}
-                      className={`flex items-center justify-between p-4 rounded-xl bg-white shadow-sm transition hover:bg-gray-50 ${tx.type === 'airdrop' ? 'relative overflow-hidden border-0' : ''}`}
+                      key={tx.hash}
+                      className={`flex items-center justify-between p-4 rounded-xl bg-white shadow-sm transition hover:bg-gray-50`}
                       style={
-                        tx.type === 'airdrop'
+                        tx.type === 'MINT'
                           ? {
-                              background: `url(${a('transactionsHistoryListBackground')}) center/cover no-repeat, #ffe066`,
+                              background: `url(${a('transactionsHistoryListMintBackground')}) center/cover no-repeat, #ffe066`,
                             }
-                          : {}
+                          : undefined
                       }
                       onClick={() => setSelectedTransaction(tx)}
                     >
                       <div className="flex flex-col text-left">
-                        <Text
-                          as="span"
-                          size="md"
-                          className="font-medium text-[#171717]"
-                          style={{ fontSize: 16, lineHeight: '24px' }}
-                        >
+                        <Text as="span" size="md" className="font-medium text-[#171717] text-base leading-6">
                           {tx.vendor}
                         </Text>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span
-                          className="font-medium text-[#171717] text-right"
-                          style={{ fontSize: 16, lineHeight: '24px' }}
-                        >
-                          {tx.amount > 0 ? '+' : ''}
+                        <span className="font-medium text-[#171717] text-right text-base leading-6">
+                          {parseFloat(tx.amount) > 0 ? '+' : ''}
                           {tx.amount}
                           {tx.asset ? ` ${tx.asset}` : ''}
                         </span>
@@ -107,19 +99,13 @@ export const TransactionsTemplate = ({
         {/* Transaction Details Modal */}
         {selectedTransaction && (
           <Modal
-            title={{
-              text: selectedTransaction.vendor,
-              image: selectedTransaction.type === 'airdrop' ? { source: 'blank-space', variant: 'md' } : undefined,
-            }}
-            description={`Transaction ID\n${selectedTransaction.txId}`}
-            backgroundImageUri={selectedTransaction.type === 'airdrop' ? a('airdropDefaultBackground') : undefined}
-            button={{
-              children: c('close'),
-              variant: 'primary',
-              size: 'lg',
-              isRounded: true,
-              onClick: () => setSelectedTransaction(null),
-            }}
+            variant="transaction"
+            transaction={selectedTransaction}
+            backgroundImageUri={
+              selectedTransaction.type === 'MINT'
+                ? a('transactionsHistoryMintBackground')
+                : a('transactionsHistoryDefaultBackground')
+            }
             onClose={() => setSelectedTransaction(null)}
           />
         )}

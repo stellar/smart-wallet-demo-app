@@ -19,4 +19,3 @@ export class WalletService implements IWalletService {
 const walletService = new WalletService()
 
 export { walletService }
-export * from './transaction-mapper'

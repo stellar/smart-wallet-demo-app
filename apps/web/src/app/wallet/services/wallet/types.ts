@@ -15,8 +15,11 @@ export type GetWalletResult = IHTTPResponse<{
 
 export interface Transaction {
   hash: string
-  envelopeXdr: string
-  operations: Operation[]
+  type: string
+  vendor: string
+  amount: string
+  asset: string
+  date: string
 }
 
 export interface Operation {
