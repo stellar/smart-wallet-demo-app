@@ -32,7 +32,7 @@ let useCase: GetWalletHistory
 describe('GetWalletHistory', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    useCase = new GetWalletHistory(mockedUserRepository, mockedWalletBackend)
+    useCase = new GetWalletHistory(mockedUserRepository, undefined, undefined, mockedWalletBackend)
   })
 
   describe('handle', () => {

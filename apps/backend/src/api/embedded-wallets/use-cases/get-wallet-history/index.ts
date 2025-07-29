@@ -1,3 +1,4 @@
+import { xdr } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
@@ -5,6 +6,7 @@ import { UserRepositoryType } from 'api/core/entities/user/types'
 import { VendorRepositoryType } from 'api/core/entities/vendor/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
+import { extractOperationData } from 'api/core/helpers/xdr-extractor'
 import AssetRepository from 'api/core/services/asset'
 import UserRepository from 'api/core/services/user'
 import VendorRepository from 'api/core/services/vendor'
@@ -13,7 +15,7 @@ import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import WalletBackend from 'interfaces/wallet-backend'
 
-import { TransactionSchemaT, ParseSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
+import { TransactionSchemaT, ParseSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT, FunctionArg } from './types'
 
 const endpoint = '/tx-history'
 
@@ -66,23 +68,44 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
     // Fetch tx history from wallet backend service
     const walletHistory = await this.walletBackend.getTransactions({ address: user.contractAddress as string })
 
+    // console.log('OPERATION DATA', extractOperationData(xdr.Operation.fromXDR(walletHistory.account.transactions[0].operations[0].operationXdr, 'base64')))
+
     const transactions: TransactionSchemaT[] = []
 
     for (const tx of walletHistory.account?.transactions ?? []) {
       const asset = await this.assetRepository.getAssetByContractAddress(tx.operations[0].stateChanges[0].tokenId)
 
-      // TODO: Fetch vendor contractAddress from operation XDR
-      const vendorContractAddress = 'GAC5HOBF4VUBV76Z3DAHQVPJZXKAEJMPAU75C4QJFXBHJ5H3PS4DFAUB' // Placeholder for vendor contract address
-      const vendor = await this.vendorRepository.getVendorByContractAddress(vendorContractAddress)
+      // extract transaction addresses from operation XDR
+      const operationData = extractOperationData(xdr.Operation.fromXDR(tx.operations[0].operationXdr, 'base64'))
 
-      transactions.push({
+      // If the operation data is not available, skip this transaction
+      const fromAddress = operationData?.functionArgs ? (operationData.functionArgs[0] as FunctionArg).value : undefined
+      const toAddress = operationData?.functionArgs ? (operationData.functionArgs[1] as FunctionArg).value : undefined
+
+      const vendorContractAddress = operationData?.functionArgs
+        ? (operationData.functionArgs[1] as FunctionArg).value
+        : undefined
+      const vendor = vendorContractAddress
+        ? await this.vendorRepository.getVendorByContractAddress(vendorContractAddress)
+        : undefined
+
+      const transaction: TransactionSchemaT = {
         hash: tx.hash,
         type: tx.operations[0].stateChanges[0].stateChangeCategory,
-        vendor: vendor?.name || vendorContractAddress, // TODO: get vendor data from db
+        vendor: vendor?.name || vendorContractAddress || 'Unknown vendor',
         amount: tx.operations[0].stateChanges[0].amount,
         asset: asset?.code || tx.operations[0].stateChanges[0].tokenId,
         date: tx.ledgerCreatedAt, // Assuming ledgerCreatedAt is in ISO format
-      })
+      }
+
+      if (fromAddress) {
+        transaction.fromAddress = fromAddress
+      }
+      if (toAddress) {
+        transaction.toAddress = toAddress
+      }
+
+      transactions.push(transaction)
     }
 
     // Parse the response to match the expected schema
