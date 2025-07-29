@@ -19,6 +19,7 @@ export default class PasskeyRepository extends SingletonBase implements PasskeyR
     passkey: {
       credentialId: Base64URLString
       credentialPublicKey: Uint8Array
+      credentialHexPublicKey: string
       webauthnUserId: Base64URLString
       counter: number
       label: string

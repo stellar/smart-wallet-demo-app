@@ -123,10 +123,7 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
     return response.data.data as GetTransactionsResponse
   }
 
-  public async buildTransaction(
-    account: AccountRequest,
-    transactions: TransactionBuildRequest
-  ): Promise<TransactionBuildResponse> {
+  public async buildTransaction(transactions: TransactionBuildRequest): Promise<TransactionBuildResponse> {
     const buildTransactionUrl = '/transactions/build'
 
     const authToken = await generateToken({
@@ -142,10 +139,7 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
     return response.data as TransactionBuildResponse
   }
 
-  public async createFeeBumpTransaction(
-    account: AccountRequest,
-    transaction: TransactionRequest
-  ): Promise<TransactionResponse> {
+  public async createFeeBumpTransaction(transaction: TransactionRequest): Promise<TransactionResponse> {
     const feeBumpTransactionUrl = '/tx/create-fee-bump'
 
     const authToken = await generateToken({

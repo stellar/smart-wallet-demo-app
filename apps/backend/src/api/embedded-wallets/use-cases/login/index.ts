@@ -1,18 +1,15 @@
 import { Request, Response } from 'express'
 
-import { PasskeyRepositoryType } from 'api/core/entities/passkey/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
-import { completeAuthentication } from 'api/core/helpers/webauthn/authentication/complete-authentication'
-import PasskeyRepository from 'api/core/services/passkey'
+import WebAuthnAuthentication from 'api/core/helpers/webauthn/authentication'
+import { IWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/types'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { generateToken } from 'interfaces/jwt'
-import { WebAuthnChallengeService } from 'interfaces/webauthn-challenge'
-import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
@@ -20,18 +17,12 @@ const endpoint = '/login/complete'
 
 export class LogIn extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
   private userRepository: UserRepositoryType
-  private passkeyRepository: PasskeyRepositoryType
-  private webauthnChallengeService: IWebauthnChallengeService
+  private webauthnAuthenticationHelper: IWebAuthnAuthentication
 
-  constructor(
-    userRepository?: UserRepositoryType,
-    passkeyRepository?: PasskeyRepositoryType,
-    webauthnChallengeService?: IWebauthnChallengeService
-  ) {
+  constructor(userRepository?: UserRepositoryType, webauthnAuthenticationHelper?: IWebAuthnAuthentication) {
     super()
     this.userRepository = userRepository || UserRepository.getInstance()
-    this.passkeyRepository = passkeyRepository || PasskeyRepository.getInstance()
-    this.webauthnChallengeService = webauthnChallengeService || WebAuthnChallengeService.getInstance()
+    this.webauthnAuthenticationHelper = webauthnAuthenticationHelper || WebAuthnAuthentication.getInstance()
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
@@ -53,11 +44,9 @@ export class LogIn extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> 
     }
 
     // Check auth challenge resolution
-    const challengeResult = await completeAuthentication({
+    const challengeResult = await this.webauthnAuthenticationHelper.complete({
       user,
       authenticationResponseJSON: requestBody.authentication_response_json,
-      passkeyRepository: this.passkeyRepository,
-      webauthnChallengeService: this.webauthnChallengeService,
     })
 
     if (!challengeResult) throw new UnauthorizedException(`User authentication failed`)

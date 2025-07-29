@@ -3,13 +3,12 @@ import { Request, Response } from 'express'
 
 import { passkeyFactory } from 'api/core/entities/passkey/factory'
 import { userFactory } from 'api/core/entities/user/factory'
-import { mockPasskeyRepository } from 'api/core/services/passkey/mocks'
+import { mockWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { generateToken } from 'interfaces/jwt'
-import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
 
 import { LogIn } from '.'
 
@@ -32,20 +31,17 @@ const mockAuthenticationResponse = {
 }
 
 const mockedUserRepository = mockUserRepository()
-const mockedPasskeyRepository = mockPasskeyRepository()
-const mockedWebauthnChallenge = mockWebauthnChallenge()
+const mockedWebauthnAuthenticationHelper = mockWebAuthnAuthentication()
 
 const mockedCompleteAuthentication = vi.fn()
-vi.mock('api/core/helpers/webauthn/authentication/complete-authentication', () => ({
-  completeAuthentication: (args: unknown) => mockedCompleteAuthentication(args),
-}))
+mockedWebauthnAuthenticationHelper.complete = mockedCompleteAuthentication
 
 let useCase: LogIn
 
 describe('LogIn', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    useCase = new LogIn(mockedUserRepository, mockedPasskeyRepository, mockedWebauthnChallenge)
+    useCase = new LogIn(mockedUserRepository, mockedWebauthnAuthenticationHelper)
   })
 
   it('should return token when login completes successfuly', async () => {

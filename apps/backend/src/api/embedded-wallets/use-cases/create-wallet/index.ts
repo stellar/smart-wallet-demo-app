@@ -1,11 +1,10 @@
 import { Request, Response } from 'express'
 
-import { PasskeyRepositoryType } from 'api/core/entities/passkey/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
-import { completeRegistration } from 'api/core/helpers/webauthn/registration/complete-registration'
-import PasskeyRepository from 'api/core/services/passkey'
+import WebAuthnRegistration from 'api/core/helpers/webauthn/registration'
+import { IWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/types'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
@@ -14,8 +13,6 @@ import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { generateToken } from 'interfaces/jwt'
 import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
 import { SDPEmbeddedWalletsType, WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
-import { WebAuthnChallengeService } from 'interfaces/webauthn-challenge'
-import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
@@ -23,20 +20,17 @@ const endpoint = '/register/complete'
 
 export class CreateWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
   private userRepository: UserRepositoryType
-  private passkeyRepository: PasskeyRepositoryType
-  private webauthnChallengeService: IWebauthnChallengeService
+  private webauthnRegistrationHelper: IWebAuthnRegistration
   private sdpEmbeddedWallets: SDPEmbeddedWalletsType
 
   constructor(
     userRepository?: UserRepositoryType,
-    passkeyRepository?: PasskeyRepositoryType,
-    webauthnChallengeService?: IWebauthnChallengeService,
+    webauthnRegistrationHelper?: IWebAuthnRegistration,
     sdpEmbeddedWallets?: SDPEmbeddedWalletsType
   ) {
     super()
     this.userRepository = userRepository || UserRepository.getInstance()
-    this.passkeyRepository = passkeyRepository || PasskeyRepository.getInstance()
-    this.webauthnChallengeService = webauthnChallengeService || WebAuthnChallengeService.getInstance()
+    this.webauthnRegistrationHelper = webauthnRegistrationHelper || WebAuthnRegistration.getInstance()
     this.sdpEmbeddedWallets = sdpEmbeddedWallets || SDPEmbeddedWallets.getInstance()
   }
 
@@ -78,24 +72,20 @@ export class CreateWallet extends UseCaseBase implements IUseCaseHttp<ResponseSc
     }
 
     // Check auth challenge resolution
-    const challengeResult = await completeRegistration({
+    const challengeResult = await this.webauthnRegistrationHelper.complete({
       user,
       registrationResponseJSON: requestBody.registration_response_json,
-      passkeyRepository: this.passkeyRepository,
-      webauthnChallengeService: this.webauthnChallengeService,
     })
 
     if (!challengeResult) throw new UnauthorizedException(`User authentication failed`)
 
-    const { passkey, publicKeyHex } = challengeResult
-
-    if (!publicKeyHex) throw new ResourceNotFoundException(`Authentication method public key not found`)
+    const { passkey } = challengeResult
 
     // Create wallet using SDP
     const newWallet = await this.sdpEmbeddedWallets.createWallet({
       token: user.uniqueToken,
       credential_id: passkey.credentialId,
-      public_key: publicKeyHex,
+      public_key: passkey.credentialHexPublicKey,
     })
 
     // Generate JWT token

@@ -10,6 +10,7 @@ import { GetWallet, endpoint as GetWalletEndpoint } from './use-cases/get-wallet
 import { GetWalletHistory, endpoint as GetWalletHistoryEndpoint } from './use-cases/get-wallet-history'
 import { LogIn, endpoint as LogInEndpoint } from './use-cases/login'
 import { LogInOptions, endpoint as LogInOptionsEndpoint } from './use-cases/login-options'
+import { RecoverWallet, endpoint as RecoverWalletEndpoint } from './use-cases/recover-wallet'
 import { RecoverWalletOptions, endpoint as RecoverWalletOptionsEndpoint } from './use-cases/recover-wallet-options'
 import { ValidateRecoveryLink, endpoint as ValidateRecoveryLinkEndpoint } from './use-cases/validate-recovery-link'
 
@@ -27,5 +28,6 @@ router.get(`${GetWalletHistoryEndpoint}`, authentication, async (req, res) =>
 router.post(`${GenerateRecoveryLinkEndpoint}`, async (req, res) => GenerateRecoveryLink.init().executeHttp(req, res))
 router.post(`${ValidateRecoveryLinkEndpoint}`, async (req, res) => ValidateRecoveryLink.init().executeHttp(req, res))
 router.get(`${RecoverWalletOptionsEndpoint}`, async (req, res) => RecoverWalletOptions.init().executeHttp(req, res))
+router.post(`${RecoverWalletEndpoint}`, async (req, res) => RecoverWallet.init().executeHttp(req, res))
 
 export default router

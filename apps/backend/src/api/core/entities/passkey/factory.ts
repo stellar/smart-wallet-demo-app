@@ -9,6 +9,7 @@ import { User } from '../user/types'
 interface PasskeyFactoryArgs {
   credentialId?: Base64URLString
   credentialPublicKey?: Uint8Array
+  credentialHexPublicKey?: string
   webauthnUserId?: Base64URLString
   counter?: number
   label?: string
@@ -21,6 +22,7 @@ interface PasskeyFactoryArgs {
 export const passkeyFactory = ({
   credentialId,
   credentialPublicKey,
+  credentialHexPublicKey,
   webauthnUserId,
   counter,
   label,
@@ -34,6 +36,7 @@ export const passkeyFactory = ({
   passkey.credentialPublicKey =
     credentialPublicKey ??
     Uint8Array.from({ length: faker.number.int({ min: 65, max: 270 }) }, () => faker.number.int({ min: 0, max: 255 }))
+  passkey.credentialHexPublicKey = credentialHexPublicKey ?? faker.string.hexadecimal({ length: 65 })
   passkey.webauthnUserId = webauthnUserId ?? faker.string.uuid()
   passkey.counter = counter ?? faker.number.int()
   passkey.label = label ?? faker.word.noun()

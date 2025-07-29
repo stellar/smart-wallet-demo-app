@@ -3,10 +3,10 @@ import { Request, Response } from 'express'
 import { passkeyFactory } from 'api/core/entities/passkey/factory'
 import { userFactory } from 'api/core/entities/user/factory'
 import { User } from 'api/core/entities/user/types'
+import { mockWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
-import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
 
 import { LogInOptions } from '.'
 
@@ -23,19 +23,17 @@ const mockPasskeys = [
 const mockUser = userFactory({ email: 'test@example.com', passkeys: mockPasskeys })
 
 const mockedUserRepository = mockUserRepository()
-const mockedWebauthnChallenge = mockWebauthnChallenge()
+const mockedWebauthnAuthenticationHelper = mockWebAuthnAuthentication()
 
 const mockedGenerateAuthenticationOptions = vi.fn()
-vi.mock('api/core/helpers/webauthn/authentication/generate-options', () => ({
-  generateAuthenticationOptions: (args: unknown) => mockedGenerateAuthenticationOptions(args),
-}))
+mockedWebauthnAuthenticationHelper.generateOptions = mockedGenerateAuthenticationOptions
 
 let useCase: LogInOptions
 
 describe('LogInOptions', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    useCase = new LogInOptions(mockedUserRepository, mockedWebauthnChallenge)
+    useCase = new LogInOptions(mockedUserRepository, mockedWebauthnAuthenticationHelper)
   })
 
   it('should return options_json when user exists', async () => {

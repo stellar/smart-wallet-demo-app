@@ -1,29 +1,27 @@
 import { Request, Response } from 'express'
 
 import { userFactory } from 'api/core/entities/user/factory'
+import { mockWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
-import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
 
 import { CreateWalletOptions } from '.'
 
 const mockUser = userFactory({ email: 'test@example.com' })
 
 const mockedUserRepository = mockUserRepository()
-const mockedWebauthnChallenge = mockWebauthnChallenge()
+const mockedWebauthnRegistrationHelper = mockWebAuthnRegistration()
 
 const mockedGenerateRegistrationOptions = vi.fn()
-vi.mock('api/core/helpers/webauthn/registration/generate-options', () => ({
-  generateRegistrationOptions: (args: unknown) => mockedGenerateRegistrationOptions(args),
-}))
+mockedWebauthnRegistrationHelper.generateOptions = mockedGenerateRegistrationOptions
 
 let useCase: CreateWalletOptions
 
 describe('CreateWalletOptions', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    useCase = new CreateWalletOptions(mockedUserRepository, mockedWebauthnChallenge)
+    useCase = new CreateWalletOptions(mockedUserRepository, mockedWebauthnRegistrationHelper)
   })
 
   it('should return options_json when user exists', async () => {
