@@ -22,21 +22,6 @@ export interface Transaction {
   date: string
 }
 
-export interface Operation {
-  id: string
-  operationXdr: string
-}
-
-export interface UITransaction {
-  id: string
-  type: string
-  vendor: string
-  amount: number
-  asset: string
-  date: string
-  txId: string
-}
-
 export type GetTransactionHistoryResult = IHTTPResponse<{
   address: string
   transactions: Transaction[]
