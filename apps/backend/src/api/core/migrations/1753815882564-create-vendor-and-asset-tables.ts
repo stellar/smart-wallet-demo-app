@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
 
 export class CreateVendorAndAssetTables1753815882564 implements MigrationInterface {
-  name = 'CreateVendorAndAssetTables1753815882564'
+  name: string = 'CreateVendorAndAssetTables1753815882564'
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
