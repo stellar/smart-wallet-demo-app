@@ -19,6 +19,8 @@ const mockedWebauthnRegistrationHelper = mockWebAuthnRegistration()
 const mockedSorobanService = mockSorobanService()
 const mockedWalletBackend = mockWalletBackend()
 
+const mockedHexPublicKey =
+  '040102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f40'
 const mockedUser = userFactory({})
 const mockedOtp = otpFactory({ user: mockedUser })
 
@@ -49,7 +51,7 @@ describe('RecoverWallet', () => {
     }
     mockedOtpRepository.getOtpByCode.mockResolvedValue(mockedOtp)
     mockedCompleteRegistration.mockResolvedValueOnce({
-      passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
+      passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: mockedHexPublicKey },
     })
     mockedSorobanService.simulateContract.mockResolvedValue({
       tx: { hash: 'test-tx-hash' } as unknown as Transaction,
@@ -88,7 +90,7 @@ describe('RecoverWallet', () => {
     } as unknown as Response
 
     mockedCompleteRegistration.mockResolvedValueOnce({
-      passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
+      passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: mockedHexPublicKey },
     })
     mockedSorobanService.simulateContract.mockResolvedValue({
       tx: { hash: 'test-tx-hash' } as unknown as Transaction,
