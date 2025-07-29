@@ -9,7 +9,7 @@ import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import WalletBackend from 'interfaces/wallet-backend'
 
-import { ParseSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
+import { TransactionSchemaT, ParseSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
 const endpoint = '/tx-history'
 
@@ -53,12 +53,23 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
     // Fetch tx history from wallet backend service
     const walletHistory = await this.walletBackend.getTransactions({ address: user.contractAddress as string })
 
-    // TODO: get vendor data from backoffice
+    const transactions: TransactionSchemaT[] = []
+
+    walletHistory.account?.transactions.forEach(tx => {
+      transactions.push({
+        hash: tx.hash,
+        type: tx.operations[0].stateChanges[0].stateChangeCategory,
+        vendor: 'Unknown vendor', // TODO: get vendor data from backoffice
+        amount: tx.operations[0].stateChanges[0].amount,
+        asset: tx.operations[0].stateChanges[0].tokenId,
+        date: tx.ledgerCreatedAt, // Assuming ledgerCreatedAt is already in ISO format
+      })
+    })
 
     // Parse the response to match the expected schema
     const parsedResponse: ParseSchemaT = {
       address: walletHistory.account?.address ?? user.contractAddress,
-      transactions: walletHistory.account?.transactions ?? [],
+      transactions: transactions,
     }
     return this.parseResponse(parsedResponse)
   }

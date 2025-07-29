@@ -88,10 +88,18 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
         address
         transactions {
           hash
-          envelopeXdr
+          ledgerCreatedAt
           operations {
             id
+            operationType
             operationXdr
+            stateChanges {
+              accountId
+              stateChangeCategory
+              stateChangeReason
+              tokenId
+              amount
+            }
           }
         }
       }

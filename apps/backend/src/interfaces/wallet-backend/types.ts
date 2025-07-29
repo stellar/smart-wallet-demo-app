@@ -49,11 +49,19 @@ export type TransactionBuildResponse = {
 export interface Operation {
   id: string
   operationXdr: string
+  stateChanges: {
+    accountId: string
+    stateChangeCategory: string
+    stateChangeReason: string
+    tokenId: string
+    amount: string
+  }[]
 }
 
 export interface Transaction {
   hash: string
   envelopeXdr: string
+  ledgerCreatedAt: string
   operations: Operation[]
 }
 

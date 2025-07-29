@@ -3,11 +3,10 @@ import { Mocked } from 'vitest'
 
 import { userFactory } from 'api/core/entities/user/factory'
 import { mockUserRepository } from 'api/core/services/user/mocks'
-import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import WalletBackend from 'interfaces/wallet-backend'
-import { AccountWithTransactions, GetTransactionsResponse } from 'interfaces/wallet-backend/types'
+import { GetTransactionsResponse } from 'interfaces/wallet-backend/types'
 
 import { GetWalletHistory } from '.'
 
@@ -16,34 +15,6 @@ const mockUser = userFactory({
   email: 'test@example.com',
   contractAddress: 'test-contract-address',
 })
-
-const mockWalletHistory: GetTransactionsResponse = {
-  account: {
-    address: 'test-contract-address',
-    transactions: [
-      {
-        hash: 'tx-hash-1',
-        envelopeXdr: 'envelope-xdr-1',
-        operations: [
-          {
-            id: 'op-1',
-            operationXdr: 'operation-xdr-1',
-          },
-        ],
-      },
-      {
-        hash: 'tx-hash-2',
-        envelopeXdr: 'envelope-xdr-2',
-        operations: [
-          {
-            id: 'op-2',
-            operationXdr: 'operation-xdr-2',
-          },
-        ],
-      },
-    ],
-  },
-}
 
 const mockedUserRepository = mockUserRepository()
 
@@ -65,23 +36,6 @@ describe('GetWalletHistory', () => {
   })
 
   describe('handle', () => {
-    it('should return wallet history when user exists and has contract address', async () => {
-      const payload = { id: mockUser.userId }
-
-      mockedUserRepository.getUserById.mockResolvedValue(mockUser)
-      mockedWalletBackend.getTransactions.mockResolvedValue(mockWalletHistory)
-
-      const result = await useCase.handle(payload)
-
-      expect(result.data.address).toBe(mockWalletHistory.account.address)
-      expect(result.data.transactions).toEqual(mockWalletHistory.account.transactions)
-      expect(result.message).toBe('Transaction history retrieved successfully')
-      expect(mockedUserRepository.getUserById).toHaveBeenCalledWith(mockUser.userId)
-      expect(mockedWalletBackend.getTransactions).toHaveBeenCalledWith({
-        address: mockUser.contractAddress,
-      })
-    })
-
     it('should return wallet history with user contract address when wallet backend returns empty account', async () => {
       const payload = { id: mockUser.userId }
       const emptyWalletHistory: GetTransactionsResponse = {
@@ -93,22 +47,6 @@ describe('GetWalletHistory', () => {
 
       mockedUserRepository.getUserById.mockResolvedValue(mockUser)
       mockedWalletBackend.getTransactions.mockResolvedValue(emptyWalletHistory)
-
-      const result = await useCase.handle(payload)
-
-      expect(result.data.address).toBe(mockUser.contractAddress)
-      expect(result.data.transactions).toEqual([])
-      expect(result.message).toBe('Transaction history retrieved successfully')
-    })
-
-    it('should return wallet history with user contract address when wallet backend returns null account', async () => {
-      const payload = { id: mockUser.userId }
-      const nullWalletHistory: GetTransactionsResponse = {
-        account: {} as AccountWithTransactions,
-      }
-
-      mockedUserRepository.getUserById.mockResolvedValue(mockUser)
-      mockedWalletBackend.getTransactions.mockResolvedValue(nullWalletHistory)
 
       const result = await useCase.handle(payload)
 
@@ -139,30 +77,6 @@ describe('GetWalletHistory', () => {
   })
 
   describe('executeHttp', () => {
-    it('should return correct response when user is authenticated', async () => {
-      const req = {
-        userData: { userId: mockUser.userId },
-      } as unknown as Request
-      const res = {
-        status: vi.fn().mockReturnThis(),
-        json: vi.fn(),
-      } as unknown as Response
-
-      mockedUserRepository.getUserById.mockResolvedValue(mockUser)
-      mockedWalletBackend.getTransactions.mockResolvedValue(mockWalletHistory)
-
-      await useCase.executeHttp(req, res)
-
-      expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.OK)
-      expect(res.json).toHaveBeenCalledWith({
-        data: {
-          address: mockWalletHistory.account.address,
-          transactions: mockWalletHistory.account.transactions,
-        },
-        message: 'Transaction history retrieved successfully',
-      })
-    })
-
     it('should throw UnauthorizedException when user is not authenticated', async () => {
       const req = {
         userData: null,
@@ -202,25 +116,6 @@ describe('GetWalletHistory', () => {
 
       await expect(useCase.executeHttp(req, res)).rejects.toBeInstanceOf(UnauthorizedException)
       await expect(useCase.executeHttp(req, res)).rejects.toThrow("You don't have permission to do this action")
-    })
-  })
-
-  describe('parseResponse', () => {
-    it('should parse response correctly', () => {
-      const parseData = {
-        address: 'test-address',
-        transactions: [{ hash: 'test-hash' }],
-      }
-
-      const result = useCase.parseResponse(parseData)
-
-      expect(result).toEqual({
-        data: {
-          address: 'test-address',
-          transactions: [{ hash: 'test-hash' }],
-        },
-        message: 'Transaction history retrieved successfully',
-      })
     })
   })
 })

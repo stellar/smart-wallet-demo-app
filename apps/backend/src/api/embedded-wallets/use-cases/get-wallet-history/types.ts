@@ -2,9 +2,20 @@ import { z } from 'zod'
 
 import { createResponseSchema } from 'api/core/framework/use-case/base'
 
+export const TransactionSchema = z.object({
+  hash: z.string(),
+  type: z.string(),
+  amount: z.string(),
+  date: z.string(),
+  vendor: z.string(),
+  asset: z.string(),
+})
+
+export type TransactionSchemaT = z.infer<typeof TransactionSchema>
+
 export const ParseSchema = z.object({
   address: z.string(),
-  transactions: z.array(z.object({})), // TODO: Define a more specific schema for transactions. Get vendor data from backoffice.
+  transactions: z.array(TransactionSchema),
 })
 
 export type ParseSchemaT = z.infer<typeof ParseSchema>
