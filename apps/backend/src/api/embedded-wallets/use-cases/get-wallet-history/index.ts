@@ -62,7 +62,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
         vendor: 'Unknown vendor', // TODO: get vendor data from backoffice
         amount: tx.operations[0].stateChanges[0].amount,
         asset: tx.operations[0].stateChanges[0].tokenId,
-        date: tx.ledgerCreatedAt, // Assuming ledgerCreatedAt is already in ISO format
+        date: tx.ledgerCreatedAt, // Assuming ledgerCreatedAt is in ISO format
       })
     })
 

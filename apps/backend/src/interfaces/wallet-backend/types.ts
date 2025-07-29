@@ -33,7 +33,7 @@ export type SimulationResponse = {
     key: string
     before: string | undefined
     after: string | undefined
-  }[] // ✅
+  }[]
   /** always present: the LCL known to the server when responding */
   latestLedger: number // ✅
 }
