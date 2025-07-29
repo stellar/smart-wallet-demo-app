@@ -130,7 +130,7 @@ export class AuthEntrySignerHelper implements IAuthEntrySignerHelper {
       this.logInfo('input', 'authorizeWithKeypair', { input })
       const keypair = Keypair.fromSecret(secret)
 
-      const entry = authorizeEntry(unsignedEntry, keypair, validUntilLedgerSeq, networkPassphrase)
+      const entry = await authorizeEntry(unsignedEntry, keypair, validUntilLedgerSeq, networkPassphrase)
 
       this.logInfo('result', 'authorizeWithKeypair', { entry })
       return entry

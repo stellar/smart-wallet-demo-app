@@ -9,5 +9,9 @@ export function mockAuthService(): Mocked<IAuthService> {
     postRegister: vi.fn(),
     getLogInOptions: vi.fn(),
     postLogIn: vi.fn(),
+    sendRecoveryLink: vi.fn(),
+    validateRecoveryLink: vi.fn(),
+    getRecoverWalletOptions: vi.fn(),
+    postRecoverWallet: vi.fn(),
   }
 }

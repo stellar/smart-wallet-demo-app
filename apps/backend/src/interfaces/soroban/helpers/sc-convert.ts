@@ -1,4 +1,4 @@
-import { Address, scValToBigInt, StrKey, xdr, XdrLargeInt } from '@stellar/stellar-sdk'
+import { Address, nativeToScVal, scValToBigInt, StrKey, xdr, XdrLargeInt } from '@stellar/stellar-sdk'
 import Big from 'big.js'
 
 import { SorobanEntryAddress } from '../types'
@@ -37,7 +37,7 @@ export const ScConvert = {
         }
       case xdr.ScAddressType.scAddressTypeContract():
         return {
-          id: Address.contract(scAddress.contractId()).toString(),
+          id: Address.contract(scAddress.accountId().value()).toString(),
           type: xdr.ScAddressType.scAddressTypeContract(),
           scAddress,
         }
@@ -46,7 +46,7 @@ export const ScConvert = {
     }
   },
   contractId: (scAddress: xdr.ScAddress): string => {
-    return Address.contract(scAddress.contractId()).toString()
+    return Address.contract(scAddress.accountId().value()).toString()
   },
   accountId: (scAddress: xdr.ScAddress): string => {
     return StrKey.encodeEd25519PublicKey(scAddress.accountId().ed25519())
@@ -60,5 +60,19 @@ export const ScConvert = {
       default:
         throw new Error('Invalid address type')
     }
+  },
+  hexPublicKeyToScVal: (hexPublicKey: string): xdr.ScVal => {
+    if (hexPublicKey.length % 2 !== 0) throw new Error('Invalid hex string')
+
+    // Convert to Buffer
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const publicKeyBuffer = Uint8Array.from(hexPublicKey.match(/.{1,2}/g)!.map(b => parseInt(b, 16)))
+
+    // Ensure it's exactly 65 bytes
+    if (publicKeyBuffer.length !== 65) {
+      throw new Error('Invalid public key length, expected 65 bytes')
+    }
+
+    return nativeToScVal(publicKeyBuffer, { type: 'bytes' })
   },
 }

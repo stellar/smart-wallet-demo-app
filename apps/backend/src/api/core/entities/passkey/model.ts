@@ -5,7 +5,7 @@ import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn, Index, ModelBase 
 import { User } from '../user/model'
 
 @Entity()
-@Index(['webauthnUserId', 'user'], { unique: true })
+@Index(['webauthnUserId', 'user'], { unique: false })
 export class Passkey extends ModelBase {
   @PrimaryColumn('varchar', { length: 255 })
   credentialId: Base64URLString
