@@ -1,27 +1,32 @@
+import { rpc, Transaction } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { otpFactory } from 'api/core/entities/otp/factory'
 import { userFactory } from 'api/core/entities/user/factory'
+import { mockWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/mocks'
 import { mockOtpRepository } from 'api/core/services/otp/mocks'
-import { mockPasskeyRepository } from 'api/core/services/passkey/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { generateToken } from 'interfaces/jwt'
-import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
+import { mockSorobanService } from 'interfaces/soroban/mock'
+import { mockWalletBackend } from 'interfaces/wallet-backend/mock'
 
 import { RecoverWallet, endpoint } from './index'
 
 const mockedOtpRepository = mockOtpRepository()
-const mockedPasskeyRepository = mockPasskeyRepository()
-const mockedWebauthnChallenge = mockWebauthnChallenge()
+const mockedWebauthnRegistrationHelper = mockWebAuthnRegistration()
+const mockedSorobanService = mockSorobanService()
+const mockedWalletBackend = mockWalletBackend()
 
 const mockedUser = userFactory({})
 const mockedOtp = otpFactory({ user: mockedUser })
 
 const mockedCompleteRegistration = vi.fn()
-vi.mock('api/core/helpers/webauthn/registration/complete-registration', () => ({
-  completeRegistration: () => mockedCompleteRegistration(),
+const mockedSubmitTx = vi.fn()
+mockedWebauthnRegistrationHelper.complete = mockedCompleteRegistration
+vi.mock('api/core/helpers/submit-tx', () => ({
+  submitTx: () => mockedSubmitTx(),
 }))
 
 let useCase: RecoverWallet
@@ -29,7 +34,12 @@ let useCase: RecoverWallet
 describe('RecoverWallet', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    useCase = new RecoverWallet(mockedOtpRepository, mockedPasskeyRepository, mockedWebauthnChallenge)
+    useCase = new RecoverWallet(
+      mockedOtpRepository,
+      mockedWebauthnRegistrationHelper,
+      mockedSorobanService,
+      mockedWalletBackend
+    )
   })
 
   it('should recover a wallet', async () => {
@@ -39,8 +49,11 @@ describe('RecoverWallet', () => {
     }
     mockedOtpRepository.getOtpByCode.mockResolvedValue(mockedOtp)
     mockedCompleteRegistration.mockResolvedValueOnce({
-      passkey: { credentialId: 'test-credential-id' },
-      publicKeyHex: 'CBY...MNV',
+      passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
+    })
+    mockedSorobanService.simulateContract.mockResolvedValue({
+      tx: { hash: 'test-tx-hash' } as unknown as Transaction,
+      simulationResponse: { id: 'simulation-id' } as unknown as rpc.Api.SimulateTransactionSuccessResponse,
     })
 
     const result = await useCase.handle(payload)
@@ -75,9 +88,13 @@ describe('RecoverWallet', () => {
     } as unknown as Response
 
     mockedCompleteRegistration.mockResolvedValueOnce({
-      passkey: { credentialId: 'test-credential-id' },
-      publicKeyHex: 'CBY...MNV',
+      passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
     })
+    mockedSorobanService.simulateContract.mockResolvedValue({
+      tx: { hash: 'test-tx-hash' } as unknown as Transaction,
+      simulationResponse: { id: 'simulation-id' } as unknown as rpc.Api.SimulateTransactionSuccessResponse,
+    })
+
     await useCase.executeHttp(req, res)
 
     expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.OK)

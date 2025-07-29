@@ -1,18 +1,23 @@
+import { Keypair, nativeToScVal } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { OtpRepositoryType } from 'api/core/entities/otp/types'
-import { PasskeyRepositoryType } from 'api/core/entities/passkey/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
-import { completeRegistration } from 'api/core/helpers/webauthn/registration/complete-registration'
+import { submitTx } from 'api/core/helpers/submit-tx'
+import WebAuthnRegistration from 'api/core/helpers/webauthn/registration'
+import { IWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/types'
 import OtpRepository from 'api/core/services/otp'
-import PasskeyRepository from 'api/core/services/passkey'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { getValueFromEnv } from 'config/env-utils'
+import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { generateToken } from 'interfaces/jwt'
-import { WebAuthnChallengeService } from 'interfaces/webauthn-challenge'
-import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
+import SorobanService from 'interfaces/soroban'
+import { ContractSigner, ISorobanService } from 'interfaces/soroban/types'
+import WalletBackend from 'interfaces/wallet-backend'
+import { WalletBackendType } from 'interfaces/wallet-backend/types'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
@@ -20,18 +25,24 @@ const endpoint = '/recover/complete'
 
 export class RecoverWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
   private otpRepository: OtpRepositoryType
-  private passkeyRepository: PasskeyRepositoryType
-  private webauthnChallengeService: IWebauthnChallengeService
+  private webauthnRegistrationHelper: IWebAuthnRegistration
+  private sorobanService: ISorobanService
+  private walletBackend: WalletBackendType
+  private recoverySigner: Keypair
 
   constructor(
     otpRepository?: OtpRepositoryType,
-    passkeyRepository?: PasskeyRepositoryType,
-    webauthnChallengeService?: IWebauthnChallengeService
+    webauthnRegistrationHelper?: IWebAuthnRegistration,
+    sorobanService?: ISorobanService,
+    walletBackend?: WalletBackendType,
+    recoverySigner?: Keypair
   ) {
     super()
     this.otpRepository = otpRepository || OtpRepository.getInstance()
-    this.passkeyRepository = passkeyRepository || PasskeyRepository.getInstance()
-    this.webauthnChallengeService = webauthnChallengeService || WebAuthnChallengeService.getInstance()
+    this.webauthnRegistrationHelper = webauthnRegistrationHelper || WebAuthnRegistration.getInstance()
+    this.sorobanService = sorobanService || SorobanService.getInstance()
+    this.walletBackend = walletBackend || WalletBackend.getInstance()
+    this.recoverySigner = recoverySigner || Keypair.fromSecret(getValueFromEnv('RECOVERY_SIGNER'))
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
@@ -52,19 +63,50 @@ export class RecoverWallet extends UseCaseBase implements IUseCaseHttp<ResponseS
       throw new ResourceNotFoundException(`OTP with code ${requestBody.code} not found`)
     }
 
+    if (!otp.user.contractAddress)
+      throw new BadRequestException(`User with email ${otp.user.email} does not have a wallet`)
+
     // Check auth challenge resolution
-    const challengeResult = await completeRegistration({
+    const challengeResult = await this.webauthnRegistrationHelper.complete({
       user: otp.user,
       registrationResponseJSON: requestBody.registration_response_json,
-      passkeyRepository: this.passkeyRepository,
-      webauthnChallengeService: this.webauthnChallengeService,
     })
 
     if (!challengeResult) throw new UnauthorizedException(`User authentication failed`)
 
-    // TODO: Pending
-    // extract passkey and
-    // execute recovery here
+    // Map new signer public key as Stellar value
+    const newSignerPublicKey = nativeToScVal(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      Uint8Array.from(challengeResult.passkey.credentialHexPublicKey.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16))),
+      { type: 'bytes' }
+    )
+
+    // Prepare recovery signer
+    const recoverySigner: ContractSigner = {
+      addressId: this.recoverySigner.publicKey(),
+      methodOptions: {
+        method: 'keypair',
+        options: {
+          secret: this.recoverySigner.secret(),
+        },
+      },
+    }
+
+    // Simulate 'rotate_signer' transaction
+    const { tx, simulationResponse } = await this.sorobanService.simulateContract({
+      contractId: otp.user.contractAddress,
+      method: 'rotate_signer',
+      args: [newSignerPublicKey],
+      signers: [recoverySigner],
+    })
+
+    // Submit transaction
+    await submitTx({
+      tx,
+      simulationResponse,
+      walletBackend: this.walletBackend,
+      sorobanService: this.sorobanService,
+    })
 
     // Generate JWT token
     const authToken = generateToken(otp.user.userId, otp.user.email)
