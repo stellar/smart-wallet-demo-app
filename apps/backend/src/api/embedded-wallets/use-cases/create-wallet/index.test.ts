@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 
 import { userFactory } from 'api/core/entities/user/factory'
 import { User } from 'api/core/entities/user/types'
-import { mockPasskeyRepository } from 'api/core/services/passkey/mocks'
+import { mockWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
@@ -11,19 +11,15 @@ import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { generateToken } from 'interfaces/jwt'
 import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
 import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
-import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
 
 import { CreateWallet, endpoint } from './index'
 
 const mockedUserRepository = mockUserRepository()
-const mockedPasskeyRepository = mockPasskeyRepository()
-const mockedWebauthnChallenge = mockWebauthnChallenge()
+const mockedWebauthnRegistrationHelper = mockWebAuthnRegistration()
 const mockedSDPEmbeddedWallets = mockSDPEmbeddedWallets()
 
 const mockedCompleteRegistration = vi.fn()
-vi.mock('api/core/helpers/webauthn/registration/complete-registration', () => ({
-  completeRegistration: () => mockedCompleteRegistration(),
-}))
+mockedWebauthnRegistrationHelper.complete = mockedCompleteRegistration
 
 const email = 'test-email@example.com'
 const sdpCreateWalletResponse = {
@@ -38,12 +34,7 @@ let useCase: CreateWallet
 describe('CreateWallet UseCase', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    useCase = new CreateWallet(
-      mockedUserRepository,
-      mockedPasskeyRepository,
-      mockedWebauthnChallenge,
-      mockedSDPEmbeddedWallets
-    )
+    useCase = new CreateWallet(mockedUserRepository, mockedWebauthnRegistrationHelper, mockedSDPEmbeddedWallets)
   })
 
   it('should create a wallet using SDP', async () => {
@@ -54,8 +45,7 @@ describe('CreateWallet UseCase', () => {
     mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
     mockedSDPEmbeddedWallets.createWallet.mockResolvedValue(sdpCreateWalletResponse)
     mockedCompleteRegistration.mockResolvedValueOnce({
-      passkey: { credentialId: 'test-credential-id' },
-      publicKeyHex: 'CBY...MNV',
+      passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
     })
 
     const result = await useCase.handle(payload)
@@ -95,23 +85,10 @@ describe('CreateWallet UseCase', () => {
     expect(mockedSDPEmbeddedWallets.createWallet).not.toHaveBeenCalled()
   })
 
-  it('should throw error if authentication pass but publicKeyHex is missing', async () => {
-    mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
-    mockedCompleteRegistration.mockResolvedValueOnce({
-      passkey: { credentialId: 'test-credential-id' },
-      publicKeyHex: undefined,
-    })
-
-    const payload = { email, registration_response_json: '{"id":"TestPayload123"}' }
-    await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
-    expect(mockedSDPEmbeddedWallets.createWallet).not.toHaveBeenCalled()
-  })
-
   it('should handle wallet creation errors', async () => {
     mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
     mockedCompleteRegistration.mockResolvedValueOnce({
-      passkey: { credentialId: 'test-credential-id' },
-      publicKeyHex: 'CBY...MNV',
+      passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
     })
     mockedSDPEmbeddedWallets.createWallet.mockRejectedValue('string-error')
 
@@ -129,8 +106,7 @@ describe('CreateWallet UseCase', () => {
     } as unknown as Response
 
     mockedCompleteRegistration.mockResolvedValueOnce({
-      passkey: { credentialId: 'test-credential-id' },
-      publicKeyHex: 'CBY...MNV',
+      passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
     })
     mockedSDPEmbeddedWallets.createWallet.mockResolvedValue(sdpCreateWalletResponse)
 

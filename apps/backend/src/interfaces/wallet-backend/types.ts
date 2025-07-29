@@ -7,16 +7,35 @@ export type TransactionRequest = {
 }
 
 export type TransactionResponse = {
-  // TODO: change to Transaction type when wallet-backend is updated
   transaction: string
   networkPassphrase: string
 }
 
 // https://petstore.swagger.io/?url=https://raw.githubusercontent.com/stellar/wallet-backend/refs/heads/main/openapi/main.yaml#/Transactions/post_transactions_build
 export type TransactionOperation = {
-  // TODO: change to Operation type when wallet-backend is updated
   operations: string[]
+  simulationResult: SimulationResponse
   timeout: number
+}
+
+export type SimulationResponse = {
+  transactionData: string
+  events: string[] // ✅
+  minResourceFee: string // ✅
+  /** present only for invocation simulation */
+  results?: {
+    auth: string[]
+    xdr: string
+  }[] // ✅
+  /** State Difference information */
+  stateChanges?: {
+    type: string
+    key: string
+    before: string | undefined
+    after: string | undefined
+  }[] // ✅
+  /** always present: the LCL known to the server when responding */
+  latestLedger: number // ✅
 }
 
 export type TransactionBuildRequest = {
@@ -51,6 +70,6 @@ export type WalletBackendType = {
   registerAccount(account: AccountRequest): Promise<object>
   deregisterAccount(account: AccountRequest): Promise<object>
   getTransactions(account: AccountRequest): Promise<GetTransactionsResponse>
-  buildTransaction(account: AccountRequest, transactions: TransactionBuildRequest): Promise<TransactionBuildResponse>
-  createFeeBumpTransaction(account: AccountRequest, transactions: TransactionRequest): Promise<TransactionResponse>
+  buildTransaction(transactions: TransactionBuildRequest): Promise<TransactionBuildResponse>
+  createFeeBumpTransaction(transaction: TransactionRequest): Promise<TransactionResponse>
 }

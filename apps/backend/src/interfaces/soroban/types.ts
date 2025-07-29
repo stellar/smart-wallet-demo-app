@@ -1,8 +1,22 @@
-import { rpc, Transaction, xdr } from '@stellar/stellar-sdk'
+import { FeeBumpTransaction, rpc, Transaction, xdr } from '@stellar/stellar-sdk'
+
+import {
+  AuthEntryMethods,
+  AuthorizeEntryWithKeypairInput,
+  AuthorizeEntryWithWebAuthnInput,
+} from './helpers/auth-entry-signer/types'
 
 export type ContractSigner = {
   addressId: string
-  // method: AuthEntrySigner;
+  methodOptions:
+    | {
+        method: Extract<AuthEntryMethods, 'webauthn'>
+        options: AuthorizeEntryWithWebAuthnInput['webAuthnOptions']
+      }
+    | {
+        method: Extract<AuthEntryMethods, 'keypair'>
+        options: AuthorizeEntryWithKeypairInput['keypairOptions']
+      }
 }
 
 export type SimulateContract = {
@@ -15,6 +29,10 @@ export type SimulateContract = {
 export type SimulationResult = {
   tx: Transaction
   simulationResponse: rpc.Api.SimulateTransactionSuccessResponse
+}
+
+export type GenerateWebAuthnChallengeFromContract = Omit<SimulateContract, 'signers'> & {
+  signer: Pick<ContractSigner, 'addressId'>
 }
 
 export type CallContract = {
@@ -42,5 +60,15 @@ export type SorobanEntryAddress = {
 }
 
 export interface ISorobanService {
+  signAuthEntry({ contractId, entry, signer }: SignAuthEntry): Promise<xdr.SorobanAuthorizationEntry>
+  signAuthEntries({ authEntries, signers, contractId, tx }: SignAuthEntries): Promise<Transaction>
+  generateWebAuthnChallengeFromContract({
+    contractId,
+    method,
+    args,
+    signer,
+  }: GenerateWebAuthnChallengeFromContract): Promise<string>
   simulateContract({ contractId, method, args, signers }: SimulateContract): Promise<SimulationResult>
+  callContract({ tx, simulationResponse }: CallContract): Promise<rpc.Api.GetSuccessfulTransactionResponse>
+  sendTransaction(tx: Transaction | FeeBumpTransaction | string): Promise<rpc.Api.GetSuccessfulTransactionResponse>
 }

@@ -4,11 +4,11 @@ import { otpFactory } from 'api/core/entities/otp/factory'
 import { Otp } from 'api/core/entities/otp/types'
 import { passkeyFactory } from 'api/core/entities/passkey/factory'
 import { userFactory } from 'api/core/entities/user/factory'
+import { mockWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/mocks'
 import { mockOtpRepository } from 'api/core/services/otp/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
-import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
 
 import { RecoverWalletOptions } from '.'
 
@@ -26,19 +26,17 @@ const mockedUser = userFactory({ passkeys: mockedPasskeys })
 const mockedOtp = otpFactory({ user: mockedUser })
 
 const mockedOtpRepository = mockOtpRepository()
-const mockedWebauthnChallenge = mockWebauthnChallenge()
+const mockedWebauthnRegistrationHelper = mockWebAuthnRegistration()
 
 const mockedGenerateRegistrationOptions = vi.fn()
-vi.mock('api/core/helpers/webauthn/registration/generate-options', () => ({
-  generateRegistrationOptions: (args: unknown) => mockedGenerateRegistrationOptions(args),
-}))
+mockedWebauthnRegistrationHelper.generateOptions = mockedGenerateRegistrationOptions
 
 let useCase: RecoverWalletOptions
 
 describe('RecoverWalletOptions', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    useCase = new RecoverWalletOptions(mockedOtpRepository, mockedWebauthnChallenge)
+    useCase = new RecoverWalletOptions(mockedOtpRepository, mockedWebauthnRegistrationHelper)
   })
 
   it('should return options_json when otp exists and not expired', async () => {

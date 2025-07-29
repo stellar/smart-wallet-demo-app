@@ -3,13 +3,12 @@ import { Request, Response } from 'express'
 import { OtpRepositoryType } from 'api/core/entities/otp/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
-import { generateRegistrationOptions } from 'api/core/helpers/webauthn/registration/generate-options'
+import WebAuthnRegistration from 'api/core/helpers/webauthn/registration'
+import { IWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/types'
 import OtpRepository from 'api/core/services/otp'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
-import { WebAuthnChallengeService } from 'interfaces/webauthn-challenge'
-import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
@@ -17,12 +16,12 @@ const endpoint = '/recover/options/:code'
 
 export class RecoverWalletOptions extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
   private otpRepository: OtpRepositoryType
-  private webauthnChallengeService: IWebauthnChallengeService
+  private webauthnRegistrationHelper: IWebAuthnRegistration
 
-  constructor(otpRepository?: OtpRepositoryType, webauthnChallengeService?: IWebauthnChallengeService) {
+  constructor(otpRepository?: OtpRepositoryType, webauthnRegistrationHelper?: IWebAuthnRegistration) {
     super()
     this.otpRepository = otpRepository || OtpRepository.getInstance()
-    this.webauthnChallengeService = webauthnChallengeService || WebAuthnChallengeService.getInstance()
+    this.webauthnRegistrationHelper = webauthnRegistrationHelper || WebAuthnRegistration.getInstance()
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
@@ -44,9 +43,8 @@ export class RecoverWalletOptions extends UseCaseBase implements IUseCaseHttp<Re
       throw new BadRequestException(`OTP with code ${code} has expired`)
     }
 
-    const optionsJSON = await generateRegistrationOptions({
+    const optionsJSON = await this.webauthnRegistrationHelper.generateOptions({
       user: otp.user,
-      webauthnChallengeService: this.webauthnChallengeService,
     })
 
     return {

@@ -13,6 +13,9 @@ export class Passkey extends ModelBase {
   @Column('bytea')
   credentialPublicKey: Uint8Array
 
+  @Column('varchar', { nullable: true })
+  credentialHexPublicKey: string
+
   @Column('varchar', { length: 255 })
   webauthnUserId: Base64URLString
 

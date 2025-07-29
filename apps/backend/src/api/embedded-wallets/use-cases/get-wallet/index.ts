@@ -12,7 +12,7 @@ import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
 import { SDPEmbeddedWalletsType, WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
-import Soroban from 'interfaces/soroban'
+import SorobanService from 'interfaces/soroban'
 import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
 import { ISorobanService, SimulateContract } from 'interfaces/soroban/types'
 import WalletBackend from 'interfaces/wallet-backend'
@@ -36,7 +36,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     super()
     this.userRepository = userRepository || UserRepository.getInstance()
     this.sdpEmbeddedWallets = sdpEmbeddedWallets || SDPEmbeddedWallets.getInstance()
-    this.sorobanService = sorobanService || Soroban.getInstance()
+    this.sorobanService = sorobanService || SorobanService.getInstance()
     this.walletBackend = walletBackend || WalletBackend.getInstance()
   }
 

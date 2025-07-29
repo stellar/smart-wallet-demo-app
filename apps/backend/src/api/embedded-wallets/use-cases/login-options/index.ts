@@ -3,12 +3,11 @@ import { Request, Response } from 'express'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
-import { generateAuthenticationOptions } from 'api/core/helpers/webauthn/authentication/generate-options'
+import WebAuthnAuthentication from 'api/core/helpers/webauthn/authentication'
+import { IWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/types'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
-import { WebAuthnChallengeService } from 'interfaces/webauthn-challenge'
-import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
@@ -16,12 +15,12 @@ const endpoint = '/login/options/:email'
 
 export class LogInOptions extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
   private userRepository: UserRepositoryType
-  private webauthnChallengeService: IWebauthnChallengeService
+  private webauthnAuthenticationHelper: IWebAuthnAuthentication
 
-  constructor(userRepository?: UserRepositoryType, webauthnChallengeService?: IWebauthnChallengeService) {
+  constructor(userRepository?: UserRepositoryType, webauthnAuthenticationHelper?: IWebAuthnAuthentication) {
     super()
     this.userRepository = userRepository || UserRepository.getInstance()
-    this.webauthnChallengeService = webauthnChallengeService || WebAuthnChallengeService.getInstance()
+    this.webauthnAuthenticationHelper = webauthnAuthenticationHelper || WebAuthnAuthentication.getInstance()
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
@@ -43,9 +42,8 @@ export class LogInOptions extends UseCaseBase implements IUseCaseHttp<ResponseSc
       throw new ResourceNotFoundException(`User with email ${email} has no passkeys registered`)
     }
 
-    const optionsJSON = await generateAuthenticationOptions({
+    const optionsJSON = await this.webauthnAuthenticationHelper.generateOptions({
       user,
-      webauthnChallengeService: this.webauthnChallengeService,
     })
 
     return {

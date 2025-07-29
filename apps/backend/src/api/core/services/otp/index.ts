@@ -17,7 +17,7 @@ export default class OtpRepository extends SingletonBase implements OtpRepositor
   async createOtp(user: User, save?: boolean): Promise<Otp> {
     const code = randomAlphaNumeric(6)
     const expiresAt = new Date()
-    expiresAt.setMinutes(expiresAt.getMinutes() + 2) // OTP valid for 2 minutes
+    expiresAt.setMinutes(expiresAt.getMinutes() + 5) // OTP valid for 5 minutes
 
     const newOtp = OtpModel.create({ code, expiresAt, user })
     if (save) {

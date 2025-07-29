@@ -5,10 +5,10 @@ import { getValueFromEnv } from 'config/env-utils'
 import { ScConvert } from './helpers/sc-convert'
 import { SimulateContract } from './types'
 
-import Soroban from '.'
+import SorobanService from '.'
 
 describe('Soroban', () => {
-  const sorobanService = new Soroban()
+  const sorobanService = new SorobanService()
 
   afterEach(() => {
     vi.clearAllMocks()
@@ -38,7 +38,7 @@ describe('Soroban', () => {
       // })
     })
     /* test('should throw an error if the request fails', async () => {
-      const { simulationResponse } = await sorobanService.simulateContract({ 
+      const { simulationResponse } = await sorobanService.simulateContract({
         contractId: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
         method: 'balance',
         args: [ScConvert.accountIdToScVal('GA223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG')] // Wrong account
