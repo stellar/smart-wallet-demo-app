@@ -39,12 +39,7 @@ const truncateHash = (hash: string) => {
 const createTransactionModalContent = (transaction: Transaction) => (
   <div className="flex flex-col gap-4">
     {/* Close Button - Positioned outside modal */}
-    <button
-      onClick={() => modalService.close()}
-      className="absolute z-50 w-7 h-7 -top-10 right-0 bg-black/30 border border-borderPrimary rounded-full flex items-center justify-center transition-colors px-2 py-1 gap-1"
-    >
-      <Icon.X width={12} height={12} className="text-whitish" />
-    </button>
+    <NavigateButton className="absolute -top-10 right-0 bg-black/30 rounded-full" type="close" variant="ghost" onClick={() => modalService.close()} />
 
     {/* Top Section with Date, Type, and Amount */}
     <div className="pt-4 pb-4">
@@ -117,13 +112,7 @@ const createTransactionModalContent = (transaction: Transaction) => (
 
     {/* Close Button */}
     <div>
-      <Button
-        variant="primary"
-        size="lg"
-        isRounded={true}
-        onClick={() => modalService.close()}
-        className="w-full h-12 text-base bg-black text-white hover:bg-gray-800 rounded-full"
-      >
+      <Button variant={'secondary'} size={'lg'} isRounded isFullWidth onClick={() => modalService.close()}>
         {c('close')}
       </Button>
     </div>
