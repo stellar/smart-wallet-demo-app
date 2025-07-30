@@ -32,6 +32,16 @@ describe('Modal', () => {
     expect(screen.getByAltText('Modal image')).toHaveAttribute('src', defaultProps.title.image?.source)
   })
 
+  it('renders children when provided', () => {
+    const testContent = 'Custom modal content'
+    renderModal({ children: <div>{testContent}</div> })
+
+    expect(screen.getByText(testContent)).toBeInTheDocument()
+    // Should not render default content when children is provided
+    expect(screen.queryByText(defaultProps.title.text)).not.toBeInTheDocument()
+    expect(screen.queryByText(defaultProps.description)).not.toBeInTheDocument()
+  })
+
   it('calls onClose when close button is clicked', () => {
     renderModal()
 
@@ -69,33 +79,19 @@ describe('Modal', () => {
       },
     })
 
-    const blankDiv = screen.getByText((_, element) => {
-      return element?.tagName.toLowerCase() === 'div' && element.className.includes('h-[80px]')
-    })
-
+    const blankDiv = screen.getByTestId('modal-backdrop').querySelector('.h-\\[80px\\]')
     expect(blankDiv).toBeInTheDocument()
   })
 
-  it('renders transaction variant with transaction data', () => {
-    const transaction = {
-      hash: 'test-hash-123',
-      type: 'CREDIT' as const,
-      vendor: 'Test Vendor',
-      amount: '1000',
-      asset: 'XLM',
-      date: '2025-01-15T10:30:00Z',
-    }
+  it('renders with background image when backgroundImageUri is provided', () => {
+    const backgroundUri = 'https://example.com/background.jpg'
+    renderModal({ backgroundImageUri: backgroundUri })
 
-    renderModal({
-      variant: 'transaction',
-      transaction,
-      onClose: vi.fn(),
+    const modalContainer = screen.getByTestId('modal-backdrop').querySelector('.max-w-md')
+    expect(modalContainer).toHaveStyle({
+      backgroundImage: `url(${backgroundUri})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'top',
     })
-
-    // Check that transaction-specific content is rendered
-    expect(screen.getByText('Test Vendor')).toBeInTheDocument()
-    expect(screen.getByText('1,000 XLM')).toBeInTheDocument()
-    expect(screen.getByText('Transaction ID')).toBeInTheDocument()
-    expect(screen.getByText('test-hash-123')).toBeInTheDocument()
   })
 })
