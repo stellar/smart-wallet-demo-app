@@ -16,7 +16,6 @@ export type ProjectConfig = {
 
 export type TokenContractConfig = {
   NATIVE: string
-  USDC: string
 }
 
 export type SignerKeypair = {
