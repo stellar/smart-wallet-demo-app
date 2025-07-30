@@ -14,7 +14,7 @@ export class Vendor extends ModelBase {
     type: 'varchar',
     nullable: true,
   })
-  contractAddress?: string
+  walletAddress?: string
 
   @Column({
     type: 'varchar',

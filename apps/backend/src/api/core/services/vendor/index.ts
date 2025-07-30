@@ -11,12 +11,12 @@ export default class VendorRepository extends SingletonBase implements VendorRep
     return VendorModel.findOneBy({ vendorId })
   }
 
-  async getVendorByContractAddress(contractAddress: string): Promise<Vendor | null> {
-    return VendorModel.findOneBy({ contractAddress })
+  async getVendorByWalletAddress(walletAddress: string): Promise<Vendor | null> {
+    return VendorModel.findOneBy({ walletAddress })
   }
 
   async createVendor(
-    vendor: { name: string; contractAddress?: string; profileImage?: string },
+    vendor: { name: string; walletAddress?: string; profileImage?: string },
     save?: boolean
   ): Promise<Vendor> {
     const newVendor = VendorModel.create({ ...vendor })

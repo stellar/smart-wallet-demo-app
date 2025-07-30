@@ -68,7 +68,6 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
     // Fetch tx history from wallet backend service
     const walletHistory = await this.walletBackend.getTransactions({ address: user.contractAddress as string })
 
-
     const transactions: TransactionSchemaT[] = []
 
     for (const tx of walletHistory.account?.transactions ?? []) {
@@ -85,7 +84,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
         ? (operationData.functionArgs[1] as FunctionArg).value
         : undefined
       const vendor = vendorContractAddress
-        ? await this.vendorRepository.getVendorByContractAddress(vendorContractAddress)
+        ? await this.vendorRepository.getVendorByWalletAddress(vendorContractAddress)
         : undefined
 
       const transaction: TransactionSchemaT = {

@@ -6,7 +6,7 @@ describe('Vendor factory tests', () => {
 
     expect(mockedVendor.vendorId).not.toBeUndefined()
     expect(mockedVendor.name).not.toBeUndefined()
-    expect(mockedVendor.contractAddress).not.toBeUndefined()
+    expect(mockedVendor.walletAddress).not.toBeUndefined()
     expect(mockedVendor.profileImage).not.toBeUndefined()
   })
 
@@ -14,13 +14,13 @@ describe('Vendor factory tests', () => {
     const mockedVendor = vendorFactory({
       vendorId: 'xyz789',
       name: 'Galactic Shop',
-      contractAddress: 'ABCD1234EFGH5678IJKL9012MNOP3456QRST7890UVWX',
+      walletAddress: 'ABCD1234EFGH5678IJKL9012MNOP3456QRST7890UVWX',
       profileImage: 'https://example.com/image.png',
     })
 
     expect(mockedVendor.vendorId).toBe('xyz789')
     expect(mockedVendor.name).toBe('Galactic Shop')
-    expect(mockedVendor.contractAddress).toBe('ABCD1234EFGH5678IJKL9012MNOP3456QRST7890UVWX')
+    expect(mockedVendor.walletAddress).toBe('ABCD1234EFGH5678IJKL9012MNOP3456QRST7890UVWX')
     expect(mockedVendor.profileImage).toBe('https://example.com/image.png')
   })
 })

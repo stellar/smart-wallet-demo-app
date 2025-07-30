@@ -4,7 +4,7 @@ export type Vendor = VendorModel
 
 export type VendorRepositoryType = {
   getVendorById(vendorId: string): Promise<Vendor | null>
-  getVendorByContractAddress(contractAddress: string): Promise<Vendor | null>
+  getVendorByWalletAddress(walletAddress: string): Promise<Vendor | null>
   createVendor(
     vendor: { name: string; contractAddress?: string; profileImage?: string },
     save?: boolean

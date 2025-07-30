@@ -89,7 +89,7 @@ const formatFunctionArgs = (args: xdr.ScVal[]): object[] => {
       case xdr.ScValType.scvBytes().value:
         return {
           type: 'bytes',
-          value: arg.bytes().toString('hex'),
+          value: arg.bytes().toString(),
           raw: arg.toXDR('base64'),
         }
       case xdr.ScValType.scvAddress().value:
@@ -145,21 +145,21 @@ export const extractOperationData = (operationXdr: xdr.Operation) => {
       paymentOp = operationBody.paymentOp()
       return {
         type: 'payment',
-        destination: paymentOp.destination().ed25519().toString('hex'),
+        destination: paymentOp.destination().ed25519().toString(),
         asset:
           paymentOp.asset().switch() === xdr.AssetType.assetTypeNative()
             ? 'XLM'
             : paymentOp.asset().alphaNum4()?.assetCode().toString() ||
               paymentOp.asset().alphaNum12()?.assetCode().toString(),
         amount: paymentOp.amount().toString(),
-        sourceAccount: operationXdr.sourceAccount()?.ed25519().toString('hex') || 'No source account',
+        sourceAccount: operationXdr.sourceAccount()?.ed25519().toString() || 'No source account',
       }
 
     case xdr.OperationType.pathPaymentStrictSend().value:
       pathPaymentOp = operationBody.pathPaymentStrictSendOp()
       return {
         type: 'path_payment_strict_send',
-        destination: pathPaymentOp.destination().ed25519().toString('hex'),
+        destination: pathPaymentOp.destination().ed25519().toString(),
         destAsset:
           pathPaymentOp.destAsset().switch() === xdr.AssetType.assetTypeNative()
             ? 'XLM'
@@ -215,7 +215,7 @@ export const extractOperationData = (operationXdr: xdr.Operation) => {
       setOptionsOp = operationBody.setOptionsOp()
       return {
         type: 'set_options',
-        inflationDest: setOptionsOp.inflationDest()?.ed25519().toString('hex') || 'Not set',
+        inflationDest: setOptionsOp.inflationDest()?.ed25519().toString() || 'Not set',
         clearFlags: setOptionsOp.clearFlags()?.toString() || 'Not set',
         setFlags: setOptionsOp.setFlags()?.toString() || 'Not set',
         masterWeight: setOptionsOp.masterWeight()?.toString() || 'Not set',
@@ -227,7 +227,7 @@ export const extractOperationData = (operationXdr: xdr.Operation) => {
           ? {
               key:
                 setOptionsOp.signer()?.key().switch() === xdr.SignerKeyType.signerKeyTypeEd25519()
-                  ? setOptionsOp.signer()?.key().ed25519().toString('hex')
+                  ? setOptionsOp.signer()?.key().ed25519().toString()
                   : 'Unknown signer type',
               weight: setOptionsOp.signer()?.weight().toString(),
             }
@@ -291,7 +291,7 @@ export const extractOperationData = (operationXdr: xdr.Operation) => {
       pathPaymentStrictReceiveOp = operationBody.pathPaymentStrictReceiveOp()
       return {
         type: 'path_payment_strict_receive',
-        destination: pathPaymentStrictReceiveOp.destination().ed25519().toString('hex'),
+        destination: pathPaymentStrictReceiveOp.destination().ed25519().toString(),
         destAsset:
           pathPaymentStrictReceiveOp.destAsset().switch() === xdr.AssetType.assetTypeNative()
             ? 'XLM'
@@ -318,7 +318,7 @@ export const extractOperationData = (operationXdr: xdr.Operation) => {
         amount: createClaimableBalanceOp.amount().toString(),
         claimants: createClaimableBalanceOp.claimants().map(claimant => ({
           type: claimant.v0().predicate().switch().name,
-          destination: claimant.v0().destination().ed25519().toString('hex'),
+          destination: claimant.v0().destination().ed25519().toString(),
         })),
       }
 
@@ -333,7 +333,7 @@ export const extractOperationData = (operationXdr: xdr.Operation) => {
       beginSponsoringFutureReservesOp = operationBody.beginSponsoringFutureReservesOp()
       return {
         type: 'begin_sponsoring_future_reserves',
-        sponsoredId: beginSponsoringFutureReservesOp.sponsoredId().ed25519().toString('hex'),
+        sponsoredId: beginSponsoringFutureReservesOp.sponsoredId().ed25519().toString(),
       }
 
     case xdr.OperationType.endSponsoringFutureReserves().value:
@@ -357,7 +357,7 @@ export const extractOperationData = (operationXdr: xdr.Operation) => {
             ? 'XLM'
             : clawbackOp.asset().alphaNum4()?.assetCode().toString() ||
               clawbackOp.asset().alphaNum12()?.assetCode().toString(),
-        from: clawbackOp.from().ed25519().toString('hex'),
+        from: clawbackOp.from().ed25519().toString(),
         amount: clawbackOp.amount().toString(),
       }
 
@@ -372,7 +372,7 @@ export const extractOperationData = (operationXdr: xdr.Operation) => {
       setTrustLineFlagsOp = operationBody.setTrustLineFlagsOp()
       return {
         type: 'set_trust_line_flags',
-        trustor: setTrustLineFlagsOp.trustor().ed25519().toString('hex'),
+        trustor: setTrustLineFlagsOp.trustor().ed25519().toString(),
         asset:
           setTrustLineFlagsOp.asset().switch() === xdr.AssetType.assetTypeNative()
             ? 'XLM'
@@ -449,7 +449,7 @@ export const xdrExamples = {
     if (operationBody.switch().value === xdr.OperationType.payment().value) {
       const paymentOp = operationBody.paymentOp()
       return {
-        destination: paymentOp.destination().ed25519().toString('hex'),
+        destination: paymentOp.destination().ed25519().toString(),
         asset:
           paymentOp.asset().switch() === xdr.AssetType.assetTypeNative()
             ? 'XLM'
@@ -475,7 +475,7 @@ export const xdrExamples = {
       if (hostFunction.switch().value === xdr.HostFunctionType.hostFunctionTypeInvokeContract().value) {
         const invokeContract = hostFunction.invokeContract()
         return {
-          contractId: invokeContract.contractAddress().contractId().toString('hex'),
+          contractId: invokeContract.contractAddress().contractId().toString(),
           functionName: invokeContract.functionName().toString(),
           args: formatFunctionArgs(invokeContract.args()),
         }
