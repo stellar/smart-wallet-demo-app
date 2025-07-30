@@ -2,11 +2,20 @@ import { z } from 'zod'
 
 import { createResponseSchema } from 'api/core/framework/use-case/base'
 
+// Type for function arguments returned by extractOperationData
+export interface FunctionArg {
+  type: string
+  value: string
+  raw: string
+}
+
 export const TransactionSchema = z.object({
   hash: z.string(),
   type: z.string(),
   amount: z.string(),
   date: z.string(),
+  fromAddress: z.string().optional(),
+  toAddress: z.string().optional(),
   vendor: z.string(),
   asset: z.string(),
 })
