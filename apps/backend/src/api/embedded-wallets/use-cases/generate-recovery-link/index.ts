@@ -38,7 +38,7 @@ export class GenerateRecoveryLink extends UseCaseBase implements IUseCaseHttp<Re
     if (recoveryLinkBaseUrl) {
       this.recoveryLinkBaseUrl = recoveryLinkBaseUrl
     } else {
-      const frontendUrl = getValueFromEnv('FRONTEND_URL', 'http://localhost:3000')
+      const frontendUrl = getValueFromEnv('FRONT_ADDRESS', 'http://localhost:3000')
       this.recoveryLinkBaseUrl = `${frontendUrl}/recover/confirm`
     }
   }
