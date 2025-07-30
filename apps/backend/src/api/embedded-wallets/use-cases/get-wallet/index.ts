@@ -1,9 +1,11 @@
 import { xdr } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
+import { AssetRepositoryType } from 'api/core/entities/asset/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
+import AssetRepository from 'api/core/services/asset'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { sleepInSeconds } from 'api/core/utils/sleep'
@@ -22,6 +24,7 @@ import { ParseSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT } from './
 const endpoint = '/'
 
 export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
+  private assetRepository: AssetRepositoryType
   private userRepository: UserRepositoryType
   private sdpEmbeddedWallets: SDPEmbeddedWalletsType
   private sorobanService: ISorobanService
@@ -31,9 +34,11 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     userRepository?: UserRepositoryType,
     sdpEmbeddedWallets?: SDPEmbeddedWalletsType,
     sorobanService?: ISorobanService,
-    walletBackend?: WalletBackend
+    walletBackend?: WalletBackend,
+    assetRepository?: AssetRepositoryType,
   ) {
     super()
+    this.assetRepository = assetRepository || AssetRepository.getInstance()
     this.userRepository = userRepository || UserRepository.getInstance()
     this.sdpEmbeddedWallets = sdpEmbeddedWallets || SDPEmbeddedWallets.getInstance()
     this.sorobanService = sorobanService || SorobanService.getInstance()
@@ -69,9 +74,12 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
 
     // Check if user already has a wallet
     if (user.contractAddress) {
+      // Get asset contract address
+      const asset = await this.assetRepository.getAssetByType('native') // Stellar/XLM native asset
+
       // Get wallet balance
       const { simulationResponse } = await this.sorobanService.simulateContract({
-        contractId: STELLAR.TOKEN_CONTRACT.NATIVE, // TODO: get balance for another assets?
+        contractId: asset?.contractAddress || STELLAR.TOKEN_CONTRACT.NATIVE, // TODO: get balance for another assets?
         method: 'balance',
         args: [ScConvert.accountIdToScVal(user.contractAddress as string)],
       } as SimulateContract)
