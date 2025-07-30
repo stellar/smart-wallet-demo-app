@@ -3,6 +3,7 @@ import CreateWalletOptionsDocs from 'api/embedded-wallets/use-cases/create-walle
 import GenerateRecoveryLinkDocs from 'api/embedded-wallets/use-cases/generate-recovery-link/index.docs'
 import GetInvitationInfoDocs from 'api/embedded-wallets/use-cases/get-invitation-info/index.docs'
 import GetWalletDocs from 'api/embedded-wallets/use-cases/get-wallet/index.docs'
+import GetWalletHistoryDocs from 'api/embedded-wallets/use-cases/get-wallet-history/index.docs'
 import LogInDocs from 'api/embedded-wallets/use-cases/login/index.docs'
 import LogInOptionsDocs from 'api/embedded-wallets/use-cases/login-options/index.docs'
 import RecoverWalletDocs from 'api/embedded-wallets/use-cases/recover-wallet/index.docs'
@@ -12,6 +13,9 @@ import ValidateRecoveryLinkDocs from 'api/embedded-wallets/use-cases/validate-re
 export default {
   '/api/embedded-wallets': {
     ...GetWalletDocs,
+  },
+  '/api/embedded-wallets/tx-history': {
+    ...GetWalletHistoryDocs,
   },
   '/api/embedded-wallets/invitation-info/{token}': {
     ...GetInvitationInfoDocs,
