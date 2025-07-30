@@ -18,7 +18,6 @@ import { AuthEntrySignerHelper } from './helpers/auth-entry-signer'
 import { ERRORS } from './helpers/errors'
 import { ScConvert } from './helpers/sc-convert'
 import {
-  CallContract,
   ContractSigner,
   GenerateWebAuthnChallengeFromContract,
   ISorobanService,
@@ -43,7 +42,7 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
     this.networkPassphrase = STELLAR.NETWORK_PASSPHRASE
     this.timeoutInSeconds = 60
     this.fee = STELLAR.MAX_FEE
-    this.sourceAccountKP = Keypair.fromSecret(STELLAR.SOURCE_ACCOUNT.PRIVATE_KEY) // TODO: get account KP data with passkey
+    this.sourceAccountKP = Keypair.fromSecret(STELLAR.SOURCE_ACCOUNT.PRIVATE_KEY)
   }
 
   /**
@@ -105,6 +104,12 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
    * @returns A Promise that resolves to the signed transaction.
    */
   public async signAuthEntries({ authEntries, signers, contractId, tx }: SignAuthEntries): Promise<Transaction> {
+    this.logInfo('input', 'signAuthEntries', {
+      authEntries,
+      signers,
+      contractId,
+      tx,
+    })
     const signedEntries: xdr.SorobanAuthorizationEntry[] = []
 
     // Create a Map to index signers by their addressId
@@ -114,8 +119,12 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
     }
 
     for (const entry of authEntries) {
+      // no-op if it's source account auth
+      if (entry.credentials().switch().value !== xdr.SorobanCredentialsType.sorobanCredentialsAddress().value) continue
+
       const entryAddress = ScConvert.sorobanEntryAddressFromScAddress(entry.credentials().address().address())
       const signer = signerMap.get(entryAddress.id)
+
       if (signer) {
         signedEntries.push(
           await this.signAuthEntry({
@@ -139,6 +148,9 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
       )
       .build()
 
+    this.logInfo('result', 'signAuthEntries', {
+      clonedTx,
+    })
     return clonedTx
   }
 
@@ -171,6 +183,7 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
       // Initialize the contract
       const tokenContract = new Contract(contractId)
       const contractCallOp = tokenContract.call(method, ...args)
+      contractCallOp.sourceAccount(xdr.MuxedAccount.keyTypeEd25519(this.sourceAccountKP.rawPublicKey()))
 
       // Build the transaction
       const tx = new TransactionBuilder(sourceAcc, { fee: this.fee })
@@ -181,7 +194,7 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
 
       const simulationResponse = await this.rpcClient.simulateTransaction(tx)
       if (!rpc.Api.isSimulationSuccess(simulationResponse)) {
-        throw new Error(`${ERRORS.TX_SIM_FAILED} (simulation 1): ${simulationResponse}`)
+        throw new Error(`${ERRORS.TX_SIM_FAILED}: ${simulationResponse}`)
       }
 
       const authEntries: xdr.SorobanAuthorizationEntry[] = simulationResponse.result?.auth ?? []
@@ -232,11 +245,6 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
     entry: xdr.SorobanAuthorizationEntry
     validUntilLedgerSeq?: number
   }> {
-    // no-op if it's source account auth
-    if (entry.credentials().switch().value !== xdr.SorobanCredentialsType.sorobanCredentialsAddress().value) {
-      return { entry }
-    }
-
     // Ensure the signer is authorized to sign the entry
     const entryAddress = ScConvert.sorobanEntryAddressFromScAddress(entry.credentials().address().address())
     if (signer.addressId !== entryAddress.id) {
@@ -289,6 +297,7 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
       // Initialize the contract
       const tokenContract = new Contract(contractId)
       const contractCallOp = tokenContract.call(method, ...args)
+      contractCallOp.sourceAccount(xdr.MuxedAccount.keyTypeEd25519(this.sourceAccountKP.rawPublicKey()))
 
       // Build the transaction
       let tx = new TransactionBuilder(sourceAcc, { fee: this.fee })
@@ -331,24 +340,6 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
       this.logError('simulateContract', { error })
       throw error
     }
-  }
-
-  /**
-   * Calls a Soroban contract method.
-   * @param tx - The transaction to submit.
-   * @param simulationResponse - The simulation response for the transaction.
-   * @returns A Promise that resolves to the transaction response.
-   */
-  public async callContract({
-    tx,
-    simulationResponse,
-  }: CallContract): Promise<rpc.Api.GetSuccessfulTransactionResponse> {
-    // Assemble, build and sign the transaction
-    const preparedTransaction = rpc.assembleTransaction(tx, simulationResponse)
-    tx = preparedTransaction.build()
-    tx.sign(this.sourceAccountKP)
-
-    return this.sendTransaction(tx)
   }
 
   /**

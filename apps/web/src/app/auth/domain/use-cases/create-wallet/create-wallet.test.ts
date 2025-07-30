@@ -5,7 +5,12 @@ import { WebAuthnCreatePasskeyResult } from 'src/app/auth/services/webauthn/type
 import { CreateWalletUseCase } from './index'
 
 const mockPostRegisterResult = {
-  data: { token: 'mock-token', success: true },
+  // Mocked token with email field (your@email.com)
+  data: {
+    token:
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJ5b3VyQGVtYWlsLmNvbSIsImlhdCI6MTUxNjIzOTAyMn0.ejDGXXyQ2cEpHOlxs_MhKP3fFWtu7TKg7VkXP00koes',
+    success: true,
+  },
   message: 'Completed registration successfully',
 }
 

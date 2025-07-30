@@ -20,6 +20,7 @@
   "recoverSubtitle": "Enter your email, and we'll send you a link to regain access to your wallet.",
   "recoverEmailInputPlaceholder": "Enter email address",
   "sendResetLink": "Send Reset Link",
+  "resetLinkSent": "Email Sent! If your email is registered in the app, you'll receive a link soon.",
   "recoverConfirmTitle": "Create a new Passkey",
   "recoverConfirmSubtitle": "Secure your wallet with your device — Touch ID, Face ID, or PIN. Simple, private, and safe.",
   "createAPasskey": "Create a passkey",

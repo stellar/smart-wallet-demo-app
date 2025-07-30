@@ -1,4 +1,4 @@
-import { createRoute } from '@tanstack/react-router'
+import { createRoute, redirect } from '@tanstack/react-router'
 import * as yup from 'yup'
 
 import { publicRootRoute } from 'src/app/core/router/routeTree'
@@ -6,6 +6,7 @@ import { publicRootRoute } from 'src/app/core/router/routeTree'
 import { Welcome, Invite, InviteResend, Recover, RecoverConfirm, LogIn } from '../pages'
 import { AuthPagesPath } from './types'
 import { getInvitationInfoOptions } from '../queries/use-get-invitation-info'
+import { authService } from '../services'
 import { AuthRouteLoading } from './components/auth-route-loading'
 
 const welcomeRoute = createRoute({
@@ -50,10 +51,29 @@ const recoverRoute = createRoute({
   component: Recover,
 })
 
-const recoverConfirmRoute = createRoute({
+export const recoverConfirmRoute = createRoute({
   getParentRoute: () => publicRootRoute,
   path: AuthPagesPath.RECOVER_CONFIRM,
   component: RecoverConfirm,
+  pendingComponent: AuthRouteLoading,
+  validateSearch: search =>
+    yup
+      .object({
+        code: yup.string().required(),
+      })
+      .validateSync(search),
+  loaderDeps: ({ search }) => ({
+    code: search.code,
+  }),
+  loader: async ({ deps }) => {
+    const { data } = await authService.validateRecoveryLink({ code: deps.code })
+
+    // Redirect to welcome page if recovery link is not valid
+    if (!data.is_valid)
+      throw redirect({
+        to: AuthPagesPath.WELCOME,
+      })
+  },
 })
 
 export const authRoutes = [welcomeRoute, inviteRoute, inviteResendRoute, logInRoute, recoverRoute, recoverConfirmRoute]

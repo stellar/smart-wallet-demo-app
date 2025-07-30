@@ -1,12 +1,10 @@
-import * as jwt from 'jsonwebtoken'
-
 import { authService, webauthnService } from 'src/app/auth/services'
 import { IAuthService } from 'src/app/auth/services/auth/types'
 import { IWebAuthnService } from 'src/app/auth/services/webauthn/types'
-import { useAccessTokenStore, useEmailStore } from 'src/app/auth/store'
 import { UseCaseBase } from 'src/app/core/framework/use-case/base'
 
 import { LogInInput } from './types'
+import { storeSessionInfo } from '../../helpers'
 
 export class LogInUseCase extends UseCaseBase<void> {
   private authService: IAuthService
@@ -36,12 +34,8 @@ export class LogInUseCase extends UseCaseBase<void> {
       authenticationResponseJSON: JSON.stringify(authenticateWithPasskeyResponse),
     })
 
-    const accessToken = logInResult.token
-    const decodedToken = jwt.decode(accessToken) as jwt.JwtPayload
     // Store access token for future requests
-    useAccessTokenStore.getState().setAccessToken(accessToken)
-    // Store email to prefill email input
-    useEmailStore.getState().setEmail(decodedToken.email)
+    storeSessionInfo(logInResult.token)
   }
 }
 

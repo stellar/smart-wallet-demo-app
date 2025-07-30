@@ -69,6 +69,5 @@ export interface ISorobanService {
     signer,
   }: GenerateWebAuthnChallengeFromContract): Promise<string>
   simulateContract({ contractId, method, args, signers }: SimulateContract): Promise<SimulationResult>
-  callContract({ tx, simulationResponse }: CallContract): Promise<rpc.Api.GetSuccessfulTransactionResponse>
   sendTransaction(tx: Transaction | FeeBumpTransaction | string): Promise<rpc.Api.GetSuccessfulTransactionResponse>
 }

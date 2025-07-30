@@ -5,10 +5,11 @@ import { Typography, TypographyVariant, TypographyWeight } from 'src/components/
 import { c } from 'src/interfaces/cms/useContent'
 
 type Props = {
+  isRecoveringWallet: boolean
   onCreatePasskey: () => void
 }
 
-export const RecoverConfirmTemplate = ({ onCreatePasskey }: Props) => {
+export const RecoverConfirmTemplate = ({ isRecoveringWallet, onCreatePasskey }: Props) => {
   return (
     <div>
       <OnboardingBackgroundImage className="bg-[95%]" />
@@ -23,7 +24,14 @@ export const RecoverConfirmTemplate = ({ onCreatePasskey }: Props) => {
           </Text>
 
           <div className="mt-3">
-            <Button onClick={onCreatePasskey} size="lg" variant="tertiary" isRounded isFullWidth>
+            <Button
+              isLoading={isRecoveringWallet}
+              onClick={onCreatePasskey}
+              size="lg"
+              variant="tertiary"
+              isRounded
+              isFullWidth
+            >
               {c('createAPasskey')}
             </Button>
           </div>

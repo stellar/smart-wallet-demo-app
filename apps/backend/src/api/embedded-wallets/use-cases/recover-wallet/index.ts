@@ -1,4 +1,4 @@
-import { Keypair, nativeToScVal } from '@stellar/stellar-sdk'
+import { Keypair } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { OtpRepositoryType } from 'api/core/entities/otp/types'
@@ -15,6 +15,7 @@ import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { generateToken } from 'interfaces/jwt'
 import SorobanService from 'interfaces/soroban'
+import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
 import { ContractSigner, ISorobanService } from 'interfaces/soroban/types'
 import WalletBackend from 'interfaces/wallet-backend'
 import { WalletBackendType } from 'interfaces/wallet-backend/types'
@@ -42,7 +43,7 @@ export class RecoverWallet extends UseCaseBase implements IUseCaseHttp<ResponseS
     this.webauthnRegistrationHelper = webauthnRegistrationHelper || WebAuthnRegistration.getInstance()
     this.sorobanService = sorobanService || SorobanService.getInstance()
     this.walletBackend = walletBackend || WalletBackend.getInstance()
-    this.recoverySigner = recoverySigner || Keypair.fromSecret(getValueFromEnv('RECOVERY_SIGNER'))
+    this.recoverySigner = recoverySigner || Keypair.fromSecret(getValueFromEnv('RECOVERY_SIGNER_PRIVATE_KEY'))
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
@@ -75,11 +76,7 @@ export class RecoverWallet extends UseCaseBase implements IUseCaseHttp<ResponseS
     if (!challengeResult) throw new UnauthorizedException(`User authentication failed`)
 
     // Map new signer public key as Stellar value
-    const newSignerPublicKey = nativeToScVal(
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      Uint8Array.from(challengeResult.passkey.credentialHexPublicKey.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16))),
-      { type: 'bytes' }
-    )
+    const newSignerPublicKey = ScConvert.hexPublicKeyToScVal(challengeResult.passkey.credentialHexPublicKey)
 
     // Prepare recovery signer
     const recoverySigner: ContractSigner = {

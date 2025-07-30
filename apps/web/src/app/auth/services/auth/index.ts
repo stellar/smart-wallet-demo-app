@@ -12,6 +12,14 @@ import {
   GetLogInOptionsResult,
   PostLogInInput,
   PostLogInResult,
+  SendRecoveryLinkInput,
+  SendRecoveryLinkResult,
+  ValidateRecoveryLinkInput,
+  ValidateRecoveryLinkResult,
+  GetRecoverWalletOptionsInput,
+  GetRecoverWalletOptionsResult,
+  PostRecoverWalletInput,
+  PostRecoverWalletResult,
 } from './types'
 
 export class AuthService implements IAuthService {
@@ -56,6 +64,45 @@ export class AuthService implements IAuthService {
     const response = await http.post(`/api/embedded-wallets/login/complete`, {
       email,
       authentication_response_json: authenticationResponseJSON,
+    })
+
+    return response.data
+  }
+
+  async sendRecoveryLink(input: SendRecoveryLinkInput): Promise<SendRecoveryLinkResult> {
+    const { email } = input
+
+    const response = await http.post(`/api/embedded-wallets/send-recovery-link`, {
+      email,
+    })
+
+    return response.data
+  }
+
+  async validateRecoveryLink(input: ValidateRecoveryLinkInput): Promise<ValidateRecoveryLinkResult> {
+    const { code } = input
+
+    const response = await http.post(`/api/embedded-wallets/validate-recovery-link`, {
+      code,
+    })
+
+    return response.data
+  }
+
+  async getRecoverWalletOptions(input: GetRecoverWalletOptionsInput): Promise<GetRecoverWalletOptionsResult> {
+    const { code } = input
+
+    const response = await http.get(`/api/embedded-wallets/recover/options/${code}`)
+
+    return response.data
+  }
+
+  async postRecoverWallet(input: PostRecoverWalletInput): Promise<PostRecoverWalletResult> {
+    const { code, registrationResponseJSON } = input
+
+    const response = await http.post(`/api/embedded-wallets/recover/complete`, {
+      code,
+      registration_response_json: registrationResponseJSON,
     })
 
     return response.data
