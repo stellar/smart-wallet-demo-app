@@ -39,7 +39,12 @@ const truncateHash = (hash: string) => {
 const createTransactionModalContent = (transaction: Transaction) => (
   <div className="flex flex-col gap-4">
     {/* Close Button - Positioned outside modal */}
-    <NavigateButton className="absolute -top-10 right-0 bg-black/30 rounded-full" type="close" variant="ghost" onClick={() => modalService.close()} />
+    <NavigateButton
+      className="absolute -top-10 right-0 bg-black/30 rounded-full"
+      type="close"
+      variant="ghost"
+      onClick={() => modalService.close()}
+    />
 
     {/* Top Section with Date, Type, and Amount */}
     <div className="pt-4 pb-4">
