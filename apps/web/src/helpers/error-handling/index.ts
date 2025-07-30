@@ -1,6 +1,7 @@
+import { WebAuthnError } from '@simplewebauthn/browser'
 import { AxiosError } from 'axios'
 
-import Logger from 'src/app/core/services/logger'
+import logger from 'src/app/core/services/logger'
 import { Toast } from 'src/app/core/services/toast'
 
 import BaseError, { ErrorSeverity } from './base-error'
@@ -26,9 +27,12 @@ export class ErrorHandling {
     }
   }
 
-  private static httpAxiosErrorHandler(error: AxiosError, context?: string): void {
-    const message = 'Http Axios Error'
-    Logger.error(message, error.code, error.name, error.message, error.request, error.response, error.config)
+  private static httpAxiosErrorHandler(
+    error: AxiosError<{ details?: string; message?: string }>,
+    context?: string
+  ): void {
+    const message = error.response?.data.details || error.response?.data.message || 'Unknown Server Error'
+    logger.error(message, { error })
 
     ErrorHandling.catchError({
       message,
@@ -40,7 +44,7 @@ export class ErrorHandling {
 
   private static unexpectedErrorHandler(error: unknown, context?: string): void {
     const message = 'Unexpected Error'
-    Logger.error(message, error, context)
+    logger.error(message, { error })
 
     ErrorHandling.catchError({
       message,
@@ -51,8 +55,19 @@ export class ErrorHandling {
   }
 
   private static baseErrorHandler(error: BaseError): void {
-    const message = 'Base Error'
-    Logger.error(message, error)
+    const message = error.message
+    logger.error(message, { error })
+
+    ErrorHandling.catchError({
+      message,
+      error,
+      severity: ErrorSeverity.ERROR,
+    })
+  }
+
+  private static webauthnErrorHandler(error: WebAuthnError): void {
+    const message = error.message
+    logger.error(message, { error })
 
     ErrorHandling.catchError({
       message,
@@ -68,6 +83,10 @@ export class ErrorHandling {
 
     if (error instanceof BaseError) {
       return ErrorHandling.baseErrorHandler(error)
+    }
+
+    if (error instanceof WebAuthnError) {
+      return ErrorHandling.webauthnErrorHandler(error)
     }
 
     return ErrorHandling.unexpectedErrorHandler(error, context)

@@ -2,6 +2,8 @@ import { Html5Qrcode } from 'html5-qrcode'
 import { Html5QrcodeError, Html5QrcodeResult } from 'html5-qrcode/esm/core'
 
 import logger from 'src/app/core/services/logger'
+import { ErrorHandling } from 'src/helpers/error-handling'
+import BaseError from 'src/helpers/error-handling/base-error'
 
 class QrScanner {
   private scanner: Html5Qrcode | null = null
@@ -22,10 +24,15 @@ class QrScanner {
         { facingMode: 'environment' },
         { fps: 10, qrbox: { width: window.innerWidth, height: window.innerHeight } },
         onScan,
-        onError
+        (errorMessage, error) => {
+          logger.error(`${this.constructor.name} | ${errorMessage}`, error)
+          ErrorHandling.handleError({ error: new BaseError(errorMessage) })
+          onError?.(errorMessage, error)
+        }
       )
     } catch (error) {
       logger.error(`${this.constructor.name}.start | Failed`, error)
+      ErrorHandling.handleError({ error: new BaseError('Failed to start scanner') })
     }
   }
 
@@ -36,6 +43,7 @@ class QrScanner {
         this.scanner.clear()
       } catch (error) {
         logger.error(`${this.constructor.name}.stop | Failed`, error)
+        ErrorHandling.handleError({ error: new BaseError('Failed to stop scanner') })
       }
     }
   }

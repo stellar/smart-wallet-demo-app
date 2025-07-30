@@ -7,6 +7,7 @@ import WebAuthnRegistration from 'api/core/helpers/webauthn/registration'
 import { IWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/types'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { messages } from 'api/embedded-wallets/constants/messages'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
@@ -35,7 +36,7 @@ export class CreateWalletOptions extends UseCaseBase implements IUseCaseHttp<Res
 
     const user = await this.userRepository.getUserByEmail(email, { relations: ['passkeys'] })
     if (!user) {
-      throw new ResourceNotFoundException(`User with email ${email} not found`)
+      throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
     }
 
     const optionsJSON = await this.webauthnRegistrationHelper.generateOptions({

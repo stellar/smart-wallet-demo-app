@@ -1,11 +1,10 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
 import { useNavigate, useCanGoBack, useRouter } from '@tanstack/react-router'
 
 import { AuthPagesPath } from 'src/app/auth/routes/types'
 import { useAccessTokenStore, useEmailStore } from 'src/app/auth/store'
 
 import { ProfileTemplate } from './template'
-import { getWallet } from '../../queries/use-get-wallet'
+import { useGetWallet } from '../../queries/use-get-wallet'
 import { WalletPagesPath } from '../../routes/types'
 
 export const Profile = () => {
@@ -15,12 +14,12 @@ export const Profile = () => {
   const canGoBack = useCanGoBack()
   const router = useRouter()
 
-  // Get wallet data using suspense query
-  const walletData = useSuspenseQuery(getWallet())
+  // Get wallet data from query
+  const { data: walletData, isPending: isLoadingProfile } = useGetWallet()
 
   // Extract data from the API response
-  const email = walletData.data.data.email || ''
-  const fullWalletAddress = walletData.data.data.address || ''
+  const email = walletData?.data.email || ''
+  const fullWalletAddress = walletData?.data.address || ''
 
   const handleGoBack = () => {
     if (canGoBack) router.history.back()
@@ -34,14 +33,9 @@ export const Profile = () => {
     clearEmail()
   }
 
-  // Validate required data
-  if (!email || !fullWalletAddress) {
-    // TODO: Handle missing data - could redirect to login or show error
-    return null
-  }
-
   return (
     <ProfileTemplate
+      isLoadingProfile={isLoadingProfile}
       email={email}
       walletAddress={fullWalletAddress}
       onSignOut={handleSignOut}

@@ -7,6 +7,7 @@ import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { sleepInSeconds } from 'api/core/utils/sleep'
+import { messages } from 'api/embedded-wallets/constants/messages'
 import { STELLAR } from 'config/stellar'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
@@ -43,7 +44,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
     const payload = { id: request.userData?.userId } as RequestSchemaT
     if (!payload.id) {
-      throw new UnauthorizedException('Not authorized')
+      throw new UnauthorizedException(messages.NOT_AUTHORIZED)
     }
     const result = await this.handle(payload)
     return response.status(HttpStatusCodes.OK).json(result)
@@ -64,7 +65,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     // Check if user exists (should not be necessary, but added for safety)
     let user = await this.userRepository.getUserById(validatedData.id)
     if (!user) {
-      throw new ResourceNotFoundException(`User with id ${validatedData.id} not found`)
+      throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_ID)
     }
 
     // Check if user already has a wallet

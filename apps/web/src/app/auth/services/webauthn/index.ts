@@ -35,22 +35,17 @@ export class WebAuthnService implements IWebAuthnService {
    * If the registration fails, the promise will be rejected with an error.
    */
   async createPasskey(input: WebAuthnCreatePasskeyInput): Promise<WebAuthnCreatePasskeyResult> {
-    try {
-      logger.debug(`${this.constructor.name}.createPasskey | Input`, input)
+    logger.debug(`${this.constructor.name}.createPasskey | Input`, input)
 
-      const rawResponse = await this.webAuthnClient.startRegistration({ optionsJSON: input.optionsJSON })
+    const rawResponse = await this.webAuthnClient.startRegistration({ optionsJSON: input.optionsJSON })
 
-      const result = {
-        rawResponse,
-        credentialId: rawResponse.id,
-      }
-
-      logger.debug(`${this.constructor.name}.createPasskey | Result`, result)
-      return result
-    } catch (error) {
-      logger.error(`${this.constructor.name}.createPasskey | Failed`, error)
-      throw new Error('Failed to create passkey')
+    const result = {
+      rawResponse,
+      credentialId: rawResponse.id,
     }
+
+    logger.debug(`${this.constructor.name}.createPasskey | Result`, result)
+    return result
   }
 
   /**
@@ -65,24 +60,19 @@ export class WebAuthnService implements IWebAuthnService {
   async authenticateWithPasskey(
     input: WebAuthnAuthenticateWithPasskeyInput
   ): Promise<WebAuthnAuthenticateWithPasskeyResult> {
-    try {
-      logger.debug(`${this.constructor.name}.authenticateWithPasskey | Input`, input)
+    logger.debug(`${this.constructor.name}.authenticateWithPasskey | Input`, input)
 
-      const rawResponse = await startAuthentication({ optionsJSON: input.optionsJSON })
+    const rawResponse = await startAuthentication({ optionsJSON: input.optionsJSON })
 
-      const result = {
-        rawResponse,
-        clientDataJSON: rawResponse.response.clientDataJSON,
-        authenticatorData: rawResponse.response.authenticatorData,
-        signatureDER: base64url.toBuffer(rawResponse.response.signature),
-      }
-
-      logger.debug(`${this.constructor.name}.authenticateWithPasskey | Result`, result)
-      return result
-    } catch (error) {
-      logger.error(`${this.constructor.name}.authenticateWithPasskey | Failed`, error)
-      throw new Error('Failed to authenticate with passkey')
+    const result = {
+      rawResponse,
+      clientDataJSON: rawResponse.response.clientDataJSON,
+      authenticatorData: rawResponse.response.authenticatorData,
+      signatureDER: base64url.toBuffer(rawResponse.response.signature),
     }
+
+    logger.debug(`${this.constructor.name}.authenticateWithPasskey | Result`, result)
+    return result
   }
 }
 

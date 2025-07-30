@@ -11,6 +11,7 @@ import AssetRepository from 'api/core/services/asset'
 import UserRepository from 'api/core/services/user'
 import VendorRepository from 'api/core/services/vendor'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { messages } from 'api/embedded-wallets/constants/messages'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import WalletBackend from 'interfaces/wallet-backend'
@@ -41,7 +42,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
     const payload = { id: request.userData?.userId } as RequestSchemaT
     if (!payload.id) {
-      throw new UnauthorizedException('Not authorized')
+      throw new UnauthorizedException(messages.NOT_AUTHORIZED)
     }
     const result = await this.handle(payload)
     return response.status(HttpStatusCodes.OK).json(result)
@@ -62,7 +63,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
     // Check if user exists (should not be necessary, but added for safety)
     const user = await this.userRepository.getUserById(validatedData.id)
     if (!user) {
-      throw new ResourceNotFoundException(`User with id ${validatedData.id} not found`)
+      throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_ID)
     }
 
     // Fetch tx history from wallet backend service

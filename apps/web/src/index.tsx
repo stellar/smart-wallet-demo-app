@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 
 import 'react-toastify/dist/ReactToastify.min.css'
 import '@stellar/design-system/build/styles.min.css'
+import 'react-loading-skeleton/dist/skeleton.css'
 
 import App from 'src/app/core/App'
 

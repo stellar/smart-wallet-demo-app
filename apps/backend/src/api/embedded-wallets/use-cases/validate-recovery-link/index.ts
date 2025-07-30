@@ -5,6 +5,7 @@ import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import OtpRepository from 'api/core/services/otp'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { messages } from 'api/embedded-wallets/constants/messages'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
@@ -34,7 +35,7 @@ export class ValidateRecoveryLink extends UseCaseBase implements IUseCaseHttp<Re
     // Check if OTP exists
     const otp = await this.otpRepository.getOtpByCode(requestBody.code)
     if (!otp) {
-      throw new ResourceNotFoundException(`OTP with code ${requestBody.code} not found`)
+      throw new ResourceNotFoundException(messages.RECOVERY_LINK_PROVIDED_NOT_FOUND)
     }
 
     return {

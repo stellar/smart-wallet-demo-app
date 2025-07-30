@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { toast, ToastContainer, ToastOptions } from 'react-toastify'
+import { Slide, toast, ToastContainer, ToastOptions } from 'react-toastify'
 
 export interface NotifyParams {
   message: string
@@ -7,10 +7,10 @@ export interface NotifyParams {
   options?: ToastOptions
 }
 
-const AUTO_CLOSE_TIME = 3000
+const AUTO_CLOSE_TIME = 4000
 
 const toastOptions: ToastOptions = {
-  hideProgressBar: false,
+  hideProgressBar: true,
   closeOnClick: true,
   pauseOnHover: true,
   draggable: true,
@@ -41,16 +41,20 @@ export class Toast {
   static Provider(): React.JSX.Element {
     return (
       <ToastContainer
-        position="top-right"
+        transition={Slide}
+        position="top-center"
         autoClose={AUTO_CLOSE_TIME}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
+        hideProgressBar={true}
+        newestOnTop={true}
         rtl={false}
+        closeOnClick
         pauseOnFocusLoss
         draggable
         pauseOnHover
         theme="light"
+        toastClassName="mt-6 mx-6 !bg-backgroundSecondary !text-text !shadow-lg !rounded-lg border border-gray-200"
+        bodyClassName="text-sm font-sans font-medium"
+        closeButton={false}
       />
     )
   }

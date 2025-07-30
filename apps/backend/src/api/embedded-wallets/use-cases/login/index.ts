@@ -7,6 +7,7 @@ import WebAuthnAuthentication from 'api/core/helpers/webauthn/authentication'
 import { IWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/types'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { messages } from 'api/embedded-wallets/constants/messages'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { generateToken } from 'interfaces/jwt'
@@ -40,7 +41,7 @@ export class LogIn extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> 
     // Check if user exists
     const user = await this.userRepository.getUserByEmail(requestBody.email, { relations: ['passkeys'] })
     if (!user) {
-      throw new ResourceNotFoundException(`User with email ${requestBody.email} not found`)
+      throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
     }
 
     // Check auth challenge resolution
@@ -49,7 +50,7 @@ export class LogIn extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> 
       authenticationResponseJSON: requestBody.authentication_response_json,
     })
 
-    if (!challengeResult) throw new UnauthorizedException(`User authentication failed`)
+    if (!challengeResult) throw new UnauthorizedException(messages.UNABLE_TO_COMPLETE_PASSKEY_AUTHENTICATION)
 
     // Generate JWT token
     const authToken = generateToken(user.userId, user.email)
