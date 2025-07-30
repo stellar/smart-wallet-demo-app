@@ -72,7 +72,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
 
     for (const tx of walletHistory.account?.transactions ?? []) {
       if (tx.operations[0].stateChanges.length === 0) {
-        continue // Skip transactions with no transfers (like contract creation, etc.)
+        continue // Skip non-transfer transactions (like contract creation, etc.)
       }
 
       // Fetch asset details using the tokenId from the transaction
