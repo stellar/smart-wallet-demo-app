@@ -35,7 +35,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     sdpEmbeddedWallets?: SDPEmbeddedWalletsType,
     sorobanService?: ISorobanService,
     walletBackend?: WalletBackend,
-    assetRepository?: AssetRepositoryType,
+    assetRepository?: AssetRepositoryType
   ) {
     super()
     this.assetRepository = assetRepository || AssetRepository.getInstance()
