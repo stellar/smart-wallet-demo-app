@@ -3,6 +3,7 @@ import { IHTTPResponse } from 'src/interfaces/http/types'
 
 export interface IWalletService {
   getWallet: () => Promise<GetWalletResult>
+  getTransactionHistory: () => Promise<GetTransactionHistoryResult>
 }
 
 export type GetWalletResult = IHTTPResponse<{
@@ -10,4 +11,18 @@ export type GetWalletResult = IHTTPResponse<{
   address?: string
   email?: string
   balance?: string
+}>
+
+export interface Transaction {
+  hash: string
+  type: string
+  vendor: string
+  amount: string
+  asset: string
+  date: string
+}
+
+export type GetTransactionHistoryResult = IHTTPResponse<{
+  address: string
+  transactions: Transaction[]
 }>

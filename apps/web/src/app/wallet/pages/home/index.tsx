@@ -12,6 +12,8 @@ export const Home = () => {
   const handleNavbarButtonClick = (item: 'nft' | 'history' | 'profile') => {
     if (item === 'profile') {
       navigate({ to: WalletPagesPath.PROFILE })
+    } else if (item === 'history') {
+      navigate({ to: WalletPagesPath.TRANSACTIONS })
     } else {
       // Not implemented for other items
       throw new Error('Function not implemented.')

@@ -5,20 +5,21 @@ import { useEffect, useRef } from 'react'
 import { NavigateButton } from '../navigate-button'
 
 export type ModalProps = {
-  title: {
+  title?: {
     text: string
     image?: {
       source?: string | React.ReactNode | 'blank-space'
       variant?: 'sm' | 'md' | 'lg'
     }
   }
-  description: string
+  description?: string
   backgroundImageUri?: string
-  button: React.ComponentProps<typeof Button>
+  button?: React.ComponentProps<typeof Button>
   onClose?: () => void
+  children?: React.ReactNode
 }
 
-export const Modal: React.FC<ModalProps> = ({ title, description, backgroundImageUri, button, onClose }) => {
+export const Modal: React.FC<ModalProps> = ({ title, description, backgroundImageUri, button, onClose, children }) => {
   const modalRef = useRef<HTMLDivElement>(null)
 
   const imageSizeMap = {
@@ -47,7 +48,9 @@ export const Modal: React.FC<ModalProps> = ({ title, description, backgroundImag
     }
   }
 
-  const renderImage = (image: Exclude<ModalProps['title']['image'], undefined>) => {
+  const renderImage = (image: NonNullable<ModalProps['title']>['image']) => {
+    if (!image) return null
+
     if (image.source === 'blank-space') {
       return <div className={imageSizeMap[image.variant ?? 'md']} />
     }
@@ -73,41 +76,50 @@ export const Modal: React.FC<ModalProps> = ({ title, description, backgroundImag
     >
       <div
         ref={modalRef}
-        className={clsx(
-          'relative w-full mx-4 max-w-md p-6 rounded-2xl shadow-xl bg-backgroundSecondary overflow-hidden'
-        )}
-        style={{
-          backgroundImage: backgroundImageUri ? `url(${backgroundImageUri})` : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'top',
-        }}
+        className="relative w-full mx-4 max-w-md rounded-2xl shadow-xl p-6"
+        style={
+          backgroundImageUri
+            ? {
+                backgroundImage: `url(${backgroundImageUri})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'top',
+              }
+            : undefined
+        }
       >
-        {/* Close Button */}
-        <NavigateButton className="absolute top-4 right-4" type="close" variant="ghost" onClick={onClose} />
+        {children || (
+          <div className="flex flex-col gap-4">
+            {/* Close Button */}
+            <NavigateButton className="absolute top-4 right-4" type="close" variant="ghost" onClick={onClose} />
+            {/* Image */}
+            {title?.image && <div className="flex justify-center">{renderImage(title.image)}</div>}
 
-        <div className="flex flex-col gap-4">
-          {/* Image */}
-          {title.image && <div className="flex justify-center">{renderImage(title.image)}</div>}
+            <div className="flex flex-col gap-2">
+              {/* Title */}
+              {title && (
+                <div className="text-center">
+                  <Text as="h2" size="lg" weight="bold" style={{ fontSize: '1.75rem' }}>
+                    {title.text}
+                  </Text>
+                </div>
+              )}
 
-          <div className="flex flex-col gap-2">
-            {/* Title */}
-            <div className="text-center">
-              <Text as="h2" size="lg" weight="bold" style={{ fontSize: '1.75rem' }}>
-                {title.text}
-              </Text>
+              {/* Description */}
+              {description && (
+                <Text addlClassName="text-center" as="p" size="md">
+                  {description}
+                </Text>
+              )}
             </div>
 
-            {/* Description */}
-            <Text addlClassName="text-center" as="p" size="md">
-              {description}
-            </Text>
+            {/* Action Button */}
+            {button && (
+              <div className="flex justify-center">
+                <Button {...button} />
+              </div>
+            )}
           </div>
-
-          {/* Action Button */}
-          <div className="flex justify-center">
-            <Button {...button} />
-          </div>
-        </div>
+        )}
       </div>
     </div>
   )
