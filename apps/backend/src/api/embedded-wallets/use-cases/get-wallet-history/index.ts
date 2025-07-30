@@ -68,7 +68,6 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
     // Fetch tx history from wallet backend service
     const walletHistory = await this.walletBackend.getTransactions({ address: user.contractAddress as string })
 
-    // console.log('OPERATION DATA', extractOperationData(xdr.Operation.fromXDR(walletHistory.account.transactions[0].operations[0].operationXdr, 'base64')))
 
     const transactions: TransactionSchemaT[] = []
 
