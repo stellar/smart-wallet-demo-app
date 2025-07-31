@@ -17,7 +17,7 @@ import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
 import WalletBackend from 'interfaces/wallet-backend'
 
-import { TransactionSchemaT, ParseSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT, FunctionArg } from './types'
+import { TransactionSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT, FunctionArg } from './types'
 
 const endpoint = '/tx-history'
 
@@ -49,7 +49,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
     return response.status(HttpStatusCodes.OK).json(result)
   }
 
-  parseResponse(response: ParseSchemaT): ResponseSchemaT {
+  parseResponse(response: ResponseSchemaT['data']): ResponseSchemaT {
     return {
       data: {
         ...response,
@@ -67,8 +67,11 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_ID)
     }
 
+    // Return empty array if user does not have a wallet
+    if (!user.contractAddress) return this.parseResponse({ transactions: [] })
+
     // Fetch tx history from wallet backend service
-    const walletHistory = await this.walletBackend.getTransactions({ address: user.contractAddress as string })
+    const walletHistory = await this.walletBackend.getTransactions({ address: user.contractAddress })
 
     const transactions: TransactionSchemaT[] = []
 
@@ -117,8 +120,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
     }
 
     // Parse the response to match the expected schema
-    const parsedResponse: ParseSchemaT = {
-      address: walletHistory.account?.address ?? user.contractAddress,
+    const parsedResponse: ResponseSchemaT['data'] = {
       transactions: transactions,
     }
     return this.parseResponse(parsedResponse)
