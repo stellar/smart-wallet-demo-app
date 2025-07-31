@@ -7,6 +7,7 @@ import WebAuthnRegistration from 'api/core/helpers/webauthn/registration'
 import { IWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/types'
 import OtpRepository from 'api/core/services/otp'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { messages } from 'api/embedded-wallets/constants/messages'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 
@@ -36,11 +37,11 @@ export class RecoverWalletOptions extends UseCaseBase implements IUseCaseHttp<Re
 
     const otp = await this.otpRepository.getOtpByCode(code, { relations: ['user', 'user.passkeys'] })
     if (!otp) {
-      throw new ResourceNotFoundException(`OTP with code ${code} not found`)
+      throw new ResourceNotFoundException(messages.RECOVERY_LINK_PROVIDED_NOT_FOUND)
     }
 
     if (otp.expiresAt < new Date()) {
-      throw new BadRequestException(`OTP with code ${code} has expired`)
+      throw new BadRequestException(messages.RECOVERY_LINK_EXPIRED)
     }
 
     const optionsJSON = await this.webauthnRegistrationHelper.generateOptions({

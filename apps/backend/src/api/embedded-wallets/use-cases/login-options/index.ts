@@ -7,6 +7,7 @@ import WebAuthnAuthentication from 'api/core/helpers/webauthn/authentication'
 import { IWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/types'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { messages } from 'api/embedded-wallets/constants/messages'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
@@ -35,11 +36,11 @@ export class LogInOptions extends UseCaseBase implements IUseCaseHttp<ResponseSc
 
     const user = await this.userRepository.getUserByEmail(email, { relations: ['passkeys'] })
     if (!user) {
-      throw new ResourceNotFoundException(`User with email ${email} not found`)
+      throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
     }
 
     if (!user.passkeys.length) {
-      throw new ResourceNotFoundException(`User with email ${email} has no passkeys registered`)
+      throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_PASSKEYS)
     }
 
     const optionsJSON = await this.webauthnAuthenticationHelper.generateOptions({

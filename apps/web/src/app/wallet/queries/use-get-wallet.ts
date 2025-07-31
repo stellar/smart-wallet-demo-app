@@ -14,7 +14,7 @@ export const getWallet = () =>
     staleTime: 1 * 60 * 1000, // 1 minute
   })
 
-export const useGetInvitationInfo = (
+export const useGetWallet = (
   options?: Omit<UseQueryOptions<UseCaseResult, Error>, 'queryKey' | 'queryFn'>
 ): UseQueryResult<UseCaseResult, Error> => {
   return useQuery({

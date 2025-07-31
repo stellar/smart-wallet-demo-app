@@ -79,7 +79,7 @@ services:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
       VITE_THEME_SWITCH_ENABLED: ${VITE_THEME_SWITCH_ENABLED:-false}
     volumes:
-      - ./:/app
+      - './:/app'
       - 'web-root-node-modules:/app/node_modules'
       - 'web-node-modules:/app/apps/web/node_modules'
     ports:

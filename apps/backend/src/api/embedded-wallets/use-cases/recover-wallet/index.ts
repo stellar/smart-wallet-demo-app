@@ -9,6 +9,7 @@ import WebAuthnRegistration from 'api/core/helpers/webauthn/registration'
 import { IWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/types'
 import OtpRepository from 'api/core/services/otp'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { messages } from 'api/embedded-wallets/constants/messages'
 import { getValueFromEnv } from 'config/env-utils'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
@@ -61,11 +62,10 @@ export class RecoverWallet extends UseCaseBase implements IUseCaseHttp<ResponseS
     // Check if OTP exists
     const otp = await this.otpRepository.getOtpByCode(requestBody.code, { relations: ['user', 'user.passkeys'] })
     if (!otp) {
-      throw new ResourceNotFoundException(`OTP with code ${requestBody.code} not found`)
+      throw new ResourceNotFoundException(messages.RECOVERY_LINK_PROVIDED_NOT_FOUND)
     }
 
-    if (!otp.user.contractAddress)
-      throw new BadRequestException(`User with email ${otp.user.email} does not have a wallet`)
+    if (!otp.user.contractAddress) throw new BadRequestException(messages.USER_DOES_NOT_HAVE_WALLET)
 
     // Check auth challenge resolution
     const challengeResult = await this.webauthnRegistrationHelper.complete({
@@ -73,7 +73,7 @@ export class RecoverWallet extends UseCaseBase implements IUseCaseHttp<ResponseS
       registrationResponseJSON: requestBody.registration_response_json,
     })
 
-    if (!challengeResult) throw new UnauthorizedException(`User authentication failed`)
+    if (!challengeResult) throw new UnauthorizedException(messages.UNABLE_TO_COMPLETE_PASSKEY_REGISTRATION)
 
     // Map new signer public key as Stellar value
     const newSignerPublicKey = ScConvert.hexPublicKeyToScVal(challengeResult.passkey.credentialHexPublicKey)

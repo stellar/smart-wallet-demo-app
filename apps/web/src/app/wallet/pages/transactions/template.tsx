@@ -1,4 +1,5 @@
 import { Button, Text, Icon, CopyText } from '@stellar/design-system'
+import Skeleton from 'react-loading-skeleton'
 
 import { modalService } from 'src/components/molecules/modal/provider'
 import { NavigateButton } from 'src/components/molecules/navigate-button'
@@ -9,6 +10,7 @@ import { c } from 'src/interfaces/cms/useContent'
 import { Transaction } from '../../services/wallet/types'
 
 interface TransactionsTemplateProps {
+  isLoadingTransactionHistory: boolean
   transactions: Transaction[]
   onGoBack: () => void
 }
@@ -137,8 +139,12 @@ function groupByDate(transactions: Transaction[]) {
   )
 }
 
-export const TransactionsTemplate = ({ transactions, onGoBack }: TransactionsTemplateProps) => {
-  const isEmpty = transactions.length === 0
+export const TransactionsTemplate = ({
+  isLoadingTransactionHistory,
+  transactions,
+  onGoBack,
+}: TransactionsTemplateProps) => {
+  const isEmpty = !isLoadingTransactionHistory && transactions.length === 0
   const grouped = groupByDate(transactions)
   const dateOrder = Object.keys(grouped).sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
 
@@ -149,7 +155,10 @@ export const TransactionsTemplate = ({ transactions, onGoBack }: TransactionsTem
         <Text as="h1" size="xl" className="text-xl leading-8 font-semibold">
           {c('transactionHistoryTitle')}
         </Text>
-        {isEmpty ? (
+
+        {isLoadingTransactionHistory && <Skeleton height={56} count={8} className="mb-2" />}
+
+        {isEmpty && (
           <div className="flex flex-col items-center justify-center h-96">
             <img
               src={a('transactionsHistoryEmptyList')}
@@ -163,7 +172,9 @@ export const TransactionsTemplate = ({ transactions, onGoBack }: TransactionsTem
               {c('noTransactionHistoryDescription')}
             </Text>
           </div>
-        ) : (
+        )}
+
+        {!isEmpty && (
           <div className="flex flex-col gap-6">
             {dateOrder.map(date => (
               <div key={date}>
