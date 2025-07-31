@@ -5,7 +5,12 @@ import logger from 'src/app/core/services/logger'
 import { ErrorHandling } from 'src/helpers/error-handling'
 import BaseError from 'src/helpers/error-handling/base-error'
 
-const notTrackableErrors = ['NotFoundException', 'No barcode or QR code detected', 'already under transition']
+const notTrackableErrors = [
+  'NotFoundException',
+  'No barcode or QR code detected',
+  'already under transition',
+  'No MultiFormat Readers were able to detect the code',
+]
 
 class QrScanner {
   private scanner: Html5Qrcode | null = null
