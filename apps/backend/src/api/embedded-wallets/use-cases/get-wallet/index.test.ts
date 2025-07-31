@@ -97,11 +97,10 @@ describe('GetWallet', () => {
     const result = await getWallet.handle(payload)
     expect(result.data.status).toBe(WalletStatus.SUCCESS)
     expect(result.data.address).toBe('CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE')
-    expect(result.data.balance).toBe('10000000')
+    expect(result.data.balance).toBe(10000000)
     expect(result.data.email).toBe(user.email)
     expect(mockedSDPEmbeddedWallets.checkWalletStatus).not.toHaveBeenCalled()
     expect(mockedUserRepository.updateUser).not.toHaveBeenCalled()
-    expect(mockedAssetRepository.getAssetByType).toHaveBeenCalledWith('native')
     expect(mockedSorobanService.simulateContract).toHaveBeenCalledWith({
       contractId: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
       method: 'balance',

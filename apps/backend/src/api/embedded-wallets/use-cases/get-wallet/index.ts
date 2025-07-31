@@ -76,9 +76,6 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
 
     // Check if user already has a wallet
     if (user.contractAddress) {
-      // Get asset contract address
-      const asset = await this.assetRepository.getAssetByType('native') // Stellar/XLM native asset
-
       // Get wallet balance
       const balance = await this.getWalletBalance(user.contractAddress)
 
