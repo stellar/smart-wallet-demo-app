@@ -122,7 +122,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       args: [ScConvert.accountIdToScVal(userContractAddress)],
     } as SimulateContract)
 
-    const walletBalance: number = Number(ScConvert.scValToFormatString(simulationResponse.result?.retval as xdr.ScVal))
+    const walletBalance: number = Number(ScConvert.scValToString(simulationResponse.result?.retval as xdr.ScVal))
     return walletBalance
   }
 }
