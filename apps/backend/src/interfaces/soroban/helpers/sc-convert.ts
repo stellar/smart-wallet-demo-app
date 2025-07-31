@@ -37,7 +37,10 @@ export const ScConvert = {
         }
       case xdr.ScAddressType.scAddressTypeContract():
         return {
-          id: Address.contract(scAddress.accountId().value()).toString(),
+          // Necessary rule disabled due to Stellar release candidate package version
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          id: Address.contract(scAddress.contractId()).toString(),
           type: xdr.ScAddressType.scAddressTypeContract(),
           scAddress,
         }
@@ -46,7 +49,10 @@ export const ScConvert = {
     }
   },
   contractId: (scAddress: xdr.ScAddress): string => {
-    return Address.contract(scAddress.accountId().value()).toString()
+    // Necessary rule disabled due to Stellar release candidate package version
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    return Address.contract(scAddress.contractId()).toString()
   },
   accountId: (scAddress: xdr.ScAddress): string => {
     return StrKey.encodeEd25519PublicKey(scAddress.accountId().ed25519())

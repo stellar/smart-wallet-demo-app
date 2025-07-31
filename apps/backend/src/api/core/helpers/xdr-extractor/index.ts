@@ -23,6 +23,9 @@ const extractStellarAddress = (scVal: xdr.ScVal): string | null => {
         return StrKey.encodeEd25519PublicKey(accountId.ed25519())
       } else if (address.switch().value === xdr.ScAddressType.scAddressTypeContract().value) {
         const contractId = address.contractId()
+        // Necessary rule disabled due to Stellar release candidate package version
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         return StrKey.encodeContract(contractId)
       }
       break

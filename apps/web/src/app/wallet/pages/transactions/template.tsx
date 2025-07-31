@@ -1,6 +1,7 @@
 import { Button, Text, Icon, CopyText } from '@stellar/design-system'
 import Skeleton from 'react-loading-skeleton'
 
+import { formatNumber } from 'src/app/core/utils'
 import { modalService } from 'src/components/molecules/modal/provider'
 import { NavigateButton } from 'src/components/molecules/navigate-button'
 import { SafeAreaView } from 'src/components/organisms'
@@ -27,9 +28,8 @@ const formatDate = (dateString: string) => {
   })
 }
 
-const formatAmount = (amount: string, asset: string) => {
-  const numAmount = parseFloat(amount)
-  const formattedAmount = numAmount.toLocaleString()
+const formatAmount = (amount: number, asset: string) => {
+  const formattedAmount = formatNumber(amount)
   return `${formattedAmount} ${asset}`
 }
 
@@ -211,7 +211,7 @@ export const TransactionsTemplate = ({
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-[var(--color-text)] text-right text-base leading-6">
-                          {parseFloat(tx.amount) > 0 ? '+' : ''}
+                          {tx.amount > 0 ? '+' : ''}
                           {tx.amount}
                           {tx.asset ? ` ${tx.asset}` : ''}
                         </span>
