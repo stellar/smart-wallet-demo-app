@@ -4,6 +4,8 @@ export const messages = {
   USER_NOT_FOUND_BY_ID: "We couldn't find an user with that id",
   USER_ALREADY_HAS_WALLET: 'You already have a wallet linked to your account',
   USER_DOES_NOT_HAVE_WALLET: 'You do not have a wallet linked to your account',
+  UNKNOWN_CONTRACT_ADDRESS_CREATION_ERROR:
+    'Unknown error occurred while registering your wallet. Please try again later',
   USER_DOES_NOT_HAVE_PASSKEYS: 'You do not have any passkeys registered. Try recovering your wallet',
   UNABLE_TO_COMPLETE_PASSKEY_REGISTRATION:
     "We couldn't complete your passkey registration. Try again or use a different device",

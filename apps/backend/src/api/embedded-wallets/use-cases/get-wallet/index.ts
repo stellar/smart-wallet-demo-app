@@ -9,6 +9,7 @@ import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { sleepInSeconds } from 'api/core/utils/sleep'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { STELLAR } from 'config/stellar'
+import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
@@ -71,19 +72,13 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     // Check if user already has a wallet
     if (user.contractAddress) {
       // Get wallet balance
-      const { simulationResponse } = await this.sorobanService.simulateContract({
-        contractId: STELLAR.TOKEN_CONTRACT.NATIVE, // TODO: get balance for another assets?
-        method: 'balance',
-        args: [ScConvert.accountIdToScVal(user.contractAddress as string)],
-      } as SimulateContract)
-
-      const walletBalance: string = ScConvert.scValToFormatString(simulationResponse.result?.retval as xdr.ScVal)
+      const balance = await this.getWalletBalance(user.contractAddress)
 
       return this.parseResponse({
         status: WalletStatus.SUCCESS,
         address: user.contractAddress,
         email: user.email,
-        balance: walletBalance,
+        balance,
       })
     }
 
@@ -105,11 +100,30 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       await sleepInSeconds(1)
     }
 
+    if (!user.contractAddress) {
+      throw new BadRequestException(messages.UNKNOWN_CONTRACT_ADDRESS_CREATION_ERROR)
+    }
+
+    // Get wallet balance
+    const balance = await this.getWalletBalance(user.contractAddress)
+
     return this.parseResponse({
       status: walletStatus,
       address: user.contractAddress,
       email: user.email,
+      balance,
     })
+  }
+
+  private async getWalletBalance(userContractAddress: string): Promise<number> {
+    const { simulationResponse } = await this.sorobanService.simulateContract({
+      contractId: STELLAR.TOKEN_CONTRACT.NATIVE, // TODO: get balance for another assets?
+      method: 'balance',
+      args: [ScConvert.accountIdToScVal(userContractAddress)],
+    } as SimulateContract)
+
+    const walletBalance: number = Number(ScConvert.scValToFormatString(simulationResponse.result?.retval as xdr.ScVal))
+    return walletBalance
   }
 }
 

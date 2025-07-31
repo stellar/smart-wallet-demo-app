@@ -9,6 +9,7 @@ export const Home = () => {
   const navigate = useNavigate()
 
   const getWallet = useGetWallet()
+  const walletData = getWallet.data?.data
 
   const handlePayClick = () => navigate({ to: WalletPagesPath.SCAN })
 
@@ -26,7 +27,7 @@ export const Home = () => {
   return (
     <HomeTemplate
       isLoadingBalance={getWallet.isPending}
-      balanceAmount={0}
+      balanceAmount={walletData?.balance || 0}
       onNavbarButtonClick={handleNavbarButtonClick}
       onPayClick={handlePayClick}
     />
