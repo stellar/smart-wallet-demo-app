@@ -121,8 +121,12 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
   }
 
   private async getWalletBalance(userContractAddress: string): Promise<number> {
+    // Get asset contract address from db
+    const asset = await this.assetRepository.getAssetByType('native') // Stellar/XLM native asset
+    const assetContractAddress = asset?.contractAddress ?? STELLAR.TOKEN_CONTRACT.NATIVE
+
     const { simulationResponse } = await this.sorobanService.simulateContract({
-      contractId: STELLAR.TOKEN_CONTRACT.NATIVE, // TODO: get balance for another assets?
+      contractId: assetContractAddress, // TODO: get balance for another assets?
       method: 'balance',
       args: [ScConvert.accountIdToScVal(userContractAddress)],
     } as SimulateContract)
