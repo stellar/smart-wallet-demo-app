@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { userFactory } from 'api/core/entities/user/factory'
 import { User } from 'api/core/entities/user/types'
 import { mockUserRepository } from 'api/core/services/user/mocks'
+import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
@@ -87,7 +88,7 @@ describe('GetWallet', () => {
     })
   })
 
-  it('should return pending status if wallet is not created after retries', async () => {
+  it('should throw error if checkWalletStatus returns empty contractAddress', async () => {
     mockedUserRepository.getUserById.mockResolvedValue({ ...user, contractAddress: undefined } as User)
     mockedSDPEmbeddedWallets.checkWalletStatus.mockResolvedValue({
       status: WalletStatus.PENDING,
@@ -95,23 +96,24 @@ describe('GetWallet', () => {
     } as CheckWalletStatusResponse)
 
     const payload = { id: 'user-123' }
-    const result = await getWallet.handle(payload)
-    expect(result.data.status).toBe(WalletStatus.PENDING)
-    expect(result.data.address).toBeUndefined()
+    await expect(getWallet.handle(payload)).rejects.toBeInstanceOf(BadRequestException)
     expect(mockedSDPEmbeddedWallets.checkWalletStatus).toHaveBeenCalledTimes(3)
   })
 
   it('should parse response message correctly', () => {
-    expect(getWallet.parseResponse({ status: WalletStatus.SUCCESS, address: 'wallet-address' })).toEqual({
+    expect(
+      getWallet.parseResponse({
+        status: WalletStatus.SUCCESS,
+        address: 'wallet-address',
+        balance: 123.456,
+        email: 'your@email.com',
+      })
+    ).toEqual({
       data: {
         status: WalletStatus.SUCCESS,
         address: 'wallet-address',
-      },
-      message: 'Wallet details retrieved successfully',
-    })
-    expect(getWallet.parseResponse({ status: WalletStatus.PENDING })).toEqual({
-      data: {
-        status: WalletStatus.PENDING,
+        balance: 123.456,
+        email: 'your@email.com',
       },
       message: 'Wallet details retrieved successfully',
     })
