@@ -97,7 +97,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
         hash: tx.hash,
         type: tx.operations[0].stateChanges[0].stateChangeCategory,
         vendor: vendor?.name || vendorContractAddress || 'Unknown vendor',
-        amount: tx.operations[0].stateChanges[0].amount,
+        amount: Number(tx.operations[0].stateChanges[0].amount), // Assuming amount is in the smallest unit (like stroops for XLM)
         asset: asset?.code || tx.operations[0].stateChanges[0].tokenId,
         date: tx.ledgerCreatedAt, // Assuming ledgerCreatedAt is in ISO format
       }

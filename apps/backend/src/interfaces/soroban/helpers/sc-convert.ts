@@ -13,6 +13,10 @@ export const ScConvert = {
   scValToBigInt: (scVal: xdr.ScVal): bigint => {
     return scValToBigInt(scVal)
   },
+  scValToString(scVal: xdr.ScVal): string {
+    const biVal: bigint = this.scValToBigInt(scVal).valueOf()
+    return biVal.toString()
+  },
   scValToFormatString(scVal: xdr.ScVal): string {
     const biVal: bigint = this.scValToBigInt(scVal).valueOf()
     const strVal = Big(biVal.toString()).div(1e7).toString()

@@ -12,7 +12,7 @@ export interface FunctionArg {
 export const TransactionSchema = z.object({
   hash: z.string(),
   type: z.string(),
-  amount: z.string(),
+  amount: z.number(),
   date: z.string(),
   fromAddress: z.string().optional(),
   toAddress: z.string().optional(),
