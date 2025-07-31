@@ -79,7 +79,7 @@ describe('GetWallet', () => {
     const mockScVal = xdr.ScVal.scvI128(
       new xdr.Int128Parts({
         hi: xdr.Int64.fromString('0'),
-        lo: xdr.Uint64.fromString('10000000'), // 1 XLM in stroops
+        lo: xdr.Uint64.fromString('12300000'), // 1 XLM in stroops
       })
     )
 
@@ -97,7 +97,7 @@ describe('GetWallet', () => {
     const result = await getWallet.handle(payload)
     expect(result.data.status).toBe(WalletStatus.SUCCESS)
     expect(result.data.address).toBe('CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE')
-    expect(result.data.balance).toBe(10000000)
+    expect(result.data.balance).toBe(1.23) // 1.23 XLM
     expect(result.data.email).toBe(user.email)
     expect(mockedSDPEmbeddedWallets.checkWalletStatus).not.toHaveBeenCalled()
     expect(mockedUserRepository.updateUser).not.toHaveBeenCalled()

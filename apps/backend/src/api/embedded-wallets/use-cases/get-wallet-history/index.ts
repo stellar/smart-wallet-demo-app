@@ -14,6 +14,7 @@ import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
+import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
 import WalletBackend from 'interfaces/wallet-backend'
 
 import { TransactionSchemaT, ParseSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT, FunctionArg } from './types'
@@ -97,7 +98,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
         hash: tx.hash,
         type: tx.operations[0].stateChanges[0].stateChangeCategory,
         vendor: vendor?.name || vendorContractAddress || 'Unknown vendor',
-        amount: Number(tx.operations[0].stateChanges[0].amount), // Assuming amount is in the smallest unit (like stroops for XLM)
+        amount: Number(ScConvert.stringToFormatString(tx.operations[0].stateChanges[0].amount)), // Assuming amount is in the smallest unit (like stroops for XLM)
         asset: asset?.code || tx.operations[0].stateChanges[0].tokenId,
         date: tx.ledgerCreatedAt, // Assuming ledgerCreatedAt is in ISO format
       }
