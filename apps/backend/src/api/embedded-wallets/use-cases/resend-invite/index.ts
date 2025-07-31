@@ -7,15 +7,15 @@ import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
-import { UnauthorizedException } from 'errors/exceptions/unauthorized'
+import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
 import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
-import { CheckWalletStatusResponse, SDPEmbeddedWalletsType } from 'interfaces/sdp-embedded-wallets/types'
+import { SDPEmbeddedWalletsType } from 'interfaces/sdp-embedded-wallets/types'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
-const endpoint = '/invitation-info/:token'
+const endpoint = '/resend-invite'
 
-export class GetInvitationInfo extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
+export class ResendInvite extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
   private userRepository: UserRepositoryType
   private sdpEmbeddedWallets: SDPEmbeddedWalletsType
 
@@ -26,44 +26,38 @@ export class GetInvitationInfo extends UseCaseBase implements IUseCaseHttp<Respo
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
-    const payload = { token: request.params?.token } as RequestSchemaT
+    const payload = request.body as RequestSchemaT
     const result = await this.handle(payload)
     return response.status(HttpStatusCodes.OK).json(result)
   }
 
   async handle(payload: RequestSchemaT) {
     const validatedData = this.validate(payload, RequestSchema)
-    const token = validatedData.token
-    let walletStatus: CheckWalletStatusResponse
+    const requestBody = {
+      ...validatedData,
+    }
 
-    // Fetch updated status from SDP
+    // Check if user already has a wallet
+    const user = await this.userRepository.getUserByEmail(requestBody.email)
+    if (user?.contractAddress) {
+      throw new ResourceConflictedException(messages.USER_ALREADY_HAS_WALLET)
+    }
+
+    // Resend invite using SDP
     try {
-      walletStatus = await this.sdpEmbeddedWallets.checkWalletStatus(token)
+      await this.sdpEmbeddedWallets.resendInvite(validatedData.email)
     } catch (error) {
-      if (axios.isAxiosError(error) && error.status === HttpStatusCodes.UNAUTHORIZED) {
-        throw new UnauthorizedException(messages.NOT_AUTHORIZED)
+      if (axios.isAxiosError(error) && error.status === HttpStatusCodes.BAD_REQUEST) {
+        throw new ResourceConflictedException(messages.RESEND_INVITE_CONFLICT)
       }
       throw error
     }
 
-    // If the user doesn't exist, create it
-    const user = await this.userRepository.getUserByToken(token)
-    if (!user) {
-      await this.userRepository.createUser(
-        {
-          uniqueToken: token,
-          email: walletStatus.receiver_contact,
-        },
-        true
-      )
-    }
-
     return {
       data: {
-        status: walletStatus.status,
-        email: walletStatus.receiver_contact,
+        email_sent: true,
       },
-      message: 'Retrieved invitation info successfully',
+      message: 'Invite resent successfully',
     }
   }
 }

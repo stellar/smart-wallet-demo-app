@@ -1,14 +1,14 @@
-import { badRequest, unauthorized } from 'api/core/utils/docs/error.docs'
+import { badRequest, conflict, notFound } from 'api/core/utils/docs/error.docs'
 import { Tags } from 'api/core/utils/docs/tags'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { zodToSchema } from 'api/core/utils/zod'
 
-import { ResponseSchema } from './types'
+import { RequestSchema, ResponseSchema } from './types'
 
 export default {
-  get: {
+  post: {
     tags: [Tags.EMBEDDED_WALLETS],
-    summary: 'Get invitation info',
+    summary: 'Resend invite',
     responses: {
       [HttpStatusCodes.OK]: {
         type: 'object',
@@ -18,18 +18,16 @@ export default {
           },
         },
       },
-      ...unauthorized,
       ...badRequest,
+      ...conflict,
+      ...notFound,
     },
-    parameters: [
-      {
-        in: 'path',
-        name: 'token',
-        required: true,
-        schema: {
-          type: 'string',
+    requestBody: {
+      content: {
+        'application/json': {
+          schema: zodToSchema(RequestSchema),
         },
       },
-    ],
+    },
   },
 }

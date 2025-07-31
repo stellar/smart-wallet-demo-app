@@ -7,5 +7,6 @@ export function mockSDPEmbeddedWallets(): Mocked<SDPEmbeddedWalletsType> {
     createWallet: vi.fn(),
     checkWalletStatus: vi.fn(),
     getContractAddress: vi.fn(),
+    resendInvite: vi.fn(),
   }
 }

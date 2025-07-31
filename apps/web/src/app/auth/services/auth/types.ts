@@ -12,6 +12,7 @@ export interface IAuthService {
   validateRecoveryLink: (input: ValidateRecoveryLinkInput) => Promise<ValidateRecoveryLinkResult>
   getRecoverWalletOptions: (input: GetRecoverWalletOptionsInput) => Promise<GetRecoverWalletOptionsResult>
   postRecoverWallet: (input: PostRecoverWalletInput) => Promise<PostRecoverWalletResult>
+  resendInviteLink: (input: ResendInviteLinkInput) => Promise<ResendInviteLinkResult>
 }
 
 export type GetInvitationInfoInput = {
@@ -79,4 +80,11 @@ export type PostRecoverWalletInput = {
 }
 export type PostRecoverWalletResult = IHTTPResponse<{
   token: string
+}>
+
+export type ResendInviteLinkInput = {
+  email: string
+}
+export type ResendInviteLinkResult = IHTTPResponse<{
+  email_sent: boolean
 }>
