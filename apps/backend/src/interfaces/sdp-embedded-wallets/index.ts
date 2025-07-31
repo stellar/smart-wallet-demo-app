@@ -3,13 +3,13 @@ import axios, { AxiosInstance } from 'axios'
 import { SingletonBase } from 'api/core/framework/singleton/interface'
 import { AxiosLogger } from 'config/axios-logger'
 import { getValueFromEnv } from 'config/env-utils'
-import { logger } from 'config/logger'
 
 import {
   CheckWalletStatusResponse,
   CreateWalletRequest,
   CreateWalletResponse,
   GetContractAddressResponse,
+  ResendInviteResponse,
   SDPEmbeddedWalletsType,
 } from './types'
 
@@ -44,40 +44,37 @@ export default class SDPEmbeddedWallets extends SingletonBase implements SDPEmbe
   public async createWallet(input: CreateWalletRequest): Promise<CreateWalletResponse> {
     const createWalletUrl = '/'
 
-    try {
-      const requestBody = input
-      const response = await this.sdpConnection.post(createWalletUrl, requestBody)
+    const requestBody = input
+    const response = await this.sdpConnection.post(createWalletUrl, requestBody)
 
-      return response.data as CreateWalletResponse
-    } catch (error) {
-      logger.error(error, 'SDP - Error creating wallet')
-      throw error
-    }
+    return response.data as CreateWalletResponse
   }
 
   public async checkWalletStatus(token: string): Promise<CheckWalletStatusResponse> {
     const checkWalletStatusUrl = `/status/${token}`
 
-    try {
-      const response = await this.sdpConnection.get(checkWalletStatusUrl)
+    const response = await this.sdpConnection.get(checkWalletStatusUrl)
 
-      return response.data as CheckWalletStatusResponse
-    } catch (error) {
-      logger.error(error, 'SDP - Error checking wallet status')
-      throw error
-    }
+    return response.data as CheckWalletStatusResponse
   }
 
   public async getContractAddress(id: string): Promise<GetContractAddressResponse> {
     const getContractAddressUrl = `/${id}`
 
-    try {
-      const response = await this.sdpConnection.get(getContractAddressUrl)
+    const response = await this.sdpConnection.get(getContractAddressUrl)
 
-      return response.data as CheckWalletStatusResponse
-    } catch (error) {
-      logger.error(error, 'SDP - Error getting contract address')
-      throw error
+    return response.data as CheckWalletStatusResponse
+  }
+
+  public async resendInvite(email: string): Promise<ResendInviteResponse> {
+    const resendInviteUrl = '/resend-invite'
+
+    const requestBody = {
+      contact_type: 'EMAIL',
+      receiver_contact: email,
     }
+    const response = await this.sdpConnection.post(resendInviteUrl, requestBody)
+
+    return response.data as ResendInviteResponse
   }
 }

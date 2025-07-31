@@ -11,4 +11,6 @@ export const messages = {
   ALREADY_SENT_RECOVERY_LINK: 'A recovery link has already been sent. Check your email or try again shortly',
   RECOVERY_LINK_EXPIRED: 'The recovery link has expired. Try again or request a new one',
   RECOVERY_LINK_PROVIDED_NOT_FOUND: 'The recovery link you provided is invalid or has already been used',
+  RESEND_INVITE_CONFLICT:
+    "You're not eligible to create a wallet right now. Make sure your email is registered or the account hasn't been deployed yet",
 }

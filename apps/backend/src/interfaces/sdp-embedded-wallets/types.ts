@@ -27,8 +27,13 @@ export type GetContractAddressResponse = {
   contract_address?: string
 }
 
+export type ResendInviteResponse = {
+  message: string
+}
+
 export type SDPEmbeddedWalletsType = {
   createWallet(input: CreateWalletRequest): Promise<CreateWalletResponse>
   checkWalletStatus(token: string): Promise<CheckWalletStatusResponse>
   getContractAddress(id: string): Promise<GetContractAddressResponse>
+  resendInvite(email: string): Promise<ResendInviteResponse>
 }
