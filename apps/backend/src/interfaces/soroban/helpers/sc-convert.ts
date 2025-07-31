@@ -22,10 +22,21 @@ export const ScConvert = {
     const strVal = Big(biVal.toString()).div(1e7).toString()
     // If the value is positive and has a decimal point, ensure it has 7 decimal places by padding with zeros if necessary.
     if (biVal > 0 && strVal.indexOf('.') !== -1) {
-      const convVal = Big(this.scValToBigInt(scVal).valueOf().toString()).div(1e7).toString().split('.')
+      const convVal = strVal.split('.')
       return `${convVal[0]}.${convVal[1].padEnd(7, '0')}`
+    } else if (biVal > 0 && strVal.indexOf('.') === -1) {
+      return Big(this.scValToBigInt(scVal).valueOf().toString()).div(1e7).toString()
     }
     return biVal.toString()
+  },
+  stringToFormatString(value: string): string {
+    const numValue = Big(value).div(1e7).toNumber()
+    const strVal = numValue.toString()
+    if (numValue > 0 && strVal.indexOf('.') !== -1) {
+      const convVal = strVal.split('.')
+      return `${convVal[0]}.${convVal[1].padEnd(7, '0')}`
+    }
+    return strVal
   },
   bigIntToFormatString(value: bigint): string {
     const convVal = Big(value.toString()).div(1e7).toString().split('.')

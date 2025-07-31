@@ -1,19 +1,26 @@
+import { xdr } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+import { Asset as AssetModel } from 'api/core/entities/asset/model'
 import { userFactory } from 'api/core/entities/user/factory'
 import { User } from 'api/core/entities/user/types'
+import { mockAssetRepository } from 'api/core/services/asset/mock'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
 import { CheckWalletStatusResponse, WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
+import { mockSorobanService } from 'interfaces/soroban/mock'
+import { SimulationResult } from 'interfaces/soroban/types'
 
 import { GetWallet, endpoint } from './index'
 
 const mockedUserRepository = mockUserRepository()
 const mockedSDPEmbeddedWallets = mockSDPEmbeddedWallets()
+const mockedAssetRepository = mockAssetRepository()
+const mockedSorobanService = mockSorobanService()
 
 const user = userFactory({
   userId: 'user-123',
@@ -34,7 +41,13 @@ let getWallet: GetWallet
 describe('GetWallet', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    getWallet = new GetWallet(mockedUserRepository, mockedSDPEmbeddedWallets)
+    getWallet = new GetWallet(
+      mockedUserRepository,
+      mockedSDPEmbeddedWallets,
+      mockedSorobanService,
+      undefined,
+      mockedAssetRepository
+    )
   })
 
   it('should throw UnauthorizedException if userId is missing', async () => {
@@ -54,13 +67,45 @@ describe('GetWallet', () => {
 
   it('should return wallet details if user already has a contractAddress', async () => {
     mockedUserRepository.getUserById.mockResolvedValue(user)
+    mockedAssetRepository.getAssetByType.mockResolvedValue({
+      assetId: 'asset-1',
+      name: 'Stellar Lumens',
+      type: 'native',
+      contractAddress: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
+      code: 'XLM',
+    } as unknown as AssetModel)
+
+    // Mock the Soroban service response
+    const mockScVal = xdr.ScVal.scvI128(
+      new xdr.Int128Parts({
+        hi: xdr.Int64.fromString('0'),
+        lo: xdr.Uint64.fromString('12300000'), // 1 XLM in stroops
+      })
+    )
+
+    mockedSorobanService.simulateContract.mockResolvedValue({
+      simulationResponse: {
+        result: {
+          retval: mockScVal,
+          auth: [],
+        },
+      },
+    } as unknown as SimulationResult)
+
     const payload = { id: 'user-123' }
 
     const result = await getWallet.handle(payload)
     expect(result.data.status).toBe(WalletStatus.SUCCESS)
     expect(result.data.address).toBe('CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE')
+    expect(result.data.balance).toBe(1.23) // 1.23 XLM
+    expect(result.data.email).toBe(user.email)
     expect(mockedSDPEmbeddedWallets.checkWalletStatus).not.toHaveBeenCalled()
     expect(mockedUserRepository.updateUser).not.toHaveBeenCalled()
+    expect(mockedSorobanService.simulateContract).toHaveBeenCalledWith({
+      contractId: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
+      method: 'balance',
+      args: [expect.any(xdr.ScVal)],
+    })
   })
 
   it('should check wallet status and update user if contract_address is returned', async () => {

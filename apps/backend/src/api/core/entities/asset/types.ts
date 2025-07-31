@@ -5,6 +5,8 @@ export type Asset = AssetModel
 export type AssetRepositoryType = {
   getAssetById(assetId: string): Promise<Asset | null>
   getAssetByContractAddress(contractAddress: string): Promise<Asset | null>
+  getAssetByType(type: string): Promise<Asset | null>
+  getAssetByCode(code: string): Promise<Asset | null>
   createAsset(
     asset: { name: string; code: string; type: string; contractAddress: string },
     save?: boolean

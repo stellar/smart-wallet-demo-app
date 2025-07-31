@@ -15,6 +15,14 @@ export default class AssetRepository extends SingletonBase implements AssetRepos
     return AssetModel.findOneBy({ contractAddress })
   }
 
+  async getAssetByType(type: string): Promise<Asset | null> {
+    return AssetModel.findOneBy({ type })
+  }
+
+  async getAssetByCode(code: string): Promise<Asset | null> {
+    return AssetModel.findOneBy({ code })
+  }
+
   async createAsset(
     asset: { name: string; code: string; type: string; contractAddress: string },
     save?: boolean
