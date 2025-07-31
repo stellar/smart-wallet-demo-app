@@ -1,24 +1,24 @@
 import { queryOptions, useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
 
 import { walletService } from 'src/app/wallet/services'
-import { GetWalletResult } from 'src/app/wallet/services/wallet/types'
+import { GetTransactionHistoryResult } from 'src/app/wallet/services/wallet/types'
 
 import { WalletQueryKeys } from './query-keys'
 
-type UseCaseResult = GetWalletResult
+type UseCaseResult = GetTransactionHistoryResult
 
-export const getWallet = () =>
+export const getTransactionHistory = () =>
   queryOptions<UseCaseResult, Error>({
-    queryKey: [WalletQueryKeys.GetWallet],
-    queryFn: () => walletService.getWallet(),
+    queryKey: [WalletQueryKeys.GetTransactionHistory],
+    queryFn: () => walletService.getTransactionHistory(),
     staleTime: 1 * 60 * 1000, // 1 minute
   })
 
-export const useGetWallet = (
+export const useGetTransactionHistory = (
   options?: Omit<UseQueryOptions<UseCaseResult, Error>, 'queryKey' | 'queryFn'>
 ): UseQueryResult<UseCaseResult, Error> => {
   return useQuery({
-    ...getWallet(),
+    ...getTransactionHistory(),
     ...options,
   })
 }

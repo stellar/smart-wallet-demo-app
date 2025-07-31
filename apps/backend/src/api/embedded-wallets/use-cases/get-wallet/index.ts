@@ -9,7 +9,9 @@ import AssetRepository from 'api/core/services/asset'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { sleepInSeconds } from 'api/core/utils/sleep'
+import { messages } from 'api/embedded-wallets/constants/messages'
 import { STELLAR } from 'config/stellar'
+import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
@@ -48,7 +50,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
     const payload = { id: request.userData?.userId } as RequestSchemaT
     if (!payload.id) {
-      throw new UnauthorizedException('Not authorized')
+      throw new UnauthorizedException(messages.NOT_AUTHORIZED)
     }
     const result = await this.handle(payload)
     return response.status(HttpStatusCodes.OK).json(result)
@@ -69,7 +71,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     // Check if user exists (should not be necessary, but added for safety)
     let user = await this.userRepository.getUserById(validatedData.id)
     if (!user) {
-      throw new ResourceNotFoundException(`User with id ${validatedData.id} not found`)
+      throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_ID)
     }
 
     // Check if user already has a wallet
@@ -78,19 +80,13 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       const asset = await this.assetRepository.getAssetByType('native') // Stellar/XLM native asset
 
       // Get wallet balance
-      const { simulationResponse } = await this.sorobanService.simulateContract({
-        contractId: asset?.contractAddress || STELLAR.TOKEN_CONTRACT.NATIVE, // TODO: get balance for another assets?
-        method: 'balance',
-        args: [ScConvert.accountIdToScVal(user.contractAddress as string)],
-      } as SimulateContract)
-
-      const walletBalance: string = ScConvert.scValToFormatString(simulationResponse.result?.retval as xdr.ScVal)
+      const balance = await this.getWalletBalance(user.contractAddress)
 
       return this.parseResponse({
         status: WalletStatus.SUCCESS,
         address: user.contractAddress,
         email: user.email,
-        balance: walletBalance,
+        balance,
       })
     }
 
@@ -112,11 +108,30 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       await sleepInSeconds(1)
     }
 
+    if (!user.contractAddress) {
+      throw new BadRequestException(messages.UNKNOWN_CONTRACT_ADDRESS_CREATION_ERROR)
+    }
+
+    // Get wallet balance
+    const balance = await this.getWalletBalance(user.contractAddress)
+
     return this.parseResponse({
       status: walletStatus,
       address: user.contractAddress,
       email: user.email,
+      balance,
     })
+  }
+
+  private async getWalletBalance(userContractAddress: string): Promise<number> {
+    const { simulationResponse } = await this.sorobanService.simulateContract({
+      contractId: STELLAR.TOKEN_CONTRACT.NATIVE, // TODO: get balance for another assets?
+      method: 'balance',
+      args: [ScConvert.accountIdToScVal(userContractAddress)],
+    } as SimulateContract)
+
+    const walletBalance: number = Number(ScConvert.scValToString(simulationResponse.result?.retval as xdr.ScVal))
+    return walletBalance
   }
 }
 

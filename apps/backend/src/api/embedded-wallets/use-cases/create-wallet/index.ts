@@ -7,6 +7,7 @@ import WebAuthnRegistration from 'api/core/helpers/webauthn/registration'
 import { IWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/types'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { messages } from 'api/embedded-wallets/constants/messages'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
@@ -63,12 +64,12 @@ export class CreateWallet extends UseCaseBase implements IUseCaseHttp<ResponseSc
     // Check if user exists
     const user = await this.userRepository.getUserByEmail(requestBody.email, { relations: ['passkeys'] })
     if (!user) {
-      throw new ResourceNotFoundException(`User with email ${requestBody.email} not found`)
+      throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
     }
 
     // Check if user already has a wallet
     if (user.contractAddress) {
-      throw new ResourceConflictedException(`User with email ${requestBody.email} already has a wallet`)
+      throw new ResourceConflictedException(messages.USER_ALREADY_HAS_WALLET)
     }
 
     // Check auth challenge resolution
@@ -77,7 +78,7 @@ export class CreateWallet extends UseCaseBase implements IUseCaseHttp<ResponseSc
       registrationResponseJSON: requestBody.registration_response_json,
     })
 
-    if (!challengeResult) throw new UnauthorizedException(`User authentication failed`)
+    if (!challengeResult) throw new UnauthorizedException(messages.UNABLE_TO_COMPLETE_PASSKEY_REGISTRATION)
 
     const { passkey } = challengeResult
 

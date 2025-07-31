@@ -5,9 +5,9 @@ import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 
 export const ParseSchema = z.object({
   status: z.nativeEnum(WalletStatus),
-  address: z.string().optional(),
-  balance: z.string().optional(),
-  email: z.string().optional(),
+  address: z.string(),
+  balance: z.number(),
+  email: z.string().email(),
 })
 
 export type ParseSchemaT = z.infer<typeof ParseSchema>

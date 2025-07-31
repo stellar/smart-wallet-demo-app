@@ -13,5 +13,6 @@ export function mockAuthService(): Mocked<IAuthService> {
     validateRecoveryLink: vi.fn(),
     getRecoverWalletOptions: vi.fn(),
     postRecoverWallet: vi.fn(),
+    resendInviteLink: vi.fn(),
   }
 }

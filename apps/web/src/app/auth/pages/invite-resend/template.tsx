@@ -9,14 +9,16 @@ import { Form } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { FormValues } from './schema'
+import { EmailSent } from '../../components'
 
 type Props = {
   form: UseFormReturn<FormValues>
+  isInviteLinkSent: boolean
   onGoBack: () => void
-  onSendLink: () => void
+  onSendLink: (values: FormValues) => void
 }
 
-export const InviteResendTemplate = ({ form, onGoBack, onSendLink }: Props) => {
+export const InviteResendTemplate = ({ form, isInviteLinkSent, onGoBack, onSendLink }: Props) => {
   const { watch } = form
 
   const emailValue = watch('email')
@@ -48,9 +50,13 @@ export const InviteResendTemplate = ({ form, onGoBack, onSendLink }: Props) => {
             />
 
             <div className="mt-3">
-              <Form.Submit disabled={isSendLinkDisabled} size="lg" variant="tertiary" isRounded isFullWidth>
-                {c('sendLink')}
-              </Form.Submit>
+              {isInviteLinkSent ? (
+                <EmailSent />
+              ) : (
+                <Form.Submit disabled={isSendLinkDisabled} size="lg" variant="tertiary" isRounded isFullWidth>
+                  {c('sendLink')}
+                </Form.Submit>
+              )}
             </div>
           </Form>
         </div>

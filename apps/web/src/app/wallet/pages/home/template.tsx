@@ -1,5 +1,6 @@
 import { Button, Icon, Text } from '@stellar/design-system'
 import clsx from 'clsx'
+import Skeleton from 'react-loading-skeleton'
 
 import { modalService } from 'src/components/molecules/modal/provider'
 import { Carousel, SafeAreaView, ImageCard, Collapse, CollapseItem } from 'src/components/organisms'
@@ -11,6 +12,7 @@ import { Amount } from '../../components'
 type NavbarItemType = 'nft' | 'history' | 'profile'
 
 type Props = {
+  isLoadingBalance: boolean
   balanceAmount: number
   products?: React.ComponentProps<typeof ImageCard>[]
   faq?: {
@@ -34,6 +36,7 @@ type Props = {
 }
 
 export const HomeTemplate = ({
+  isLoadingBalance,
   balanceAmount,
   faq = {
     title: c('frequentlyAskedQuestions'),
@@ -134,20 +137,25 @@ export const HomeTemplate = ({
     )
   }
 
-  const Balance = () => (
-    <div className="flex justify-between items-end">
-      <div className="flex flex-col gap-4">
-        <Text addlClassName={'text-textSecondary'} as={'h4'} size={'md'} weight="medium">
-          {c('balance')}
-        </Text>
-        <Amount amount={balanceAmount} asset={'XLM'} />
+  const Balance = () =>
+    isLoadingBalance ? (
+      <div className="justify-center items-center h-[73px]">
+        <Skeleton height={73} />
       </div>
+    ) : (
+      <div className="flex justify-between items-end">
+        <div className="flex flex-col gap-4">
+          <Text addlClassName={'text-textSecondary'} as={'h4'} size={'md'} weight="medium">
+            {c('balance')}
+          </Text>
+          <Amount amount={balanceAmount} asset={'XLM'} />
+        </div>
 
-      <Button variant={'secondary'} size={'lg'} icon={<Icon.Scan />} iconPosition="left" onClick={onPayClick}>
-        {c('pay')}
-      </Button>
-    </div>
-  )
+        <Button variant={'secondary'} size={'lg'} icon={<Icon.Scan />} iconPosition="left" onClick={onPayClick}>
+          {c('pay')}
+        </Button>
+      </div>
+    )
 
   const Banner = () =>
     banner && (

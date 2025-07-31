@@ -4,12 +4,15 @@ import { useForm } from 'react-hook-form'
 
 import { FormValues, schema } from './schema'
 import { InviteResendTemplate } from './template'
+import { useResendInviteEmail } from '../../queries/use-resend-invite-email'
 import { AuthPagesPath } from '../../routes/types'
 
 export const InviteResend = () => {
   const router = useRouter()
   const navigate = useNavigate()
   const canGoBack = useCanGoBack()
+
+  const resendInviteEmail = useResendInviteEmail()
 
   const form = useForm<FormValues>({
     resolver: yupResolver(schema),
@@ -22,9 +25,16 @@ export const InviteResend = () => {
     navigate({ to: AuthPagesPath.WELCOME })
   }
 
-  const handleSendLink = () => {
-    throw new Error('Function not implemented.')
+  const handleSendLink = async (values: FormValues) => {
+    await resendInviteEmail.mutateAsync({ email: values.email })
   }
 
-  return <InviteResendTemplate onGoBack={handleGoBack} form={form} onSendLink={handleSendLink} />
+  return (
+    <InviteResendTemplate
+      form={form}
+      isInviteLinkSent={resendInviteEmail.isSuccess}
+      onGoBack={handleGoBack}
+      onSendLink={handleSendLink}
+    />
+  )
 }

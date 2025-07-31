@@ -11,6 +11,7 @@ import AssetRepository from 'api/core/services/asset'
 import UserRepository from 'api/core/services/user'
 import VendorRepository from 'api/core/services/vendor'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { messages } from 'api/embedded-wallets/constants/messages'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import WalletBackend from 'interfaces/wallet-backend'
@@ -41,7 +42,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
     const payload = { id: request.userData?.userId } as RequestSchemaT
     if (!payload.id) {
-      throw new UnauthorizedException('Not authorized')
+      throw new UnauthorizedException(messages.NOT_AUTHORIZED)
     }
     const result = await this.handle(payload)
     return response.status(HttpStatusCodes.OK).json(result)
@@ -62,7 +63,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
     // Check if user exists (should not be necessary, but added for safety)
     const user = await this.userRepository.getUserById(validatedData.id)
     if (!user) {
-      throw new ResourceNotFoundException(`User with id ${validatedData.id} not found`)
+      throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_ID)
     }
 
     // Fetch tx history from wallet backend service
@@ -71,6 +72,11 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
     const transactions: TransactionSchemaT[] = []
 
     for (const tx of walletHistory.account?.transactions ?? []) {
+      if (tx.operations[0].stateChanges.length === 0) {
+        continue // Skip non-transfer transactions (like contract creation, etc.)
+      }
+
+      // Fetch asset details using the tokenId from the transaction
       const asset = await this.assetRepository.getAssetByContractAddress(tx.operations[0].stateChanges[0].tokenId)
 
       // extract transaction addresses from operation XDR
@@ -91,7 +97,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
         hash: tx.hash,
         type: tx.operations[0].stateChanges[0].stateChangeCategory,
         vendor: vendor?.name || vendorContractAddress || 'Unknown vendor',
-        amount: tx.operations[0].stateChanges[0].amount,
+        amount: Number(tx.operations[0].stateChanges[0].amount), // Assuming amount is in the smallest unit (like stroops for XLM)
         asset: asset?.code || tx.operations[0].stateChanges[0].tokenId,
         date: tx.ledgerCreatedAt, // Assuming ledgerCreatedAt is in ISO format
       }

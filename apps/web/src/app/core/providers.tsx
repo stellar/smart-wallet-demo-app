@@ -1,3 +1,5 @@
+import { SkeletonTheme } from 'react-loading-skeleton'
+
 import { Toast } from 'src/app/core/services/toast'
 import { ModalProvider } from 'src/components/molecules/modal/provider'
 import { ThemeProvider } from 'src/config/theme/provider'
@@ -12,10 +14,12 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <QueryClientProvider>
       <ThemeProvider>
-        <Toast.Provider />
-        <LayoutProvider>
-          <ModalProvider>{children}</ModalProvider>
-        </LayoutProvider>
+        <SkeletonTheme>
+          <Toast.Provider />
+          <LayoutProvider>
+            <ModalProvider>{children}</ModalProvider>
+          </LayoutProvider>
+        </SkeletonTheme>
       </ThemeProvider>
     </QueryClientProvider>
   )

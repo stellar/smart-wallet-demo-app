@@ -7,6 +7,7 @@ import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import OtpRepository from 'api/core/services/otp'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { messages } from 'api/embedded-wallets/constants/messages'
 import { getValueFromEnv } from 'config/env-utils'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
@@ -38,7 +39,7 @@ export class GenerateRecoveryLink extends UseCaseBase implements IUseCaseHttp<Re
     if (recoveryLinkBaseUrl) {
       this.recoveryLinkBaseUrl = recoveryLinkBaseUrl
     } else {
-      const frontendUrl = getValueFromEnv('FRONTEND_URL', 'http://localhost:3000')
+      const frontendUrl = getValueFromEnv('FRONT_ADDRESS', 'http://localhost:3000')
       this.recoveryLinkBaseUrl = `${frontendUrl}/recover/confirm`
     }
   }
@@ -68,18 +69,18 @@ export class GenerateRecoveryLink extends UseCaseBase implements IUseCaseHttp<Re
     // Check if user exists
     const user = await this.userRepository.getUserByEmail(requestBody.email, { relations: ['otps'] })
     if (!user) {
-      throw new ResourceNotFoundException(`User with email ${requestBody.email} not found`)
+      throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
     }
 
     // Check if user has a wallet
     if (!user.contractAddress) {
-      throw new BadRequestException(`User with email ${requestBody.email} does not have a wallet`)
+      throw new BadRequestException(messages.USER_DOES_NOT_HAVE_WALLET)
     }
 
     // Check if user has any valid OTP
     const activeOtp = user.otps?.find(otp => otp.expiresAt > new Date())
     if (activeOtp) {
-      throw new ResourceConflictedException(`User with email ${requestBody.email} already has an active OTP`)
+      throw new ResourceConflictedException(messages.ALREADY_SENT_RECOVERY_LINK)
     }
 
     // Create new OTP

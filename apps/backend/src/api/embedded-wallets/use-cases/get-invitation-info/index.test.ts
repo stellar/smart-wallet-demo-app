@@ -1,10 +1,11 @@
-import { AxiosError } from 'axios'
+import { AxiosError, AxiosResponse } from 'axios'
 import { Request, Response } from 'express'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import { userFactory } from 'api/core/entities/user/factory'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
 import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 
@@ -63,14 +64,13 @@ describe('GetInvitationInfo', () => {
 
   it('should return NOT_ALLOWED status if checkWalletStatus returns 401', async () => {
     mockedSDPEmbeddedWallets.checkWalletStatus.mockRejectedValue(
-      new AxiosError('Request failed with status code 401', '401')
+      new AxiosError('Request failed with status code 401', 'UNAUTHORIZED', undefined, null, {
+        status: 401,
+      } as AxiosResponse)
     )
 
     const payload = { token }
-    const result = await useCase.handle(payload)
-
-    expect(result.data.status).toBe('NOT_ALLOWED')
-    expect(result.message).toBe('Not authorized')
+    await expect(useCase.handle(payload)).rejects.toBeInstanceOf(UnauthorizedException)
   })
 
   it('should throw non-Error exceptions from checkWalletStatus', async () => {

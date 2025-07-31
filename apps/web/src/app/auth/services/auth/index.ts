@@ -20,6 +20,8 @@ import {
   GetRecoverWalletOptionsResult,
   PostRecoverWalletInput,
   PostRecoverWalletResult,
+  ResendInviteLinkInput,
+  ResendInviteLinkResult,
 } from './types'
 
 export class AuthService implements IAuthService {
@@ -103,6 +105,14 @@ export class AuthService implements IAuthService {
     const response = await http.post(`/api/embedded-wallets/recover/complete`, {
       code,
       registration_response_json: registrationResponseJSON,
+    })
+
+    return response.data
+  }
+
+  async resendInviteLink(input: ResendInviteLinkInput): Promise<ResendInviteLinkResult> {
+    const response = await http.post(`/api/embedded-wallets/resend-invite`, {
+      email: input.email,
     })
 
     return response.data
