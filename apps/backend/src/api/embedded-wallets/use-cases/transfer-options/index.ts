@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
 
-import { AssetRepositoryType } from 'api/core/entities/asset/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
@@ -14,10 +13,10 @@ import { STELLAR } from 'config/stellar'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SorobanService from 'interfaces/soroban'
-import { ISorobanService, ContractSigner, SimulateContract } from 'interfaces/soroban/types'
+import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
+import { ISorobanService } from 'interfaces/soroban/types'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
-import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
 
 const endpoint = '/transfer/options'
 
@@ -31,7 +30,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     userRepository?: UserRepositoryType,
     assetRepository?: AssetRepository,
     webauthnAuthenticationHelper?: IWebAuthnAuthentication,
-    sorobanService?: ISorobanService,
+    sorobanService?: ISorobanService
   ) {
     super()
     this.assetRepository = assetRepository || AssetRepository.getInstance()
@@ -41,22 +40,22 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
-      const payload = {
-        email: request.userData?.email as string, 
-        type: request.query?.type as string, 
-        asset: request.query?.asset as string, 
-        to: request.query?.to as string, 
-        amount: request.query?.amount as string 
-      } as RequestSchemaT
+    const payload = {
+      email: request.userData?.email as string,
+      type: request.query?.type as string,
+      asset: request.query?.asset as string,
+      to: request.query?.to as string,
+      amount: request.query?.amount as string,
+    } as RequestSchemaT
 
-      if (!payload.email) {
-        throw new UnauthorizedException(messages.NOT_AUTHORIZED)
-      }
-
-      const result = await this.handle(payload)
-      return response.status(HttpStatusCodes.OK).json(result)
+    if (!payload.email) {
+      throw new UnauthorizedException(messages.NOT_AUTHORIZED)
     }
-  
+
+    const result = await this.handle(payload)
+    return response.status(HttpStatusCodes.OK).json(result)
+  }
+
   async handle(payload: RequestSchemaT): Promise<ResponseSchemaT> {
     const validatedData = this.validate(payload, RequestSchema)
     const { email } = validatedData
@@ -79,8 +78,8 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
       contractId: assetContractAddress,
       method: 'transfer',
       args: [
-        ScConvert.accountIdToScVal(user.contractAddress as string), 
-        ScConvert.accountIdToScVal(validatedData.to as string), 
+        ScConvert.accountIdToScVal(user.contractAddress as string),
+        ScConvert.accountIdToScVal(validatedData.to as string),
         ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount)),
       ],
       signer: {

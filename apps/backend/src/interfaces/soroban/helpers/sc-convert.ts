@@ -10,7 +10,7 @@ export const ScConvert = {
   stringToScVal: (value: string): xdr.ScVal => {
     return new XdrLargeInt('i128', value).toScVal()
   },
-  numberToScVal: (value: Number): xdr.ScVal => {
+  numberToScVal: (value: number): xdr.ScVal => {
     return new XdrLargeInt('i128', ScConvert.numberToPaddedString(value)).toScVal()
   },
   scValToBigInt: (scVal: xdr.ScVal): bigint => {
@@ -32,11 +32,11 @@ export const ScConvert = {
     }
     return biVal.toString()
   },
-  numberToPaddedString(value: Number): string {
+  numberToPaddedString(value: number): string {
     const strVal = value.toString()
     // If the value has a decimal point, ensure it has 7 decimal places by padding with zeros if necessary
     // Return in unsigned int > string format
-    if(strVal.indexOf('.') !== -1) {
+    if (strVal.indexOf('.') !== -1) {
       const convVal = strVal.split('.')
       return `${convVal[0]}${convVal[1].padEnd(7, '0')}`
     }
@@ -45,7 +45,7 @@ export const ScConvert = {
   stringToPaddedString(value: string): string {
     // If the value has a decimal point, ensure it has 7 decimal places by padding with zeros if necessary
     // Return in unsigned int > string format
-    if(value.indexOf('.') !== -1) {
+    if (value.indexOf('.') !== -1) {
       const convVal = value.split('.')
       return `${convVal[0]}${convVal[1].padEnd(7, '0')}`
     }

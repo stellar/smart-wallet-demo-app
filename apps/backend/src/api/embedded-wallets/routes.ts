@@ -13,8 +13,8 @@ import { LogInOptions, endpoint as LogInOptionsEndpoint } from './use-cases/logi
 import { RecoverWallet, endpoint as RecoverWalletEndpoint } from './use-cases/recover-wallet'
 import { RecoverWalletOptions, endpoint as RecoverWalletOptionsEndpoint } from './use-cases/recover-wallet-options'
 import { ResendInvite, endpoint as ResendInviteEndpoint } from './use-cases/resend-invite'
-import { ValidateRecoveryLink, endpoint as ValidateRecoveryLinkEndpoint } from './use-cases/validate-recovery-link'
 import { TransferOptions, endpoint as TransferOptionsEndpoint } from './use-cases/transfer-options'
+import { ValidateRecoveryLink, endpoint as ValidateRecoveryLinkEndpoint } from './use-cases/validate-recovery-link'
 
 const router = Router()
 
@@ -32,6 +32,8 @@ router.post(`${ValidateRecoveryLinkEndpoint}`, async (req, res) => ValidateRecov
 router.get(`${RecoverWalletOptionsEndpoint}`, async (req, res) => RecoverWalletOptions.init().executeHttp(req, res))
 router.post(`${RecoverWalletEndpoint}`, async (req, res) => RecoverWallet.init().executeHttp(req, res))
 router.post(`${ResendInviteEndpoint}`, async (req, res) => ResendInvite.init().executeHttp(req, res))
-router.get(`${TransferOptionsEndpoint}`, authentication, async (req, res) => TransferOptions.init().executeHttp(req, res))
+router.get(`${TransferOptionsEndpoint}`, authentication, async (req, res) =>
+  TransferOptions.init().executeHttp(req, res)
+)
 
 export default router
