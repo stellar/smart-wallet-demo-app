@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { useEffect } from 'react'
 
-import { NavigateButton } from 'src/components/molecules/navigate-button'
+import { NavigateButton } from 'src/components/molecules'
 import { SafeAreaView } from 'src/components/organisms'
 import { qrScanner } from 'src/interfaces/qr-scanner'
 

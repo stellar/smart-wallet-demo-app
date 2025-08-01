@@ -1,9 +1,12 @@
 import { render, screen, fireEvent } from 'src/helpers/tests'
 
+import { ModalDefaultProps } from './variants'
+
 import { Modal, ModalProps } from '.'
 
 describe('Modal', () => {
-  const defaultProps: Required<Pick<ModalProps, 'title' | 'description' | 'button' | 'onClose'>> = {
+  const defaultVariantOptions: ModalDefaultProps = {
+    variant: 'default',
     title: {
       text: 'Test Modal Title',
       image: {
@@ -18,6 +21,10 @@ describe('Modal', () => {
       variant: 'primary',
       size: 'sm',
     },
+  }
+
+  const defaultProps: ModalProps = {
+    variantOptions: defaultVariantOptions,
     onClose: vi.fn(),
   }
 
@@ -26,20 +33,10 @@ describe('Modal', () => {
   it('renders title, description and button', () => {
     renderModal()
 
-    expect(screen.getByText(defaultProps.title.text)).toBeInTheDocument()
-    expect(screen.getByText(defaultProps.description)).toBeInTheDocument()
+    expect(screen.getByText(defaultVariantOptions.title.text)).toBeInTheDocument()
+    expect(screen.getByText(defaultVariantOptions.description)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /confirm/i })).toBeInTheDocument()
-    expect(screen.getByAltText('Modal image')).toHaveAttribute('src', defaultProps.title.image?.source)
-  })
-
-  it('renders children when provided', () => {
-    const testContent = 'Custom modal content'
-    renderModal({ children: <div>{testContent}</div> })
-
-    expect(screen.getByText(testContent)).toBeInTheDocument()
-    // Should not render default content when children is provided
-    expect(screen.queryByText(defaultProps.title.text)).not.toBeInTheDocument()
-    expect(screen.queryByText(defaultProps.description)).not.toBeInTheDocument()
+    expect(screen.getByAltText('Modal image')).toHaveAttribute('src', defaultVariantOptions.title.image?.source)
   })
 
   it('calls onClose when close button is clicked', () => {
@@ -70,11 +67,21 @@ describe('Modal', () => {
 
   it('renders blank-space image if image.source is "blank-space"', () => {
     renderModal({
-      title: {
-        text: 'Title',
-        image: {
-          source: 'blank-space',
-          variant: 'sm',
+      variantOptions: {
+        variant: 'default',
+        title: {
+          text: 'Title',
+          image: {
+            source: 'blank-space',
+            variant: 'sm',
+          },
+        },
+        description: 'Description',
+        button: {
+          children: 'Confirm',
+          onClick: vi.fn(),
+          variant: 'primary',
+          size: 'sm',
         },
       },
     })
