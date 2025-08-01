@@ -50,6 +50,8 @@ function main() {
                 if (typeof proof.index !== 'number' || 
                     !proof.receiver?.address || 
                     typeof proof.receiver.amount !== 'number' ||
+                    proof.receiver.amount <= 0 ||
+                    !Number.isFinite(proof.receiver.amount) ||
                     !Array.isArray(proof.proofs)) {
                     console.error(`❌ Invalid proof at index ${i}: ${JSON.stringify(proof)}`);
                     process.exit(1);
@@ -72,25 +74,25 @@ function main() {
 
             console.log(`Found ${proofsData.length} proofs to upload for contract ${contractAddress}`);
 
-            await client.query('DELETE FROM proofs');
-            console.log('Cleared all existing proofs from database');
+            await client.query('DELETE FROM proofs WHERE contract_address = $1', [contractAddress]);
+            console.log(`Cleared existing proofs for contract ${contractAddress}`);
 
             const now = new Date();
             for (const proof of proofsData) {
                 await client.query(
                     `INSERT INTO proofs (receiver_address, contract_address, index, receiver_amount, proofs, created_at) 
                      VALUES ($1, $2, $3, $4, $5, $6)
-                     ON CONFLICT (receiver_address) 
+                     ON CONFLICT (receiver_address, contract_address) 
                      DO UPDATE SET 
-                       contract_address = EXCLUDED.contract_address,
                        index = EXCLUDED.index,
                        receiver_amount = EXCLUDED.receiver_amount,
-                       proofs = EXCLUDED.proofs`,
+                       proofs = EXCLUDED.proofs,
+                       created_at = EXCLUDED.created_at`,
                     [proof.receiver.address, contractAddress, proof.index, proof.receiver.amount.toString(), proof.proofs, now]
                 );
             }
 
-            const result = await client.query('SELECT COUNT(*) FROM proofs');
+            const result = await client.query('SELECT COUNT(*) FROM proofs WHERE contract_address = $1', [contractAddress]);
             const count = parseInt(result.rows[0].count);
             console.log(`✅ Successfully uploaded ${count} proofs for contract ${contractAddress}`);
 

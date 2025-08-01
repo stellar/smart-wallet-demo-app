@@ -1,14 +1,14 @@
-import { Entity, Column, PrimaryColumn } from '../../framework/orm/base'
+import { Column, Entity, PrimaryColumn } from '../../framework/orm/base'
 
 @Entity('proofs')
 export class Proof {
-  @PrimaryColumn({ name: 'receiver_address' })
+  @PrimaryColumn({ name: 'receiver_address', type: 'text' })
   receiverAddress!: string
 
-  @Column({ name: 'contract_address' })
+  @PrimaryColumn({ name: 'contract_address', type: 'text' })
   contractAddress!: string
 
-  @Column({ name: 'index' })
+  @Column({ name: 'index', type: 'integer' })
   index!: number
 
   @Column({ name: 'receiver_amount', type: 'bigint' })
