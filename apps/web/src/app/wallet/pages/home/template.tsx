@@ -2,6 +2,8 @@ import { Button, Icon, Text } from '@stellar/design-system'
 import clsx from 'clsx'
 import Skeleton from 'react-loading-skeleton'
 
+import ProductMock02 from 'src/assets/images/mock/ecobag.png'
+import ProductMock01 from 'src/assets/images/mock/jacket.png'
 import { modalService } from 'src/components/molecules/modal/provider'
 import { Carousel, SafeAreaView, ImageCard, Collapse, CollapseItem } from 'src/components/organisms'
 import { a } from 'src/interfaces/cms/useAssets'
@@ -53,12 +55,12 @@ export const HomeTemplate = ({
   },
   products = [
     {
-      imageUri: 'src/assets/images/mock/jacket.png',
+      imageUri: ProductMock01,
       name: 'Jacket',
       leftBadge: { label: c('walletHomeProductListLeftBadgeOptionALabel'), variant: 'success' },
     },
     {
-      imageUri: 'src/assets/images/mock/ecobag.png',
+      imageUri: ProductMock02,
       name: 'Ecobag',
       leftBadge: { label: c('walletHomeProductListLeftBadgeOptionBLabel'), variant: 'disabled' },
     },
