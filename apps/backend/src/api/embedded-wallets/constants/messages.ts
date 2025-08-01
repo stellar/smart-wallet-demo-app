@@ -15,4 +15,5 @@ export const messages = {
   RECOVERY_LINK_PROVIDED_NOT_FOUND: 'The recovery link you provided is invalid or has already been used',
   RESEND_INVITE_CONFLICT:
     "You're not eligible to create a wallet right now. Make sure your email is registered or the account hasn't been deployed yet",
+  UNABLE_TO_EXECUTE_TRANSACTION: 'This transaction could not be executed. You may not have permission.',
 }

@@ -13,6 +13,7 @@ import { LogInOptions, endpoint as LogInOptionsEndpoint } from './use-cases/logi
 import { RecoverWallet, endpoint as RecoverWalletEndpoint } from './use-cases/recover-wallet'
 import { RecoverWalletOptions, endpoint as RecoverWalletOptionsEndpoint } from './use-cases/recover-wallet-options'
 import { ResendInvite, endpoint as ResendInviteEndpoint } from './use-cases/resend-invite'
+import { Transfer, endpoint as TransferEndpoint } from './use-cases/transfer'
 import { TransferOptions, endpoint as TransferOptionsEndpoint } from './use-cases/transfer-options'
 import { ValidateRecoveryLink, endpoint as ValidateRecoveryLinkEndpoint } from './use-cases/validate-recovery-link'
 
@@ -35,5 +36,6 @@ router.post(`${ResendInviteEndpoint}`, async (req, res) => ResendInvite.init().e
 router.get(`${TransferOptionsEndpoint}`, authentication, async (req, res) =>
   TransferOptions.init().executeHttp(req, res)
 )
+router.post(`${TransferEndpoint}`, authentication, async (req, res) => Transfer.init().executeHttp(req, res))
 
 export default router

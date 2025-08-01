@@ -9,20 +9,14 @@ export const RequestSchema = z.object({
   asset: z.string(),
   to: z.string(),
   amount: z.string(),
+  authenticationResponseJSON: z.string().refine(refineJsonString),
 })
 
 export type RequestSchemaT = z.infer<typeof RequestSchema>
 
 export const ResponseSchema = createResponseSchema(
   z.object({
-    options_json: z.string().refine(refineJsonString),
-    vendor: z
-      .object({
-        name: z.string().optional(),
-        walletAddress: z.string().optional(),
-        profileImage: z.string().optional(),
-      })
-      .optional(),
+    hash: z.string(),
   })
 )
 

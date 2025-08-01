@@ -1,15 +1,13 @@
+import { rpc } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
-import { AssetRepositoryType } from 'api/core/entities/asset/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
-import { VendorRepositoryType } from 'api/core/entities/vendor/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import WebAuthnAuthentication from 'api/core/helpers/webauthn/authentication'
 import { IWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/types'
 import AssetRepository from 'api/core/services/asset'
 import UserRepository from 'api/core/services/user'
-import VendorRepository from 'api/core/services/vendor'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { STELLAR } from 'config/stellar'
@@ -17,30 +15,27 @@ import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SorobanService from 'interfaces/soroban'
 import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
-import { ISorobanService } from 'interfaces/soroban/types'
+import { ISorobanService, ContractSigner } from 'interfaces/soroban/types'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
-const endpoint = '/transfer/options'
+const endpoint = '/transfer/complete'
 
-export class TransferOptions extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
-  private assetRepository: AssetRepositoryType
+export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
+  private assetRepository: AssetRepository
   private userRepository: UserRepositoryType
-  private vendorRepository: VendorRepositoryType
   private webauthnAuthenticationHelper: IWebAuthnAuthentication
   private sorobanService: ISorobanService
 
   constructor(
-    assetRepository?: AssetRepositoryType,
     userRepository?: UserRepositoryType,
-    vendorRepository?: VendorRepositoryType,
+    assetRepository?: AssetRepository,
     webauthnAuthenticationHelper?: IWebAuthnAuthentication,
     sorobanService?: ISorobanService
   ) {
     super()
     this.assetRepository = assetRepository || AssetRepository.getInstance()
     this.userRepository = userRepository || UserRepository.getInstance()
-    this.vendorRepository = vendorRepository || VendorRepository.getInstance()
     this.webauthnAuthenticationHelper = webauthnAuthenticationHelper || WebAuthnAuthentication.getInstance()
     this.sorobanService = sorobanService || SorobanService.getInstance()
   }
@@ -48,10 +43,11 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
     const payload = {
       email: request.userData?.email as string,
-      type: request.query?.type as string,
-      asset: request.query?.asset as string,
-      to: request.query?.to as string,
-      amount: request.query?.amount as string,
+      type: request.body?.type as string,
+      asset: request.body?.asset as string,
+      to: request.body?.to as string,
+      amount: request.body?.amount as string,
+      authenticationResponseJSON: request.body?.authenticationResponseJSON as string,
     } as RequestSchemaT
 
     if (!payload.email) {
@@ -75,12 +71,36 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
       throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_PASSKEYS)
     }
 
+    const { authenticationResponseJSON } = validatedData
+
+    const verifyAuth = await this.webauthnAuthenticationHelper.complete({
+      user,
+      authenticationResponseJSON,
+    })
+
+    if (!verifyAuth) {
+      throw new UnauthorizedException(messages.UNABLE_TO_COMPLETE_PASSKEY_AUTHENTICATION)
+    }
+
+    const passkeySigner: ContractSigner = {
+      addressId: user.contractAddress as string,
+      methodOptions: {
+        method: 'webauthn',
+        options: {
+          credentialId: user.passkeys[0].credentialId, // TODO: map all passkey items?
+          clientDataJSON: verifyAuth.clientDataJSON,
+          authenticatorData: verifyAuth.authenticatorData,
+          compactSignature: verifyAuth.compactSignature,
+        },
+      },
+    }
+
     // Get asset contract address from db
     const asset = await this.assetRepository.getAssetByCode(validatedData.asset)
     const assetContractAddress = asset?.contractAddress ?? STELLAR.TOKEN_CONTRACT.NATIVE
 
-    // Generate challenge
-    const challenge = await this.sorobanService.generateWebAuthnChallengeFromContract({
+    // Simulate transfer
+    const { tx, simulationResponse } = await this.sorobanService.simulateContract({
       contractId: assetContractAddress,
       method: 'transfer',
       args: [
@@ -88,31 +108,21 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
         ScConvert.accountIdToScVal(validatedData.to as string),
         ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount)),
       ],
-      signer: {
-        addressId: user.contractAddress as string,
-      },
+      signers: [passkeySigner],
     })
 
-    // Generate options based on custom challenge (tx simulation)
-    const options = await this.webauthnAuthenticationHelper.generateOptions({
-      user: user,
-      customChallenge: challenge,
-    })
+    // Broadcast transfer
+    const callResponse = await this.sorobanService.callContract({ tx, simulationResponse })
 
-    if (!options) {
-      throw new Error(messages.UNABLE_TO_COMPLETE_PASSKEY_AUTHENTICATION)
+    if (!callResponse || callResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
+      throw new Error(messages.UNABLE_TO_EXECUTE_TRANSACTION)
     }
-
-    const vendor = await this.vendorRepository.getVendorByWalletAddress(validatedData.to)
 
     return {
       data: {
-        options_json: options,
-        vendor: {
-          ...vendor,
-        },
+        hash: callResponse.txHash,
       },
-      message: 'Retrieved transaction options successfully',
+      message: 'Transaction executed successfully',
     }
   }
 }
