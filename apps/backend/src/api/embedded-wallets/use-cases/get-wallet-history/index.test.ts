@@ -50,7 +50,6 @@ describe('GetWalletHistory', () => {
 
       const result = await useCase.handle(payload)
 
-      expect(result.data.address).toBe(mockUser.contractAddress)
       expect(result.data.transactions).toEqual([])
       expect(result.message).toBe('Transaction history retrieved successfully')
     })

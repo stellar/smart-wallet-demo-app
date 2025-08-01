@@ -1,7 +1,7 @@
 import { Button, Text, Icon, CopyText } from '@stellar/design-system'
 import Skeleton from 'react-loading-skeleton'
 
-import { formatNumber } from 'src/app/core/utils'
+import { formatNumber, createShortStellarAddress } from 'src/app/core/utils'
 import { modalService } from 'src/components/molecules/modal/provider'
 import { NavigateButton } from 'src/components/molecules/navigate-button'
 import { SafeAreaView } from 'src/components/organisms'
@@ -30,7 +30,7 @@ const formatDate = (dateString: string) => {
 
 const formatAmount = (amount: number, asset: string) => {
   const formattedAmount = formatNumber(amount)
-  return `${formattedAmount} ${asset}`
+  return `${formattedAmount} ${createShortStellarAddress(asset, { onlyValidAddress: true })}`
 }
 
 const truncateHash = (hash: string) => {
@@ -66,9 +66,11 @@ const createTransactionModalContent = (transaction: Transaction) => (
           <Text
             as="div"
             size="lg"
-            className="text-center text-[var(--color-text-secondary)] font-medium text-lg leading-[26px]"
+            className="text-center text-[var(--color-text-secondary)] font-medium text-lg leading-[26px] break-words whitespace-normal"
           >
-            {transaction.type === 'MINT' ? c('transactionModalMintTitle') : transaction.vendor}
+            {transaction.type === 'MINT'
+              ? c('transactionModalMintTitle')
+              : createShortStellarAddress(transaction.vendor, { onlyValidAddress: true })}
           </Text>
         </div>
         <Text
@@ -204,18 +206,24 @@ export const TransactionsTemplate = ({
                         })
                       }}
                     >
-                      <div className="flex flex-col text-left">
-                        <Text as="span" size="md" className="font-medium text-[var(--color-text)] text-base leading-6">
-                          {tx.vendor}
-                        </Text>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-[var(--color-text)] text-right text-base leading-6">
-                          {tx.amount > 0 ? '+' : ''}
-                          {tx.amount}
-                          {tx.asset ? ` ${tx.asset}` : ''}
-                        </span>
-                        <Icon.ChevronRight width={16} height={16} className="text-[var(--color-foreground-primary)]" />
+                      <div className="flex w-full justify-between items-center">
+                        <div className="flex-[0.5] text-left truncate">
+                          <Text as="span" size="md" className="font-medium text-text text-base leading-6">
+                            {createShortStellarAddress(tx.vendor, { onlyValidAddress: true })}
+                          </Text>
+                        </div>
+                        <div className="flex-[0.325] text-right truncate">
+                          <span className="font-medium text-text text-base leading-6">
+                            {tx.amount > 0 ? '+' : ''}
+                            {formatNumber(tx.amount, undefined, undefined, undefined, 2)}
+                          </span>
+                        </div>
+                        <div className="flex-[0.125] text-right truncate">
+                          <span className="font-medium text-text text-base leading-6">{tx.asset ? tx.asset : ''}</span>
+                        </div>
+                        <div className="flex-[0.025]">
+                          <Icon.ChevronRight width={16} height={16} className="text-foreground" />
+                        </div>
                       </div>
                     </button>
                   ))}

@@ -1,9 +1,9 @@
 import { Text, Button, CopyText, Icon } from '@stellar/design-system'
 import Skeleton from 'react-loading-skeleton'
 
+import { createShortStellarAddress } from 'src/app/core/utils'
 import { NavigateButton } from 'src/components/molecules/navigate-button'
 import { SafeAreaView } from 'src/components/organisms'
-import { createShortWalletAddress } from 'src/helpers/format'
 import { c } from 'src/interfaces/cms/useContent'
 
 // Types
@@ -51,7 +51,7 @@ export const ProfileTemplate = ({
   )
 
   const WalletAddressSection = ({ walletAddress }: WalletSectionProps) => {
-    const shortWalletAddress = createShortWalletAddress(walletAddress)
+    const shortWalletAddress = createShortStellarAddress(walletAddress)
 
     return (
       <div className="flex flex-col">
