@@ -49,6 +49,8 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
     const payload = { id: request.userData?.userId } as RequestSchemaT
+      console.log('USER DATA', request.userData, request.params, request.query)
+
     if (!payload.id) {
       throw new UnauthorizedException(messages.NOT_AUTHORIZED)
     }
