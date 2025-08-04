@@ -42,6 +42,11 @@ export type GetTransferOptionsResult = IHTTPResponse<{
     wallet_address?: string
     profile_image?: string
   }
+  user: {
+    address: string
+    email: string
+    balance: number
+  }
 }>
 
 export type PostTransferInput = {
