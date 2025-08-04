@@ -3,4 +3,5 @@ export enum WalletQueryKeys {
   GetTransactionHistory = 'GetTransactionHistory',
   GetTransferOptions = 'GetTransferOptions',
   Transfer = 'Transfer',
+  ScanTxQrCode = 'ScanTxQrCode',
 }

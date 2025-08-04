@@ -17,8 +17,6 @@ export class TransferUseCase extends UseCaseBase<void> {
   }
 
   async handle(input: TransferInput): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 3000))
-
     // Start WebAuthn authentication (touchID/fingerprint/pin auth on the user's device)
     const { rawResponse: authenticateWithPasskeyResponse } = await this.webauthnService.authenticateWithPasskey({
       optionsJSON: JSON.parse(input.optionsJSON),

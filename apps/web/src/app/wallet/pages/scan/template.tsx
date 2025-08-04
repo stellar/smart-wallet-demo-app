@@ -9,14 +9,13 @@ import styles from './styles.module.css'
 
 type Props = {
   onGoBack: () => void
+  onScan: (decodedText: string) => Promise<void> | void
 }
 
-export const ScanTemplate = ({ onGoBack }: Props) => {
+export const ScanTemplate = ({ onGoBack, onScan }: Props) => {
   useEffect(() => {
-    qrScanner.start(decoded => {
-      // TODO: redirect to payment flow
-      alert(`Scanned: ${decoded}`)
-    })
+    qrScanner.start(decoded => onScan(decoded))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

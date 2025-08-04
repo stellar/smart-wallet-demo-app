@@ -21,7 +21,8 @@ export type GetTransactionHistoryResult = IHTTPResponse<{
   transactions: Transaction[]
 }>
 
-export type TransferTypes = 'transfer'
+export const transferTypes = ['transfer'] as const
+export type TransferTypes = (typeof transferTypes)[number]
 export type TransferTypeParams = {
   type: Extract<TransferTypes, 'transfer'>
   to: string
@@ -32,6 +33,8 @@ export const isTransferTypeParams = (params: { type: TransferTypes }): params is
   params.type === 'transfer'
 
 export type GetTransferOptionsInput = TransferTypeParams
+export const transferOptionsInputKeys: (keyof GetTransferOptionsInput)[] = ['type', 'to', 'amount', 'asset']
+
 export type GetTransferOptionsResult = IHTTPResponse<{
   options_json: string
   vendor?: {

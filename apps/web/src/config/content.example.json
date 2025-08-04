@@ -59,5 +59,6 @@
   "transactionModalCopyTransactionIdTitle": "Copy transaction ID",
   "transactionModalAvailableBalanceLabel": "Available balance:",
   "defaultLoadingDescription": "Hold on a second while we reach the network...",
-  "confirmPayment": "Confirm Payment"
+  "confirmPayment": "Confirm Payment",
+  "invalidQrCode": "This QR code isn't valid. Please try another one"
 }
