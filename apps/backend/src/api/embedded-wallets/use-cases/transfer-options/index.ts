@@ -72,6 +72,10 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
       throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
     }
 
+    if (!user.contractAddress) {
+      throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_WALLET)
+    }
+
     if (!user.passkeys.length) {
       throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_PASSKEYS)
     }
@@ -101,31 +105,28 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     })
 
     if (!options) {
-      throw new Error(messages.UNABLE_TO_COMPLETE_PASSKEY_AUTHENTICATION)
+      throw new ResourceNotFoundException(messages.UNABLE_TO_COMPLETE_PASSKEY_AUTHENTICATION)
     }
 
     // Get vendor data
     const vendor = await this.vendorRepository.getVendorByWalletAddress(validatedData.to)
 
-    // Get user balance if contract address exists
-    let userBalance = 0
-    if (user.contractAddress) {
-      userBalance = await getWalletBalance({ userContractAddress: user.contractAddress })
-    }
+    // Get user balance
+    const userBalance = await getWalletBalance({ userContractAddress: user.contractAddress })
 
     return {
       data: {
         options_json: options,
         user: {
           email: user.email,
-          address: user.contractAddress || '',
+          address: user.contractAddress,
           balance: userBalance,
         },
         vendor: vendor
           ? {
               name: vendor.name,
-              walletAddress: vendor.walletAddress,
-              profileImage: vendor.profileImage,
+              wallet_address: vendor.walletAddress,
+              profile_image: vendor.profileImage,
             }
           : undefined,
       },

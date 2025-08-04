@@ -10,7 +10,6 @@ import { mockAssetRepository } from 'api/core/services/asset/mock'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { mockVendorRepository } from 'api/core/services/vendor/mock'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
-import { messages } from 'api/embedded-wallets/constants/messages'
 import { STELLAR } from 'config/stellar'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
@@ -110,8 +109,8 @@ describe('TransferOptions', () => {
       expect(result.data.user.balance).toBe(10) // Converted from stroops
       expect(result.data.vendor).toEqual({
         name: mockVendor.name,
-        walletAddress: mockVendor.walletAddress,
-        profileImage: mockVendor.profileImage,
+        wallet_address: mockVendor.walletAddress,
+        profile_image: mockVendor.profileImage,
       })
       expect(result.message).toBe('Retrieved transaction options successfully')
     })
@@ -234,7 +233,7 @@ describe('TransferOptions', () => {
       mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(null)
 
-      await expect(useCase.handle(payload)).rejects.toThrow(messages.UNABLE_TO_COMPLETE_PASSKEY_AUTHENTICATION)
+      await expect(useCase.handle(payload)).rejects.toThrow('The requested resource was not found')
     })
 
     it('should validate payload and throw on invalid data', async () => {
@@ -288,8 +287,8 @@ describe('TransferOptions', () => {
           },
           vendor: {
             name: mockVendor.name,
-            walletAddress: mockVendor.walletAddress,
-            profileImage: mockVendor.profileImage,
+            wallet_address: mockVendor.walletAddress,
+            profile_image: mockVendor.profileImage,
           },
         },
         message: 'Retrieved transaction options successfully',

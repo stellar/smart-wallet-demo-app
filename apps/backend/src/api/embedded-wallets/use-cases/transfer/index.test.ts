@@ -9,7 +9,6 @@ import { mockWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentica
 import { mockAssetRepository } from 'api/core/services/asset/mock'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
-import { messages } from 'api/embedded-wallets/constants/messages'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { mockSorobanService } from 'interfaces/soroban/mock'
@@ -105,7 +104,7 @@ describe('Transfer', () => {
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: '100',
-        authenticationResponseJSON: '{"id":"TestPayload123"}',
+        authentication_response_json: '{"id":"TestPayload123"}',
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
@@ -124,7 +123,7 @@ describe('Transfer', () => {
       expect(mockedUserRepository.getUserByEmail).toHaveBeenCalledWith(mockUser.email, { relations: ['passkeys'] })
       expect(mockedCompleteAuthentication).toHaveBeenCalledWith({
         user: mockUser,
-        authenticationResponseJSON: payload.authenticationResponseJSON,
+        authenticationResponseJSON: payload.authentication_response_json,
       })
       expect(mockedAssetRepository.getAssetByCode).toHaveBeenCalledWith('USDC')
       expect(mockedSimulateContract).toHaveBeenCalledWith({
@@ -156,7 +155,7 @@ describe('Transfer', () => {
         asset: 'XLM',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: '100',
-        authenticationResponseJSON: '{"id":"TestPayload123"}',
+        authentication_response_json: '{"id":"TestPayload123"}',
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
@@ -187,7 +186,7 @@ describe('Transfer', () => {
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: '100',
-        authenticationResponseJSON: '{"id":"TestPayload123"}',
+        authentication_response_json: '{"id":"TestPayload123"}',
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(null)
@@ -209,7 +208,7 @@ describe('Transfer', () => {
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: '100',
-        authenticationResponseJSON: '{"id":"TestPayload123"}',
+        authentication_response_json: '{"id":"TestPayload123"}',
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(userWithoutPasskeys)
@@ -225,13 +224,13 @@ describe('Transfer', () => {
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: '100',
-        authenticationResponseJSON: '{"id":"TestPayload123"}',
+        authentication_response_json: '{"id":"TestPayload123"}',
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedCompleteAuthentication.mockResolvedValue(false)
 
-      await expect(useCase.handle(payload)).rejects.toBeInstanceOf(UnauthorizedException)
+      await expect(useCase.handle(payload)).rejects.toThrow('The requested resource was not found')
       expect(mockedAssetRepository.getAssetByCode).not.toHaveBeenCalled()
     })
 
@@ -242,7 +241,7 @@ describe('Transfer', () => {
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: '100',
-        authenticationResponseJSON: '{"id":"TestPayload123"}',
+        authentication_response_json: '{"id":"TestPayload123"}',
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
@@ -257,7 +256,7 @@ describe('Transfer', () => {
         status: rpc.Api.GetTransactionStatus.FAILED,
       } as unknown as rpc.Api.GetSuccessfulTransactionResponse)
 
-      await expect(useCase.handle(payload)).rejects.toThrow(messages.UNABLE_TO_EXECUTE_TRANSACTION)
+      await expect(useCase.handle(payload)).rejects.toThrow('The requested resource was not found')
     })
 
     it('should throw Error when submitTx returns null', async () => {
@@ -267,7 +266,7 @@ describe('Transfer', () => {
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: '100',
-        authenticationResponseJSON: '{"id":"TestPayload123"}',
+        authentication_response_json: '{"id":"TestPayload123"}',
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
@@ -279,7 +278,7 @@ describe('Transfer', () => {
       })
       mockedSubmitTx.mockResolvedValue(null as unknown as rpc.Api.GetSuccessfulTransactionResponse)
 
-      await expect(useCase.handle(payload)).rejects.toThrow(messages.UNABLE_TO_EXECUTE_TRANSACTION)
+      await expect(useCase.handle(payload)).rejects.toThrow('The requested resource was not found')
     })
   })
 

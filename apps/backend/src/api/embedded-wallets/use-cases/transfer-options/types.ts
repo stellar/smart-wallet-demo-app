@@ -24,8 +24,8 @@ export const ResponseSchema = createResponseSchema(
     vendor: z
       .object({
         name: z.string().optional(),
-        walletAddress: z.string().optional(),
-        profileImage: z.string().optional(),
+        wallet_address: z.string().optional(),
+        profile_image: z.string().optional(),
       })
       .optional(),
   })

@@ -48,7 +48,7 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       asset: request.body?.asset as string,
       to: request.body?.to as string,
       amount: request.body?.amount as string,
-      authenticationResponseJSON: request.body?.authenticationResponseJSON as string,
+      authentication_response_json: request.body?.authenticationResponseJSON as string,
     } as RequestSchemaT
 
     if (!payload.email) {
@@ -72,15 +72,13 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_PASSKEYS)
     }
 
-    const { authenticationResponseJSON } = validatedData
-
     const verifyAuth = await this.webauthnAuthenticationHelper.complete({
       user,
-      authenticationResponseJSON,
+      authenticationResponseJSON: validatedData.authentication_response_json,
     })
 
     if (!verifyAuth) {
-      throw new UnauthorizedException(messages.UNABLE_TO_COMPLETE_PASSKEY_AUTHENTICATION)
+      throw new ResourceNotFoundException(messages.UNABLE_TO_COMPLETE_PASSKEY_AUTHENTICATION)
     }
 
     // Build contract signer
@@ -117,7 +115,7 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     const txResponse = await submitTx({ tx, simulationResponse })
 
     if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
-      throw new Error(messages.UNABLE_TO_EXECUTE_TRANSACTION)
+      throw new ResourceNotFoundException(messages.UNABLE_TO_EXECUTE_TRANSACTION)
     }
 
     return {

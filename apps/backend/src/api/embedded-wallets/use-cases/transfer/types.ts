@@ -9,7 +9,7 @@ export const RequestSchema = z.object({
   asset: z.string(),
   to: z.string(),
   amount: z.string(),
-  authenticationResponseJSON: z.string().refine(refineJsonString),
+  authentication_response_json: z.string().refine(refineJsonString),
 })
 
 export type RequestSchemaT = z.infer<typeof RequestSchema>
