@@ -1,24 +1,22 @@
-import { xdr } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
+import { getWalletBalance } from 'api/core/helpers/get-balance'
 import AssetRepository from 'api/core/services/asset'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { sleepInSeconds } from 'api/core/utils/sleep'
 import { messages } from 'api/embedded-wallets/constants/messages'
-import { STELLAR } from 'config/stellar'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
 import { SDPEmbeddedWalletsType, WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 import SorobanService from 'interfaces/soroban'
-import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
-import { ISorobanService, SimulateContract } from 'interfaces/soroban/types'
+import { ISorobanService } from 'interfaces/soroban/types'
 import WalletBackend from 'interfaces/wallet-backend'
 
 import { ParseSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
@@ -77,7 +75,11 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     // Check if user already has a wallet
     if (user.contractAddress) {
       // Get wallet balance
-      const balance = await this.getWalletBalance(user.contractAddress)
+      const balance = await getWalletBalance({
+        userContractAddress: user.contractAddress,
+        assetRepository: this.assetRepository,
+        sorobanService: this.sorobanService,
+      })
 
       return this.parseResponse({
         status: WalletStatus.SUCCESS,
@@ -110,7 +112,11 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     }
 
     // Get wallet balance
-    const balance = await this.getWalletBalance(user.contractAddress)
+    const balance = await getWalletBalance({
+      userContractAddress: user.contractAddress,
+      assetRepository: this.assetRepository,
+      sorobanService: this.sorobanService,
+    })
 
     return this.parseResponse({
       status: walletStatus,
@@ -118,21 +124,6 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       email: user.email,
       balance,
     })
-  }
-
-  private async getWalletBalance(userContractAddress: string): Promise<number> {
-    // Get asset contract address from db
-    const asset = await this.assetRepository.getAssetByType('native') // Stellar/XLM native asset
-    const assetContractAddress = asset?.contractAddress ?? STELLAR.TOKEN_CONTRACT.NATIVE
-
-    const { simulationResponse } = await this.sorobanService.simulateContract({
-      contractId: assetContractAddress, // TODO: get balance for another assets?
-      method: 'balance',
-      args: [ScConvert.accountIdToScVal(userContractAddress)],
-    } as SimulateContract)
-
-    const walletBalance: number = Number(ScConvert.scValToFormatString(simulationResponse.result?.retval as xdr.ScVal))
-    return walletBalance
   }
 }
 

@@ -25,6 +25,7 @@ import {
   SignAuthEntry,
   SimulateContract,
   SimulationResult,
+  CallContract,
 } from './types'
 
 export default class SorobanService extends SingletonBase implements ISorobanService {
@@ -340,6 +341,24 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
       this.logError('simulateContract', { error })
       throw error
     }
+  }
+
+  /**
+   * Calls a Soroban contract method.
+   * @param tx - The transaction to submit.
+   * @param simulationResponse - The simulation response for the transaction.
+   * @returns A Promise that resolves to the transaction response.
+   */
+  public async callContract({
+    tx,
+    simulationResponse,
+  }: CallContract): Promise<rpc.Api.GetSuccessfulTransactionResponse> {
+    // Assemble, build and sign the transaction
+    const preparedTransaction = rpc.assembleTransaction(tx, simulationResponse)
+    tx = preparedTransaction.build()
+    tx.sign(this.sourceAccountKP)
+
+    return this.sendTransaction(tx)
   }
 
   /**
