@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef } from 'react'
 
 import { modalService } from 'src/components/organisms/modal/provider'
 import { ErrorHandling } from 'src/helpers/error-handling'
+import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 import { queryClient } from 'src/interfaces/query-client'
 
@@ -72,6 +73,7 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
               onClick: () => transfer.mutate({ ...params, optionsJSON: data.options_json }),
             },
           },
+          backgroundImageUri: a('customModalBackground'),
           onClose: () => exit(),
         })
       }
