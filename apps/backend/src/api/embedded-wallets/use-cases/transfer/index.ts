@@ -4,6 +4,7 @@ import { Request, Response } from 'express'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
+import { submitTx } from 'api/core/helpers/submit-tx'
 import WebAuthnAuthentication from 'api/core/helpers/webauthn/authentication'
 import { IWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/types'
 import AssetRepository from 'api/core/services/asset'
@@ -82,12 +83,13 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       throw new UnauthorizedException(messages.UNABLE_TO_COMPLETE_PASSKEY_AUTHENTICATION)
     }
 
+    // Build contract signer
     const passkeySigner: ContractSigner = {
       addressId: user.contractAddress as string,
       methodOptions: {
         method: 'webauthn',
         options: {
-          credentialId: user.passkeys[0].credentialId, // TODO: map all passkey items?
+          credentialId: verifyAuth.passkey.credentialId,
           clientDataJSON: verifyAuth.clientDataJSON,
           authenticatorData: verifyAuth.authenticatorData,
           compactSignature: verifyAuth.compactSignature,
@@ -112,15 +114,15 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     })
 
     // Broadcast transfer
-    const callResponse = await this.sorobanService.callContract({ tx, simulationResponse })
+    const txResponse = await submitTx({ tx, simulationResponse })
 
-    if (!callResponse || callResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
+    if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
       throw new Error(messages.UNABLE_TO_EXECUTE_TRANSACTION)
     }
 
     return {
       data: {
-        hash: callResponse.txHash,
+        hash: txResponse.txHash,
       },
       message: 'Transaction executed successfully',
     }
