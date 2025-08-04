@@ -9,6 +9,8 @@ type ModalServiceType = {
   open: (props: ModalOptions) => void
   push: (props: ModalOptions) => void
   update: (key: string, props: Partial<ModalOptions>) => void
+  setState: (key: string, state: Record<string, unknown>) => void
+  getState: (key: string) => Record<string, unknown>
   close: () => void
   closeAll: () => void
   remove: (key: string) => void
@@ -16,6 +18,7 @@ type ModalServiceType = {
 
 const ModalInnerProvider = forwardRef<ModalServiceType, { children: ReactNode }>(({ children }, ref) => {
   const [modals, setModals] = useState<ModalOptions[]>([])
+  const [modalStates, setModalStates] = useState<Record<string, Record<string, unknown>>>({})
 
   useImperativeHandle(
     ref,
@@ -36,6 +39,13 @@ const ModalInnerProvider = forwardRef<ModalServiceType, { children: ReactNode }>
       update: (key, props) => {
         setModals(prev => prev.map(modal => (modal.key === key ? { ...modal, ...props } : modal)))
       },
+      setState: (key, partialState) => {
+        setModalStates(prev => ({
+          ...prev,
+          [key]: { ...prev[key], ...partialState },
+        }))
+      },
+      getState: key => modalStates[key] ?? {},
       close: () => {
         setModals(prev => prev.slice(0, -1))
       },
@@ -46,7 +56,7 @@ const ModalInnerProvider = forwardRef<ModalServiceType, { children: ReactNode }>
         setModals(prev => prev.filter(m => m.key !== key))
       },
     }),
-    []
+    [modalStates]
   )
 
   // Only render the top modal using portal
@@ -62,7 +72,15 @@ const ModalInnerProvider = forwardRef<ModalServiceType, { children: ReactNode }>
       {children}
       {typeof window !== 'undefined' &&
         activeModal &&
-        createPortal(<Modal {...activeModal} key={activeModal.key} onClose={handleClose} />, document.body)}
+        createPortal(
+          <Modal
+            {...activeModal}
+            key={activeModal.key}
+            onClose={handleClose}
+            internalState={modalStates[activeModal.key] ?? {}}
+          />,
+          document.body
+        )}
     </>
   )
 })
@@ -82,6 +100,14 @@ class ModalService implements ModalServiceType {
 
   update(key: string, props: Partial<ModalOptions>) {
     this.modalRef.current?.update(key, props)
+  }
+
+  setState(key: string, state: Record<string, unknown>) {
+    this.modalRef.current?.setState(key, state)
+  }
+
+  getState(key: string) {
+    return this.modalRef.current?.getState(key) ?? {}
   }
 
   close() {

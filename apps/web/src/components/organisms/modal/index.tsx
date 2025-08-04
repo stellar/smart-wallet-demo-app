@@ -12,8 +12,11 @@ import {
 
 export type ModalVariants = 'default' | 'transaction-details' | 'loading'
 
+export type ModalInternalState = Record<string, unknown>
+
 export type BaseModalProps = {
   backgroundImageUri?: string | 'default'
+  internalState?: ModalInternalState
   onClose?: () => void
 }
 
@@ -21,7 +24,7 @@ export type ModalProps = {
   variantOptions: ModalDefaultProps | ModalTransactionDetailsProps | ModalLoadingProps
 } & BaseModalProps
 
-export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri, onClose }) => {
+export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri, internalState, onClose }) => {
   const modalRef = useRef<HTMLDivElement>(null)
   const isLocked = useRef(variantOptions.variant === 'loading' && variantOptions.isLocked)
 
@@ -50,13 +53,13 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
   const modalContent = useMemo(() => {
     switch (variantOptions.variant) {
       case 'default':
-        return <ModalDefault {...variantOptions} onClose={onClose} />
+        return <ModalDefault {...variantOptions} internalState={internalState} onClose={onClose} />
       case 'transaction-details':
-        return <ModalTransactionDetails {...variantOptions} onClose={onClose} />
+        return <ModalTransactionDetails {...variantOptions} internalState={internalState} onClose={onClose} />
       case 'loading':
-        return <ModalLoading {...variantOptions} onClose={onClose} />
+        return <ModalLoading {...variantOptions} internalState={internalState} onClose={onClose} />
     }
-  }, [onClose, variantOptions])
+  }, [internalState, onClose, variantOptions])
 
   return (
     <div

@@ -58,5 +58,6 @@
   "transactionModalTransactionIdLabel": "Transaction ID",
   "transactionModalCopyTransactionIdTitle": "Copy transaction ID",
   "transactionModalAvailableBalanceLabel": "Available balance:",
-  "defaultLoadingDescription": "Hold on a second while we reach the network..."
+  "defaultLoadingDescription": "Hold on a second while we reach the network...",
+  "confirmPayment": "Confirm Payment"
 }

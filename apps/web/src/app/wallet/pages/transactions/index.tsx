@@ -5,9 +5,9 @@ import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { TransactionsTemplate } from './template'
+import { Transaction } from '../../domain/models/transaction'
 import { useGetTransactionHistory } from '../../queries/use-get-transaction-history'
 import { WalletPagesPath } from '../../routes/types'
-import { Transaction } from '../../services/wallet/types'
 
 export const Transactions = () => {
   const navigate = useNavigate()

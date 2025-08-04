@@ -1,4 +1,5 @@
 import { Badge, Button, CopyText, Icon, IconButton, Text } from '@stellar/design-system'
+import { useMemo } from 'react'
 
 import { createShortStellarAddress } from 'src/app/core/utils'
 import { c } from 'src/interfaces/cms/useContent'
@@ -29,6 +30,7 @@ export const ModalTransactionDetails = ({
   availableBalance,
   transactionHash,
   button,
+  internalState,
   onClose,
 }: BaseModalProps & ModalTransactionDetailsProps) => {
   const formatDate = (dateString: string) => {
@@ -106,6 +108,8 @@ export const ModalTransactionDetails = ({
     </div>
   )
 
+  const isLoading = useMemo(() => !!internalState?.isLoading, [internalState?.isLoading])
+
   return (
     <div className="flex flex-col gap-6 pt-4">
       {/* Close Button - Positioned outside modal */}
@@ -163,7 +167,7 @@ export const ModalTransactionDetails = ({
 
       {/* Bottom Button */}
       <div>
-        <Button {...button} />
+        <Button isLoading={isLoading} {...button} />
       </div>
     </div>
   )

@@ -9,7 +9,6 @@ const mockPostLoginResult = {
   data: {
     token:
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJ5b3VyQGVtYWlsLmNvbSIsImlhdCI6MTUxNjIzOTAyMn0.ejDGXXyQ2cEpHOlxs_MhKP3fFWtu7TKg7VkXP00koes',
-    success: true,
   },
   message: 'Completed log in successfully',
 }
@@ -28,7 +27,7 @@ describe('LogInUseCase', () => {
   it('should call getLogInOptions with email', async () => {
     const email = 'test@example.com'
     const logInOptions = {
-      data: { options_json: '{}', success: true },
+      data: { options_json: '{}' },
       message: 'Retrieved log in options successfully',
     }
 
@@ -47,7 +46,7 @@ describe('LogInUseCase', () => {
   it('should call authenticateWithPasskey with parsed options', async () => {
     const email = 'test@example.com'
     const logInOptions = {
-      data: { options_json: '{"test":"option"}', success: true },
+      data: { options_json: '{"test":"option"}' },
       message: 'Retrieved log in options successfully',
     }
     const parsedOptions = JSON.parse(logInOptions.data.options_json)
@@ -76,7 +75,7 @@ describe('LogInUseCase', () => {
   it('should throw error if authenticateWithPasskey fails', async () => {
     const email = 'test@example.com'
     const logInOptions = {
-      data: { options_json: '{}', success: true },
+      data: { options_json: '{}' },
       message: 'Retrieved log in options successfully',
     }
     const error = new Error('Test error')

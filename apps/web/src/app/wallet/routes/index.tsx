@@ -5,6 +5,8 @@ import { Home, Scan, Profile, Transactions } from 'src/app/wallet/pages'
 import { qrScanner } from 'src/interfaces/qr-scanner'
 
 import { WalletPagesPath } from './types'
+import { transferTypeSchema } from '../pages/home/schema'
+import { TransferTypes } from '../services/wallet/types'
 
 const filterHomePath = (path: WalletPagesPath): string => path.split(WalletPagesPath.HOME)[1]
 
@@ -13,10 +15,19 @@ const walletRootRoute = createRoute({
   path: WalletPagesPath.HOME,
 })
 
-const homeRoute = createRoute({
+export const homeRoute = createRoute({
   getParentRoute: () => walletRootRoute,
   path: '/',
   component: Home,
+  validateSearch: search => {
+    switch (search.type as TransferTypes) {
+      case 'transfer':
+        return transferTypeSchema.validateSync(search)
+    }
+  },
+  loaderDeps: ({ search }) => ({
+    shouldInitTransfer: !!search.type,
+  }),
 })
 
 const scanRoute = createRoute({

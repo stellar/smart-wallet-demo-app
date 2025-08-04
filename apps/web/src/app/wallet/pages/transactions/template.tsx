@@ -7,7 +7,7 @@ import { SafeAreaView } from 'src/components/organisms'
 import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 
-import { Transaction } from '../../services/wallet/types'
+import { Transaction } from '../../domain/models/transaction'
 
 interface TransactionsTemplateProps {
   isLoadingTransactionHistory: boolean

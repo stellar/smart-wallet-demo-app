@@ -1,6 +1,14 @@
 import { http } from 'src/interfaces/http'
 
-import { GetWalletResult, GetTransactionHistoryResult, IWalletService } from './types'
+import {
+  GetWalletResult,
+  GetTransactionHistoryResult,
+  IWalletService,
+  GetTransferOptionsInput,
+  GetTransferOptionsResult,
+  PostTransferInput,
+  PostTransferResult,
+} from './types'
 
 export class WalletService implements IWalletService {
   async getWallet(): Promise<GetWalletResult> {
@@ -11,6 +19,23 @@ export class WalletService implements IWalletService {
 
   async getTransactionHistory(): Promise<GetTransactionHistoryResult> {
     const response = await http.get('/api/embedded-wallets/tx-history')
+
+    return response.data
+  }
+
+  async getTransferOptions(input: GetTransferOptionsInput): Promise<GetTransferOptionsResult> {
+    const response = await http.get('/api/embedded-wallets/transfer/options', { params: input })
+
+    return response.data
+  }
+
+  async postTransfer(input: PostTransferInput): Promise<PostTransferResult> {
+    const { authenticationResponseJSON, ...rest } = input
+
+    const response = await http.post(`/api/embedded-wallets/transfer/complete`, {
+      authentication_response_json: authenticationResponseJSON,
+      rest,
+    })
 
     return response.data
   }
