@@ -57,8 +57,8 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
           variantOptions: {
             variant: 'transaction-details',
             source: {
-              name: data.vendor?.name || data.vendor?.walletAddress || 'Unknown Source',
-              imageUri: data.vendor?.profileImage,
+              name: data.vendor?.name || data.vendor?.wallet_address || 'Unknown Source',
+              imageUri: data.vendor?.profile_image,
             },
             amount: {
               value: params.amount,

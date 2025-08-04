@@ -39,8 +39,8 @@ export type GetTransferOptionsResult = IHTTPResponse<{
   options_json: string
   vendor?: {
     name?: string
-    walletAddress?: string
-    profileImage?: string
+    wallet_address?: string
+    profile_image?: string
   }
 }>
 
