@@ -16,6 +16,11 @@ export type RequestSchemaT = z.infer<typeof RequestSchema>
 export const ResponseSchema = createResponseSchema(
   z.object({
     options_json: z.string().refine(refineJsonString),
+    user: z.object({
+      address: z.string(),
+      email: z.string().email(),
+      balance: z.number().positive(),
+    }),
     vendor: z
       .object({
         name: z.string().optional(),

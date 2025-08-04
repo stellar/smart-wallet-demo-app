@@ -5,6 +5,7 @@ import { UserRepositoryType } from 'api/core/entities/user/types'
 import { VendorRepositoryType } from 'api/core/entities/vendor/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
+import { getWalletBalance } from 'api/core/helpers/get-balance'
 import WebAuthnAuthentication from 'api/core/helpers/webauthn/authentication'
 import { IWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/types'
 import AssetRepository from 'api/core/services/asset'
@@ -103,14 +104,30 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
       throw new Error(messages.UNABLE_TO_COMPLETE_PASSKEY_AUTHENTICATION)
     }
 
+    // Get vendor data
     const vendor = await this.vendorRepository.getVendorByWalletAddress(validatedData.to)
+
+    // Get user balance if contract address exists
+    let userBalance = 0
+    if (user.contractAddress) {
+      userBalance = await getWalletBalance({ userContractAddress: user.contractAddress })
+    }
 
     return {
       data: {
         options_json: options,
-        vendor: {
-          ...vendor,
+        user: {
+          email: user.email,
+          address: user.contractAddress || '',
+          balance: userBalance,
         },
+        vendor: vendor
+          ? {
+              name: vendor.name,
+              walletAddress: vendor.walletAddress,
+              profileImage: vendor.profileImage,
+            }
+          : undefined,
       },
       message: 'Retrieved transaction options successfully',
     }
