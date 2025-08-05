@@ -25,13 +25,10 @@ export const getWalletBalance = async ({
   const sorobanServiceInstance = sorobanService || SorobanService.getInstance()
 
   // Get asset contract address
-  let asset = null
-
-  if (assetType) {
-    asset = await assetRepositoryInstance.getAssetByType(assetType)
-  } else if (assetCode) {
-    asset = await assetRepositoryInstance.getAssetByCode(assetCode)
-  }
+  const asset =
+    assetType || assetCode
+      ? await assetRepositoryInstance.getAssetByType(assetType as string)
+      : await assetRepositoryInstance.getAssetByCode(assetCode as string)
 
   const assetContractAddress = asset?.contractAddress ?? STELLAR.TOKEN_CONTRACT.NATIVE // Stellar/XLM native asset
 
