@@ -18,7 +18,7 @@ export const TransactionSchema = z.object({
   asset: z.string(),
   fromAddress: z.string().optional(),
   toAddress: z.string().optional(),
-  sendOrReceive: z.string().optional(),
+  sendOrReceive: z.enum(['send', 'receive']).optional(),
 })
 
 export type TransactionSchemaT = z.infer<typeof TransactionSchema>
