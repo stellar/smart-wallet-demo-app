@@ -51,6 +51,7 @@ export abstract class UseCaseBase<UseCaseResponse extends BaseResponseSchema = B
   protected validate<T extends ZodType>(payload: unknown, schema: T): z.infer<typeof schema> {
     const request: { success: boolean; error?: ZodError; data?: typeof payload } = schema.safeParse(payload)
     if (!request.success && request.error instanceof ZodError) {
+      // console.log('ERROR >>>', request.error)
       throw new ZodValidationException(request.error)
     }
     return request.data as z.infer<typeof schema>
