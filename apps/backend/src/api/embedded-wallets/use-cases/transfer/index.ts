@@ -42,15 +42,8 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
-    const payload = {
-      email: request.userData?.email as string,
-      type: request.body?.type as string,
-      asset: request.body?.asset as string,
-      to: request.body?.to as string,
-      amount: request.body?.amount as string,
-      id: request.body?.id as string, // NFT id
-      authentication_response_json: request.body?.authenticationResponseJSON as string,
-    } as RequestSchemaT
+    const payload = request.body as RequestSchemaT
+    payload.email = request.userData?.email as string
 
     if (!payload.email) {
       throw new UnauthorizedException(messages.NOT_AUTHORIZED)

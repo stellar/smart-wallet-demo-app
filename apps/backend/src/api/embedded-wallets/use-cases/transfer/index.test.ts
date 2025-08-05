@@ -291,7 +291,7 @@ describe('Transfer', () => {
           asset: 'USDC',
           to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
           amount: '100',
-          authenticationResponseJSON: '{"id":"TestPayload123"}',
+          authentication_response_json: '{"id":"TestPayload123"}',
         },
       } as unknown as Request
 
@@ -328,7 +328,7 @@ describe('Transfer', () => {
           asset: 'USDC',
           to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
           amount: '100',
-          authenticationResponseJSON: '{"id":"TestPayload123"}',
+          authentication_response_json: '{"id":"TestPayload123"}',
         },
       } as unknown as Request
 
@@ -348,7 +348,7 @@ describe('Transfer', () => {
           asset: 'USDC',
           to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
           amount: '100',
-          authenticationResponseJSON: '{"id":"TestPayload123"}',
+          authentication_response_json: '{"id":"TestPayload123"}',
         },
       } as unknown as Request
 
