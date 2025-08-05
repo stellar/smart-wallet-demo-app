@@ -1,3 +1,4 @@
+import { xdr } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
@@ -53,6 +54,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
       asset: request.query?.asset as string,
       to: request.query?.to as string,
       amount: request.query?.amount as string,
+      id: request.query?.id as string, // NFT id
     } as RequestSchemaT
 
     if (!payload.email) {
@@ -65,9 +67,12 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
 
   async handle(payload: RequestSchemaT): Promise<ResponseSchemaT> {
     const validatedData = this.validate(payload, RequestSchema)
+
+    // Get user data
     const { email } = validatedData
 
     const user = await this.userRepository.getUserByEmail(email, { relations: ['passkeys'] })
+
     if (!user) {
       throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
     }
@@ -84,15 +89,27 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     const asset = await this.assetRepository.getAssetByCode(validatedData.asset)
     const assetContractAddress = asset?.contractAddress ?? STELLAR.TOKEN_CONTRACT.NATIVE
 
+    let args: xdr.ScVal[] = []
+
+    if (validatedData.type === 'transfer') {
+      args = [
+        ScConvert.accountIdToScVal(user.contractAddress as string),
+        ScConvert.accountIdToScVal(validatedData.to as string),
+        ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount)),
+      ]
+    } else if (validatedData.type === 'nft') {
+      args = [
+        ScConvert.accountIdToScVal(user.contractAddress as string),
+        ScConvert.accountIdToScVal(validatedData.to as string),
+        ScConvert.stringToScValUnsigned(validatedData.id),
+      ]
+    }
+
     // Generate challenge
     const challenge = await this.sorobanService.generateWebAuthnChallengeFromContract({
       contractId: assetContractAddress,
       method: 'transfer',
-      args: [
-        ScConvert.accountIdToScVal(user.contractAddress as string),
-        ScConvert.accountIdToScVal(validatedData.to as string),
-        ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount)),
-      ],
+      args,
       signer: {
         addressId: user.contractAddress as string,
       },
@@ -112,7 +129,10 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     const vendor = await this.vendorRepository.getVendorByWalletAddress(validatedData.to)
 
     // Get user balance
-    const userBalance = await getWalletBalance({ userContractAddress: user.contractAddress })
+    const userBalance = await getWalletBalance({
+      userContractAddress: user.contractAddress,
+      assetCode: validatedData.asset,
+    })
 
     return {
       data: {

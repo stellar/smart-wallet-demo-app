@@ -100,7 +100,7 @@ describe('Transfer', () => {
     it('should successfully transfer assets', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: '100',
@@ -151,7 +151,7 @@ describe('Transfer', () => {
     it('should use native token contract when asset not found in database', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: '100',
@@ -182,7 +182,7 @@ describe('Transfer', () => {
     it('should throw ResourceNotFoundException when user does not exist', async () => {
       const payload = {
         email: 'notfound@example.com',
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: '100',
@@ -204,7 +204,7 @@ describe('Transfer', () => {
 
       const payload = {
         email: userWithoutPasskeys.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: '100',
@@ -220,7 +220,7 @@ describe('Transfer', () => {
     it('should throw UnauthorizedException when authentication fails', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: '100',
@@ -237,7 +237,7 @@ describe('Transfer', () => {
     it('should throw Error when transaction execution fails', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: '100',
@@ -262,7 +262,7 @@ describe('Transfer', () => {
     it('should throw Error when submitTx returns null', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: '100',
@@ -287,7 +287,7 @@ describe('Transfer', () => {
       const req = {
         userData: { email: mockUser.email },
         body: {
-          type: 'transfer',
+          type: 'transfer' as const,
           asset: 'USDC',
           to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
           amount: '100',
@@ -324,7 +324,7 @@ describe('Transfer', () => {
       const req = {
         userData: {},
         body: {
-          type: 'transfer',
+          type: 'transfer' as const,
           asset: 'USDC',
           to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
           amount: '100',
@@ -344,7 +344,7 @@ describe('Transfer', () => {
     it('should throw UnauthorizedException when userData is missing', async () => {
       const req = {
         body: {
-          type: 'transfer',
+          type: 'transfer' as const,
           asset: 'USDC',
           to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
           amount: '100',

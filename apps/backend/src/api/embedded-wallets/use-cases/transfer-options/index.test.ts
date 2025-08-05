@@ -87,7 +87,7 @@ describe('TransferOptions', () => {
     it('should return transfer options successfully', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
         amount: '100',
@@ -118,7 +118,7 @@ describe('TransferOptions', () => {
     it('should return transfer options without vendor when vendor not found', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
         amount: '100',
@@ -140,7 +140,7 @@ describe('TransferOptions', () => {
     it('should use native token contract when asset not found', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'UNKNOWN',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
         amount: '100',
@@ -169,7 +169,7 @@ describe('TransferOptions', () => {
     it('should return zero balance when user has no balance', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'GAX7FKBADU7HQFB3EYLCYPFKIXHE7SJSBCX7CCGXVVWJ5OU3VTWOFEI5',
         amount: '100',
@@ -187,13 +187,16 @@ describe('TransferOptions', () => {
       const result = await useCase.handle(payload)
 
       expect(result.data.user.balance).toBe(0)
-      expect(getWalletBalance).toHaveBeenCalledWith({ userContractAddress: mockUser.contractAddress })
+      expect(getWalletBalance).toHaveBeenCalledWith({
+        userContractAddress: mockUser.contractAddress,
+        assetCode: 'XLM',
+      })
     })
 
     it('should throw ResourceNotFoundException when user not found', async () => {
       const payload = {
         email: 'notfound@example.com',
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
         amount: '100',
@@ -208,7 +211,7 @@ describe('TransferOptions', () => {
       const userWithoutPasskeys = userFactory({ ...mockUser, passkeys: [] })
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
         amount: '100',
@@ -222,7 +225,7 @@ describe('TransferOptions', () => {
     it('should throw error when WebAuthn options generation fails', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
         amount: '100',
@@ -239,7 +242,7 @@ describe('TransferOptions', () => {
     it('should validate payload and throw on invalid data', async () => {
       const invalidPayload = {
         email: 'invalid-email',
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
         amount: '100',

@@ -1,4 +1,4 @@
-import { rpc } from '@stellar/stellar-sdk'
+import { xdr, rpc } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { UserRepositoryType } from 'api/core/entities/user/types'
@@ -48,6 +48,7 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       asset: request.body?.asset as string,
       to: request.body?.to as string,
       amount: request.body?.amount as string,
+      id: request.body?.id as string, // NFT id
       authentication_response_json: request.body?.authenticationResponseJSON as string,
     } as RequestSchemaT
 
@@ -61,17 +62,25 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
 
   async handle(payload: RequestSchemaT): Promise<ResponseSchemaT> {
     const validatedData = this.validate(payload, RequestSchema)
+
+    // Get user data
     const { email } = validatedData
 
     const user = await this.userRepository.getUserByEmail(email, { relations: ['passkeys'] })
+
     if (!user) {
       throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
+    }
+
+    if (!user.contractAddress) {
+      throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_WALLET)
     }
 
     if (!user.passkeys.length) {
       throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_PASSKEYS)
     }
 
+    // Verify auth/challenge
     const verifyAuth = await this.webauthnAuthenticationHelper.complete({
       user,
       authenticationResponseJSON: validatedData.authentication_response_json,
@@ -95,19 +104,37 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       },
     }
 
-    // Get asset contract address from db
+    // Get asset contract address
     const asset = await this.assetRepository.getAssetByCode(validatedData.asset)
     const assetContractAddress = asset?.contractAddress ?? STELLAR.TOKEN_CONTRACT.NATIVE
+
+    let args: xdr.ScVal[] = []
+    let method: string = 'transfer'
+
+    // Transfer fungible/fractional assets
+    if (validatedData.type === 'transfer') {
+      method = 'transfer'
+      args = [
+        ScConvert.accountIdToScVal(user.contractAddress as string),
+        ScConvert.accountIdToScVal(validatedData.to as string),
+        ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount)),
+      ]
+    }
+    // Transfer NFTs in conformity with SEP-50 specs: https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0050.md
+    else if (validatedData.type === 'nft') {
+      method = 'transfer'
+      args = [
+        ScConvert.accountIdToScVal(user.contractAddress as string),
+        ScConvert.accountIdToScVal(validatedData.to as string),
+        ScConvert.stringToScValUnsigned(validatedData.id),
+      ]
+    }
 
     // Simulate transfer
     const { tx, simulationResponse } = await this.sorobanService.simulateContract({
       contractId: assetContractAddress,
-      method: 'transfer',
-      args: [
-        ScConvert.accountIdToScVal(user.contractAddress as string),
-        ScConvert.accountIdToScVal(validatedData.to as string),
-        ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount)),
-      ],
+      method,
+      args,
       signers: [passkeySigner],
     })
 

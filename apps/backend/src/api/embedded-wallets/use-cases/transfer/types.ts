@@ -3,14 +3,26 @@ import { z } from 'zod'
 import { createResponseSchema } from 'api/core/framework/use-case/base'
 import { refineJsonString } from 'api/core/utils/zod'
 
-export const RequestSchema = z.object({
+const baseSchema = {
   email: z.string(),
-  type: z.string(),
   asset: z.string(),
   to: z.string(),
-  amount: z.string(),
   authentication_response_json: z.string().refine(refineJsonString),
+}
+
+const transferTypeSchema = z.object({
+  ...baseSchema,
+  type: z.enum(['transfer']),
+  amount: z.string(),
 })
+
+const nftTypeSchema = z.object({
+  ...baseSchema,
+  type: z.enum(['nft']),
+  id: z.string(),
+})
+
+export const RequestSchema = z.union([transferTypeSchema, nftTypeSchema])
 
 export type RequestSchemaT = z.infer<typeof RequestSchema>
 

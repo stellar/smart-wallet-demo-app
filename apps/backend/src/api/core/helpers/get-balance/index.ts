@@ -10,21 +10,38 @@ import { ISorobanService, SimulateContract } from 'interfaces/soroban/types'
 
 export const getWalletBalance = async ({
   userContractAddress,
+  assetType,
+  assetCode,
   assetRepository,
   sorobanService,
 }: {
   userContractAddress: string
+  assetType?: string
+  assetCode?: string
   assetRepository?: AssetRepositoryType
   sorobanService?: ISorobanService
 }): Promise<number> => {
   const assetRepositoryInstance = assetRepository || AssetRepository.getInstance()
   const sorobanServiceInstance = sorobanService || SorobanService.getInstance()
-  // Get asset contract address from db
-  const asset = await assetRepositoryInstance.getAssetByType('native') // Stellar/XLM native asset
-  const assetContractAddress = asset?.contractAddress ?? STELLAR.TOKEN_CONTRACT.NATIVE
 
+  // Get asset contract address
+  let asset = null
+
+  if (assetType) {
+    asset = await assetRepositoryInstance.getAssetByType(assetType)
+  } else if (assetCode) {
+    asset = await assetRepositoryInstance.getAssetByCode(assetCode)
+  }
+
+  const assetContractAddress = asset?.contractAddress ?? STELLAR.TOKEN_CONTRACT.NATIVE // Stellar/XLM native asset
+
+  /**
+   * Get balance via simulation call
+   * In conformity with Stellar standard assets specs, as with NFT specs (SEP-39 and SEP-50)
+   */
+  // TODO: adapt to another assets specs in the future
   const { simulationResponse } = await sorobanServiceInstance.simulateContract({
-    contractId: assetContractAddress, // TODO: get balance for another assets?
+    contractId: assetContractAddress,
     method: 'balance',
     args: [ScConvert.accountIdToScVal(userContractAddress)],
   } as SimulateContract)
