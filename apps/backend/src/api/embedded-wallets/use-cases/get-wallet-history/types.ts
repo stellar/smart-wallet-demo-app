@@ -14,10 +14,11 @@ export const TransactionSchema = z.object({
   type: z.string(),
   amount: z.number(),
   date: z.string(),
-  fromAddress: z.string().optional(),
-  toAddress: z.string().optional(),
   vendor: z.string(),
   asset: z.string(),
+  fromAddress: z.string().optional(),
+  toAddress: z.string().optional(),
+  sendOrReceive: z.enum(['send', 'receive']).optional(),
 })
 
 export type TransactionSchemaT = z.infer<typeof TransactionSchema>
