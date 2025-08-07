@@ -153,7 +153,7 @@ describe('Transfer', () => {
       expect(mockedSubmitTx).toHaveBeenCalled()
     })
 
-    it('should use native token contract when asset not found in database', async () => {
+    it('should throw ResourceNotFoundException when asset not found in database', async () => {
       const payload = {
         email: mockUser.email,
         type: 'transfer',
@@ -166,20 +166,10 @@ describe('Transfer', () => {
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedCompleteAuthentication.mockResolvedValue(mockAuthenticationResponse)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(null)
-      mockedSignAuthEntries.mockResolvedValue(mockTransaction)
-      mockedSimulateTransaction.mockResolvedValue(mockSimulationResponse)
-      mockedSubmitTx.mockResolvedValue(mockTxResponse)
 
-      const result = await useCase.handle(payload)
-
-      expect(result.data.hash).toBe('mock-tx-hash-123')
+      await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
+      await expect(useCase.handle(payload)).rejects.toThrow('The requested resource was not found')
       expect(mockedAssetRepository.getAssetByCode).toHaveBeenCalledWith('XLM')
-      expect(mockedSignAuthEntries).toHaveBeenCalledWith({
-        contractId: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC', // Native token contract
-        tx: { hash: 'test-tx-hash' },
-        simulationResponse: { id: 'simulation-id' },
-        signers: expect.any(Array),
-      })
     })
 
     it('should throw ResourceNotFoundException when user does not exist', async () => {
@@ -220,7 +210,7 @@ describe('Transfer', () => {
       expect(mockedCompleteAuthentication).not.toHaveBeenCalled()
     })
 
-    it('should throw UnauthorizedException when authentication fails', async () => {
+    it('should throw ResourceNotFoundException when authentication fails', async () => {
       const payload = {
         email: mockUser.email,
         type: 'transfer',
@@ -233,8 +223,9 @@ describe('Transfer', () => {
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedCompleteAuthentication.mockResolvedValue(false)
 
+      await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
       await expect(useCase.handle(payload)).rejects.toThrow('The requested resource was not found')
-      expect(mockedAssetRepository.getAssetByCode).not.toHaveBeenCalled()
+      expect(mockedAssetRepository.getAssetByCode).toHaveBeenCalledWith('USDC')
     })
 
     it('should throw Error when transaction execution fails', async () => {

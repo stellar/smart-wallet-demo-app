@@ -11,7 +11,6 @@ import AssetRepository from 'api/core/services/asset'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
-import { STELLAR } from 'config/stellar'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
@@ -57,17 +56,35 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
 
   async handle(payload: RequestSchemaT): Promise<ResponseSchemaT> {
     const validatedData = this.validate(payload, RequestSchema)
+
+    // Get user data
     const { email } = validatedData
 
     const user = await this.userRepository.getUserByEmail(email, { relations: ['passkeys'] })
+
     if (!user) {
       throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
+    }
+
+    if (!user.contractAddress) {
+      throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_WALLET)
     }
 
     if (!user.passkeys.length) {
       throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_PASSKEYS)
     }
 
+    // Get asset contract address from db
+    const asset = await this.assetRepository.getAssetByCode(validatedData.asset)
+
+    if (!asset || !asset?.contractAddress) {
+      // TODO: get asset data from network as fallback?
+      throw new ResourceNotFoundException(messages.UNABLE_TO_FIND_ASSET_OR_CONTRACT)
+    }
+
+    const assetContractAddress = asset?.contractAddress
+
+    // Verify auth/challenge
     const verifyAuth = await this.webauthnAuthenticationHelper.complete({
       type: 'raw',
       user,
@@ -96,10 +113,6 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
         },
       },
     }
-
-    // Get asset contract address from db
-    const asset = await this.assetRepository.getAssetByCode(validatedData.asset)
-    const assetContractAddress = asset?.contractAddress ?? STELLAR.TOKEN_CONTRACT.NATIVE
 
     // Sign auth entries
     const tx = await this.sorobanService.signAuthEntries({
