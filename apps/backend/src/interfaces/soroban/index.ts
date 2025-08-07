@@ -19,13 +19,12 @@ import { ERRORS } from './helpers/errors'
 import { ScConvert } from './helpers/sc-convert'
 import {
   ContractSigner,
-  GenerateWebAuthnChallengeFromContract,
+  GenerateWebAuthnChallenge,
   ISorobanService,
   SignAuthEntries,
   SignAuthEntry,
-  SimulateContract,
+  SimulateContractOperation,
   SimulationResult,
-  CallContract,
 } from './types'
 
 export default class SorobanService extends SingletonBase implements ISorobanService {
@@ -92,25 +91,28 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
       }
     } catch (error) {
       this.logError('signAuthEntry', { error })
-      throw new Error(`${ERRORS.UNABLE_TO_AUTHORIZE_ENTRY}: ${error}`)
+      throw new Error(ERRORS.UNABLE_TO_AUTHORIZE_ENTRY)
     }
   }
 
   /**
-   * Signs the authorization entries for a Soroban transaction.
-   * @param authEntries - The authorization entries to sign.
-   * @param signers - The signers that will sign the entries.
-   * @param tx - The transaction that will be updated with the signed entries.
+   * Signs all authorization entries for a Soroban contract.
+   *
    * @param contractId - The ID of the Soroban contract.
-   * @returns A Promise that resolves to the signed transaction.
+   * @param tx - The transaction that will be updated with the signed entries.
+   * @param simulationResponse - The simulation response containing the authorization entries.
+   * @param signers - The signers that will sign the entries.
+   * @returns A Promise that resolves to the signed Soroban transaction.
    */
-  public async signAuthEntries({ authEntries, signers, contractId, tx }: SignAuthEntries): Promise<Transaction> {
+  public async signAuthEntries({ contractId, tx, simulationResponse, signers }: SignAuthEntries): Promise<Transaction> {
     this.logInfo('input', 'signAuthEntries', {
-      authEntries,
-      signers,
       contractId,
       tx,
+      simulationResponse,
+      signers,
     })
+
+    const authEntries: xdr.SorobanAuthorizationEntry[] = simulationResponse.result?.auth ?? []
     const signedEntries: xdr.SorobanAuthorizationEntry[] = []
 
     // Create a Map to index signers by their addressId
@@ -152,58 +154,36 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
     this.logInfo('result', 'signAuthEntries', {
       clonedTx,
     })
+
     return clonedTx
   }
 
   /**
    * Simulates a Soroban contract method.
    * @param contractId - The ID of the Soroban contract.
-   * @param method - The method to call.
-   * @param args - The arguments for the contract call.
+   * @param simulationResponse - The simulation response containing the authorization entries.
    * @param signer - The signer of the contract call.
    * @returns The transaction and simulation result.
    */
-  public async generateWebAuthnChallengeFromContract({
+  public async generateWebAuthnChallenge({
     contractId,
-    method,
-    args,
+    simulationResponse,
     signer,
-  }: GenerateWebAuthnChallengeFromContract): Promise<string> {
+  }: GenerateWebAuthnChallenge): Promise<string> {
     try {
       this.logInfo('input', 'generateWebAuthnChallengeFromContract', {
         input: {
           contractId,
-          method,
-          args,
+          simulationResponse,
           signer,
         },
       })
-      // Fetch source account
-      const sourceAcc = await this.rpcClient.getAccount(this.sourceAccountKP.publicKey())
-
-      // Initialize the contract
-      const tokenContract = new Contract(contractId)
-      const contractCallOp = tokenContract.call(method, ...args)
-      contractCallOp.sourceAccount(xdr.MuxedAccount.keyTypeEd25519(this.sourceAccountKP.rawPublicKey()))
-
-      // Build the transaction
-      const tx = new TransactionBuilder(sourceAcc, { fee: this.fee })
-        .addOperation(contractCallOp)
-        .setTimeout(this.timeoutInSeconds)
-        .setNetworkPassphrase(this.networkPassphrase)
-        .build()
-
-      const simulationResponse = await this.rpcClient.simulateTransaction(tx)
-      if (!rpc.Api.isSimulationSuccess(simulationResponse)) {
-        throw new Error(`${ERRORS.TX_SIM_FAILED}: ${simulationResponse}`)
-      }
-
       const authEntries: xdr.SorobanAuthorizationEntry[] = simulationResponse.result?.auth ?? []
 
       // Check if the signer address is in the auth entries
       const validAuthEntry = authEntries.find(entry => {
         const entryAddress = ScConvert.sorobanEntryAddressFromScAddress(entry.credentials().address().address())
-        return entryAddress.id === signer.addressId
+        return entryAddress.id === signer.addressId // user.contractAddress
       })
 
       if (!validAuthEntry) {
@@ -249,7 +229,7 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
     // Ensure the signer is authorized to sign the entry
     const entryAddress = ScConvert.sorobanEntryAddressFromScAddress(entry.credentials().address().address())
     if (signer.addressId !== entryAddress.id) {
-      throw new Error(`${ERRORS.INVALID_SIGNER}: ${signer}`)
+      throw new Error(`${ERRORS.INVALID_SIGNER}: ${signer.addressId}`)
     }
 
     // Construct the ledger key
@@ -282,7 +262,12 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
    * @param signers - (Optional) Signers for the contract call.
    * @returns The transaction and simulation result.
    */
-  public async simulateContract({ contractId, method, args, signers }: SimulateContract): Promise<SimulationResult> {
+  public async simulateContractOperation({
+    contractId,
+    method,
+    args,
+    signers,
+  }: SimulateContractOperation): Promise<SimulationResult> {
     try {
       this.logInfo('input', 'simulateContract', {
         input: {
@@ -307,27 +292,19 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
         .setNetworkPassphrase(this.networkPassphrase)
         .build()
 
-      let simulationResponse = await this.rpcClient.simulateTransaction(tx)
-      if (!rpc.Api.isSimulationSuccess(simulationResponse)) {
-        throw new Error(`${ERRORS.TX_SIM_FAILED} (simulation 1): ${simulationResponse}`)
-      }
+      let simulationResponse = await this.simulateTransaction(tx)
 
-      const authEntries: xdr.SorobanAuthorizationEntry[] = simulationResponse.result?.auth ?? []
+      // Add signed auth entries if signers are provided
       if (signers && signers.length > 0) {
         tx = await this.signAuthEntries({
-          authEntries,
-          signers,
-          tx,
           contractId,
+          tx,
+          simulationResponse,
+          signers,
         })
 
         // Simulate again after signing
-        simulationResponse = (await this.rpcClient.simulateTransaction(
-          tx
-        )) as rpc.Api.SimulateTransactionSuccessResponse
-        if (!rpc.Api.isSimulationSuccess(simulationResponse)) {
-          throw new Error(`${ERRORS.TX_SIM_FAILED} (simulation 2): ${simulationResponse}`)
-        }
+        simulationResponse = await this.simulateTransaction(tx)
       }
 
       this.logInfo('result', 'simulateContract', {
@@ -336,7 +313,10 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
           simulationResponse,
         },
       })
-      return { tx, simulationResponse }
+      return {
+        tx,
+        simulationResponse,
+      }
     } catch (error) {
       this.logError('simulateContract', { error })
       throw error
@@ -344,21 +324,39 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
   }
 
   /**
-   * Calls a Soroban contract method.
-   * @param tx - The transaction to submit.
-   * @param simulationResponse - The simulation response for the transaction.
-   * @returns A Promise that resolves to the transaction response.
+   * Simulates a transaction using the Stellar network.
+   * @param tx - The transaction to simulate.
+   * @returns A Promise that resolves to the simulation result.
+   * @throws {Error} If the simulation fails.
    */
-  public async callContract({
-    tx,
-    simulationResponse,
-  }: CallContract): Promise<rpc.Api.GetSuccessfulTransactionResponse> {
-    // Assemble, build and sign the transaction
-    const preparedTransaction = rpc.assembleTransaction(tx, simulationResponse)
-    tx = preparedTransaction.build()
-    tx.sign(this.sourceAccountKP)
+  public async simulateTransaction(tx: Transaction): Promise<rpc.Api.SimulateTransactionSuccessResponse> {
+    const simulationResponse = (await this.rpcClient.simulateTransaction(
+      tx
+    )) as rpc.Api.SimulateTransactionSuccessResponse
+    if (!rpc.Api.isSimulationSuccess(simulationResponse)) {
+      this.logError('simulateTransaction', { context: { xdr: tx.toXDR(), simulationResponse } })
+      throw new Error(ERRORS.TX_SIM_FAILED)
+    }
 
-    return this.sendTransaction(tx)
+    return simulationResponse
+  }
+
+  /**
+   * Signs a transaction using the source account keypair.
+   *
+   * @param tx - The transaction to sign, which can be a Transaction object,
+   * a FeeBumpTransaction object, or an XDR string representation of the transaction.
+   * @returns A Promise that resolves to the signed Transaction or FeeBumpTransaction.
+   */
+
+  public async signTransactionWithSourceAccount(
+    tx: Transaction | FeeBumpTransaction | string
+  ): Promise<Transaction | FeeBumpTransaction> {
+    if (typeof tx === 'string') {
+      tx = TransactionBuilder.fromXDR(tx, this.networkPassphrase)
+    }
+    tx.sign(this.sourceAccountKP)
+    return tx
   }
 
   /**
@@ -377,7 +375,8 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
     // Send the transaction
     const sendResponse = await this.rpcClient.sendTransaction(tx)
     if (sendResponse.errorResult) {
-      throw new Error(`${ERRORS.SUBMIT_TX_FAILED}: ${JSON.stringify(sendResponse)}`)
+      this.logError('sendTransaction', { context: { sendResponse } })
+      throw new Error(ERRORS.SUBMIT_TX_FAILED)
     }
 
     // Poll for transaction status
@@ -392,7 +391,8 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
       return txResponse
     }
 
-    throw new Error(`${ERRORS.SUBMIT_TX_FAILED}: ${txResponse}`)
+    this.logError('sendTransaction', { context: { txResponse } })
+    throw new Error(ERRORS.SUBMIT_TX_FAILED)
   }
 
   /**

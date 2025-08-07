@@ -34,7 +34,7 @@ export class WalletService implements IWalletService {
 
     const response = await http.post(`/api/embedded-wallets/transfer/complete`, {
       authentication_response_json: authenticationResponseJSON,
-      rest,
+      ...rest,
     })
 
     return response.data

@@ -48,11 +48,9 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
     const payload = {
-      email: request.userData?.email as string,
-      type: request.query?.type as string,
-      asset: request.query?.asset as string,
-      to: request.query?.to as string,
-      amount: request.query?.amount as string,
+      ...request.query,
+      email: request.userData?.email,
+      amount: Number(request.query.amount),
     } as RequestSchemaT
 
     if (!payload.email) {
@@ -84,15 +82,21 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     const asset = await this.assetRepository.getAssetByCode(validatedData.asset)
     const assetContractAddress = asset?.contractAddress ?? STELLAR.TOKEN_CONTRACT.NATIVE
 
-    // Generate challenge
-    const challenge = await this.sorobanService.generateWebAuthnChallengeFromContract({
+    // Simulate contract
+    const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
       contractId: assetContractAddress,
       method: 'transfer',
       args: [
         ScConvert.accountIdToScVal(user.contractAddress as string),
         ScConvert.accountIdToScVal(validatedData.to as string),
-        ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount)),
+        ScConvert.stringToScVal(ScConvert.stringToPaddedString(String(validatedData.amount))),
       ],
+    })
+
+    // Generate challenge
+    const challenge = await this.sorobanService.generateWebAuthnChallenge({
+      contractId: assetContractAddress,
+      simulationResponse: simulationResponse,
       signer: {
         addressId: user.contractAddress as string,
       },
@@ -100,8 +104,14 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
 
     // Generate options based on custom challenge (tx simulation)
     const options = await this.webauthnAuthenticationHelper.generateOptions({
+      type: 'raw',
       user: user,
       customChallenge: challenge,
+      customMetadata: {
+        type: 'soroban',
+        tx: tx,
+        simulationResponse: simulationResponse,
+      },
     })
 
     if (!options) {

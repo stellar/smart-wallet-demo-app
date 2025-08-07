@@ -44,6 +44,7 @@ export class LogInOptions extends UseCaseBase implements IUseCaseHttp<ResponseSc
     }
 
     const optionsJSON = await this.webauthnAuthenticationHelper.generateOptions({
+      type: 'standard',
       user,
     })
 

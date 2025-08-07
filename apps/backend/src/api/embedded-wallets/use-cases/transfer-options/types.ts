@@ -8,7 +8,7 @@ export const RequestSchema = z.object({
   type: z.string(),
   asset: z.string(),
   to: z.string(),
-  amount: z.string(),
+  amount: z.number(),
 })
 
 export type RequestSchemaT = z.infer<typeof RequestSchema>

@@ -81,7 +81,7 @@ const mockedCompleteAuthentication = vi.fn()
 mockedWebauthnAuthenticationHelper.complete = mockedCompleteAuthentication
 
 const mockedSimulateContract = vi.fn()
-mockedSorobanService.simulateContract = mockedSimulateContract
+mockedSorobanService.simulateContractOperation = mockedSimulateContract
 
 let useCase: Transfer
 

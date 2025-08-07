@@ -1,6 +1,8 @@
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useRef } from 'react'
 
+import { useToast } from 'src/app/core/hooks/use-toast'
+import { Toast } from 'src/app/core/services/toast'
 import { modalService } from 'src/components/organisms/modal/provider'
 import { ErrorHandling } from 'src/helpers/error-handling'
 import { a } from 'src/interfaces/cms/useAssets'
@@ -21,6 +23,7 @@ type InitTransferProps = {
 
 export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
   const router = useRouter()
+  const toast = useToast()
 
   const transactionDetailsModalKey = 'transaction-details'
   const loadingTransferParamsModalKey = 'loading-transfer-params'
@@ -42,7 +45,13 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
   )
 
   const transfer = useTransfer({
-    onSuccess: () => exit({ closeModal: true }),
+    onSuccess: () => {
+      toast.notify({
+        message: c('transferSuccess'),
+        type: Toast.toastType.SUCCESS,
+      })
+      exit({ closeModal: true })
+    },
   })
 
   const getTransferOptions = useGetTransferOptions({

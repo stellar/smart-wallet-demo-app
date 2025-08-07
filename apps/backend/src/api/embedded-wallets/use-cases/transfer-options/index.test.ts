@@ -64,7 +64,7 @@ const mockedGenerateOptions = vi.fn()
 const mockedGenerateWebAuthnChallengeFromContract = vi.fn()
 
 mockedWebauthnAuthenticationHelper.generateOptions = mockedGenerateOptions
-mockedSorobanService.generateWebAuthnChallengeFromContract = mockedGenerateWebAuthnChallengeFromContract
+mockedSorobanService.generateWebAuthnChallenge = mockedGenerateWebAuthnChallengeFromContract
 
 let useCase: TransferOptions
 
