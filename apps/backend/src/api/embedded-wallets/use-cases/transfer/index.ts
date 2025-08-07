@@ -81,7 +81,7 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     const { customMetadata } = verifyAuth
 
     if (!customMetadata || customMetadata.type !== 'soroban') {
-      throw new BadRequestException('Invalid auth entry')
+      throw new BadRequestException(messages.UNABLE_TO_FIND_SOROBAN_CUSTOM_METADATA)
     }
 
     // Build contract signer

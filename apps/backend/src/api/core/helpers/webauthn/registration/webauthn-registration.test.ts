@@ -4,15 +4,17 @@ import { passkeyFactory } from 'api/core/entities/passkey/factory'
 import { userFactory } from 'api/core/entities/user/factory'
 import { mockPasskeyRepository } from 'api/core/services/passkey/mocks'
 import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
+import { WebauthnChallengeStoreState } from 'interfaces/webauthn-challenge/types'
 
 import { IWebAuthnRegistration } from './types'
 
 import WebAuthnRegistration from '.'
 
-const mockChallenge = {
+const mockChallenge: WebauthnChallengeStoreState = {
   challenge: 'mockChallenge',
   expiresAt: Date.now() + 5 * 60 * 1000, // 5 min TTL
   metadata: {
+    type: 'passkey',
     userId: 'user-id',
     label: 'Test Label',
   },
@@ -117,6 +119,7 @@ describe('WebAuthnRegistration', () => {
       expect(mockedWebauthnChallengeService.storeChallenge).toHaveBeenCalledWith('test@example.com', 'challenge123')
       expect(mockedWebauthnChallengeService.setMetadata).toHaveBeenCalledWith('test@example.com', {
         label: 'Smart Wallet Demo | Laptop',
+        type: 'passkey',
         userId: 'user-id-xyz',
       })
       expect(result).toBe(

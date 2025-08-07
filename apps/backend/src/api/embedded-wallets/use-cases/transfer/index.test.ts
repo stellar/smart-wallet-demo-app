@@ -52,6 +52,7 @@ const mockAuthenticationResponse = {
   clientDataJSON: 'client-data-json',
   authenticatorData: 'authenticator-data',
   compactSignature: 'compact-signature',
+  customMetadata: { type: 'soroban', tx: { hash: 'test-tx-hash' }, simulationResponse: { id: 'simulation-id' } },
 }
 
 const mockAsset = assetFactory({
@@ -80,8 +81,11 @@ const mockedSorobanService = mockSorobanService()
 const mockedCompleteAuthentication = vi.fn()
 mockedWebauthnAuthenticationHelper.complete = mockedCompleteAuthentication
 
-const mockedSimulateContract = vi.fn()
-mockedSorobanService.simulateContractOperation = mockedSimulateContract
+const mockedSignAuthEntries = vi.fn()
+mockedSorobanService.signAuthEntries = mockedSignAuthEntries
+
+const mockedSimulateTransaction = vi.fn()
+mockedSorobanService.simulateTransaction = mockedSimulateTransaction
 
 let useCase: Transfer
 
@@ -94,6 +98,9 @@ describe('Transfer', () => {
       mockedWebauthnAuthenticationHelper,
       mockedSorobanService
     )
+
+    // Mock the simulateContractOperation method
+    mockedSorobanService.signAuthEntries.mockResolvedValue({ hash: 'test-tx-hash' } as unknown as Transaction)
   })
 
   describe('handle', () => {
@@ -103,17 +110,15 @@ describe('Transfer', () => {
         type: 'transfer',
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
-        amount: '100',
+        amount: 100,
         authentication_response_json: '{"id":"TestPayload123"}',
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedCompleteAuthentication.mockResolvedValue(mockAuthenticationResponse)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedSimulateContract.mockResolvedValue({
-        tx: mockTransaction,
-        simulationResponse: mockSimulationResponse,
-      })
+      mockedSignAuthEntries.mockResolvedValue(mockTransaction)
+      mockedSimulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue(mockTxResponse)
 
       const result = await useCase.handle(payload)
@@ -122,24 +127,24 @@ describe('Transfer', () => {
       expect(result.message).toBe('Transaction executed successfully')
       expect(mockedUserRepository.getUserByEmail).toHaveBeenCalledWith(mockUser.email, { relations: ['passkeys'] })
       expect(mockedCompleteAuthentication).toHaveBeenCalledWith({
+        type: 'raw',
         user: mockUser,
         authenticationResponseJSON: payload.authentication_response_json,
       })
       expect(mockedAssetRepository.getAssetByCode).toHaveBeenCalledWith('USDC')
-      expect(mockedSimulateContract).toHaveBeenCalledWith({
+      expect(mockedSignAuthEntries).toHaveBeenCalledWith({
         contractId: mockAsset.contractAddress,
-        method: 'transfer',
-        args: expect.any(Array),
+        tx: { hash: 'test-tx-hash' },
+        simulationResponse: { id: 'simulation-id' },
         signers: [
           {
             addressId: mockUser.contractAddress,
             methodOptions: {
               method: 'webauthn',
               options: {
-                credentialId: mockAuthenticationResponse.passkey.credentialId,
                 clientDataJSON: mockAuthenticationResponse.clientDataJSON,
                 authenticatorData: mockAuthenticationResponse.authenticatorData,
-                compactSignature: mockAuthenticationResponse.compactSignature,
+                signature: mockAuthenticationResponse.compactSignature,
               },
             },
           },
@@ -154,27 +159,25 @@ describe('Transfer', () => {
         type: 'transfer',
         asset: 'XLM',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
-        amount: '100',
+        amount: 100,
         authentication_response_json: '{"id":"TestPayload123"}',
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedCompleteAuthentication.mockResolvedValue(mockAuthenticationResponse)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(null)
-      mockedSimulateContract.mockResolvedValue({
-        tx: mockTransaction,
-        simulationResponse: mockSimulationResponse,
-      })
+      mockedSignAuthEntries.mockResolvedValue(mockTransaction)
+      mockedSimulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue(mockTxResponse)
 
       const result = await useCase.handle(payload)
 
       expect(result.data.hash).toBe('mock-tx-hash-123')
       expect(mockedAssetRepository.getAssetByCode).toHaveBeenCalledWith('XLM')
-      expect(mockedSimulateContract).toHaveBeenCalledWith({
+      expect(mockedSignAuthEntries).toHaveBeenCalledWith({
         contractId: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC', // Native token contract
-        method: 'transfer',
-        args: expect.any(Array),
+        tx: { hash: 'test-tx-hash' },
+        simulationResponse: { id: 'simulation-id' },
         signers: expect.any(Array),
       })
     })
@@ -185,7 +188,7 @@ describe('Transfer', () => {
         type: 'transfer',
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
-        amount: '100',
+        amount: 100,
         authentication_response_json: '{"id":"TestPayload123"}',
       }
 
@@ -207,7 +210,7 @@ describe('Transfer', () => {
         type: 'transfer',
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
-        amount: '100',
+        amount: 100,
         authentication_response_json: '{"id":"TestPayload123"}',
       }
 
@@ -223,7 +226,7 @@ describe('Transfer', () => {
         type: 'transfer',
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
-        amount: '100',
+        amount: 100,
         authentication_response_json: '{"id":"TestPayload123"}',
       }
 
@@ -240,17 +243,15 @@ describe('Transfer', () => {
         type: 'transfer',
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
-        amount: '100',
+        amount: 100,
         authentication_response_json: '{"id":"TestPayload123"}',
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedCompleteAuthentication.mockResolvedValue(mockAuthenticationResponse)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedSimulateContract.mockResolvedValue({
-        tx: mockTransaction,
-        simulationResponse: mockSimulationResponse,
-      })
+      mockedSignAuthEntries.mockResolvedValue(mockTransaction)
+      mockedSimulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue({
         ...mockTxResponse,
         status: rpc.Api.GetTransactionStatus.FAILED,
@@ -265,17 +266,15 @@ describe('Transfer', () => {
         type: 'transfer',
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
-        amount: '100',
+        amount: 100,
         authentication_response_json: '{"id":"TestPayload123"}',
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedCompleteAuthentication.mockResolvedValue(mockAuthenticationResponse)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedSimulateContract.mockResolvedValue({
-        tx: mockTransaction,
-        simulationResponse: mockSimulationResponse,
-      })
+      mockedSignAuthEntries.mockResolvedValue(mockTransaction)
+      mockedSimulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue(null as unknown as rpc.Api.GetSuccessfulTransactionResponse)
 
       await expect(useCase.handle(payload)).rejects.toThrow('The requested resource was not found')
@@ -290,8 +289,8 @@ describe('Transfer', () => {
           type: 'transfer',
           asset: 'USDC',
           to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
-          amount: '100',
-          authenticationResponseJSON: '{"id":"TestPayload123"}',
+          amount: 100,
+          authentication_response_json: '{"id":"TestPayload123"}',
         },
       } as unknown as Request
 
@@ -303,10 +302,8 @@ describe('Transfer', () => {
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedCompleteAuthentication.mockResolvedValue(mockAuthenticationResponse)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedSimulateContract.mockResolvedValue({
-        tx: mockTransaction,
-        simulationResponse: mockSimulationResponse,
-      })
+      mockedSignAuthEntries.mockResolvedValue(mockTransaction)
+      mockedSimulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue(mockTxResponse)
 
       await useCase.executeHttp(req, res)
@@ -327,7 +324,7 @@ describe('Transfer', () => {
           type: 'transfer',
           asset: 'USDC',
           to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
-          amount: '100',
+          amount: 100,
           authenticationResponseJSON: '{"id":"TestPayload123"}',
         },
       } as unknown as Request
@@ -347,7 +344,7 @@ describe('Transfer', () => {
           type: 'transfer',
           asset: 'USDC',
           to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
-          amount: '100',
+          amount: 100,
           authenticationResponseJSON: '{"id":"TestPayload123"}',
         },
       } as unknown as Request

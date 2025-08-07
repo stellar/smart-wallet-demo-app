@@ -4,7 +4,7 @@ import { createResponseSchema } from 'api/core/framework/use-case/base'
 import { refineJsonString } from 'api/core/utils/zod'
 
 export const RequestSchema = z.object({
-  email: z.string(),
+  email: z.string().email(),
   type: z.string(),
   asset: z.string(),
   to: z.string(),
