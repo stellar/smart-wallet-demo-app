@@ -8,11 +8,11 @@ import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/proofs/constants/messages'
 import { logger } from 'config/logger'
 import { STELLAR } from 'config/stellar'
+import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 
 import { ParseSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
-import { BadRequestException } from 'errors/exceptions/bad-request'
 
 const endpoint = '/:address'
 
