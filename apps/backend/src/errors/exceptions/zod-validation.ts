@@ -21,9 +21,17 @@ export class ZodValidationException extends BaseException {
 
   get fields(): FieldsErrors {
     return this.zodError.errors.reduce((fields, error) => {
-      for (const path of error.path) {
-        fields[path] ??= []
-        fields[path].push(error)
+      // Handle union errors where path is empty
+      if (error.path.length === 0) {
+        // Add union errors to a special "_union" field for root-level errors
+        fields['_union'] ??= []
+        fields['_union'].push(error)
+      } else {
+        // Handle regular field errors
+        for (const path of error.path) {
+          fields[path] ??= []
+          fields[path].push(error)
+        }
       }
       return fields
     }, {} as FieldsErrors)
