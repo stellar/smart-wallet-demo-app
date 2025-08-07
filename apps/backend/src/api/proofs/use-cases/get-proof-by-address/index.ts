@@ -12,6 +12,7 @@ import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 
 import { ParseSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
+import { BadRequestException } from 'errors/exceptions/bad-request'
 
 const endpoint = '/:address'
 
@@ -40,47 +41,39 @@ export class GetProofByAddress extends UseCaseBase implements IUseCaseHttp<Respo
 
     logger.info({ requestId: this.requestId, address, contractAddress }, 'Fetching proof for address and contract')
 
-    try {
-      const proof = await this.proofRepository.findByAddressAndContract(address, contractAddress)
+    const proof = await this.proofRepository.findByAddressAndContract(address, contractAddress)
 
-      if (!proof) {
-        logger.warn({ requestId: this.requestId, address, contractAddress }, 'Proof not found for address and contract')
-        throw new ResourceNotFoundException(messages.PROOF_NOT_FOUND)
-      }
+    if (!proof) {
+      logger.warn({ requestId: this.requestId, address, contractAddress }, 'Proof not found for address and contract')
+      throw new ResourceNotFoundException(messages.PROOF_NOT_FOUND)
+    }
 
-      const amount = Number(proof.receiverAmount)
-      if (!Number.isFinite(amount) || amount < 0) {
-        logger.error(
-          { requestId: this.requestId, receiverAmount: proof.receiverAmount },
-          'Invalid receiver amount in database'
-        )
-        throw new Error(messages.INVALID_RECEIVER_AMOUNT)
-      }
-
-      logger.info(
-        {
-          requestId: this.requestId,
-          address,
-          contractAddress: proof.contractAddress,
-          index: proof.index,
-          proofsCount: proof.proofs.length,
-        },
-        'Successfully retrieved proof for address and contract'
+    const amount = Number(proof.receiverAmount)
+    if (!Number.isFinite(amount) || amount < 0) {
+      logger.error(
+        { requestId: this.requestId, receiverAmount: proof.receiverAmount },
+        'Invalid receiver amount in database'
       )
+      throw new BadRequestException(messages.INVALID_RECEIVER_AMOUNT)
+    }
 
-      return this.parseResponse({
+    logger.info(
+      {
+        requestId: this.requestId,
+        address,
         contractAddress: proof.contractAddress,
         index: proof.index,
-        amount,
-        proofs: proof.proofs,
-      })
-    } catch (error) {
-      logger.error(
-        { requestId: this.requestId, address, contractAddress, error },
-        'Error fetching proof for address and contract'
-      )
-      throw error
-    }
+        proofsCount: proof.proofs.length,
+      },
+      'Successfully retrieved proof for address and contract'
+    )
+
+    return this.parseResponse({
+      contractAddress: proof.contractAddress,
+      index: proof.index,
+      amount,
+      proofs: proof.proofs,
+    })
   }
 
   parseResponse(data: ParseSchemaT): ResponseSchemaT {
