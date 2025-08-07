@@ -90,7 +90,7 @@ export class RecoverWallet extends UseCaseBase implements IUseCaseHttp<ResponseS
     }
 
     // Simulate 'rotate_signer' transaction
-    const { tx, simulationResponse } = await this.sorobanService.simulateContract({
+    const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
       contractId: otp.user.contractAddress,
       method: 'rotate_signer',
       args: [newSignerPublicKey],

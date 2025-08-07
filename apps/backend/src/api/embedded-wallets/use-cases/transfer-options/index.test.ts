@@ -1,3 +1,4 @@
+import { rpc, Transaction } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { assetFactory } from 'api/core/entities/asset/factory'
@@ -61,10 +62,10 @@ const mockedWebauthnAuthenticationHelper = mockWebAuthnAuthentication()
 const mockedSorobanService = mockSorobanService()
 
 const mockedGenerateOptions = vi.fn()
-const mockedGenerateWebAuthnChallengeFromContract = vi.fn()
+const mockedGenerateWebAuthnChallenge = vi.fn()
 
 mockedWebauthnAuthenticationHelper.generateOptions = mockedGenerateOptions
-mockedSorobanService.generateWebAuthnChallengeFromContract = mockedGenerateWebAuthnChallengeFromContract
+mockedSorobanService.generateWebAuthnChallenge = mockedGenerateWebAuthnChallenge
 
 let useCase: TransferOptions
 
@@ -79,6 +80,11 @@ describe('TransferOptions', () => {
       mockedSorobanService
     )
 
+    // Mock the simulateContractOperation method
+    mockedSorobanService.simulateContractOperation.mockResolvedValue({
+      tx: { hash: 'test-tx-hash' } as unknown as Transaction,
+      simulationResponse: { id: 'simulation-id' } as unknown as rpc.Api.SimulateTransactionSuccessResponse,
+    })
     // Mock getWalletBalance to return 10
     vi.mocked(getWalletBalance).mockResolvedValue(10)
   })
@@ -90,12 +96,12 @@ describe('TransferOptions', () => {
         type: 'transfer',
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: '100',
+        amount: 100,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
+      mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(mockVendor)
 
@@ -121,12 +127,12 @@ describe('TransferOptions', () => {
         type: 'transfer',
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: '100',
+        amount: 100,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
+      mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(null)
 
@@ -143,12 +149,12 @@ describe('TransferOptions', () => {
         type: 'transfer',
         asset: 'UNKNOWN',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: '100',
+        amount: 100,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(null)
-      mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
+      mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(null)
 
@@ -156,10 +162,11 @@ describe('TransferOptions', () => {
 
       await useCase.handle(payload)
 
-      expect(mockedGenerateWebAuthnChallengeFromContract).toHaveBeenCalledWith({
+      expect(mockedGenerateWebAuthnChallenge).toHaveBeenCalledWith({
         contractId: STELLAR.TOKEN_CONTRACT.NATIVE,
-        method: 'transfer',
-        args: expect.any(Array),
+        simulationResponse: {
+          id: 'simulation-id',
+        },
         signer: {
           addressId: mockUser.contractAddress,
         },
@@ -172,12 +179,12 @@ describe('TransferOptions', () => {
         type: 'transfer',
         asset: 'XLM',
         to: 'GAX7FKBADU7HQFB3EYLCYPFKIXHE7SJSBCX7CCGXVVWJ5OU3VTWOFEI5',
-        amount: '100',
+        amount: 100,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
+      mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(null)
 
@@ -196,7 +203,7 @@ describe('TransferOptions', () => {
         type: 'transfer',
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: '100',
+        amount: 100,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(null)
@@ -211,7 +218,7 @@ describe('TransferOptions', () => {
         type: 'transfer',
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: '100',
+        amount: 100,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(userWithoutPasskeys)
@@ -225,12 +232,12 @@ describe('TransferOptions', () => {
         type: 'transfer',
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: '100',
+        amount: 100,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
+      mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(null)
 
       await expect(useCase.handle(payload)).rejects.toThrow('The requested resource was not found')
@@ -242,7 +249,7 @@ describe('TransferOptions', () => {
         type: 'transfer',
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: '100',
+        amount: 100,
       }
 
       await expect(useCase.handle(invalidPayload)).rejects.toThrow()
@@ -257,7 +264,7 @@ describe('TransferOptions', () => {
           type: 'transfer',
           asset: 'XLM',
           to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-          amount: '100',
+          amount: 100,
         },
       } as unknown as Request
 
@@ -268,7 +275,7 @@ describe('TransferOptions', () => {
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
+      mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(mockVendor)
 
@@ -302,7 +309,7 @@ describe('TransferOptions', () => {
           type: 'transfer',
           asset: 'XLM',
           to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-          amount: '100',
+          amount: 100,
         },
       } as unknown as Request
 
@@ -321,7 +328,7 @@ describe('TransferOptions', () => {
           type: 'transfer',
           asset: 'XLM',
           to: 'GAX7FKBADU7HQFB3EYLCYPFKIXHE7SJSBCX7CCGXVVWJ5OU3VTWOFEI5',
-          amount: '100',
+          amount: 100,
         },
       } as unknown as Request
 
@@ -332,7 +339,7 @@ describe('TransferOptions', () => {
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
+      mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(null)
 

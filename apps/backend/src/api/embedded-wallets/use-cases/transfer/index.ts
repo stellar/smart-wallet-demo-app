@@ -12,10 +12,10 @@ import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { STELLAR } from 'config/stellar'
+import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SorobanService from 'interfaces/soroban'
-import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
 import { ISorobanService, ContractSigner } from 'interfaces/soroban/types'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
@@ -43,12 +43,8 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
     const payload = {
-      email: request.userData?.email as string,
-      type: request.body?.type as string,
-      asset: request.body?.asset as string,
-      to: request.body?.to as string,
-      amount: request.body?.amount as string,
-      authentication_response_json: request.body?.authenticationResponseJSON as string,
+      ...request.body,
+      email: request.userData?.email,
     } as RequestSchemaT
 
     if (!payload.email) {
@@ -73,6 +69,7 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     }
 
     const verifyAuth = await this.webauthnAuthenticationHelper.complete({
+      type: 'raw',
       user,
       authenticationResponseJSON: validatedData.authentication_response_json,
     })
@@ -81,16 +78,21 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       throw new ResourceNotFoundException(messages.UNABLE_TO_COMPLETE_PASSKEY_AUTHENTICATION)
     }
 
+    const { customMetadata } = verifyAuth
+
+    if (!customMetadata || customMetadata.type !== 'soroban') {
+      throw new BadRequestException(messages.UNABLE_TO_FIND_SOROBAN_CUSTOM_METADATA)
+    }
+
     // Build contract signer
     const passkeySigner: ContractSigner = {
       addressId: user.contractAddress as string,
       methodOptions: {
         method: 'webauthn',
         options: {
-          credentialId: verifyAuth.passkey.credentialId,
           clientDataJSON: verifyAuth.clientDataJSON,
           authenticatorData: verifyAuth.authenticatorData,
-          compactSignature: verifyAuth.compactSignature,
+          signature: verifyAuth.compactSignature,
         },
       },
     }
@@ -99,17 +101,16 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     const asset = await this.assetRepository.getAssetByCode(validatedData.asset)
     const assetContractAddress = asset?.contractAddress ?? STELLAR.TOKEN_CONTRACT.NATIVE
 
-    // Simulate transfer
-    const { tx, simulationResponse } = await this.sorobanService.simulateContract({
+    // Sign auth entries
+    const tx = await this.sorobanService.signAuthEntries({
       contractId: assetContractAddress,
-      method: 'transfer',
-      args: [
-        ScConvert.accountIdToScVal(user.contractAddress as string),
-        ScConvert.accountIdToScVal(validatedData.to as string),
-        ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount)),
-      ],
+      tx: customMetadata.tx,
+      simulationResponse: customMetadata.simulationResponse,
       signers: [passkeySigner],
     })
+
+    // Simulate transfer
+    const simulationResponse = await this.sorobanService.simulateTransaction(tx)
 
     // Broadcast transfer
     const txResponse = await submitTx({ tx, simulationResponse })

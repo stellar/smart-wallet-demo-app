@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Keypair, rpc, Transaction, TransactionBuilder, xdr } from '@stellar/stellar-sdk'
+import { rpc, Transaction, TransactionBuilder, xdr } from '@stellar/stellar-sdk'
 
 import { getValueFromEnv } from 'config/env-utils'
-import { STELLAR } from 'config/stellar'
 import SorobanService from 'interfaces/soroban'
 import { ISorobanService } from 'interfaces/soroban/types'
 import WalletBackend from 'interfaces/wallet-backend'
@@ -45,11 +44,11 @@ export const submitTx = async ({
     buildTxResponse.transactionXdrs[0],
     getValueFromEnv('STELLAR_NETWORK_PASSPHRASE')
   )
-  builtTx.sign(Keypair.fromSecret(STELLAR.SOURCE_ACCOUNT.PRIVATE_KEY))
+  const signedTx = await sorobanServiceInstance.signTransactionWithSourceAccount(builtTx)
 
   // Wrap the transaction in a fee bump transaction
   const feeBumpedTxResponse = await walletBackendInstance.createFeeBumpTransaction({
-    transaction: builtTx.toXDR(),
+    transaction: signedTx.toXDR(),
   })
 
   // Send the final XDR transaction

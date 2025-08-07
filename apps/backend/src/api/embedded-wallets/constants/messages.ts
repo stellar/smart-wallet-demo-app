@@ -16,4 +16,6 @@ export const messages = {
   RESEND_INVITE_CONFLICT:
     "You're not eligible to create a wallet right now. Make sure your email is registered or the account hasn't been deployed yet",
   UNABLE_TO_EXECUTE_TRANSACTION: 'This transaction could not be executed. You may not have permission.',
+  UNABLE_TO_FIND_SOROBAN_CUSTOM_METADATA:
+    "Something went wrong and we couldn't find your transaction. Please start over to try again",
 }

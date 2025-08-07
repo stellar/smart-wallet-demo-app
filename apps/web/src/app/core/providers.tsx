@@ -1,7 +1,7 @@
 import { SkeletonTheme } from 'react-loading-skeleton'
 
 import { Toast } from 'src/app/core/services/toast'
-import { ModalProvider } from 'src/components/molecules/modal/provider'
+import { ModalProvider } from 'src/components/organisms/modal/provider'
 import { ThemeProvider } from 'src/config/theme/provider'
 
 import { QueryClientProvider } from './queries/client'

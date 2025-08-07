@@ -2,7 +2,7 @@ import { Text, Button, CopyText, Icon } from '@stellar/design-system'
 import Skeleton from 'react-loading-skeleton'
 
 import { createShortStellarAddress } from 'src/app/core/utils'
-import { NavigateButton } from 'src/components/molecules/navigate-button'
+import { NavigateButton } from 'src/components/molecules'
 import { SafeAreaView } from 'src/components/organisms'
 import { isPubnet } from 'src/helpers/environment'
 import { c } from 'src/interfaces/cms/useContent'

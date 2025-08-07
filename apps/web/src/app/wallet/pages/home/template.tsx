@@ -4,12 +4,11 @@ import Skeleton from 'react-loading-skeleton'
 
 import ProductMock02 from 'src/assets/images/mock/ecobag.png'
 import ProductMock01 from 'src/assets/images/mock/jacket.png'
-import { modalService } from 'src/components/molecules/modal/provider'
+import { AssetAmount } from 'src/components/molecules'
 import { Carousel, SafeAreaView, ImageCard, Collapse, CollapseItem } from 'src/components/organisms'
+import { modalService } from 'src/components/organisms/modal/provider'
 import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
-
-import { Amount } from '../../components'
 
 type NavbarItemType = 'nft' | 'history' | 'profile'
 
@@ -77,23 +76,26 @@ export const HomeTemplate = ({
       onClick: () =>
         modalService.open({
           key: 'airdrop-modal',
-          title: {
-            text: c('airdropBannerTitle'),
-            image: {
-              source: 'blank-space',
+          variantOptions: {
+            variant: 'default',
+            title: {
+              text: c('airdropBannerTitle'),
+              image: {
+                source: 'blank-space',
+              },
+            },
+            description: c('airdropBannerDescriptionB'),
+            button: {
+              children: c('airdropBannerButtonTitle'),
+              variant: 'secondary',
+              size: 'lg',
+              isRounded: true,
+              onClick: () => {
+                alert('Airdrop claim button pressed')
+              },
             },
           },
-          description: c('airdropBannerDescriptionB'),
           backgroundImageUri: a('airdropDefaultBackground'),
-          button: {
-            children: c('airdropBannerButtonTitle'),
-            variant: 'secondary',
-            size: 'lg',
-            isRounded: true,
-            onClick: () => {
-              alert('Airdrop claim button pressed')
-            },
-          },
         }),
     },
   },
@@ -150,7 +152,7 @@ export const HomeTemplate = ({
           <Text addlClassName={'text-textSecondary'} as={'h4'} size={'md'} weight="medium">
             {c('balance')}
           </Text>
-          <Amount amount={balanceAmount} asset={'XLM'} />
+          <AssetAmount amount={balanceAmount} size="lg" asset={{ value: 'XLM', variant: 'sm' }} />
         </div>
 
         <Button variant={'secondary'} size={'lg'} icon={<Icon.Scan />} iconPosition="left" onClick={onPayClick}>
