@@ -95,7 +95,7 @@ describe('TransferOptions', () => {
         type: 'transfer' as const,
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: 100,
+        amount: 5,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
@@ -126,7 +126,7 @@ describe('TransferOptions', () => {
         type: 'transfer' as const,
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: 100,
+        amount: 5,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
@@ -242,7 +242,7 @@ describe('TransferOptions', () => {
           type: 'transfer',
           asset: 'XLM',
           to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-          amount: 100,
+          amount: 5,
         },
       } as unknown as Request
 
@@ -306,7 +306,7 @@ describe('TransferOptions', () => {
           type: 'transfer',
           asset: 'XLM',
           to: 'GAX7FKBADU7HQFB3EYLCYPFKIXHE7SJSBCX7CCGXVVWJ5OU3VTWOFEI5',
-          amount: 100,
+          amount: 5,
         },
       } as unknown as Request
 
