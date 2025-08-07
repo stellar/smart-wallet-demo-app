@@ -19,7 +19,7 @@ export const AssetAmount = ({ amount, amountVariant = 'default', size = 'md', we
     amount,
     'en-US',
     amountVariant === 'max-decimal' ? Infinity : 14,
-    amountVariant === 'max-decimal' ? 7 : 2,
+    amountVariant === 'max-decimal' ? 2 : 2,
     amountVariant === 'max-decimal' ? 7 : 4
   )
   const formattedAsset = createShortStellarAddress(asset.value, { onlyValidAddress: true })
