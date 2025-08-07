@@ -17,7 +17,7 @@ export const Home = () => {
     enabled: !loaderDeps.shouldInitTransfer,
   })
 
-  const walletData = getWallet.data?.data
+  const walletData = getWallet.data
 
   useInitTransfer({
     params: search,

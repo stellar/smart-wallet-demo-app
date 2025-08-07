@@ -10,7 +10,7 @@ import { AssetAmount, NavigateButton } from '../../../molecules'
 export type ModalTransactionDetailsProps = {
   variant: Extract<ModalVariants, 'transaction-details'>
   date?: string
-  source: {
+  vendor: {
     name: string
     imageUri?: string
   }
@@ -25,7 +25,7 @@ export type ModalTransactionDetailsProps = {
 
 export const ModalTransactionDetails = ({
   date,
-  source,
+  vendor,
   amount,
   availableBalance,
   transactionHash,
@@ -116,10 +116,10 @@ export const ModalTransactionDetails = ({
       <NavigateButton className="absolute -top-10 right-0" type="close" variant="ghost" onClick={onClose} />
 
       {/* Top Section with Date, Type, and Amount */}
-      {source.imageUri ? (
-        <TopComponentWithImage name={source.name} imageUri={source.imageUri} />
+      {vendor.imageUri ? (
+        <TopComponentWithImage name={vendor.name} imageUri={vendor.imageUri} />
       ) : (
-        <TopComponentWithoutImage name={source.name} />
+        <TopComponentWithoutImage name={vendor.name} />
       )}
 
       {/* Transaction ID Section */}

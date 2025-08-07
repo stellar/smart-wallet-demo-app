@@ -5,4 +5,7 @@ export interface Transaction {
   amount: number
   asset: string
   date: string
+  fromAddress?: string
+  toAddress?: string
+  sendOrReceive?: 'send' | 'receive'
 }

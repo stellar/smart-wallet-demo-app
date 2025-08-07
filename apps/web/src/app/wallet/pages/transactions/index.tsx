@@ -8,6 +8,7 @@ import { TransactionsTemplate } from './template'
 import { Transaction } from '../../domain/models/transaction'
 import { useGetTransactionHistory } from '../../queries/use-get-transaction-history'
 import { WalletPagesPath } from '../../routes/types'
+import { mapTxVendorName } from '../../utils'
 
 export const Transactions = () => {
   const navigate = useNavigate()
@@ -29,8 +30,8 @@ export const Transactions = () => {
       variantOptions: {
         variant: 'transaction-details',
         date: tx.date,
-        source: {
-          name: tx.vendor,
+        vendor: {
+          name: mapTxVendorName(tx),
         },
         amount: {
           value: tx.amount,
