@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { xdr } from '@stellar/stellar-sdk'
 
-import { AssetRepositoryType } from 'api/core/entities/asset/types'
+import { Asset, AssetRepositoryType } from 'api/core/entities/asset/types'
 import AssetRepository from 'api/core/services/asset'
 import { STELLAR } from 'config/stellar'
 import SorobanService from 'interfaces/soroban'
@@ -25,10 +25,13 @@ export const getWalletBalance = async ({
   const sorobanServiceInstance = sorobanService || SorobanService.getInstance()
 
   // Get asset contract address
-  const asset =
-    assetType || assetCode
-      ? await assetRepositoryInstance.getAssetByType(assetType as string)
-      : await assetRepositoryInstance.getAssetByCode(assetCode as string) || undefined
+  let asset: Asset | null = null
+
+  if (assetType) {
+    asset = await assetRepositoryInstance.getAssetByType(assetType as string)
+  } else if (assetCode) {
+    asset = await assetRepositoryInstance.getAssetByCode(assetCode as string)
+  }
 
   const assetContractAddress = asset?.contractAddress ?? STELLAR.TOKEN_CONTRACT.NATIVE // Stellar/XLM native asset
 
