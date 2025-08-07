@@ -28,19 +28,17 @@ export class AuthEntrySignerHelper implements IAuthEntrySignerHelper {
       this.logInfo('input', 'generateWebAuthnChallenge', { input })
 
       const {
-        entryOptions: { unsignedEntry: unsignedEntry, validUntilLedgerSeq, networkPassphrase },
+        entryOptions: { unsignedEntry, validUntilLedgerSeq, networkPassphrase },
       } = input
 
-      const entry = xdr.SorobanAuthorizationEntry.fromXDR(unsignedEntry.toXDR())
-      const addressCredentials = entry.credentials().address()
-      addressCredentials.signatureExpirationLedger(validUntilLedgerSeq)
+      const addressCredentials = unsignedEntry.credentials().address()
 
       const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
         new xdr.HashIdPreimageSorobanAuthorization({
           networkId: hash(Buffer.from(networkPassphrase)),
           nonce: addressCredentials.nonce(),
-          signatureExpirationLedger: addressCredentials.signatureExpirationLedger(),
-          invocation: entry.rootInvocation(),
+          signatureExpirationLedger: validUntilLedgerSeq,
+          invocation: unsignedEntry.rootInvocation(),
         })
       )
       const payload = hash(preimage.toXDR())
@@ -70,34 +68,29 @@ export class AuthEntrySignerHelper implements IAuthEntrySignerHelper {
     try {
       this.logInfo('input', 'authorizeEntryWithWebAuthn', { input })
       const {
-        webAuthnOptions: { credentialId, clientDataJSON, authenticatorData, compactSignature },
-        entryOptions: { unsignedEntry: unsignedEntry, validUntilLedgerSeq },
+        webAuthnOptions: { clientDataJSON, authenticatorData, signature },
+        entryOptions: { unsignedEntry: entry, validUntilLedgerSeq },
       } = input
 
-      const entry = xdr.SorobanAuthorizationEntry.fromXDR(unsignedEntry.toXDR())
       const addressCredentials = entry.credentials().address()
-      addressCredentials.signatureExpirationLedger(validUntilLedgerSeq)
 
       addressCredentials.signature(
         xdr.ScVal.scvMap([
           new xdr.ScMapEntry({
             key: xdr.ScVal.scvSymbol('authenticator_data'),
-            val: xdr.ScVal.scvBytes(base64url.toBuffer(authenticatorData)),
+            val: xdr.ScVal.scvBytes(Buffer.from(authenticatorData)),
           }),
           new xdr.ScMapEntry({
             key: xdr.ScVal.scvSymbol('client_data_json'),
-            val: xdr.ScVal.scvBytes(base64url.toBuffer(clientDataJSON)),
-          }),
-          new xdr.ScMapEntry({
-            key: xdr.ScVal.scvSymbol('id'),
-            val: xdr.ScVal.scvBytes(base64url.toBuffer(credentialId)),
+            val: xdr.ScVal.scvBytes(Buffer.from(clientDataJSON)),
           }),
           new xdr.ScMapEntry({
             key: xdr.ScVal.scvSymbol('signature'),
-            val: xdr.ScVal.scvBytes(compactSignature),
+            val: xdr.ScVal.scvBytes(Buffer.from(signature)),
           }),
         ])
       )
+      addressCredentials.signatureExpirationLedger(validUntilLedgerSeq)
 
       this.logInfo('result', 'authorizeEntryWithWebAuthn', { entry })
       return entry

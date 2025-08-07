@@ -53,7 +53,7 @@ describe('RecoverWallet', () => {
     mockedCompleteRegistration.mockResolvedValueOnce({
       passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: mockedHexPublicKey },
     })
-    mockedSorobanService.simulateContract.mockResolvedValue({
+    mockedSorobanService.simulateContractOperation.mockResolvedValue({
       tx: { hash: 'test-tx-hash' } as unknown as Transaction,
       simulationResponse: { id: 'simulation-id' } as unknown as rpc.Api.SimulateTransactionSuccessResponse,
     })
@@ -92,7 +92,7 @@ describe('RecoverWallet', () => {
     mockedCompleteRegistration.mockResolvedValueOnce({
       passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: mockedHexPublicKey },
     })
-    mockedSorobanService.simulateContract.mockResolvedValue({
+    mockedSorobanService.simulateContractOperation.mockResolvedValue({
       tx: { hash: 'test-tx-hash' } as unknown as Transaction,
       simulationResponse: { id: 'simulation-id' } as unknown as rpc.Api.SimulateTransactionSuccessResponse,
     })

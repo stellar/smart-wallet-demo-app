@@ -83,7 +83,7 @@ describe('GetWallet', () => {
       })
     )
 
-    mockedSorobanService.simulateContract.mockResolvedValue({
+    mockedSorobanService.simulateContractOperation.mockResolvedValue({
       simulationResponse: {
         result: {
           retval: mockScVal,
@@ -101,7 +101,7 @@ describe('GetWallet', () => {
     expect(result.data.email).toBe(user.email)
     expect(mockedSDPEmbeddedWallets.checkWalletStatus).not.toHaveBeenCalled()
     expect(mockedUserRepository.updateUser).not.toHaveBeenCalled()
-    expect(mockedSorobanService.simulateContract).toHaveBeenCalledWith({
+    expect(mockedSorobanService.simulateContractOperation).toHaveBeenCalledWith({
       contractId: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
       method: 'balance',
       args: [expect.any(xdr.ScVal)],

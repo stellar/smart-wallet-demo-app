@@ -6,8 +6,10 @@ export function mockSorobanService(): Mocked<ISorobanService> {
   return {
     signAuthEntry: vi.fn(),
     signAuthEntries: vi.fn(),
-    generateWebAuthnChallengeFromContract: vi.fn(),
-    simulateContract: vi.fn(),
+    generateWebAuthnChallenge: vi.fn(),
+    simulateContractOperation: vi.fn(),
+    simulateTransaction: vi.fn(),
+    signTransactionWithSourceAccount: vi.fn(),
     sendTransaction: vi.fn(),
   }
 }

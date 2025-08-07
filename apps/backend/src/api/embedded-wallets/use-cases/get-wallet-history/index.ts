@@ -71,14 +71,25 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
     if (!user.contractAddress) return this.parseResponse({ transactions: [] })
 
     // Fetch tx history from wallet backend service
-    const walletHistory = await this.walletBackend.getTransactions({ address: user.contractAddress })
+    const transactions: TransactionSchemaT[] = await this.getWalletHistoryByAddress(user.contractAddress as string)
+
+    // Parse the response to match the expected schema
+    const parsedResponse: ResponseSchemaT['data'] = {
+      transactions: transactions,
+    }
+    return this.parseResponse(parsedResponse)
+  }
+
+  public async getWalletHistoryByAddress(address: string): Promise<TransactionSchemaT[]> {
+    // Fetch tx history from wallet backend service
+    const walletHistory = await this.walletBackend.getTransactions({ address })
 
     const transactions: TransactionSchemaT[] = []
 
     for (const tx of walletHistory.account?.transactions ?? []) {
       if (
         tx.operations[0].stateChanges.length === 0 ||
-        tx.operations[0].stateChanges[0].stateChangeReason == 'DEPLOY'
+        tx.operations[0].stateChanges[0].stateChangeReason == 'DEPLOY' // TODO: Handle other state change reasons if necessary
       ) {
         continue // Skip non-transfer transactions (like contract creation, deploy, etc.)
       }
@@ -111,19 +122,17 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
 
       if (fromAddress) {
         transaction.fromAddress = fromAddress
+        transaction.sendOrReceive = fromAddress == address ? 'send' : 'receive'
       }
       if (toAddress) {
         transaction.toAddress = toAddress
+        transaction.sendOrReceive = toAddress == address ? 'receive' : 'send'
       }
 
       transactions.push(transaction)
     }
 
-    // Parse the response to match the expected schema
-    const parsedResponse: ResponseSchemaT['data'] = {
-      transactions: transactions,
-    }
-    return this.parseResponse(parsedResponse)
+    return transactions
   }
 }
 

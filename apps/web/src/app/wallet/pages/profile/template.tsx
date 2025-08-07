@@ -2,8 +2,9 @@ import { Text, Button, CopyText, Icon } from '@stellar/design-system'
 import Skeleton from 'react-loading-skeleton'
 
 import { createShortStellarAddress } from 'src/app/core/utils'
-import { NavigateButton } from 'src/components/molecules/navigate-button'
+import { NavigateButton } from 'src/components/molecules'
 import { SafeAreaView } from 'src/components/organisms'
+import { isPubnet } from 'src/helpers/environment'
 import { c } from 'src/interfaces/cms/useContent'
 
 // Types
@@ -83,8 +84,7 @@ export const ProfileTemplate = ({
   }
 
   const ExplorerLink = ({ walletAddress }: WalletSectionProps) => {
-    const isProduction = import.meta.env.PROD === true
-    const explorerUrl = isProduction
+    const explorerUrl = isPubnet()
       ? 'https://stellar.expert/explorer/public/contract'
       : 'https://stellar.expert/explorer/testnet/contract'
 

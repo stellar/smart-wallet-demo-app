@@ -62,7 +62,11 @@ export default class WebAuthnRegistration extends SingletonBase implements IWebA
     })
 
     this.webauthnChallengeService.storeChallenge(userIdentifier, options.challenge)
-    this.webauthnChallengeService.setMetadata(userIdentifier, { label: userDisplayName, userId: options.user.id })
+    this.webauthnChallengeService.setMetadata(userIdentifier, {
+      type: 'passkey',
+      label: userDisplayName,
+      userId: options.user.id,
+    })
 
     return JSON.stringify(options)
   }
@@ -97,6 +101,9 @@ export default class WebAuthnRegistration extends SingletonBase implements IWebA
     const { userVerified, credential, credentialDeviceType, credentialBackedUp } = registrationInfo
 
     if (!userVerified) return false
+
+    if (getChallenge.metadata.type !== 'passkey')
+      throw Error(`${this.constructor.name} | complete | Invalid challenge type for ${userIdentifier}`)
 
     const passkey = await this.passkeyRepository.createPasskey(
       {

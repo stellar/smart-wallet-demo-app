@@ -7,7 +7,7 @@ import { useEmailStore } from 'src/app/auth/store'
 import { GetInvitationInfoUseCase } from './index'
 
 const mockInvitationInfoResult = {
-  data: { email: 'test@example.com', status: 'SUCCESS', success: true },
+  data: { email: 'test@example.com', status: 'SUCCESS' },
   message: 'Invitation info retrieved successfully',
 } satisfies GetInvitationInfoResult
 
