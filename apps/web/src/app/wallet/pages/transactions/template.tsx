@@ -62,7 +62,7 @@ export const TransactionsTemplate = ({
           <div className="flex-[0.325] text-right truncate">
             <span className="font-medium text-text text-base leading-6">
               {tx.amount > 0 ? '+' : ''}
-              {formatNumber(tx.amount, undefined, undefined, undefined, 2)}
+              {formatNumber(tx.amount, 'en-US', 14, 2, 2)}
             </span>
           </div>
           <div className="flex-[0.125] text-right truncate">

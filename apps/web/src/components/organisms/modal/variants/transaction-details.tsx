@@ -58,7 +58,7 @@ export const ModalTransactionDetails = ({
 
   const Amount = () => (
     <div className="flex flex-col items-center break-all">
-      <AssetAmount amount={amount.value} asset={{ value: amount.asset, variant: 'lg' }} />
+      <AssetAmount amount={amount.value} amountVariant="max-decimal" asset={{ value: amount.asset, variant: 'lg' }} />
     </div>
   )
 

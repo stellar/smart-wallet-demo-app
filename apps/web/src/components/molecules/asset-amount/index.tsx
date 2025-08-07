@@ -5,6 +5,7 @@ import { createShortStellarAddress, formatNumber } from 'src/app/core/utils'
 
 type Props = {
   amount: number
+  amountVariant?: 'default' | 'max-decimal'
   size?: 'sm' | 'md' | 'lg'
   weight?: React.ComponentProps<typeof Text>['weight']
   asset: {
@@ -13,8 +14,14 @@ type Props = {
   }
 }
 
-export const AssetAmount = ({ amount, size = 'md', weight = 'semi-bold', asset }: Props) => {
-  const formattedAmount = formatNumber(amount)
+export const AssetAmount = ({ amount, amountVariant = 'default', size = 'md', weight = 'semi-bold', asset }: Props) => {
+  const formattedAmount = formatNumber(
+    amount,
+    'en-US',
+    amountVariant === 'max-decimal' ? Infinity : 14,
+    amountVariant === 'max-decimal' ? 7 : 2,
+    amountVariant === 'max-decimal' ? 7 : 4
+  )
   const formattedAsset = createShortStellarAddress(asset.value, { onlyValidAddress: true })
 
   const amountText = useMemo(() => {
