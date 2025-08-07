@@ -28,7 +28,7 @@ export const getWalletBalance = async ({
   const asset =
     assetType || assetCode
       ? await assetRepositoryInstance.getAssetByType(assetType as string)
-      : await assetRepositoryInstance.getAssetByCode(assetCode as string)
+      : await assetRepositoryInstance.getAssetByCode(assetCode as string) || undefined
 
   const assetContractAddress = asset?.contractAddress ?? STELLAR.TOKEN_CONTRACT.NATIVE // Stellar/XLM native asset
 

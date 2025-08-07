@@ -93,7 +93,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     // Get user balance
     const userBalance = await getWalletBalance({ userContractAddress: user.contractAddress, assetCode: asset.code })
 
-    if (userBalance <= 0) {
+    if (validatedData.type === 'transfer' && userBalance < validatedData.amount) {
       throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_ENOUGH_BALANCE)
     }
 
