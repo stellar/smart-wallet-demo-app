@@ -1,8 +1,8 @@
 import { Column, Entity, ModelBase, OneToMany, PrimaryGeneratedColumn } from 'api/core/framework/orm/base'
 
+import { Nft } from '../nft/model'
 import { Otp } from '../otp/model'
 import { Passkey } from '../passkey/model'
-import { Nft } from '../nft/model'
 
 @Entity()
 export class User extends ModelBase {

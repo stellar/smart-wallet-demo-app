@@ -3,7 +3,7 @@ import { Request, Response } from 'express'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
-import { getTokenData } from 'api/core/helpers/get-token-data' 
+import { getTokenData } from 'api/core/helpers/get-token-data'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
@@ -16,9 +16,7 @@ const endpoint = '/nft'
 export class ListNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
   private userRepository: UserRepositoryType
 
-  constructor(
-    userRepository?: UserRepositoryType,
-  ) {
+  constructor(userRepository?: UserRepositoryType) {
     super()
     this.userRepository = userRepository || UserRepository.getInstance()
   }
@@ -56,12 +54,12 @@ export class ListNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT
     // TODO: get NFTs from DB, from contract call and merge to return
     const nfts: NftSchemaT[] = []
 
-    for(const userNft of user.nfts ?? []) {
+    for (const userNft of user.nfts ?? []) {
       // TODO: simulate NFT contract call to get metadata
       const tokenData = await getTokenData({ assetContractAddress: userNft.contractAddress })
 
       const nft: NftSchemaT = {
-        code: '',
+        code: tokenData.symbol,
         name: '',
         description: '',
         url: '',

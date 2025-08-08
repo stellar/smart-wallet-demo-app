@@ -20,7 +20,7 @@ export const getWalletBalance = async ({
   assetCode?: string
   assetRepository?: AssetRepositoryType
   sorobanService?: ISorobanService
-}): Promise<number> => { // TODO: create return type
+}): Promise<number> => {
   const assetRepositoryInstance = assetRepository || AssetRepository.getInstance()
   const sorobanServiceInstance = sorobanService || SorobanService.getInstance()
 

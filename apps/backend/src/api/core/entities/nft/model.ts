@@ -1,7 +1,14 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index, ModelBase } from 'api/core/framework/orm/base'
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  Index,
+  ModelBase,
+} from 'api/core/framework/orm/base'
 
 import { User } from '../user/model'
-
 
 @Entity()
 @Index(['tokenId', 'contractAddress'], { unique: true }) // TokenID unique inside a contract

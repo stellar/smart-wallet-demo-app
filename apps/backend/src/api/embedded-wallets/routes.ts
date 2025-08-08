@@ -8,6 +8,7 @@ import { GenerateRecoveryLink, endpoint as GenerateRecoveryLinkEndpoint } from '
 import { GetInvitationInfo, endpoint as GetInvitationInfoEndpoint } from './use-cases/get-invitation-info'
 import { GetWallet, endpoint as GetWalletEndpoint } from './use-cases/get-wallet'
 import { GetWalletHistory, endpoint as GetWalletHistoryEndpoint } from './use-cases/get-wallet-history'
+import { ListNft, endpoint as ListNftEndpoint } from './use-cases/list-nft'
 import { LogIn, endpoint as LogInEndpoint } from './use-cases/login'
 import { LogInOptions, endpoint as LogInOptionsEndpoint } from './use-cases/login-options'
 import { RecoverWallet, endpoint as RecoverWalletEndpoint } from './use-cases/recover-wallet'
@@ -16,7 +17,6 @@ import { ResendInvite, endpoint as ResendInviteEndpoint } from './use-cases/rese
 import { Transfer, endpoint as TransferEndpoint } from './use-cases/transfer'
 import { TransferOptions, endpoint as TransferOptionsEndpoint } from './use-cases/transfer-options'
 import { ValidateRecoveryLink, endpoint as ValidateRecoveryLinkEndpoint } from './use-cases/validate-recovery-link'
-import { ListNft, endpoint as ListNftEndpoint } from './use-cases/list-nft'
 
 const router = Router()
 

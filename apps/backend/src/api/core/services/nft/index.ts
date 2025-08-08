@@ -1,4 +1,5 @@
 import { DeleteResult } from 'typeorm'
+
 import { Nft as NftModel } from 'api/core/entities/nft/model'
 import { Nft, NftRepositoryType } from 'api/core/entities/nft/types'
 import { User } from 'api/core/entities/user/types'
@@ -21,10 +22,7 @@ export default class NftRepository extends SingletonBase implements NftRepositor
     return NftModel.findOneBy({ contractAddress })
   }
 
-  async createNft(
-    nft: { tokenId: string; contractAddress: string; user: User },
-    save?: boolean
-  ): Promise<Nft> {
+  async createNft(nft: { tokenId: string; contractAddress: string; user: User }, save?: boolean): Promise<Nft> {
     const newNft = NftModel.create({ ...nft })
     if (save) {
       return this.saveNft(newNft)
@@ -36,7 +34,7 @@ export default class NftRepository extends SingletonBase implements NftRepositor
     await NftModel.update(nftId, data)
     return this.getNftById(nftId) as Promise<Nft>
   }
-  
+
   async deleteNft(id: string): Promise<DeleteResult> {
     return NftModel.delete(id)
   }
