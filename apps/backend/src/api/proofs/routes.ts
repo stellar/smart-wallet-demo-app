@@ -1,16 +1,13 @@
 import { Router } from 'express'
 
-import { GetProofByAddressUseCase } from './get-proof-by-address'
+import { authentication } from 'api/core/middlewares/authentication'
+
+import { GetProofByAddress, endpoint as GetProofByAddressEndpoint } from './use-cases/get-proof-by-address'
 
 const router = Router()
 
-router.get('/:address', async (req, res, next) => {
-  try {
-    const useCase = new GetProofByAddressUseCase()
-    await useCase.handle(req, res)
-  } catch (error) {
-    next(error)
-  }
-})
+router.get(`${GetProofByAddressEndpoint}`, authentication, async (req, res) =>
+  GetProofByAddress.init().executeHttp(req, res)
+)
 
 export default router

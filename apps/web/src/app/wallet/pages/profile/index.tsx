@@ -6,11 +6,13 @@ import { useAccessTokenStore, useEmailStore } from 'src/app/auth/store'
 import { ProfileTemplate } from './template'
 import { useGetWallet } from '../../queries/use-get-wallet'
 import { WalletPagesPath } from '../../routes/types'
+import { useWalletAddressStore } from '../../store'
 
 export const Profile = () => {
   const navigate = useNavigate()
   const { clearAccessToken } = useAccessTokenStore()
   const { clearEmail } = useEmailStore()
+  const { clearWalletAddress } = useWalletAddressStore()
   const canGoBack = useCanGoBack()
   const router = useRouter()
 
@@ -18,8 +20,8 @@ export const Profile = () => {
   const { data: walletData, isPending: isLoadingProfile } = useGetWallet()
 
   // Extract data from the API response
-  const email = walletData?.data.email || ''
-  const fullWalletAddress = walletData?.data.address || ''
+  const email = walletData?.email || ''
+  const fullWalletAddress = walletData?.address || ''
 
   const handleGoBack = () => {
     if (canGoBack) router.history.back()
@@ -31,6 +33,7 @@ export const Profile = () => {
     // Clear session data and redirect to welcome page
     clearAccessToken(AuthPagesPath.WELCOME)
     clearEmail()
+    clearWalletAddress()
   }
 
   return (

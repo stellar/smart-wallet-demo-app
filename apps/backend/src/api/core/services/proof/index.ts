@@ -1,41 +1,47 @@
 import { Repository } from 'typeorm'
 
+import { SingletonBase } from 'api/core/framework/singleton/interface'
 import { AppDataSource } from 'config/database'
 
 import { logger } from '../../../../config/logger'
 import { Proof } from '../../entities/proof/model'
 import { ProofRepositoryType } from '../../entities/proof/types'
 
-export default class ProofRepository implements ProofRepositoryType {
+export default class ProofRepository extends SingletonBase implements ProofRepositoryType {
   private repository: Repository<Proof> = AppDataSource.getRepository(Proof)
 
-  async findByAddress(receiverAddress: string): Promise<Proof | null> {
-    logger.debug({ receiverAddress }, 'Querying database for proof')
+  constructor() {
+    super()
+  }
+
+  async findByAddressAndContract(receiverAddress: string, contractAddress: string): Promise<Proof | null> {
+    logger.debug({ receiverAddress, contractAddress }, 'Querying database for proof by address and contract')
 
     try {
       const proof = await this.repository.findOne({
         where: {
           receiverAddress,
+          contractAddress,
         },
       })
 
       if (!proof) {
-        logger.debug({ receiverAddress }, 'No proof found in database')
+        logger.debug({ receiverAddress, contractAddress }, 'No proof found in database')
         return null
       }
 
       logger.debug(
         {
           receiverAddress,
+          contractAddress,
           index: proof.index,
-          contractAddress: proof.contractAddress,
         },
         'Proof found in database'
       )
 
       return proof
     } catch (error) {
-      logger.error({ receiverAddress, error }, 'Database error when querying for proof')
+      logger.error({ receiverAddress, contractAddress, error }, 'Database error when querying for proof')
       throw error
     }
   }

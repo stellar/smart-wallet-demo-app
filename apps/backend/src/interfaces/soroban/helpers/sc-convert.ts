@@ -10,6 +10,9 @@ export const ScConvert = {
   stringToScVal: (value: string): xdr.ScVal => {
     return new XdrLargeInt('i128', value).toScVal()
   },
+  stringToScValUnsigned: (value: string): xdr.ScVal => {
+    return new XdrLargeInt('u128', value).toScVal()
+  },
   numberToScVal: (value: number): xdr.ScVal => {
     return new XdrLargeInt('i128', ScConvert.numberToPaddedString(value)).toScVal()
   },
@@ -43,13 +46,9 @@ export const ScConvert = {
     return strVal.padEnd(7, '0')
   },
   stringToPaddedString(value: string): string {
-    // If the value has a decimal point, ensure it has 7 decimal places by padding with zeros if necessary
-    // Return in unsigned int > string format
-    if (value.indexOf('.') !== -1) {
-      const convVal = value.split('.')
-      return `${convVal[0]}${convVal[1].padEnd(7, '0')}`
-    }
-    return value.padEnd(7, '0')
+    const floatVal = parseFloat(value)
+    const intVal = Math.round(floatVal * 1e7)
+    return intVal.toString()
   },
   stringToFormatString(value: string): string {
     const numValue = Big(value).div(1e7).toNumber()

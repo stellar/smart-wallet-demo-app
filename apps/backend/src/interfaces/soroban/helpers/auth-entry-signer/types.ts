@@ -1,4 +1,3 @@
-import { Base64URLString } from '@simplewebauthn/server'
 import { xdr } from '@stellar/stellar-sdk'
 
 type AuthEntryOptions = {
@@ -15,10 +14,9 @@ export type GenerateWebAuthnChallengeInput = {
 
 export type AuthorizeEntryWithWebAuthnInput = {
   webAuthnOptions: {
-    credentialId: string
-    clientDataJSON: Base64URLString
-    authenticatorData: Base64URLString
-    compactSignature: Buffer
+    clientDataJSON: Buffer
+    authenticatorData: Buffer
+    signature: Buffer
   }
   entryOptions: AuthEntryOptions
 }

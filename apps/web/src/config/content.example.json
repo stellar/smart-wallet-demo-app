@@ -56,5 +56,10 @@
   "close": "Close",
   "transactionModalMintTitle": "XLM Airdrop",
   "transactionModalTransactionIdLabel": "Transaction ID",
-  "transactionModalCopyTransactionIdTitle": "Copy transaction ID"
+  "transactionModalCopyTransactionIdTitle": "Copy transaction ID",
+  "transactionModalAvailableBalanceLabel": "Available balance:",
+  "defaultLoadingDescription": "Hold on a second while we reach the network...",
+  "confirmPayment": "Confirm Payment",
+  "invalidQrCode": "This QR code isn't valid. Please try another one",
+  "transferSuccess": "Done! Your transaction was completed successfully"
 }

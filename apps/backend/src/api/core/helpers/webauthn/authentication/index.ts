@@ -2,6 +2,7 @@ import {
   AuthenticationResponseJSON,
   AuthenticatorTransportFuture,
   generateAuthenticationOptions,
+  PublicKeyCredentialRequestOptionsJSON,
   verifyAuthenticationResponse,
 } from '@simplewebauthn/server'
 import base64url from 'base64url'
@@ -18,6 +19,7 @@ import {
   WebAuthnAuthenticationCompleteInput,
   WebAuthnAuthenticationCompleteResult,
   WebAuthnAuthenticationGenerateOptionsInput,
+  WebAuthnAuthenticationOptions,
 } from './types'
 
 export default class WebAuthnAuthentication extends SingletonBase implements IWebAuthnAuthentication {
@@ -31,24 +33,32 @@ export default class WebAuthnAuthentication extends SingletonBase implements IWe
   }
 
   async generateOptions(input: WebAuthnAuthenticationGenerateOptionsInput): Promise<string> {
-    const { user, customChallenge } = input
+    const { type, user, customChallenge, customMetadata } = input
 
     const relyingPartyId = new URL(getValueFromEnv('WEBAUTHN_RP_ORIGIN')).hostname
 
     const userIdentifier = user.email.toLowerCase().trim()
     const challenge = customChallenge ?? this.webauthnChallengeService.createChallenge(userIdentifier)
 
-    const options = await generateAuthenticationOptions({
+    let options: WebAuthnAuthenticationOptions | PublicKeyCredentialRequestOptionsJSON = {
       rpID: relyingPartyId,
       challenge: challenge,
       userVerification: 'required',
       allowCredentials: user.passkeys.map(passkey => ({
         id: passkey.credentialId,
+        type: 'public-key',
         transports: passkey.transports?.split(',') as AuthenticatorTransportFuture[] | undefined,
       })),
-    })
+    }
+
+    if (type === 'standard') {
+      options = await generateAuthenticationOptions(options)
+    }
+
+    if (!options.challenge) throw Error(`${this.constructor.name} | generateOptions | Missing challenge`)
 
     this.webauthnChallengeService.storeChallenge(userIdentifier, options.challenge)
+    if (customMetadata) this.webauthnChallengeService.setMetadata(userIdentifier, customMetadata)
 
     return JSON.stringify(options)
   }
@@ -89,13 +99,17 @@ export default class WebAuthnAuthentication extends SingletonBase implements IWe
     if (!userVerified) return false
 
     const updatedPasskey = await this.passkeyRepository.updatePasskey(passkey.credentialId, { counter: newCounter })
+
+    const clientDataJSON = base64url.toBuffer(authenticationResponse.response.clientDataJSON)
+    const authenticatorData = base64url.toBuffer(authenticationResponse.response.authenticatorData)
     const signatureDER = base64url.toBuffer(authenticationResponse.response.signature)
 
     return {
       passkey: updatedPasskey,
-      clientDataJSON: authenticationResponse.response.clientDataJSON,
-      authenticatorData: authenticationResponse.response.authenticatorData,
-      compactSignature: this.compactSignature(signatureDER),
+      clientDataJSON: clientDataJSON,
+      authenticatorData: authenticatorData,
+      compactSignature: this.compactSignature(Buffer.from(signatureDER)),
+      customMetadata: getChallenge.metadata,
     }
   }
 

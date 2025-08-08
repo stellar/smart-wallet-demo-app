@@ -1,3 +1,4 @@
+import { xdr } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
@@ -13,7 +14,6 @@ import UserRepository from 'api/core/services/user'
 import VendorRepository from 'api/core/services/vendor'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
-import { STELLAR } from 'config/stellar'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SorobanService from 'interfaces/soroban'
@@ -48,11 +48,9 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
     const payload = {
-      email: request.userData?.email as string,
-      type: request.query?.type as string,
-      asset: request.query?.asset as string,
-      to: request.query?.to as string,
-      amount: request.query?.amount as string,
+      ...request.query,
+      email: request.userData?.email,
+      amount: Number(request.query.amount),
     } as RequestSchemaT
 
     if (!payload.email) {
@@ -65,6 +63,8 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
 
   async handle(payload: RequestSchemaT): Promise<ResponseSchemaT> {
     const validatedData = this.validate(payload, RequestSchema)
+
+    // Get user data
     const { email } = validatedData
 
     const user = await this.userRepository.getUserByEmail(email, { relations: ['passkeys'] })
@@ -82,17 +82,52 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
 
     // Get asset contract address from db
     const asset = await this.assetRepository.getAssetByCode(validatedData.asset)
-    const assetContractAddress = asset?.contractAddress ?? STELLAR.TOKEN_CONTRACT.NATIVE
 
-    // Generate challenge
-    const challenge = await this.sorobanService.generateWebAuthnChallengeFromContract({
-      contractId: assetContractAddress,
-      method: 'transfer',
-      args: [
+    if (!asset || !asset?.contractAddress) {
+      // TODO: get asset data from network as fallback?
+      throw new ResourceNotFoundException(messages.UNABLE_TO_FIND_ASSET_OR_CONTRACT)
+    }
+
+    const assetContractAddress = asset?.contractAddress
+
+    // Get user balance
+    const userBalance = await getWalletBalance({ userContractAddress: user.contractAddress, assetCode: asset.code })
+
+    if (validatedData.type === 'transfer' && userBalance < validatedData.amount) {
+      throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_ENOUGH_BALANCE)
+    }
+
+    // Set transaction params
+    let args: xdr.ScVal[] = []
+    let method: string = 'transfer'
+
+    if (validatedData.type === 'transfer') {
+      method = 'transfer'
+      args = [
         ScConvert.accountIdToScVal(user.contractAddress as string),
         ScConvert.accountIdToScVal(validatedData.to as string),
-        ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount)),
-      ],
+        ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount.toString())),
+      ]
+    } else if (validatedData.type === 'nft') {
+      method = 'transfer'
+      args = [
+        ScConvert.accountIdToScVal(user.contractAddress as string),
+        ScConvert.accountIdToScVal(validatedData.to as string),
+        ScConvert.stringToScValUnsigned(validatedData.id),
+      ]
+    }
+
+    // Simulate contract
+    const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
+      contractId: assetContractAddress,
+      method,
+      args,
+    })
+
+    // Generate challenge
+    const challenge = await this.sorobanService.generateWebAuthnChallenge({
+      contractId: assetContractAddress,
+      simulationResponse: simulationResponse,
       signer: {
         addressId: user.contractAddress as string,
       },
@@ -100,8 +135,14 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
 
     // Generate options based on custom challenge (tx simulation)
     const options = await this.webauthnAuthenticationHelper.generateOptions({
+      type: 'raw',
       user: user,
       customChallenge: challenge,
+      customMetadata: {
+        type: 'soroban',
+        tx: tx,
+        simulationResponse: simulationResponse,
+      },
     })
 
     if (!options) {
@@ -110,9 +151,6 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
 
     // Get vendor data
     const vendor = await this.vendorRepository.getVendorByWalletAddress(validatedData.to)
-
-    // Get user balance
-    const userBalance = await getWalletBalance({ userContractAddress: user.contractAddress })
 
     return {
       data: {

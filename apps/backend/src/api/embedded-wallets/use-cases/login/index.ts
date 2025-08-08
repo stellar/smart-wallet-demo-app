@@ -46,6 +46,7 @@ export class LogIn extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> 
 
     // Check auth challenge resolution
     const challengeResult = await this.webauthnAuthenticationHelper.complete({
+      type: 'standard',
       user,
       authenticationResponseJSON: requestBody.authentication_response_json,
     })

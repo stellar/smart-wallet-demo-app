@@ -6,6 +6,7 @@ export type StellarConfig = {
   MAX_FEE: string
   SOURCE_ACCOUNT: SignerKeypair
   TOKEN_CONTRACT: TokenContractConfig
+  AIRDROP_CONTRACT_ADDRESS: string
 }
 
 export type ProjectConfig = {

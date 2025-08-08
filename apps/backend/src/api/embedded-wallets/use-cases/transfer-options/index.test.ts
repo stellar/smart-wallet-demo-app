@@ -1,3 +1,4 @@
+import { rpc, Transaction } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { assetFactory } from 'api/core/entities/asset/factory'
@@ -10,7 +11,6 @@ import { mockAssetRepository } from 'api/core/services/asset/mock'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { mockVendorRepository } from 'api/core/services/vendor/mock'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
-import { STELLAR } from 'config/stellar'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { mockSorobanService } from 'interfaces/soroban/mock'
@@ -61,10 +61,10 @@ const mockedWebauthnAuthenticationHelper = mockWebAuthnAuthentication()
 const mockedSorobanService = mockSorobanService()
 
 const mockedGenerateOptions = vi.fn()
-const mockedGenerateWebAuthnChallengeFromContract = vi.fn()
+const mockedGenerateWebAuthnChallenge = vi.fn()
 
 mockedWebauthnAuthenticationHelper.generateOptions = mockedGenerateOptions
-mockedSorobanService.generateWebAuthnChallengeFromContract = mockedGenerateWebAuthnChallengeFromContract
+mockedSorobanService.generateWebAuthnChallenge = mockedGenerateWebAuthnChallenge
 
 let useCase: TransferOptions
 
@@ -79,6 +79,11 @@ describe('TransferOptions', () => {
       mockedSorobanService
     )
 
+    // Mock the simulateContractOperation method
+    mockedSorobanService.simulateContractOperation.mockResolvedValue({
+      tx: { hash: 'test-tx-hash' } as unknown as Transaction,
+      simulationResponse: { id: 'simulation-id' } as unknown as rpc.Api.SimulateTransactionSuccessResponse,
+    })
     // Mock getWalletBalance to return 10
     vi.mocked(getWalletBalance).mockResolvedValue(10)
   })
@@ -87,15 +92,15 @@ describe('TransferOptions', () => {
     it('should return transfer options successfully', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: '100',
+        amount: 5,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
+      mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(mockVendor)
 
@@ -118,15 +123,15 @@ describe('TransferOptions', () => {
     it('should return transfer options without vendor when vendor not found', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: '100',
+        amount: 5,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
+      mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(null)
 
@@ -137,66 +142,46 @@ describe('TransferOptions', () => {
       expect(result.data.vendor).toBeUndefined()
     })
 
-    it('should use native token contract when asset not found', async () => {
+    it('should throw ResourceNotFoundException when asset not found', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'UNKNOWN',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: '100',
+        amount: 100,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(null)
-      mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
-      mockedGenerateOptions.mockResolvedValue(mockOptions)
-      mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(null)
 
-      // getWalletBalance is already mocked in beforeEach
-
-      await useCase.handle(payload)
-
-      expect(mockedGenerateWebAuthnChallengeFromContract).toHaveBeenCalledWith({
-        contractId: STELLAR.TOKEN_CONTRACT.NATIVE,
-        method: 'transfer',
-        args: expect.any(Array),
-        signer: {
-          addressId: mockUser.contractAddress,
-        },
-      })
+      await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
     })
 
-    it('should return zero balance when user has no balance', async () => {
+    it('should throw ResourceNotFoundException when user has no balance', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'GAX7FKBADU7HQFB3EYLCYPFKIXHE7SJSBCX7CCGXVVWJ5OU3VTWOFEI5',
-        amount: '100',
+        amount: 100,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
-      mockedGenerateOptions.mockResolvedValue(mockOptions)
-      mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(null)
 
       // Mock getWalletBalance to return 0
       vi.mocked(getWalletBalance).mockResolvedValueOnce(0)
 
-      const result = await useCase.handle(payload)
-
-      expect(result.data.user.balance).toBe(0)
-      expect(getWalletBalance).toHaveBeenCalledWith({ userContractAddress: mockUser.contractAddress })
+      await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
     })
 
     it('should throw ResourceNotFoundException when user not found', async () => {
       const payload = {
         email: 'notfound@example.com',
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: '100',
+        amount: 100,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(null)
@@ -208,10 +193,10 @@ describe('TransferOptions', () => {
       const userWithoutPasskeys = userFactory({ ...mockUser, passkeys: [] })
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: '100',
+        amount: 100,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(userWithoutPasskeys)
@@ -222,15 +207,15 @@ describe('TransferOptions', () => {
     it('should throw error when WebAuthn options generation fails', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: '100',
+        amount: 100,
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
+      mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(null)
 
       await expect(useCase.handle(payload)).rejects.toThrow('The requested resource was not found')
@@ -239,10 +224,10 @@ describe('TransferOptions', () => {
     it('should validate payload and throw on invalid data', async () => {
       const invalidPayload = {
         email: 'invalid-email',
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-        amount: '100',
+        amount: 100,
       }
 
       await expect(useCase.handle(invalidPayload)).rejects.toThrow()
@@ -257,7 +242,7 @@ describe('TransferOptions', () => {
           type: 'transfer',
           asset: 'XLM',
           to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-          amount: '100',
+          amount: 5,
         },
       } as unknown as Request
 
@@ -268,7 +253,7 @@ describe('TransferOptions', () => {
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
+      mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(mockVendor)
 
@@ -302,7 +287,7 @@ describe('TransferOptions', () => {
           type: 'transfer',
           asset: 'XLM',
           to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-          amount: '100',
+          amount: 100,
         },
       } as unknown as Request
 
@@ -321,7 +306,7 @@ describe('TransferOptions', () => {
           type: 'transfer',
           asset: 'XLM',
           to: 'GAX7FKBADU7HQFB3EYLCYPFKIXHE7SJSBCX7CCGXVVWJ5OU3VTWOFEI5',
-          amount: '100',
+          amount: 5,
         },
       } as unknown as Request
 
@@ -332,7 +317,7 @@ describe('TransferOptions', () => {
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedGenerateWebAuthnChallengeFromContract.mockResolvedValue(mockChallenge)
+      mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(null)
 

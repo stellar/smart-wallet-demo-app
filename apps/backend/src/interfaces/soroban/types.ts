@@ -19,7 +19,7 @@ export type ContractSigner = {
       }
 }
 
-export type SimulateContract = {
+export type SimulateContractOperation = {
   contractId: string
   method: string
   args: xdr.ScVal[]
@@ -31,18 +31,15 @@ export type SimulationResult = {
   simulationResponse: rpc.Api.SimulateTransactionSuccessResponse
 }
 
-export type GenerateWebAuthnChallengeFromContract = Omit<SimulateContract, 'signers'> & {
-  signer: Pick<ContractSigner, 'addressId'>
-}
-
-export type CallContract = {
-  tx: Transaction
+export type GenerateWebAuthnChallenge = {
+  contractId: string
   simulationResponse: rpc.Api.SimulateTransactionSuccessResponse
+  signer: Pick<ContractSigner, 'addressId'>
 }
 
 export type SignAuthEntries = {
   contractId: string
-  authEntries: xdr.SorobanAuthorizationEntry[]
+  simulationResponse: rpc.Api.SimulateTransactionSuccessResponse
   tx: Transaction
   signers: ContractSigner[]
 }
@@ -61,14 +58,12 @@ export type SorobanEntryAddress = {
 
 export interface ISorobanService {
   signAuthEntry({ contractId, entry, signer }: SignAuthEntry): Promise<xdr.SorobanAuthorizationEntry>
-  signAuthEntries({ authEntries, signers, contractId, tx }: SignAuthEntries): Promise<Transaction>
-  generateWebAuthnChallengeFromContract({
-    contractId,
-    method,
-    args,
-    signer,
-  }: GenerateWebAuthnChallengeFromContract): Promise<string>
-  simulateContract({ contractId, method, args, signers }: SimulateContract): Promise<SimulationResult>
-  callContract({ tx, simulationResponse }: CallContract): Promise<rpc.Api.GetSuccessfulTransactionResponse>
+  signAuthEntries({ contractId, tx, simulationResponse, signers }: SignAuthEntries): Promise<Transaction>
+  generateWebAuthnChallenge({ contractId, simulationResponse, signer }: GenerateWebAuthnChallenge): Promise<string>
+  simulateContractOperation({ contractId, method, args, signers }: SimulateContractOperation): Promise<SimulationResult>
+  simulateTransaction(tx: Transaction): Promise<rpc.Api.SimulateTransactionSuccessResponse>
+  signTransactionWithSourceAccount(
+    tx: Transaction | FeeBumpTransaction | string
+  ): Promise<Transaction | FeeBumpTransaction>
   sendTransaction(tx: Transaction | FeeBumpTransaction | string): Promise<rpc.Api.GetSuccessfulTransactionResponse>
 }

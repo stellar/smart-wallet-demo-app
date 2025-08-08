@@ -27,5 +27,5 @@ export type WebAuthnAuthenticateWithPasskeyResult = {
   rawResponse: AuthenticationResponseJSON
   clientDataJSON: Base64URLString
   authenticatorData: Base64URLString
-  signatureDER: Buffer<ArrayBufferLike>
+  signature: Base64URLString
 }

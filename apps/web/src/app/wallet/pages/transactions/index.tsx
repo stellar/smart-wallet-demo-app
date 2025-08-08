@@ -1,8 +1,14 @@
 import { useNavigate, useCanGoBack, useRouter } from '@tanstack/react-router'
 
+import { modalService } from 'src/components/organisms/modal/provider'
+import { a } from 'src/interfaces/cms/useAssets'
+import { c } from 'src/interfaces/cms/useContent'
+
 import { TransactionsTemplate } from './template'
+import { Transaction } from '../../domain/models/transaction'
 import { useGetTransactionHistory } from '../../queries/use-get-transaction-history'
 import { WalletPagesPath } from '../../routes/types'
+import { mapTxVendorName } from '../../utils'
 
 export const Transactions = () => {
   const navigate = useNavigate()
@@ -18,11 +24,41 @@ export const Transactions = () => {
     navigate({ to: WalletPagesPath.HOME })
   }
 
+  const handleTransactionClick = (tx: Transaction) => {
+    modalService.open({
+      key: `transaction-${tx.hash}`,
+      variantOptions: {
+        variant: 'transaction-details',
+        date: tx.date,
+        vendor: {
+          name: mapTxVendorName(tx),
+        },
+        amount: {
+          value: tx.amount,
+          asset: tx.asset,
+        },
+        transactionHash: tx.hash,
+        button: {
+          children: c('close'),
+          variant: 'secondary',
+          size: 'lg',
+          isRounded: true,
+          isFullWidth: true,
+          onClick: () => {
+            modalService.close()
+          },
+        },
+      },
+      backgroundImageUri: tx.type === 'MINT' ? a('transactionsHistoryMintBackground') : a('customModalBackground'),
+    })
+  }
+
   return (
     <TransactionsTemplate
       isLoadingTransactionHistory={isLoadingTransactionHistory}
       transactions={transactions}
       onGoBack={handleGoBack}
+      onTransactionClick={handleTransactionClick}
     />
   )
 }

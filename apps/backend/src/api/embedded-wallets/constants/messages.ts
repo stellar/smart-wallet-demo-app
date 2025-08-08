@@ -7,6 +7,7 @@ export const messages = {
   UNKNOWN_CONTRACT_ADDRESS_CREATION_ERROR:
     'Unknown error occurred while registering your wallet. Please try again later',
   USER_DOES_NOT_HAVE_PASSKEYS: 'You do not have any passkeys registered. Try recovering your wallet',
+  USER_DOES_NOT_HAVE_ENOUGH_BALANCE: 'You do not have enough balance for this transaction. Try adding some balance',
   UNABLE_TO_COMPLETE_PASSKEY_REGISTRATION:
     "We couldn't complete your passkey registration. Try again or use a different device",
   UNABLE_TO_COMPLETE_PASSKEY_AUTHENTICATION: "We couldn't verify your passkey. Please try again later",
@@ -16,4 +17,7 @@ export const messages = {
   RESEND_INVITE_CONFLICT:
     "You're not eligible to create a wallet right now. Make sure your email is registered or the account hasn't been deployed yet",
   UNABLE_TO_EXECUTE_TRANSACTION: 'This transaction could not be executed. You may not have permission.',
+  UNABLE_TO_FIND_SOROBAN_CUSTOM_METADATA:
+    "Something went wrong and we couldn't find your transaction. Please start over to try again",
+  UNABLE_TO_FIND_ASSET_OR_CONTRACT: "We couldn't find the asset or contract for this transaction.",
 }
