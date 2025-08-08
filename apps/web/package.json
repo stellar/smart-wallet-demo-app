@@ -24,6 +24,7 @@
     "html5-qrcode": "^2.3.8",
     "jsonwebtoken": "^9.0.2",
     "lodash": "~4.17.21",
+    "motion": "^12.23.12",
     "patch-package": "^8.0.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",

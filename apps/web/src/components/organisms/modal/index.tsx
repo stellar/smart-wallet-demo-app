@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import { motion } from 'framer-motion'
 import { useEffect, useMemo, useRef } from 'react'
 
 import {
@@ -69,13 +70,21 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
   }, [internalState, onClose, variantOptions])
 
   return (
-    <div
+    <motion.div
       data-testid="modal-backdrop"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
       onClick={handleBackdropClick}
     >
-      <div
+      <motion.div
         ref={modalRef}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.25 }}
         className={clsx(
           'relative w-full mx-4 max-w-md p-6 rounded-2xl shadow-xl',
           !backgroundImageUri && 'bg-backgroundSecondary'
@@ -91,7 +100,7 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
         }
       >
         {modalContent}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
