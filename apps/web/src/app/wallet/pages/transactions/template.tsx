@@ -7,6 +7,7 @@ import { SafeAreaView } from 'src/components/organisms'
 import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 
+import { EmptyList } from '../../components'
 import { Transaction } from '../../domain/models/transaction'
 
 interface TransactionsTemplateProps {
@@ -87,19 +88,7 @@ export const TransactionsTemplate = ({
         {isLoadingTransactionHistory && <Skeleton height={56} count={8} className="mb-2" />}
 
         {isEmpty && (
-          <div className="flex flex-col items-center justify-center h-96">
-            <img
-              src={a('transactionsHistoryEmptyList')}
-              alt={c('noTransactionHistoryTitle')}
-              className="mb-6 max-w-[60%]"
-            />
-            <Text as="div" size="lg" className="font-semibold mb-2">
-              {c('noTransactionHistoryTitle')}
-            </Text>
-            <Text as="div" size="md" className="text-textSecondary">
-              {c('noTransactionHistoryDescription')}
-            </Text>
-          </div>
+          <EmptyList title={c('noTransactionHistoryTitle')} description={c('noTransactionHistoryDescription')} />
         )}
 
         {!isEmpty && (

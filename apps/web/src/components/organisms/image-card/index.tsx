@@ -6,7 +6,8 @@ import styles from './styles.module.css'
 
 type Props = {
   imageUri: string
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'adapt'
+  radius?: 'min' | 'max'
   name?: string
   leftBadge?: {
     label: string
@@ -23,6 +24,7 @@ type Props = {
 export const ImageCard = ({
   imageUri,
   size = 'md',
+  radius = 'max',
   name,
   leftBadge,
   rightBadge,
@@ -37,6 +39,8 @@ export const ImageCard = ({
         return clsx('w-[220px]', 'h-[224px]')
       case 'lg':
         return clsx('w-[262px]', 'h-[266px]')
+      case 'adapt':
+        return clsx('w-[45vw]', 'h-[45vw]')
     }
   }, [size])
 
@@ -51,8 +55,17 @@ export const ImageCard = ({
   )
 
   const sharedWrapperClassNames = useMemo(
-    () => clsx(wrapperSizeClassNames, 'relative', 'bg-cover', 'bg-whitish', 'rounded-3xl', 'p-4'),
-    [wrapperSizeClassNames]
+    () =>
+      clsx(
+        wrapperSizeClassNames,
+        'relative',
+        'bg-cover',
+        'bg-whitish',
+        'p-4',
+        radius === 'max' && 'rounded-3xl',
+        radius === 'min' && 'rounded-xl'
+      ),
+    [radius, wrapperSizeClassNames]
   )
 
   const Wrapper = ({ children }: { children: React.ReactNode }) =>

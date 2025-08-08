@@ -28,6 +28,13 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
   const modalRef = useRef<HTMLDivElement>(null)
   const isLocked = useRef(variantOptions.variant === 'loading' && variantOptions.isLocked)
 
+  // Click outside to close
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isLocked.current && modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      onClose?.()
+    }
+  }
+
   // ESC to close
   useEffect(() => {
     if (isLocked.current) return
@@ -43,12 +50,12 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
     }
   }, [onClose])
 
-  // Click outside to close
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isLocked.current && modalRef.current && !modalRef.current.contains(e.target as Node)) {
-      onClose?.()
+  // Lock when loading
+  useEffect(() => {
+    if (internalState?.isLoading) {
+      isLocked.current = true
     }
-  }
+  }, [internalState?.isLoading])
 
   const modalContent = useMemo(() => {
     switch (variantOptions.variant) {
