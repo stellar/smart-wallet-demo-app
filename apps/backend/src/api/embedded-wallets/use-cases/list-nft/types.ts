@@ -5,15 +5,15 @@ import { createResponseSchema } from 'api/core/framework/use-case/base'
 export const NftSchema = z.object({
   name: z.string(),
   description: z.string(),
-  url: z.number(),
-  issuer: z.string(),
-  code: z.string(),
+  url: z.string(),
+  code: z.string(), // Symbol
+  issuer: z.string().optional(),
 })
 
 export type NftSchemaT = z.infer<typeof NftSchema>
 
 export const RequestSchema = z.object({
-  id: z.string(),
+  email: z.string(),
 })
 
 export type RequestSchemaT = z.infer<typeof RequestSchema>

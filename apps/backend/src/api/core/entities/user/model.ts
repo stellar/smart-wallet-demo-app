@@ -2,6 +2,7 @@ import { Column, Entity, ModelBase, OneToMany, PrimaryGeneratedColumn } from 'ap
 
 import { Otp } from '../otp/model'
 import { Passkey } from '../passkey/model'
+import { Nft } from '../nft/model'
 
 @Entity()
 export class User extends ModelBase {
@@ -29,4 +30,7 @@ export class User extends ModelBase {
 
   @OneToMany(() => Otp, otp => otp.user)
   otps: Otp[]
+
+  @OneToMany(() => Nft, nft => nft.user)
+  nfts: Nft[]
 }

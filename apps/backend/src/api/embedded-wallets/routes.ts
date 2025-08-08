@@ -16,6 +16,7 @@ import { ResendInvite, endpoint as ResendInviteEndpoint } from './use-cases/rese
 import { Transfer, endpoint as TransferEndpoint } from './use-cases/transfer'
 import { TransferOptions, endpoint as TransferOptionsEndpoint } from './use-cases/transfer-options'
 import { ValidateRecoveryLink, endpoint as ValidateRecoveryLinkEndpoint } from './use-cases/validate-recovery-link'
+import { ListNft, endpoint as ListNftEndpoint } from './use-cases/list-nft'
 
 const router = Router()
 
@@ -37,5 +38,6 @@ router.get(`${TransferOptionsEndpoint}`, authentication, async (req, res) =>
   TransferOptions.init().executeHttp(req, res)
 )
 router.post(`${TransferEndpoint}`, authentication, async (req, res) => Transfer.init().executeHttp(req, res))
+router.post(`${ListNftEndpoint}`, authentication, async (req, res) => ListNft.init().executeHttp(req, res))
 
 export default router
