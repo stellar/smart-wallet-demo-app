@@ -6,4 +6,10 @@ export interface ISettingsService {
   getFeatureFlags: () => Promise<GetFeatureFlagsResult>
 }
 
-export type GetFeatureFlagsResult = IHTTPResponse<{ flags: Record<FeatureFlags, boolean> }>
+export type GetFeatureFlagsResult = IHTTPResponse<{
+  flags: {
+    name: FeatureFlags
+    value: boolean
+    metadata?: Record<string, unknown>
+  }[]
+}>

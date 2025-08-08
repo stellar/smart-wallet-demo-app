@@ -7,5 +7,7 @@ export const featureFlagsState = (flags: FeatureFlags[]): boolean[] => {
 
   if (!result) throw Error('featureFlagsState | Feature flags are not available from query')
 
-  return flags.map(flag => result.data.flags[flag])
+  const storedFlags = result.data.flags
+
+  return flags.map(flag => storedFlags.find(storedFlag => storedFlag.name === flag)?.value ?? false)
 }

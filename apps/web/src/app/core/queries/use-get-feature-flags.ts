@@ -15,7 +15,7 @@ export const getFeatureFlags = () =>
     gcTime: Infinity,
   })
 
-export const useGetInvitationInfo = (
+export const useGetFeatureFlags = (
   options?: Omit<UseQueryOptions<UseCaseResult, Error>, 'queryKey' | 'queryFn'>
 ): UseQueryResult<UseCaseResult, Error> => {
   return useQuery({

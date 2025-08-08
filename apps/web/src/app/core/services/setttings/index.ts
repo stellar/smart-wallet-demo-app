@@ -5,8 +5,10 @@ export class SettingsService implements ISettingsService {
     // TODO: add API endpoint integration
     return {
       data: {
-        flags: { ['airdrop']: true, ['coming-soon']: false },
-        success: true,
+        flags: [
+          { name: 'airdrop', value: true },
+          { name: 'coming-soon', value: false },
+        ],
       },
       message: 'abc',
     }
