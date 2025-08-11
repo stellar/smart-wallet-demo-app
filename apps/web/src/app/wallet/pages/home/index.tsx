@@ -31,9 +31,8 @@ export const Home = () => {
       navigate({ to: WalletPagesPath.PROFILE })
     } else if (item === 'history') {
       navigate({ to: WalletPagesPath.TRANSACTIONS })
-    } else {
-      // Not implemented for other items
-      throw new Error('Function not implemented.')
+    } else if (item === 'nft') {
+      navigate({ to: WalletPagesPath.NFTS })
     }
   }
 

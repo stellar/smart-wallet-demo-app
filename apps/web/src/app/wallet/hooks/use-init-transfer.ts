@@ -12,7 +12,7 @@ import { queryClient } from 'src/interfaces/query-client'
 import { useGetTransferOptions } from '../queries/use-get-transfer-options'
 import { getWallet } from '../queries/use-get-wallet'
 import { useTransfer } from '../queries/use-transfer'
-import { isTransferTypeParams, TransferTypes } from '../services/wallet/types'
+import { isNftTypeParams, isTransferTypeParams, TransferTypes } from '../services/wallet/types'
 
 type InitTransferProps = {
   params: {
@@ -108,6 +108,8 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
     })
 
     if (isTransferTypeParams(params)) {
+      await getTransferOptions.mutateAsync(params)
+    } else if (isNftTypeParams(params)) {
       await getTransferOptions.mutateAsync(params)
     }
   }, [getTransferOptions, params])

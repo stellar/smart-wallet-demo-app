@@ -1,3 +1,4 @@
+import { AnimatePresence } from 'framer-motion'
 import { createRef, forwardRef, RefObject, ReactNode, useImperativeHandle, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -71,14 +72,17 @@ const ModalInnerProvider = forwardRef<ModalServiceType, { children: ReactNode }>
     <>
       {children}
       {typeof window !== 'undefined' &&
-        activeModal &&
         createPortal(
-          <Modal
-            {...activeModal}
-            key={activeModal.key}
-            onClose={handleClose}
-            internalState={modalStates[activeModal.key] ?? {}}
-          />,
+          <AnimatePresence mode="wait">
+            {activeModal && (
+              <Modal
+                {...activeModal}
+                key={activeModal.key}
+                onClose={handleClose}
+                internalState={modalStates[activeModal.key] ?? {}}
+              />
+            )}
+          </AnimatePresence>,
           document.body
         )}
     </>

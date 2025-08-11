@@ -61,5 +61,15 @@
   "defaultLoadingDescription": "Hold on a second while we reach the network...",
   "confirmPayment": "Confirm Payment",
   "invalidQrCode": "This QR code isn't valid. Please try another one",
-  "transferSuccess": "Done! Your transaction was completed successfully"
+  "transferSuccess": "Done! Your transaction was completed successfully",
+  "nftModalTitle": "NFT is here!",
+  "nftModalDescription": "Confirm the transaction to claim your NFT.",
+  "confirmWithPasskey": "Confirm with passkey",
+  "nftsListTitle": "NFT Collectibles",
+  "noNftsListTitle": "Your NFT is empty",
+  "noNftsListDescription": "Collect some NFTs",
+  "viewNftDrawerTitle": "'s amazing NFT",
+  "viewNftDrawerSubtitle": "Non-Fungible Token",
+  "viewNftDrawerDisclaimer": "Transfer is not supported yet.",
+  "transfer": "Transfer"
 }

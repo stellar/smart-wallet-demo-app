@@ -21,7 +21,7 @@ export type GetTransactionHistoryResult = IHTTPResponse<{
   transactions: Transaction[]
 }>
 
-export const transferTypes = ['transfer'] as const
+export const transferTypes = ['transfer', 'nft'] as const
 export type TransferTypes = (typeof transferTypes)[number]
 export type TransferTypeParams = {
   type: Extract<TransferTypes, 'transfer'>
@@ -31,9 +31,22 @@ export type TransferTypeParams = {
 }
 export const isTransferTypeParams = (params: { type: TransferTypes }): params is TransferTypeParams =>
   params.type === 'transfer'
+export type NftTypeParams = {
+  type: Extract<TransferTypes, 'nft'>
+  to: string
+  id: string
+  asset: string
+}
+export const isNftTypeParams = (params: { type: TransferTypes }): params is NftTypeParams => params.type === 'nft'
 
-export type GetTransferOptionsInput = TransferTypeParams
-export const transferOptionsInputKeys: (keyof GetTransferOptionsInput)[] = ['type', 'to', 'amount', 'asset']
+export type GetTransferOptionsInput = TransferTypeParams | NftTypeParams
+export const transferOptionsInputKeys: (keyof TransferTypeParams | keyof NftTypeParams)[] = [
+  'type',
+  'to',
+  'amount',
+  'asset',
+  'id',
+]
 
 export type GetTransferOptionsResult = IHTTPResponse<{
   options_json: string
@@ -51,7 +64,7 @@ export type GetTransferOptionsResult = IHTTPResponse<{
 
 export type PostTransferInput = {
   authenticationResponseJSON: string
-} & TransferTypeParams
+} & GetTransferOptionsInput
 export type PostTransferResult = IHTTPResponse<{
   hash: string
 }>
