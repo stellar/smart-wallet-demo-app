@@ -4,6 +4,7 @@ import { Asset, AssetRepositoryType } from 'api/core/entities/asset/types'
 import { NftRepositoryType } from 'api/core/entities/nft/types'
 import AssetRepository from 'api/core/services/asset'
 import NftRepository from 'api/core/services/nft'
+import { fetchSep50Metadata, Sep50Metadata } from 'api/core/utils/fetch-sep50-metadata'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import SorobanService from 'interfaces/soroban'
@@ -67,11 +68,75 @@ export const getTokenData = async ({
   } as SimulateContractOperation)
 
   let tokenUri: string = ''
+  let description: string = ''
+  let url: string = ''
+  let image: string = ''
+  let externalUrl: string = ''
+  let collection: { name: string; family: string } | undefined
+  let attributes:
+    | {
+        traitType: string
+        value: string | number | boolean
+        displayType?: string
+        maxValue?: number
+      }[]
+    | undefined
+  let properties:
+    | Record<
+        string,
+        | string
+        | number
+        | boolean
+        | string[]
+        | number[]
+        | {
+            type?: string
+            uri?: string
+            [key: string]: unknown
+          }[]
+      >
+    | undefined
+
   if (tokenUriSimulationResponse) {
     tokenUri = scValToNative(tokenUriSimulationResponse.result?.retval as xdr.ScVal).toString()
 
-    // TODO: get token_uri json content, parse and extract data
+    // Fetch and parse SEP-50 metadata from the token URI
+    if (tokenUri) {
+      const metadata: Sep50Metadata = await fetchSep50Metadata(tokenUri)
+
+      // Extract all available fields from the metadata
+      description = metadata.description || ''
+      url = metadata.external_url || ''
+      image = metadata.image || ''
+      externalUrl = metadata.external_url || ''
+
+      if (metadata.collection) {
+        collection = {
+          name: metadata.collection.name,
+          family: metadata.collection.family,
+        }
+      }
+
+      if (metadata.attributes) {
+        attributes = metadata.attributes.map(attr => ({
+          traitType: attr.trait_type,
+          value: attr.value,
+          displayType: attr.display_type,
+          maxValue: attr.max_value,
+        }))
+      }
+    }
   }
 
-  return { symbol, name, tokenUri }
+  return {
+    symbol,
+    name,
+    description,
+    url,
+    image,
+    externalUrl,
+    collection,
+    attributes,
+    properties,
+  }
 }

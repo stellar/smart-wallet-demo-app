@@ -35,7 +35,7 @@ export class ListNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT
       data: {
         ...response,
       },
-      message: 'Transaction history retrieved successfully',
+      message: 'Tokens list retrieved successfully',
     }
   }
 
@@ -51,18 +51,18 @@ export class ListNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT
     // Return empty array if user does not have a wallet
     if (!user.contractAddress) return this.parseResponse({ nfts: [] })
 
-    // TODO: get NFTs from DB, from contract call and merge to return
+    // TODO: get NFTs from DB, from contract (enumerable) and merge to return
+    // TODO: implement a list_owner_tokens method in NFT contract using Enumerable interface (https://github.com/OpenZeppelin/stellar-contracts/blob/main/packages/tokens/src/non_fungible/extensions/enumerable/mod.rs)
     const nfts: NftSchemaT[] = []
 
     for (const userNft of user.nfts ?? []) {
-      // TODO: simulate NFT contract call to get metadata
       const tokenData = await getTokenData({ assetContractAddress: userNft.contractAddress })
 
       const nft: NftSchemaT = {
         code: tokenData.symbol,
-        name: '',
-        description: '',
-        url: '',
+        name: tokenData.name,
+        description: tokenData.description || '',
+        url: tokenData.url || '',
       }
 
       nfts.push(nft)
