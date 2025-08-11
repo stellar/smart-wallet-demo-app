@@ -10,6 +10,7 @@ import RecoverWalletDocs from 'api/embedded-wallets/use-cases/recover-wallet/ind
 import RecoverWalletOptionsDocs from 'api/embedded-wallets/use-cases/recover-wallet-options/index.docs'
 import ResendInviteDocs from 'api/embedded-wallets/use-cases/resend-invite/index.docs'
 import ValidateRecoveryLinkDocs from 'api/embedded-wallets/use-cases/validate-recovery-link/index.docs'
+import ListNfts from 'api/embedded-wallets/use-cases/list-nft/index.docs'
 
 export default {
   '/api/embedded-wallets': {
@@ -47,5 +48,8 @@ export default {
   },
   '/api/embedded-wallets/resend-invite': {
     ...ResendInviteDocs,
+  },
+  '/api/embedded-wallets/nft': {
+    ...ListNfts,
   },
 }
