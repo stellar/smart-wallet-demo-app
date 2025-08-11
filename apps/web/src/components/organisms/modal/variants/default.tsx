@@ -16,6 +16,7 @@ export type ModalDefaultProps = {
     }
   }
   description: string
+  note?: string
   button: React.ComponentProps<typeof Button>
 }
 
@@ -23,6 +24,7 @@ export const ModalDefault = ({
   title,
   textColor = 'black',
   description,
+  note,
   button,
   onClose,
 }: BaseModalProps & ModalDefaultProps) => {
@@ -84,10 +86,17 @@ export const ModalDefault = ({
         )}
       </div>
 
-      {/* Action Button */}
+      {/* Action Button & Note */}
       {button && (
-        <div className="flex justify-center">
+        <div className="flex flex-col justify-center">
           <Button {...button} />
+          {note && (
+            <div className="mt-2 text-center">
+              <Text as="p" size="sm">
+                {note}
+              </Text>
+            </div>
+          )}
         </div>
       )}
     </div>
