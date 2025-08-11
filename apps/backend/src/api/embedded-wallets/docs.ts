@@ -4,13 +4,13 @@ import GenerateRecoveryLinkDocs from 'api/embedded-wallets/use-cases/generate-re
 import GetInvitationInfoDocs from 'api/embedded-wallets/use-cases/get-invitation-info/index.docs'
 import GetWalletDocs from 'api/embedded-wallets/use-cases/get-wallet/index.docs'
 import GetWalletHistoryDocs from 'api/embedded-wallets/use-cases/get-wallet-history/index.docs'
+import ListNfts from 'api/embedded-wallets/use-cases/list-nft/index.docs'
 import LogInDocs from 'api/embedded-wallets/use-cases/login/index.docs'
 import LogInOptionsDocs from 'api/embedded-wallets/use-cases/login-options/index.docs'
 import RecoverWalletDocs from 'api/embedded-wallets/use-cases/recover-wallet/index.docs'
 import RecoverWalletOptionsDocs from 'api/embedded-wallets/use-cases/recover-wallet-options/index.docs'
 import ResendInviteDocs from 'api/embedded-wallets/use-cases/resend-invite/index.docs'
 import ValidateRecoveryLinkDocs from 'api/embedded-wallets/use-cases/validate-recovery-link/index.docs'
-import ListNfts from 'api/embedded-wallets/use-cases/list-nft/index.docs'
 
 export default {
   '/api/embedded-wallets': {

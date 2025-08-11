@@ -9,7 +9,8 @@ export default {
   post: {
     tags: [Tags.EMBEDDED_WALLETS],
     summary: 'List NFTs for the authenticated user',
-    description: 'Retrieves a list of all NFTs owned by the authenticated user. The user must be authenticated and have a valid wallet address. Returns an empty array if the user has no NFTs or no wallet.',
+    description:
+      'Retrieves a list of all NFTs owned by the authenticated user. The user must be authenticated and have a valid wallet address. Returns an empty array if the user has no NFTs or no wallet.',
     responses: {
       [HttpStatusCodes.OK]: {
         type: 'object',
