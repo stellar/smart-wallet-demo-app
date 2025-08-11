@@ -9,5 +9,7 @@
   "transactionsHistoryMintBackground": "src/assets/images/transactions-history-mint-background.png",
   "nftModalBackground": "src/assets/images/nft-modal-background.png",
   "customNftModalBackground": "src/assets/images/custom-nft-modal-background.png",
-  "emptyList": "src/assets/images/empty-list.png"
+  "emptyList": "src/assets/images/empty-list.png",
+  "specialGiftBox": "src/assets/images/special-gift-box.png",
+  "specialGiftModalBackground": "src/assets/images/special-gift-modal-background.png"
 }

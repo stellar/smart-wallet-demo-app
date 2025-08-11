@@ -71,5 +71,18 @@
   "viewNftDrawerTitle": "'s amazing NFT",
   "viewNftDrawerSubtitle": "Non-Fungible Token",
   "viewNftDrawerDisclaimer": "Transfer is not supported yet.",
-  "transfer": "Transfer"
+  "transfer": "Transfer",
+  "specialGiftTitle": "SMART WALLET",
+  "specialGiftGoBackButtonText": "Go back",
+  "shareImage": "Share image",
+  "claimGift": "Claim gift",
+  "claim": "Claim",
+  "specialGiftModalTitle": "You've unlocked a special gift!",
+  "specialGiftModalDescription": "Go to the booth and claim it to get your special gift!",
+  "specialGiftModalNote": "Note: Swag is subject to availability.",
+  "shareImageNotSupportedDevice": "Your device doesn't support sharing this way. You can try a different browser or device",
+  "shareImageError": "Something went wrong while sharing. Please try again",
+  "shareImageSuccess": "Done! The image was shared successfully",
+  "shareImageTitle": "Save this image",
+  "shareImageText": "Move this image where you need it"
 }

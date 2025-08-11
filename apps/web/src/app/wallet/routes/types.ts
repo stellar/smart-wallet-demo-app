@@ -4,4 +4,5 @@ export enum WalletPagesPath {
   PROFILE = '/wallet/profile',
   TRANSACTIONS = '/wallet/transactions',
   NFTS = '/wallet/nfts',
+  SPECIAL_GIFT = '/wallet/special-gift',
 }

@@ -1,7 +1,7 @@
 import { createRoute } from '@tanstack/react-router'
 
 import { privateRootRoute } from 'src/app/core/router/routeTree'
-import { Home, Scan, Profile, Transactions, Nfts } from 'src/app/wallet/pages'
+import { Home, Scan, Profile, Transactions, Nfts, SpecialGift } from 'src/app/wallet/pages'
 import { qrScanner } from 'src/interfaces/qr-scanner'
 
 import { WalletPagesPath } from './types'
@@ -59,6 +59,12 @@ const nftsRoute = createRoute({
   component: Nfts,
 })
 
-walletRootRoute.addChildren([homeRoute, scanRoute, profileRoute, transactionsRoute, nftsRoute])
+const specialGiftRoute = createRoute({
+  getParentRoute: () => walletRootRoute,
+  path: filterHomePath(WalletPagesPath.SPECIAL_GIFT),
+  component: SpecialGift,
+})
+
+walletRootRoute.addChildren([homeRoute, scanRoute, profileRoute, transactionsRoute, nftsRoute, specialGiftRoute])
 
 export const walletRoutes = [walletRootRoute]
