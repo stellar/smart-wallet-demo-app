@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
+
 import { AxiosLogger } from 'config/axios-logger'
 
 export interface Sep50Metadata {
@@ -37,7 +38,7 @@ export interface Sep50Metadata {
 }
 
 export const fetchSep50Metadata = async (tokenUri: string): Promise<Sep50Metadata> => {
-  let connection: AxiosInstance = axios.create({ timeout: 10000 })
+  const connection: AxiosInstance = axios.create({ timeout: 10000 })
 
   const axiosLogger = new AxiosLogger('fetchSep50Metadata')
   connection.interceptors.request.use(axiosLogger.createRequestInterceptor)
