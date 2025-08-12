@@ -2,6 +2,8 @@ import { Router } from 'express'
 
 import { authentication } from 'api/core/middlewares/authentication'
 
+import { AirdropComplete, endpoint as AirdropCompleteEndpoint } from './use-cases/airdrop-complete'
+import { AirdropOptions, endpoint as AirdropOptionsEndpoint } from './use-cases/airdrop-options'
 import { CreateWallet, endpoint as CreateWalletEndpoint } from './use-cases/create-wallet'
 import { CreateWalletOptions, endpoint as CreateWalletOptionsEndpoint } from './use-cases/create-wallet-options'
 import { GenerateRecoveryLink, endpoint as GenerateRecoveryLinkEndpoint } from './use-cases/generate-recovery-link'
@@ -37,5 +39,9 @@ router.get(`${TransferOptionsEndpoint}`, authentication, async (req, res) =>
   TransferOptions.init().executeHttp(req, res)
 )
 router.post(`${TransferEndpoint}`, authentication, async (req, res) => Transfer.init().executeHttp(req, res))
+router.get(`${AirdropOptionsEndpoint}`, authentication, async (req, res) => AirdropOptions.init().executeHttp(req, res))
+router.post(`${AirdropCompleteEndpoint}`, authentication, async (req, res) =>
+  AirdropComplete.init().executeHttp(req, res)
+)
 
 export default router
