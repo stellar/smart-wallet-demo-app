@@ -11,7 +11,7 @@ import { ISorobanService, SimulateContractOperation } from 'interfaces/soroban/t
 export const getWalletBalance = async ({
   userContractAddress,
   assetType,
-  assetCode,
+  assetCode, // Symbol
   assetRepository,
   sorobanService,
 }: {
@@ -37,11 +37,11 @@ export const getWalletBalance = async ({
 
   /**
    * Get balance via simulation call
-   * In conformity with Stellar standard assets specs, as with NFT specs (SEP-39 and SEP-50)
+   * In conformity with Stellar standard assets specs (CAP-46-06), as with NFT specs (SEP-39 and SEP-50)
    */
   // TODO: adapt to another assets specs in the future
   const { simulationResponse } = await sorobanServiceInstance.simulateContractOperation({
-    contractId: assetContractAddress, // TODO: get balance for another assets?
+    contractId: assetContractAddress,
     method: 'balance',
     args: [ScConvert.accountIdToScVal(userContractAddress)],
   } as SimulateContractOperation)

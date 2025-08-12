@@ -10,6 +10,7 @@ import { GenerateRecoveryLink, endpoint as GenerateRecoveryLinkEndpoint } from '
 import { GetInvitationInfo, endpoint as GetInvitationInfoEndpoint } from './use-cases/get-invitation-info'
 import { GetWallet, endpoint as GetWalletEndpoint } from './use-cases/get-wallet'
 import { GetWalletHistory, endpoint as GetWalletHistoryEndpoint } from './use-cases/get-wallet-history'
+import { ListNft, endpoint as ListNftEndpoint } from './use-cases/list-nft'
 import { LogIn, endpoint as LogInEndpoint } from './use-cases/login'
 import { LogInOptions, endpoint as LogInOptionsEndpoint } from './use-cases/login-options'
 import { RecoverWallet, endpoint as RecoverWalletEndpoint } from './use-cases/recover-wallet'
@@ -39,6 +40,7 @@ router.get(`${TransferOptionsEndpoint}`, authentication, async (req, res) =>
   TransferOptions.init().executeHttp(req, res)
 )
 router.post(`${TransferEndpoint}`, authentication, async (req, res) => Transfer.init().executeHttp(req, res))
+router.get(`${ListNftEndpoint}`, authentication, async (req, res) => ListNft.init().executeHttp(req, res))
 router.get(`${AirdropOptionsEndpoint}`, authentication, async (req, res) => AirdropOptions.init().executeHttp(req, res))
 router.post(`${AirdropCompleteEndpoint}`, authentication, async (req, res) =>
   AirdropComplete.init().executeHttp(req, res)
