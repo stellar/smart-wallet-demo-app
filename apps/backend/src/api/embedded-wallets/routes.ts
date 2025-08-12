@@ -38,6 +38,6 @@ router.get(`${TransferOptionsEndpoint}`, authentication, async (req, res) =>
   TransferOptions.init().executeHttp(req, res)
 )
 router.post(`${TransferEndpoint}`, authentication, async (req, res) => Transfer.init().executeHttp(req, res))
-router.post(`${ListNftEndpoint}`, authentication, async (req, res) => ListNft.init().executeHttp(req, res))
+router.get(`${ListNftEndpoint}`, authentication, async (req, res) => ListNft.init().executeHttp(req, res))
 
 export default router

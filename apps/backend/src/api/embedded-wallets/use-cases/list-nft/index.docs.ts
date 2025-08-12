@@ -6,7 +6,7 @@ import { zodToSchema } from 'api/core/utils/zod'
 import { RequestSchema, ResponseSchema } from './types'
 
 export default {
-  post: {
+  get: {
     tags: [Tags.EMBEDDED_WALLETS],
     summary: 'List NFTs for the authenticated user',
     description:
