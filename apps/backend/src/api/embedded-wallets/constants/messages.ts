@@ -20,4 +20,7 @@ export const messages = {
   UNABLE_TO_FIND_SOROBAN_CUSTOM_METADATA:
     "Something went wrong and we couldn't find your transaction. Please start over to try again",
   UNABLE_TO_FIND_ASSET_OR_CONTRACT: "We couldn't find the asset or contract for this transaction.",
+  AIRDROP_PROOF_NOT_FOUND: 'You are not eligible for this airdrop or the proof could not be found.',
+  AIRDROP_ALREADY_CLAIMED: 'This airdrop has already been claimed for your address.',
+  UNABLE_TO_EXECUTE_AIRDROP_CLAIM: 'The airdrop claim could not be executed. Please try again later.',
 }

@@ -6,18 +6,28 @@ import { NavigateButton } from '../../../molecules'
 
 export type ModalDefaultProps = {
   variant: Extract<ModalVariants, 'default'>
+  textColor?: 'black' | 'white'
   title: {
     text: string
     image?: {
       source?: string | React.ReactNode | 'blank-space'
       variant?: 'sm' | 'md' | 'lg'
+      format?: 'square' | 'circle'
     }
   }
   description: string
+  note?: string
   button: React.ComponentProps<typeof Button>
 }
 
-export const ModalDefault = ({ title, description, button, onClose }: BaseModalProps & ModalDefaultProps) => {
+export const ModalDefault = ({
+  title,
+  textColor = 'black',
+  description,
+  note,
+  button,
+  onClose,
+}: BaseModalProps & ModalDefaultProps) => {
   const imageSizeMap = {
     sm: 'h-[80px] w-[80px]',
     md: 'h-[130px] w-[130px]',
@@ -36,7 +46,12 @@ export const ModalDefault = ({ title, description, button, onClose }: BaseModalP
         <img
           src={image.source}
           alt="Modal image"
-          className={clsx('object-cover rounded-full', imageSizeMap[image.variant ?? 'md'])}
+          className={clsx(
+            'object-cover',
+            image.format === 'circle' && 'rounded-full',
+            image.format === 'square' && 'rounded-xl',
+            imageSizeMap[image.variant ?? 'md']
+          )}
         />
       )
     }
@@ -54,7 +69,7 @@ export const ModalDefault = ({ title, description, button, onClose }: BaseModalP
       <div className="flex flex-col gap-2">
         {/* Title */}
         {title && (
-          <div className="text-center">
+          <div className={clsx('text-center', textColor === 'white' && 'text-whitish')}>
             <Text as="h2" size="lg" weight="bold" style={{ fontSize: '1.75rem' }}>
               {title.text}
             </Text>
@@ -63,16 +78,25 @@ export const ModalDefault = ({ title, description, button, onClose }: BaseModalP
 
         {/* Description */}
         {description && (
-          <Text addlClassName="text-center" as="p" size="md">
-            {description}
-          </Text>
+          <div className={clsx('text-center', textColor === 'white' && 'text-whitish')}>
+            <Text as="p" size="md" weight="medium">
+              {description}
+            </Text>
+          </div>
         )}
       </div>
 
-      {/* Action Button */}
+      {/* Action Button & Note */}
       {button && (
-        <div className="flex justify-center">
+        <div className="flex flex-col justify-center">
           <Button {...button} />
+          {note && (
+            <div className="mt-2 text-center">
+              <Text as="p" size="sm">
+                {note}
+              </Text>
+            </div>
+          )}
         </div>
       )}
     </div>

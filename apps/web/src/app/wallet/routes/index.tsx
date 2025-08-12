@@ -1,11 +1,11 @@
 import { createRoute } from '@tanstack/react-router'
 
 import { privateRootRoute } from 'src/app/core/router/routeTree'
-import { Home, Scan, Profile, Transactions } from 'src/app/wallet/pages'
+import { Home, Scan, Profile, Transactions, Nfts, SpecialGift } from 'src/app/wallet/pages'
 import { qrScanner } from 'src/interfaces/qr-scanner'
 
 import { WalletPagesPath } from './types'
-import { transferTypeSchema } from '../pages/home/schema'
+import { nftTypeSchema, transferTypeSchema } from '../pages/home/schema'
 import { TransferTypes } from '../services/wallet/types'
 
 const filterHomePath = (path: WalletPagesPath): string => path.split(WalletPagesPath.HOME)[1]
@@ -23,6 +23,8 @@ export const homeRoute = createRoute({
     switch (search.type as TransferTypes) {
       case 'transfer':
         return transferTypeSchema.validateSync(search)
+      case 'nft':
+        return nftTypeSchema.validateSync(search)
     }
   },
   loaderDeps: ({ search }) => ({
@@ -51,6 +53,18 @@ const transactionsRoute = createRoute({
   component: Transactions,
 })
 
-walletRootRoute.addChildren([homeRoute, scanRoute, profileRoute, transactionsRoute])
+const nftsRoute = createRoute({
+  getParentRoute: () => walletRootRoute,
+  path: filterHomePath(WalletPagesPath.NFTS),
+  component: Nfts,
+})
+
+const specialGiftRoute = createRoute({
+  getParentRoute: () => walletRootRoute,
+  path: filterHomePath(WalletPagesPath.SPECIAL_GIFT),
+  component: SpecialGift,
+})
+
+walletRootRoute.addChildren([homeRoute, scanRoute, profileRoute, transactionsRoute, nftsRoute, specialGiftRoute])
 
 export const walletRoutes = [walletRootRoute]

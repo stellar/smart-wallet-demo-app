@@ -6,9 +6,17 @@ import ProductMock02 from 'src/assets/images/mock/ecobag.png'
 import ProductMock01 from 'src/assets/images/mock/jacket.png'
 import { AssetAmount } from 'src/components/molecules'
 import { Carousel, SafeAreaView, ImageCard, Collapse, CollapseItem } from 'src/components/organisms'
-import { modalService } from 'src/components/organisms/modal/provider'
-import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
+
+export type BannerOptions = {
+  backgroundImageUri: string
+  label: {
+    title: string
+    description: string
+    variant: 'primary' | 'secondary'
+  }
+  button: Omit<React.ComponentProps<typeof Button>, 'variant' | 'size' | 'isRounded'>
+}
 
 type NavbarItemType = 'nft' | 'history' | 'profile'
 
@@ -23,15 +31,7 @@ type Props = {
       description: string
     }[]
   }
-  banner?: {
-    backgroundImageUri: string
-    label: {
-      title: string
-      description: string
-      variant: 'primary' | 'secondary'
-    }
-    button: Omit<React.ComponentProps<typeof Button>, 'variant' | 'size' | 'isRounded'>
-  }
+  banner?: BannerOptions
   onNavbarButtonClick: (item: NavbarItemType) => void
   onPayClick: () => void
 }
@@ -64,41 +64,7 @@ export const HomeTemplate = ({
       leftBadge: { label: c('walletHomeProductListLeftBadgeOptionBLabel'), variant: 'disabled' },
     },
   ],
-  banner = {
-    backgroundImageUri: a('airdropBannerBackground'),
-    label: {
-      title: c('airdropBannerTitle'),
-      description: c('airdropBannerDescriptionA'),
-      variant: 'primary',
-    },
-    button: {
-      title: c('airdropBannerButtonTitle'),
-      onClick: () =>
-        modalService.open({
-          key: 'airdrop-modal',
-          variantOptions: {
-            variant: 'default',
-            title: {
-              text: c('airdropBannerTitle'),
-              image: {
-                source: 'blank-space',
-              },
-            },
-            description: c('airdropBannerDescriptionB'),
-            button: {
-              children: c('airdropBannerButtonTitle'),
-              variant: 'secondary',
-              size: 'lg',
-              isRounded: true,
-              onClick: () => {
-                alert('Airdrop claim button pressed')
-              },
-            },
-          },
-          backgroundImageUri: a('airdropDefaultBackground'),
-        }),
-    },
-  },
+  banner,
   onNavbarButtonClick,
   onPayClick,
 }: Props) => {

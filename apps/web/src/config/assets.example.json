@@ -5,7 +5,11 @@
   "airdropBannerBackground": "src/assets/images/airdrop-banner-background.png",
   "airdropDefaultBackground": "src/assets/images/airdrop-default-background.png",
   "customModalBackground": "src/assets/images/custom-modal-background.png",
-  "transactionsHistoryEmptyList": "src/assets/images/transactions-history-empty-list.png",
   "transactionsHistoryListMintBackground": "src/assets/images/transactions-history-list-mint-background.png",
-  "transactionsHistoryMintBackground": "src/assets/images/transactions-history-mint-background.png"
+  "transactionsHistoryMintBackground": "src/assets/images/transactions-history-mint-background.png",
+  "nftModalBackground": "src/assets/images/nft-modal-background.png",
+  "customNftModalBackground": "src/assets/images/custom-nft-modal-background.png",
+  "emptyList": "src/assets/images/empty-list.png",
+  "specialGiftBox": "src/assets/images/special-gift-box.png",
+  "specialGiftModalBackground": "src/assets/images/special-gift-modal-background.png"
 }

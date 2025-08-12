@@ -113,7 +113,12 @@ export const ModalTransactionDetails = ({
   return (
     <div className="flex flex-col gap-6 pt-4">
       {/* Close Button - Positioned outside modal */}
-      <NavigateButton className="absolute -top-10 right-0" type="close" variant="ghost" onClick={onClose} />
+      <NavigateButton
+        className="absolute -top-10 right-0"
+        type="close"
+        variant="ghost"
+        onClick={isLoading ? undefined : onClose}
+      />
 
       {/* Top Section with Date, Type, and Amount */}
       {vendor.imageUri ? (
