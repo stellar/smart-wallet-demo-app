@@ -55,6 +55,7 @@ export default {
   },
   '/api/embedded-wallets/nft': {
     ...ListNfts,
+  }
   '/api/embedded-wallets/transfer/options': {
     ...TransferOptionsDocs,
   },
