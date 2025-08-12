@@ -1,4 +1,5 @@
-import axios from 'axios'
+import axios, { AxiosInstance } from 'axios'
+import { AxiosLogger } from 'config/axios-logger'
 
 export interface Sep50Metadata {
   name?: string
@@ -36,45 +37,33 @@ export interface Sep50Metadata {
 }
 
 export const fetchSep50Metadata = async (tokenUri: string): Promise<Sep50Metadata> => {
-  try {
-    const response = await axios.get(tokenUri, {
-      timeout: 10000, // 10 second timeout
-      headers: {
-        Accept: 'application/json',
-        'User-Agent': 'SmartWallet/1.0',
-      },
-    })
+  let connection: AxiosInstance = axios.create({ timeout: 10000 })
 
-    if (response.status !== 200) {
-      throw new Error(`Failed to fetch metadata: HTTP ${response.status}`)
-    }
+  const axiosLogger = new AxiosLogger('fetchSep50Metadata')
+  connection.interceptors.request.use(axiosLogger.createRequestInterceptor)
+  connection.interceptors.response.use(
+    axiosLogger.createFulfilledResponseInterceptor,
+    axiosLogger.createRejectedResponseInterceptor
+  )
 
-    const metadata = response.data
+  const response = await connection.get(tokenUri, {
+    timeout: 10000, // 10 second timeout
+    headers: {
+      Accept: 'application/json',
+      'User-Agent': 'SmartWallet/1.0',
+    },
+  })
 
-    // Validate that it's a valid JSON object
-    if (typeof metadata !== 'object' || metadata === null) {
-      throw new Error('Invalid metadata format: expected JSON object')
-    }
-
-    return metadata as Sep50Metadata
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.code === 'ECONNABORTED') {
-        throw new Error('Request timeout while fetching metadata')
-      }
-      if (error.response) {
-        throw new Error(`HTTP error ${error.response.status}: ${error.response.statusText}`)
-      }
-      if (error.request) {
-        throw new Error('Network error while fetching metadata')
-      }
-    }
-
-    // If it's not an axios error, check if it's our own error
-    if (error instanceof Error) {
-      throw error
-    }
-
-    throw new Error(`Failed to fetch metadata: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  if (response.status !== 200) {
+    throw new Error(`Failed to fetch metadata: HTTP ${response.status}`)
   }
+
+  const metadata = response.data
+
+  // Validate that it's a valid JSON object
+  if (typeof metadata !== 'object' || metadata === null) {
+    throw new Error('Invalid metadata format: expected JSON object')
+  }
+
+  return metadata as Sep50Metadata
 }
