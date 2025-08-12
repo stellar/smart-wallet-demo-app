@@ -8,6 +8,9 @@ import {
   GetTransferOptionsResult,
   PostTransferInput,
   PostTransferResult,
+  GetAirdropOptionsResult,
+  PostAirdropInput,
+  PostAirdropResult,
 } from './types'
 
 export class WalletService implements IWalletService {
@@ -35,6 +38,20 @@ export class WalletService implements IWalletService {
     const response = await http.post(`/api/embedded-wallets/transfer/complete`, {
       authentication_response_json: authenticationResponseJSON,
       ...rest,
+    })
+
+    return response.data
+  }
+
+  async getAirdropOptions(): Promise<GetAirdropOptionsResult> {
+    const response = await http.get('/api/embedded-wallets/airdrop/options')
+
+    return response.data
+  }
+
+  async postAirdrop(input: PostAirdropInput): Promise<PostAirdropResult> {
+    const response = await http.post(`/api/embedded-wallets/airdrop/complete`, {
+      authentication_response_json: input.authenticationResponseJSON,
     })
 
     return response.data

@@ -134,6 +134,10 @@ export class AirdropComplete extends UseCaseBase implements IUseCaseHttp<Respons
       throw new ResourceNotFoundException(messages.UNABLE_TO_EXECUTE_AIRDROP_CLAIM)
     }
 
+    // Update database proof
+    proof.isClaimed = true
+    await this.proofRepository.saveProofs([proof])
+
     return {
       data: {
         hash: txResponse.txHash,

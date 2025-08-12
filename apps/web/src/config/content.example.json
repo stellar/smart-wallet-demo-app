@@ -84,5 +84,6 @@
   "shareImageError": "Something went wrong while sharing. Please try again",
   "shareImageSuccess": "Done! The image was shared successfully",
   "shareImageTitle": "Save this image",
-  "shareImageText": "Move this image where you need it"
+  "shareImageText": "Move this image where you need it",
+  "claimAirdropSuccess": "Done! You've successfully claimed your airdrop"
 }

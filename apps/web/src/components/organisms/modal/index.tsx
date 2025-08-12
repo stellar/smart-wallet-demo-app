@@ -53,8 +53,10 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
 
   // Lock when loading
   useEffect(() => {
-    if (internalState?.isLoading) {
+    if (internalState?.isLoading === true) {
       isLocked.current = true
+    } else if (internalState?.isLoading === false) {
+      isLocked.current = false
     }
   }, [internalState?.isLoading])
 
