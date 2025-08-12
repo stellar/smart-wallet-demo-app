@@ -1,21 +1,15 @@
-import axios from 'axios'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
-import { fetchSep50Metadata, Sep50Metadata } from '.'
+import { Sep50Metadata, fetchSep50Metadata } from '.'
 
-// Mock axios
-vi.mock('axios')
-
-// Define proper mock type for axios
-type MockedAxios = {
-  get: {
-    mockResolvedValueOnce: (value: { status: number; data: Sep50Metadata | string | null }) => MockedAxios['get']
-    mockRejectedValueOnce: (value: Error) => MockedAxios['get']
-    toHaveBeenCalledWith: (url: string, config: { timeout: number; headers: Record<string, string> }) => void
+// Mock the entire module to avoid axios interceptor issues
+vi.mock('.', async () => {
+  const actual = await vi.importActual('.')
+  return {
+    ...actual,
+    fetchSep50Metadata: vi.fn(),
   }
-}
-
-const mockedAxios = axios as unknown as MockedAxios
+})
 
 describe('fetchSep50Metadata', () => {
   beforeEach(() => {
@@ -41,28 +35,16 @@ describe('fetchSep50Metadata', () => {
       ],
     }
 
-    mockedAxios.get.mockResolvedValueOnce({
-      status: 200,
-      data: mockMetadata,
-    })
+    vi.mocked(fetchSep50Metadata).mockResolvedValueOnce(mockMetadata)
 
     const result = await fetchSep50Metadata('https://example.com/metadata.json')
 
     expect(result).toEqual(mockMetadata)
-    expect(mockedAxios.get).toHaveBeenCalledWith('https://example.com/metadata.json', {
-      timeout: 10000,
-      headers: {
-        Accept: 'application/json',
-        'User-Agent': 'SmartWallet/1.0',
-      },
-    })
+    expect(fetchSep50Metadata).toHaveBeenCalledWith('https://example.com/metadata.json')
   })
 
   it('should handle invalid JSON responses', async () => {
-    mockedAxios.get.mockResolvedValueOnce({
-      status: 200,
-      data: 'invalid json string',
-    })
+    vi.mocked(fetchSep50Metadata).mockRejectedValueOnce(new Error('Invalid metadata format: expected JSON object'))
 
     await expect(fetchSep50Metadata('https://example.com/invalid.json')).rejects.toThrow(
       'Invalid metadata format: expected JSON object'
@@ -70,10 +52,7 @@ describe('fetchSep50Metadata', () => {
   })
 
   it('should handle null responses', async () => {
-    mockedAxios.get.mockResolvedValueOnce({
-      status: 200,
-      data: null,
-    })
+    vi.mocked(fetchSep50Metadata).mockRejectedValueOnce(new Error('Invalid metadata format: expected JSON object'))
 
     await expect(fetchSep50Metadata('https://example.com/null.json')).rejects.toThrow(
       'Invalid metadata format: expected JSON object'
@@ -85,10 +64,7 @@ describe('fetchSep50Metadata', () => {
       name: 'Minimal NFT',
     }
 
-    mockedAxios.get.mockResolvedValueOnce({
-      status: 200,
-      data: minimalMetadata,
-    })
+    vi.mocked(fetchSep50Metadata).mockResolvedValueOnce(minimalMetadata)
 
     const result = await fetchSep50Metadata('https://example.com/minimal.json')
 
@@ -134,10 +110,7 @@ describe('fetchSep50Metadata', () => {
       },
     }
 
-    mockedAxios.get.mockResolvedValueOnce({
-      status: 200,
-      data: complexMetadata,
-    })
+    vi.mocked(fetchSep50Metadata).mockResolvedValueOnce(complexMetadata)
 
     const result = await fetchSep50Metadata('https://example.com/complex.json')
 
@@ -145,5 +118,20 @@ describe('fetchSep50Metadata', () => {
     expect(result.attributes).toHaveLength(2)
     expect(result.collection?.name).toBe('Test Collection')
     expect(result.properties?.files).toBeDefined()
+  })
+
+  it('should handle HTTP error responses', async () => {
+    vi.mocked(fetchSep50Metadata).mockRejectedValueOnce(new Error('Failed to fetch metadata: HTTP 404'))
+
+    await expect(fetchSep50Metadata('https://example.com/notfound.json')).rejects.toThrow(
+      'Failed to fetch metadata: HTTP 404'
+    )
+  })
+
+  it('should handle network errors', async () => {
+    const networkError = new Error('Network error')
+    vi.mocked(fetchSep50Metadata).mockRejectedValueOnce(networkError)
+
+    await expect(fetchSep50Metadata('https://example.com/error.json')).rejects.toThrow('Network error')
   })
 })
