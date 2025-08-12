@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker'
 
 import { User } from 'api/core/entities/user/model'
+import { randomContractAddress } from 'test-utils'
 
 import { Passkey } from '../passkey/types'
 
@@ -17,7 +18,7 @@ export const userFactory = ({ userId, email, uniqueToken, contractAddress, passk
   user.userId = userId ?? faker.string.uuid()
   user.email = email ?? faker.internet.email()
   user.uniqueToken = uniqueToken ?? faker.string.uuid()
-  user.contractAddress = contractAddress ?? faker.string.uuid()
+  user.contractAddress = contractAddress ?? randomContractAddress()
   user.passkeys = passkeys ?? []
   return user
 }

@@ -23,4 +23,9 @@ export const messages = {
   AIRDROP_PROOF_NOT_FOUND: 'You are not eligible for this airdrop or the proof could not be found.',
   AIRDROP_ALREADY_CLAIMED: 'This airdrop has already been claimed for your address.',
   UNABLE_TO_EXECUTE_AIRDROP_CLAIM: 'The airdrop claim could not be executed. Please try again later.',
+  GIFT_NOT_ELIGIBLE: 'Gift ID is not eligible for claiming',
+  GIFT_ALREADY_CLAIMED_BY_ANOTHER_ADDRESS: 'Gift has already been claimed by another address',
+  GIFT_PROOF_NOT_FOUND: 'Gift proof not found for your address',
+  GIFT_ALREADY_CLAIMED: 'Gift has already been claimed and cannot be claimed again',
+  UNABLE_TO_EXECUTE_GIFT_CLAIM: 'Unable to execute gift claim transaction',
 }

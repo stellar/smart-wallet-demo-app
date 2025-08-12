@@ -7,6 +7,7 @@ export type StellarConfig = {
   SOURCE_ACCOUNT: SignerKeypair
   TOKEN_CONTRACT: TokenContractConfig
   AIRDROP_CONTRACT_ADDRESS: string
+  GIFT_AIRDROP_CONTRACT_ADDRESS: string
 }
 
 export type ProjectConfig = {
