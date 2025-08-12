@@ -1,5 +1,4 @@
 import EmbeddedWallets from 'api/embedded-wallets/docs'
-import Proofs from 'api/proofs/docs'
 
 import { HttpStatusCodes } from './utils/http/status-code'
 
@@ -16,5 +15,4 @@ export default {
     },
   },
   ...EmbeddedWallets,
-  ...Proofs,
 }
