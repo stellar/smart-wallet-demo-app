@@ -99,15 +99,16 @@ make test APP=backend
 
 The `contracts` folder contains Stellar smart contracts (e.g., Soroban) used by the backend or client apps. Instructions for compiling, testing, and deploying contracts are documented in that directory’s README.
 
-## Proofs API
+## Airdrop API
 
-The backend includes a proofs API for Merkle proof verification and airdrop claims. The airdrop contract needs to be deployed and proofs need to be uploaded to the backend before users can claim their airdrops.
+The backend includes airdrop functionality through the embedded wallets API for Merkle proof verification and airdrop claims. The airdrop contract needs to be deployed and proofs need to be uploaded to the backend before users can claim their airdrops.
 
 ### Setup
 
 1. Deploy an airdrop contract (see [contracts/](./contracts))
 2. Generate proofs: `npm run --workspace=scripts generate-proofs`
 3. Upload proofs: `npm run --workspace=scripts upload-proofs`
-4. Query proofs: `GET /api/proofs/{address}`
+4. Get airdrop options: `GET /api/embedded-wallets/airdrop/options`
+5. Complete airdrop claim: `POST /api/embedded-wallets/airdrop/complete`
 
 ---

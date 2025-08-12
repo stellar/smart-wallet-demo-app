@@ -43,13 +43,13 @@ You must ensure that the `IDENTITY` account has enough of the token to fund the 
 
 ## Integration with Backend
 
-The airdrop contract integrates with the backend proofs API:
+The airdrop contract integrates with the backend embedded wallets API:
 
 1. **Generate Proofs**: Create recipient list and generate Merkle proofs with root hash
 2. **Deploy Contract**: Deploy contract with the root hash
 3. **Upload Proofs**: Store individual proofs in the backend database with contract address
-4. **User Claims**: Users query the backend API (`GET /api/proofs/{address}`) to get their proofs
-5. **Execute Claims**: Users call the contract's `claim` method with the retrieved proofs
+4. **User Claims**: Users call the airdrop/options endpoint to get available airdrops and their proofs
+5. **Execute Claims**: Users call the airdrop/complete endpoint to claim their tokens
 
 ### Generate Proofs
 
@@ -86,8 +86,20 @@ npm run --workspace=scripts upload-proofs -- \
   --contract CONTRACT_ADDRESS
 ```
 
-Users can then retrieve their proofs from the backend:
+Users can then retrieve their airdrop options through the embedded wallets API:
 
 ```bash
-curl "http://localhost:8000/api/proofs/GD5RUZEO3ZCW6UX6Y4FRHKC7ZWWKTKUOPCQKYKYPCF2K7M7AD7J2URPW"
+# Get airdrop options for a wallet (requires authentication)
+GET /api/embedded-wallets/airdrop/options
+Authorization: Bearer <jwt_token>
+
+# Complete an airdrop claim (requires authentication)
+POST /api/embedded-wallets/airdrop/complete
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "webauthnCredential": {...},
+  "challengeId": "uuid"
+}
 ```
