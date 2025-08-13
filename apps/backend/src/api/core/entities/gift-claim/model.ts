@@ -1,10 +1,13 @@
-import { Column, Entity, ModelBase } from 'api/core/framework/orm/base'
+import { Entity, ModelBase, PrimaryColumn, ManyToOne, JoinColumn } from 'api/core/framework/orm/base'
+
+import { User } from '../user/model'
 
 @Entity('gift_claim')
 export class GiftClaim extends ModelBase {
-  @Column({ name: 'gift_id_hash', type: 'text', primary: true })
+  @PrimaryColumn('text', { name: 'gift_id_hash' })
   giftIdHash!: string
 
-  @Column({ name: 'wallet_address', type: 'text' })
-  walletAddress!: string
+  @ManyToOne(() => User, user => user.userId, { nullable: false })
+  @JoinColumn({ name: 'user_id' })
+  user!: User
 }

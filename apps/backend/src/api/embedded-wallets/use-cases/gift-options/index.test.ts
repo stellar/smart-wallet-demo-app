@@ -50,7 +50,7 @@ const mockProof: Proof = {
 
 const mockGiftClaim = giftClaimFactory({
   giftIdHash: 'mock-hash',
-  walletAddress: mockUser.contractAddress as string,
+  contractAddress: mockUser.contractAddress as string,
 })
 
 const mockGiftId = 'test-gift-id'

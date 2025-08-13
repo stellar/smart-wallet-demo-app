@@ -7,7 +7,7 @@ export class CreateGiftClaimTableWithHash1753900000000 implements MigrationInter
     await queryRunner.query(`
       CREATE TABLE "gift_claim" (
         "gift_id_hash" text PRIMARY KEY,
-        "wallet_address" text NOT NULL,
+        "user_id" UUID REFERENCES "user"("user_id"),
         "created_at" timestamp DEFAULT now() NOT NULL,
         "updated_at" timestamp DEFAULT now() NOT NULL
       )
