@@ -161,26 +161,12 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
     let updatedNftSupply: NftSupply
 
     try {
-      // Start transaction
+      // Start db transaction
       await queryRunner.connect()
       await queryRunner.startTransaction()
 
-      // Submit transaction
-      txResponse = await submitTx({
-        tx,
-        simulationResponse,
-        walletBackend: this.walletBackend,
-        sorobanService: this.sorobanService,
-      })
-
-      if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
-        throw new ResourceNotFoundException(`${messages.UNABLE_TO_MINT_NFT} ${messages.UNABLE_TO_EXECUTE_TRANSACTION}`)
-      }
-
       // Get tokenID of the newly minted token
-      mintedTokenId = txResponse.returnValue
-        ? ScConvert.scValToFormatString(txResponse.returnValue as xdr.ScVal)
-        : nextTokenId.toString()
+      mintedTokenId = nextTokenId.toString()
 
       // Update user NFT data with the new minted token
       newUserNft = await this.nftRepository.createNft(
@@ -197,6 +183,18 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
       })
       if (!updatedNftSupply) {
         throw new BadRequestException(messages.UNABLE_TO_UPDATE_NFT_SUPPLY)
+      }
+
+      // Submit transaction at the end only if everything`s ok with prior database operations
+      txResponse = await submitTx({
+        tx,
+        simulationResponse,
+        walletBackend: this.walletBackend,
+        sorobanService: this.sorobanService,
+      })
+
+      if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
+        throw new ResourceNotFoundException(`${messages.UNABLE_TO_MINT_NFT} ${messages.UNABLE_TO_EXECUTE_TRANSACTION}`)
       }
 
       // Commit transaction if all operations succeed
