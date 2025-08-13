@@ -17,7 +17,7 @@ export default {
     },
     ...CreateFeatureFlagsDocs,
   },
-  '/api/admin/feature-flags/:id': {
+  '/api/admin/feature-flags/{id}': {
     ...UpdateFeatureFlagDocs,
   },
 }
