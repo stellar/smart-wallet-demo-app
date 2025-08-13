@@ -45,16 +45,16 @@ export default class NftSupplyRepository extends SingletonBase implements NftSup
     return newNftSupply
   }
 
-  async updateNftSupply(nftId: string, data: Partial<NftSupply>): Promise<NftSupply> {
-    await NftSupplyModel.update(nftId, data)
-    return this.getNftSupplyById(nftId) as Promise<NftSupply>
+  async updateNftSupply(id: string, data: Partial<NftSupply>): Promise<NftSupply> {
+    await NftSupplyModel.update(id, data)
+    return this.getNftSupplyById(id) as Promise<NftSupply>
   }
 
   async deleteNftSupply(id: string): Promise<DeleteResult> {
     return NftSupplyModel.delete(id)
   }
 
-  saveNftSupply(nft: NftSupply): Promise<NftSupply> {
-    return NftSupplyModel.save(nft)
+  saveNftSupply(nftSupply: NftSupply): Promise<NftSupply> {
+    return NftSupplyModel.save(nftSupply)
   }
 }

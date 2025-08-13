@@ -26,4 +26,7 @@ export const messages = {
   NFT_SUPPLY_NOT_FOUND: "We couldn't find any NFT with that resource or collection",
   NFT_SUPPLY_NOT_ENOUGH: 'Insufficient NFT supply with that resource or collection',
   NFT_ALREADY_OWNED_BY_USER: 'You already have this NFT owned or minted to your account',
+  UNABLE_TO_MINT_NFT: "We couldn't mint the NFT to your account. You may not have permission or the supply is not enough.",
+  UNABLE_TO_SAVE_NFT_TO_USER: "We couldn't create or save the NFT to your account. Please try again later.",
+  UNABLE_TO_UPDATE_NFT_SUPPLY: "We couldn't update the NFT supply.",
 }

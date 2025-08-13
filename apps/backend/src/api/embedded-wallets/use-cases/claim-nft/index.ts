@@ -1,4 +1,4 @@
-import { xdr, Keypair } from '@stellar/stellar-sdk'
+import { xdr, rpc, Keypair } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { UserRepositoryType } from 'api/core/entities/user/types'
@@ -20,6 +20,7 @@ import WalletBackend from 'interfaces/wallet-backend'
 import { WalletBackendType } from 'interfaces/wallet-backend/types'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
+import { BadRequestException } from 'errors/exceptions/bad-request'
 
 const endpoint = '/nft/claim/complete'
 
@@ -149,17 +150,39 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
       signers: [transactionSigner],
     })
 
+    // TODO: submit tx and update db within a transaction for all succeed or rollback
+
     // Submit transaction
-    await submitTx({
+    const txResponse = await submitTx({
       tx,
       simulationResponse,
       walletBackend: this.walletBackend,
       sorobanService: this.sorobanService,
     })
 
+    if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
+      throw new ResourceNotFoundException(`${messages.UNABLE_TO_MINT_NFT} ${messages.UNABLE_TO_EXECUTE_TRANSACTION}`)
+    }
+
+    // Get tokenID of the newly minted token
+    const mintedTokenId = txResponse.returnValue ? ScConvert.scValToFormatString(txResponse.returnValue as xdr.ScVal) : nextTokenId.toString()
+
+    // Update user NFT data with the new minted token
+    const newUserNft = await this.nftRepository.createNft({ tokenId: mintedTokenId, sessionId: nftSupply.sessionId, contractAddress: nftSupply.contractAddress, user }, true)
+    if (!newUserNft) {
+      throw new BadRequestException(messages.UNABLE_TO_SAVE_NFT_TO_USER)
+    }
+
+    // Update NFT supply
+    const updatedNftSupply = await this.nftSupplyRepository.updateNftSupply(nftSupply.nftSupplyId, {currentSupply: (nftSupply.currentSupply + 1)})
+    if (!updatedNftSupply) {
+      throw new BadRequestException(messages.UNABLE_TO_UPDATE_NFT_SUPPLY)
+    }
+
     return {
       data: {
-        hash: '',
+        hash: txResponse.txHash,
+        tokenId: mintedTokenId
       },
       message: 'NFT claimed successfully',
     }
