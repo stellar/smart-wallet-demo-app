@@ -49,7 +49,8 @@ export const Transactions = () => {
           },
         },
       },
-      backgroundImageUri: tx.type === 'MINT' ? a('transactionsHistoryMintBackground') : a('customModalBackground'),
+      backgroundImageUri:
+        tx.type === 'airdrop_claim' ? a('transactionsHistoryMintBackground') : a('customModalBackground'),
     })
   }
 

@@ -54,7 +54,7 @@
   "noTransactionHistoryTitle": "No transaction history",
   "noTransactionHistoryDescription": "You don't have any transactions yet",
   "close": "Close",
-  "transactionModalMintTitle": "XLM Airdrop",
+  "transactionAirdropClaimVendor": "XLM Airdrop",
   "transactionModalTransactionIdLabel": "Transaction ID",
   "transactionModalCopyTransactionIdTitle": "Copy transaction ID",
   "transactionModalAvailableBalanceLabel": "Available balance:",

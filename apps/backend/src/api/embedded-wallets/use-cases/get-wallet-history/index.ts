@@ -12,6 +12,7 @@ import UserRepository from 'api/core/services/user'
 import VendorRepository from 'api/core/services/vendor'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
+import { STELLAR } from 'config/stellar'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
@@ -111,9 +112,13 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
         ? await this.vendorRepository.getVendorByWalletAddress(vendorContractAddress)
         : undefined
 
+      let type = tx.operations[0].stateChanges[0].stateChangeCategory
+      // Check if the transaction is an airdrop claim
+      if (operationData.contractId === STELLAR.AIRDROP_CONTRACT_ADDRESS) type = 'airdrop_claim'
+
       const transaction: TransactionSchemaT = {
         hash: tx.hash,
-        type: tx.operations[0].stateChanges[0].stateChangeCategory,
+        type: type,
         vendor: vendor?.name || vendorContractAddress || 'Unknown vendor',
         amount: Number(ScConvert.stringToFormatString(tx.operations[0].stateChanges[0].amount)), // Assuming amount is in the smallest unit (like stroops for XLM)
         asset: asset?.code || tx.operations[0].stateChanges[0].tokenId,
