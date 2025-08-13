@@ -8,8 +8,11 @@ import { submitTx } from 'api/core/helpers/submit-tx'
 import NftRepository from 'api/core/services/nft'
 import NftSupplyRepository from 'api/core/services/nft-supply'
 import UserRepository from 'api/core/services/user'
+import { Nft } from 'api/core/entities/nft/types'
+import { NftSupply } from 'api/core/entities/nft-supply/types'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
+import { AppDataSource } from 'config/database'
 import { getValueFromEnv } from 'config/env-utils'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
@@ -150,40 +153,61 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
       signers: [transactionSigner],
     })
 
-    // TODO: submit tx and update db within a transaction for all succeed or rollback
+    // Execute all critical operations within a database transaction for "all or nothing" behavior
+    const queryRunner = AppDataSource.createQueryRunner()
+    let txResponse: rpc.Api.GetSuccessfulTransactionResponse
+    let mintedTokenId: string
+    let newUserNft: Nft
+    let updatedNftSupply: NftSupply
 
-    // Submit transaction
-    const txResponse = await submitTx({
-      tx,
-      simulationResponse,
-      walletBackend: this.walletBackend,
-      sorobanService: this.sorobanService,
-    })
+    try {
+      // Start transaction
+      await queryRunner.connect()
+      await queryRunner.startTransaction()
 
-    if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
-      throw new ResourceNotFoundException(`${messages.UNABLE_TO_MINT_NFT} ${messages.UNABLE_TO_EXECUTE_TRANSACTION}`)
-    }
+      // Submit transaction
+      txResponse = await submitTx({
+        tx,
+        simulationResponse,
+        walletBackend: this.walletBackend,
+        sorobanService: this.sorobanService,
+      })
 
-    // Get tokenID of the newly minted token
-    const mintedTokenId = txResponse.returnValue
-      ? ScConvert.scValToFormatString(txResponse.returnValue as xdr.ScVal)
-      : nextTokenId.toString()
+      if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
+        throw new ResourceNotFoundException(`${messages.UNABLE_TO_MINT_NFT} ${messages.UNABLE_TO_EXECUTE_TRANSACTION}`)
+      }
 
-    // Update user NFT data with the new minted token
-    const newUserNft = await this.nftRepository.createNft(
-      { tokenId: mintedTokenId, sessionId: nftSupply.sessionId, contractAddress: nftSupply.contractAddress, user },
-      true
-    )
-    if (!newUserNft) {
-      throw new BadRequestException(messages.UNABLE_TO_SAVE_NFT_TO_USER)
-    }
+      // Get tokenID of the newly minted token
+      mintedTokenId = txResponse.returnValue
+        ? ScConvert.scValToFormatString(txResponse.returnValue as xdr.ScVal)
+        : nextTokenId.toString()
 
-    // Update NFT supply
-    const updatedNftSupply = await this.nftSupplyRepository.updateNftSupply(nftSupply.nftSupplyId, {
-      currentSupply: nftSupply.currentSupply + 1,
-    })
-    if (!updatedNftSupply) {
-      throw new BadRequestException(messages.UNABLE_TO_UPDATE_NFT_SUPPLY)
+      // Update user NFT data with the new minted token
+      newUserNft = await this.nftRepository.createNft(
+        { tokenId: mintedTokenId, sessionId: nftSupply.sessionId, contractAddress: nftSupply.contractAddress, user },
+        true
+      )
+      if (!newUserNft) {
+        throw new BadRequestException(messages.UNABLE_TO_SAVE_NFT_TO_USER)
+      }
+
+      // Update NFT supply
+      updatedNftSupply = await this.nftSupplyRepository.updateNftSupply(nftSupply.nftSupplyId, {
+        currentSupply: nftSupply.currentSupply + 1,
+      })
+      if (!updatedNftSupply) {
+        throw new BadRequestException(messages.UNABLE_TO_UPDATE_NFT_SUPPLY)
+      }
+
+      // Commit transaction if all operations succeed
+      await queryRunner.commitTransaction()
+    } catch (error) {
+      // Rollback transaction on any failure
+      await queryRunner.rollbackTransaction()
+      throw error
+    } finally {
+      // Release query runner
+      await queryRunner.release()
     }
 
     return {
