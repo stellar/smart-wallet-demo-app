@@ -26,7 +26,10 @@ export default class NftRepository extends SingletonBase implements NftRepositor
     return NftModel.findOneBy({ contractAddress })
   }
 
-  async createNft(nft: { tokenId: string; sessionId: string; contractAddress: string; user: User }, save?: boolean): Promise<Nft> {
+  async createNft(
+    nft: { tokenId: string; sessionId: string; contractAddress: string; user: User },
+    save?: boolean
+  ): Promise<Nft> {
     const newNft = NftModel.create({ ...nft })
     if (save) {
       return this.saveNft(newNft)

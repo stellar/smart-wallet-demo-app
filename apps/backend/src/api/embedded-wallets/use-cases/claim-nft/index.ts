@@ -11,6 +11,7 @@ import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { getValueFromEnv } from 'config/env-utils'
+import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SorobanService from 'interfaces/soroban'
@@ -20,7 +21,6 @@ import WalletBackend from 'interfaces/wallet-backend'
 import { WalletBackendType } from 'interfaces/wallet-backend/types'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
-import { BadRequestException } from 'errors/exceptions/bad-request'
 
 const endpoint = '/nft/claim/complete'
 
@@ -165,16 +165,23 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
     }
 
     // Get tokenID of the newly minted token
-    const mintedTokenId = txResponse.returnValue ? ScConvert.scValToFormatString(txResponse.returnValue as xdr.ScVal) : nextTokenId.toString()
+    const mintedTokenId = txResponse.returnValue
+      ? ScConvert.scValToFormatString(txResponse.returnValue as xdr.ScVal)
+      : nextTokenId.toString()
 
     // Update user NFT data with the new minted token
-    const newUserNft = await this.nftRepository.createNft({ tokenId: mintedTokenId, sessionId: nftSupply.sessionId, contractAddress: nftSupply.contractAddress, user }, true)
+    const newUserNft = await this.nftRepository.createNft(
+      { tokenId: mintedTokenId, sessionId: nftSupply.sessionId, contractAddress: nftSupply.contractAddress, user },
+      true
+    )
     if (!newUserNft) {
       throw new BadRequestException(messages.UNABLE_TO_SAVE_NFT_TO_USER)
     }
 
     // Update NFT supply
-    const updatedNftSupply = await this.nftSupplyRepository.updateNftSupply(nftSupply.nftSupplyId, {currentSupply: (nftSupply.currentSupply + 1)})
+    const updatedNftSupply = await this.nftSupplyRepository.updateNftSupply(nftSupply.nftSupplyId, {
+      currentSupply: nftSupply.currentSupply + 1,
+    })
     if (!updatedNftSupply) {
       throw new BadRequestException(messages.UNABLE_TO_UPDATE_NFT_SUPPLY)
     }
@@ -182,7 +189,7 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
     return {
       data: {
         hash: txResponse.txHash,
-        tokenId: mintedTokenId
+        tokenId: mintedTokenId,
       },
       message: 'NFT claimed successfully',
     }
