@@ -60,6 +60,11 @@ export const swaggerDefinition = {
         scheme: 'bearer',
         bearerFormat: 'JWT',
       },
+      ApiKey: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'x-api-key',
+      },
     },
   },
   paths: Docs,
