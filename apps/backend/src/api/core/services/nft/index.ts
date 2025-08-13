@@ -18,6 +18,10 @@ export default class NftRepository extends SingletonBase implements NftRepositor
     return NftModel.findOneBy({ tokenId })
   }
 
+  async getNftBySessionId(sessionId: string): Promise<Nft | null> {
+    return NftModel.findOneBy({ sessionId })
+  }
+
   async getNftByContractAddress(contractAddress: string): Promise<Nft | null> {
     return NftModel.findOneBy({ contractAddress })
   }

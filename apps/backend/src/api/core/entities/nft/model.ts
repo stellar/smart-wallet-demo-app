@@ -12,7 +12,6 @@ import { User } from '../user/model'
 
 @Entity()
 @Index(['tokenId', 'contractAddress'], { unique: true }) // TokenID unique inside a contract
-@Index(['tokenId', 'contractAddress', 'user'], { unique: true }) // Only one user per TokenID on the same contract
 export class Nft extends ModelBase {
   @PrimaryGeneratedColumn('uuid')
   nftId: string
@@ -22,6 +21,13 @@ export class Nft extends ModelBase {
     type: 'varchar',
   })
   tokenId: string
+
+  // Session ID: 'sometalk', 'treasure01', etc
+  @Column({
+    name: 'session_id',
+    type: 'varchar',
+  })
+  sessionId: string
 
   @Column({
     type: 'varchar',

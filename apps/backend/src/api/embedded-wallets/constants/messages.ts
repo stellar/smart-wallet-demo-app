@@ -23,4 +23,7 @@ export const messages = {
   AIRDROP_PROOF_NOT_FOUND: 'You are not eligible for this airdrop or the proof could not be found.',
   AIRDROP_ALREADY_CLAIMED: 'This airdrop has already been claimed for your address.',
   UNABLE_TO_EXECUTE_AIRDROP_CLAIM: 'The airdrop claim could not be executed. Please try again later.',
+  NFT_SUPPLY_NOT_FOUND: "We couldn't find any NFT with that resource or collection",
+  NFT_SUPPLY_NOT_ENOUGH: 'Insufficient NFT supply with that resource or collection',
+  NFT_ALREADY_OWNED_BY_USER: 'You already have this NFT owned or minted to your account',
 }

@@ -1,0 +1,71 @@
+import { Entity, Column, PrimaryGeneratedColumn, ModelBase } from 'api/core/framework/orm/base'
+
+@Entity('nft_supply')
+export class NftSupply extends ModelBase {
+  @PrimaryGeneratedColumn('uuid')
+  nftSupplyId: string
+
+  @Column({
+    type: 'varchar',
+  })
+  name: string
+
+  @Column({
+    type: 'varchar',
+  })
+  description: string
+
+  // NFT image URL: ipfs://QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco/I/m/SomeImage.png, https://some.site/img/SomeImage.jpg, etc
+  @Column({
+    type: 'varchar',
+  })
+  url: string
+
+  // Token symbol
+  @Column({
+    type: 'varchar',
+  })
+  code: string
+
+  // Token contract address
+  @Column({
+    name: 'contract_address',
+    type: 'varchar',
+  })
+  contractAddress: string
+
+  // Session ID: 'sometalk', 'treasure01', etc
+  @Column({
+    name: 'session_id',
+    type: 'varchar',
+  })
+  sessionId: string
+
+  // Resource descriptor: 'talk', 'treasure_hunt', 'vip_lounge', etc
+  @Column({
+    type: 'varchar',
+  })
+  resource: string
+
+  // Total supply (max) of this token to mint
+  @Column({
+    name: 'total_supply',
+    type: 'integer',
+  })
+  totaSupply: number
+
+  // Current supply already minted
+  @Column({
+    name: 'current_supply',
+    type: 'integer',
+    nullable: true,
+    default: 0,
+  })
+  currentSupply: number
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  issuer: string
+}
