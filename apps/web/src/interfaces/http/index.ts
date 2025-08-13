@@ -1,32 +1,18 @@
-import axios, { HttpStatusCode } from 'axios'
+import axios from 'axios'
 
-import { useAccessTokenStore } from 'src/app/auth/store'
+import { accessTokenInterceptor, unauthorizedInterceptor } from './interceptors'
 
-const http = axios.create({
+const baseConfig = {
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
   withCredentials: true,
-})
+}
 
-http.interceptors.request.use(config => {
-  const accessToken = useAccessTokenStore.getState().accessToken
+// Unauthenticated requests
+const http = axios.create(baseConfig)
 
-  if (accessToken) {
-    config.headers.Authorization = `${accessToken}`
-  }
+// Authenticated requests
+const authHttp = axios.create(baseConfig)
+authHttp.interceptors.request.use(accessTokenInterceptor)
+authHttp.interceptors.response.use(...unauthorizedInterceptor)
 
-  return Promise.resolve(config)
-})
-
-http.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response?.status === HttpStatusCode.Unauthorized) {
-      // Clear the access token and redirect to the login page
-      useAccessTokenStore.getState().clearAccessToken()
-    }
-
-    return Promise.reject(error)
-  }
-)
-
-export { http }
+export { http, authHttp }
