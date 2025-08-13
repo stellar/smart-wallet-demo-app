@@ -10,8 +10,6 @@ import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
-import SorobanService from 'interfaces/soroban'
-import { ISorobanService } from 'interfaces/soroban/types'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
@@ -21,19 +19,16 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
   private nftRepository: NftRepository
   private nftSupplyRepository: NftSupplyRepository
   private userRepository: UserRepositoryType
-  private sorobanService: ISorobanService
 
   constructor(
     userRepository?: UserRepositoryType,
     nftRepository?: NftRepository,
-    nftSupplyRepository?: NftSupplyRepository,
-    sorobanService?: ISorobanService
+    nftSupplyRepository?: NftSupplyRepository
   ) {
     super()
     this.nftRepository = nftRepository || NftRepository.getInstance()
     this.nftSupplyRepository = nftSupplyRepository || NftSupplyRepository.getInstance()
     this.userRepository = userRepository || UserRepository.getInstance()
-    this.sorobanService = sorobanService || SorobanService.getInstance()
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
