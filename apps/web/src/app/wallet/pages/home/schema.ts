@@ -6,6 +6,7 @@ export const transferTypeSchema = yup.object({
   amount: yup.number().required(),
   asset: yup.string().required(),
   to: yup.string().required(),
+  product: yup.string().optional(),
 })
 
 // TODO: replace with real NFT model schema

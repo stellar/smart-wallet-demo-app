@@ -31,6 +31,7 @@ export type TransferTypeParams = {
   to: string
   amount: number
   asset: string
+  product?: string
 }
 export const isTransferTypeParams = (params: { type: TransferTypes }): params is TransferTypeParams =>
   params.type === 'transfer'
@@ -49,6 +50,7 @@ export const transferOptionsInputKeys: (keyof TransferTypeParams | keyof NftType
   'amount',
   'asset',
   'id',
+  'product',
 ]
 
 export type GetTransferOptionsResult = IHTTPResponse<{
@@ -63,6 +65,12 @@ export type GetTransferOptionsResult = IHTTPResponse<{
     email: string
     balance: number
   }
+  products?: {
+    product_id: string
+    code: string
+    name?: string
+    description: string
+  }[]
 }>
 
 export type PostTransferInput = {

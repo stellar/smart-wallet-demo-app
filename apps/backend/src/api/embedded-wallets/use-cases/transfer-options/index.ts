@@ -2,6 +2,7 @@ import { xdr } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
+import { Product, ProductRepositoryType } from 'api/core/entities/product/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { VendorRepositoryType } from 'api/core/entities/vendor/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
@@ -10,6 +11,7 @@ import { getWalletBalance } from 'api/core/helpers/get-balance'
 import WebAuthnAuthentication from 'api/core/helpers/webauthn/authentication'
 import { IWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/types'
 import AssetRepository from 'api/core/services/asset'
+import ProductRepository from 'api/core/services/product'
 import UserRepository from 'api/core/services/user'
 import VendorRepository from 'api/core/services/vendor'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
@@ -28,6 +30,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
   private assetRepository: AssetRepositoryType
   private userRepository: UserRepositoryType
   private vendorRepository: VendorRepositoryType
+  private productRepository: ProductRepositoryType
   private webauthnAuthenticationHelper: IWebAuthnAuthentication
   private sorobanService: ISorobanService
 
@@ -35,6 +38,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     assetRepository?: AssetRepositoryType,
     userRepository?: UserRepositoryType,
     vendorRepository?: VendorRepositoryType,
+    productRepository?: ProductRepositoryType,
     webauthnAuthenticationHelper?: IWebAuthnAuthentication,
     sorobanService?: ISorobanService
   ) {
@@ -42,6 +46,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     this.assetRepository = assetRepository || AssetRepository.getInstance()
     this.userRepository = userRepository || UserRepository.getInstance()
     this.vendorRepository = vendorRepository || VendorRepository.getInstance()
+    this.productRepository = productRepository || ProductRepository.getInstance()
     this.webauthnAuthenticationHelper = webauthnAuthenticationHelper || WebAuthnAuthentication.getInstance()
     this.sorobanService = sorobanService || SorobanService.getInstance()
   }
@@ -152,6 +157,19 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     // Get vendor data
     const vendor = await this.vendorRepository.getVendorByWalletAddress(validatedData.to)
 
+    // Get products data (for 'transfer' type only)
+    let products: Product[] = []
+    const productCodes =
+      validatedData.type === 'transfer'
+        ? validatedData.product
+            ?.replaceAll(' ', '')
+            .split(',')
+            .filter(product => product.length)
+        : undefined
+    if (productCodes?.length) {
+      products = await this.productRepository.getProductsByCode(productCodes)
+    }
+
     return {
       data: {
         options_json: options,
@@ -166,6 +184,14 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
               wallet_address: vendor.walletAddress,
               profile_image: vendor.profileImage,
             }
+          : undefined,
+        products: products.length
+          ? products.map(product => ({
+              product_id: product.productId,
+              code: product.code,
+              name: product.name,
+              description: product.description,
+            }))
           : undefined,
       },
       message: 'Retrieved transaction options successfully',
