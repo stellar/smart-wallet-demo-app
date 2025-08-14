@@ -162,7 +162,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     const productCodes =
       validatedData.type === 'transfer'
         ? validatedData.product
-            ?.replaceAll(' ', '')
+            ?.replace(/\s+/g, '')
             .split(',')
             .filter(product => product.length)
         : undefined
