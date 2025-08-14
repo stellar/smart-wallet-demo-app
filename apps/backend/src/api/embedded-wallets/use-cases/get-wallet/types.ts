@@ -8,6 +8,7 @@ export const ParseSchema = z.object({
   address: z.string(),
   balance: z.number(),
   email: z.string().email(),
+  is_airdrop_available: z.boolean(),
 })
 
 export type ParseSchemaT = z.infer<typeof ParseSchema>

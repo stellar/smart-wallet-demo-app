@@ -1,5 +1,7 @@
 import { xdr, StrKey } from '@stellar/stellar-sdk'
 
+import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
+
 /**
  * Comprehensive guide on how to extract data from operation XDR with Stellar SDK
  *
@@ -413,6 +415,8 @@ export const extractOperationData = (operationXdr: xdr.Operation) => {
 
       return {
         type: 'invoke_host_function',
+        contractId:
+          ScConvert.contractId(invokeHostFunctionOp.hostFunction().invokeContract().contractAddress()) || 'Unknown',
         functionType: invokeHostFunctionOp.hostFunction().switch().name,
         functionName: invokeHostFunctionOp.hostFunction().invokeContract()?.functionName().toString() || 'Unknown',
         functionArgs: formattedArgs,

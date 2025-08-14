@@ -2,6 +2,7 @@ import { useNavigate, useCanGoBack, useRouter } from '@tanstack/react-router'
 
 import { AuthPagesPath } from 'src/app/auth/routes/types'
 import { useAccessTokenStore, useEmailStore } from 'src/app/auth/store'
+import { queryClient } from 'src/interfaces/query-client'
 
 import { ProfileTemplate } from './template'
 import { useGetWallet } from '../../queries/use-get-wallet'
@@ -30,6 +31,9 @@ export const Profile = () => {
   }
 
   const handleSignOut = () => {
+    // Clear query cache
+    queryClient.clear()
+
     // Clear session data and redirect to welcome page
     clearAccessToken(AuthPagesPath.WELCOME)
     clearEmail()

@@ -1,5 +1,5 @@
 import { WebAuthnError } from '@simplewebauthn/browser'
-import { AxiosError } from 'axios'
+import { AxiosError, CanceledError } from 'axios'
 
 import logger from 'src/app/core/services/logger'
 import { Toast } from 'src/app/core/services/toast'
@@ -25,6 +25,11 @@ export class ErrorHandling {
     } else {
       Toast.notify({ message, type: Toast.toastType.ERROR })
     }
+  }
+
+  private static httpAxiosCanceledErrorHandler(error: AxiosError<{ details?: string; message?: string }>): void {
+    const message = error.response?.data.details || error.response?.data.message || 'Unknown Server Error'
+    logger.error(message, { error })
   }
 
   private static httpAxiosErrorHandler(
@@ -77,6 +82,10 @@ export class ErrorHandling {
   }
 
   static handleError({ error, context }: ErrorHandlingParams): void {
+    if (error instanceof CanceledError) {
+      return ErrorHandling.httpAxiosCanceledErrorHandler(error)
+    }
+
     if (error instanceof AxiosError) {
       return ErrorHandling.httpAxiosErrorHandler(error, context)
     }

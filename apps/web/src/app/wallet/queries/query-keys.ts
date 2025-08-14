@@ -5,4 +5,5 @@ export enum WalletQueryKeys {
   Transfer = 'Transfer',
   ScanTxQrCode = 'ScanTxQrCode',
   ShareImage = 'ShareImage',
+  ClaimAirdrop = 'ClaimAirdrop',
 }

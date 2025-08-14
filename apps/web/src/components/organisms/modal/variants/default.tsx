@@ -1,5 +1,6 @@
 import { Button, Text } from '@stellar/design-system'
 import clsx from 'clsx'
+import { useMemo } from 'react'
 
 import { BaseModalProps, ModalVariants } from '..'
 import { NavigateButton } from '../../../molecules'
@@ -26,6 +27,7 @@ export const ModalDefault = ({
   description,
   note,
   button,
+  internalState,
   onClose,
 }: BaseModalProps & ModalDefaultProps) => {
   const imageSizeMap = {
@@ -59,10 +61,17 @@ export const ModalDefault = ({
     return <div className={clsx(imageSizeMap[image.variant ?? 'md'])}>{image.source}</div>
   }
 
+  const isLoading = useMemo(() => !!internalState?.isLoading, [internalState?.isLoading])
+
   return (
     <div className="flex flex-col gap-4">
       {/* Close Button */}
-      <NavigateButton className="absolute top-4 right-4" type="close" variant="ghost" onClick={onClose} />
+      <NavigateButton
+        className="absolute top-4 right-4"
+        type="close"
+        variant="ghost"
+        onClick={isLoading ? undefined : onClose}
+      />
       {/* Image */}
       {title?.image && <div className="flex justify-center">{renderImage(title.image)}</div>}
 
@@ -89,7 +98,7 @@ export const ModalDefault = ({
       {/* Action Button & Note */}
       {button && (
         <div className="flex flex-col justify-center">
-          <Button {...button} />
+          <Button isLoading={isLoading} {...button} />
           {note && (
             <div className="mt-2 text-center">
               <Text as="p" size="sm">

@@ -5,4 +5,5 @@ export type GetWalletResult = {
   address: string
   email: string
   balance: number
+  is_airdrop_available: boolean
 }

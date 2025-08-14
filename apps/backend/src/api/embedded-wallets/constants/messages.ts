@@ -30,4 +30,9 @@ export const messages = {
     "We couldn't mint the NFT to your account. You may not have permission or the supply is not enough.",
   UNABLE_TO_SAVE_NFT_TO_USER: "We couldn't create or save the NFT to your account. Please try again later.",
   UNABLE_TO_UPDATE_NFT_SUPPLY: "We couldn't update the NFT supply.",
+  GIFT_NOT_ELIGIBLE: 'Gift ID is not eligible for claiming',
+  GIFT_ALREADY_CLAIMED_BY_ANOTHER_ADDRESS: 'Gift has already been claimed by another address',
+  GIFT_PROOF_NOT_FOUND: 'Gift proof not found for your address',
+  GIFT_ALREADY_CLAIMED: 'Gift has already been claimed and cannot be claimed again',
+  UNABLE_TO_EXECUTE_GIFT_CLAIM: 'Unable to execute gift claim transaction',
 }
