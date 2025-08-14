@@ -11,7 +11,9 @@ interface NftSupplyFactoryArgs {
   contractAddress?: string
   sessionId?: string
   resource?: string
-  totaSupply?: number
+  totalSupply?: number
+  mintedAmount?: number
+  issuer?: string
 }
 
 export const nftFactory = ({
