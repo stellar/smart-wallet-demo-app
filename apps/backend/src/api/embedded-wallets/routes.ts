@@ -4,6 +4,8 @@ import { authentication } from 'api/core/middlewares/authentication'
 
 import { AirdropComplete, endpoint as AirdropCompleteEndpoint } from './use-cases/airdrop-complete'
 import { AirdropOptions, endpoint as AirdropOptionsEndpoint } from './use-cases/airdrop-options'
+import { ClaimNft, endpoint as ClaimNftEndpoint } from './use-cases/claim-nft'
+import { ClaimNftOptions, endpoint as ClaimNftOptionsEndpoint } from './use-cases/claim-nft-options'
 import { CreateWallet, endpoint as CreateWalletEndpoint } from './use-cases/create-wallet'
 import { CreateWalletOptions, endpoint as CreateWalletOptionsEndpoint } from './use-cases/create-wallet-options'
 import { GenerateRecoveryLink, endpoint as GenerateRecoveryLinkEndpoint } from './use-cases/generate-recovery-link'
@@ -49,5 +51,9 @@ router.post(`${AirdropCompleteEndpoint}`, authentication, async (req, res) =>
 )
 router.get(`${GiftOptionsEndpoint}`, authentication, async (req, res) => GiftOptions.init().executeHttp(req, res))
 router.post(`${GiftCompleteEndpoint}`, authentication, async (req, res) => GiftComplete.init().executeHttp(req, res))
+router.get(`${ClaimNftOptionsEndpoint}`, authentication, async (req, res) =>
+  ClaimNftOptions.init().executeHttp(req, res)
+)
+router.post(`${ClaimNftEndpoint}`, authentication, async (req, res) => ClaimNft.init().executeHttp(req, res))
 
 export default router

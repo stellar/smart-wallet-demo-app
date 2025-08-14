@@ -27,7 +27,7 @@ import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
 const endpoint = '/nft/claim/complete'
 
-export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
+export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
   private nftRepository: NftRepository
   private nftSupplyRepository: NftSupplyRepository
   private userRepository: UserRepositoryType
@@ -55,7 +55,7 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
     const payload = {
-      ...request.query,
+      ...request.body,
       email: request.userData?.email,
     } as RequestSchemaT
 
