@@ -35,7 +35,7 @@ export default class NftSupplyRepository extends SingletonBase implements NftSup
       contractAddress: string
       sessionId: string
       resource: string
-      totaSupply: number
+      totalSupply: number
     },
     save?: boolean
   ): Promise<NftSupply> {

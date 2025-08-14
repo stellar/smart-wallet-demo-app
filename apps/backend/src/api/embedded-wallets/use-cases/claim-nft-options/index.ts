@@ -74,7 +74,7 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
       throw new ResourceNotFoundException(messages.NFT_SUPPLY_NOT_FOUND)
     }
 
-    if (nftSupply.totaSupply - nftSupply.mintedAmount <= 0) {
+    if (nftSupply.totalSupply - nftSupply.mintedAmount <= 0) {
       throw new ResourceNotFoundException(messages.NFT_SUPPLY_NOT_ENOUGH)
     }
 

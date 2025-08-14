@@ -1,11 +1,4 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
-  ModelBase,
-} from 'api/core/framework/orm/base'
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ModelBase } from 'api/core/framework/orm/base'
 
 import { User } from '../user/model'
 

@@ -25,7 +25,7 @@ export const nftFactory = ({
   contractAddress,
   sessionId,
   resource,
-  totaSupply,
+  totalSupply,
 }: NftSupplyFactoryArgs): NftSupply => {
   const nft = new NftSupply()
   nft.nftSupplyId = nftSupplyId ?? faker.string.uuid()
@@ -36,6 +36,6 @@ export const nftFactory = ({
   nft.contractAddress = contractAddress ?? faker.string.alphanumeric({ casing: 'upper', length: 56 })
   nft.sessionId = sessionId ?? faker.string.alphanumeric({ casing: 'lower' })
   nft.resource = resource ?? faker.string.alphanumeric({ casing: 'lower' })
-  nft.totaSupply = totaSupply ?? faker.number.int({ min: 10, max: 100 })
+  nft.totalSupply = totalSupply ?? faker.number.int({ min: 10, max: 100 })
   return nft
 }
