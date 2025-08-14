@@ -52,7 +52,7 @@ export class NftSupply extends ModelBase {
     name: 'total_supply',
     type: 'integer',
   })
-  totaSupply: number
+  totalSupply: number
 
   // Current amount of tokens already minted
   @Column({
