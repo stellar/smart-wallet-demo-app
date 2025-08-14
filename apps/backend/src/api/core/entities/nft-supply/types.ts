@@ -18,7 +18,9 @@ export type NftSupplyRepositoryType = {
       contractAddress: string
       sessionId: string
       resource: string
-      totaSupply: number
+    totalSupply?: number
+    mintedAmount?: number
+    issuer?: string
     },
     save?: boolean
   ): Promise<NftSupply>
