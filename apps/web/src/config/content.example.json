@@ -54,7 +54,7 @@
   "noTransactionHistoryTitle": "No transaction history",
   "noTransactionHistoryDescription": "You don't have any transactions yet",
   "close": "Close",
-  "transactionModalMintTitle": "XLM Airdrop",
+  "transactionAirdropClaimVendor": "XLM Airdrop",
   "transactionModalTransactionIdLabel": "Transaction ID",
   "transactionModalCopyTransactionIdTitle": "Copy transaction ID",
   "transactionModalAvailableBalanceLabel": "Available balance:",
@@ -84,5 +84,6 @@
   "shareImageError": "Something went wrong while sharing. Please try again",
   "shareImageSuccess": "Done! The image was shared successfully",
   "shareImageTitle": "Save this image",
-  "shareImageText": "Move this image where you need it"
+  "shareImageText": "Move this image where you need it",
+  "claimAirdropSuccess": "Done! You've successfully claimed your airdrop"
 }

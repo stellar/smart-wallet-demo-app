@@ -1,4 +1,5 @@
-import { ZodSchema, ZodTypeDef } from 'zod'
+import { StrKey } from '@stellar/stellar-sdk'
+import { z, ZodSchema, ZodTypeDef } from 'zod'
 import zodToJsonSchema from 'zod-to-json-schema'
 
 /**
@@ -20,3 +21,38 @@ export const refineJsonString = (value: string) => {
     return false
   }
 }
+
+export const stellarAddressSchema = z
+  .string()
+  .min(1, 'Address is required')
+  .refine(address => {
+    try {
+      return StrKey.isValidEd25519PublicKey(address) || StrKey.isValidContract(address)
+    } catch {
+      return false
+    }
+  }, 'Invalid Stellar address format')
+
+export const stellarContractAddressSchema = z.string().refine(address => {
+  try {
+    return StrKey.isValidContract(address)
+  } catch {
+    return false
+  }
+}, 'Invalid Stellar contract address format')
+
+export const hashSchema = z
+  .string()
+  .length(64, 'Hash must be exactly 64 characters')
+  .regex(/^[a-f0-9]{64}$/, 'Hash must be a valid lowercase hex string')
+
+export const verificationIdSchema = z.string().min(1, 'Verification ID is required')
+
+export const merkleProofDataSchema = z.object({
+  contractAddress: stellarContractAddressSchema,
+  index: z.number().int().min(0),
+  amount: z.number().int().positive(),
+  proofs: z.array(hashSchema),
+})
+
+export type MerkleProofDataT = z.infer<typeof merkleProofDataSchema>

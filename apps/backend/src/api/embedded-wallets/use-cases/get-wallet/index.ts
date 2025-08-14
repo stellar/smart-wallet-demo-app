@@ -1,15 +1,18 @@
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
+import { ProofRepositoryType } from 'api/core/entities/proof/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import { getWalletBalance } from 'api/core/helpers/get-balance'
 import AssetRepository from 'api/core/services/asset'
+import ProofRepository from 'api/core/services/proof'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { sleepInSeconds } from 'api/core/utils/sleep'
 import { messages } from 'api/embedded-wallets/constants/messages'
+import { STELLAR } from 'config/stellar'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
@@ -24,22 +27,25 @@ import { ParseSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT } from './
 const endpoint = '/'
 
 export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
-  private assetRepository: AssetRepositoryType
   private userRepository: UserRepositoryType
+  private assetRepository: AssetRepositoryType
+  private proofRepository: ProofRepositoryType
   private sdpEmbeddedWallets: SDPEmbeddedWalletsType
   private sorobanService: ISorobanService
   private walletBackend: WalletBackend
 
   constructor(
     userRepository?: UserRepositoryType,
+    assetRepository?: AssetRepositoryType,
+    proofRepository?: ProofRepositoryType,
     sdpEmbeddedWallets?: SDPEmbeddedWalletsType,
     sorobanService?: ISorobanService,
-    walletBackend?: WalletBackend,
-    assetRepository?: AssetRepositoryType
+    walletBackend?: WalletBackend
   ) {
     super()
-    this.assetRepository = assetRepository || AssetRepository.getInstance()
     this.userRepository = userRepository || UserRepository.getInstance()
+    this.assetRepository = assetRepository || AssetRepository.getInstance()
+    this.proofRepository = proofRepository || ProofRepository.getInstance()
     this.sdpEmbeddedWallets = sdpEmbeddedWallets || SDPEmbeddedWallets.getInstance()
     this.sorobanService = sorobanService || SorobanService.getInstance()
     this.walletBackend = walletBackend || WalletBackend.getInstance()
@@ -74,18 +80,15 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
 
     // Check if user already has a wallet
     if (user.contractAddress) {
-      // Get wallet balance
-      const balance = await getWalletBalance({
-        userContractAddress: user.contractAddress,
-        assetRepository: this.assetRepository,
-        sorobanService: this.sorobanService,
-      })
+      // Get all info from a valid wallet (balance, etc)
+      const { balance, isAirdropAvailable } = await this.infoFromValidWallet(user.contractAddress)
 
       return this.parseResponse({
         status: WalletStatus.SUCCESS,
         address: user.contractAddress,
         email: user.email,
         balance,
+        is_airdrop_available: isAirdropAvailable,
       })
     }
 
@@ -111,19 +114,38 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       throw new BadRequestException(messages.UNKNOWN_CONTRACT_ADDRESS_CREATION_ERROR)
     }
 
-    // Get wallet balance
-    const balance = await getWalletBalance({
-      userContractAddress: user.contractAddress,
-      assetRepository: this.assetRepository,
-      sorobanService: this.sorobanService,
-    })
+    // Get all info from a valid wallet (balance, etc)
+    const { balance, isAirdropAvailable } = await this.infoFromValidWallet(user.contractAddress)
 
     return this.parseResponse({
       status: walletStatus,
       address: user.contractAddress,
       email: user.email,
       balance,
+      is_airdrop_available: isAirdropAvailable,
     })
+  }
+
+  private async infoFromValidWallet(
+    contractAddress: string
+  ): Promise<{ balance: number; isAirdropAvailable: boolean }> {
+    // Get wallet balance
+    const balance = await getWalletBalance({
+      userContractAddress: contractAddress,
+      assetRepository: this.assetRepository,
+      sorobanService: this.sorobanService,
+    })
+
+    // Get airdrop contract address from config
+    const airdropContractAddress = STELLAR.AIRDROP_CONTRACT_ADDRESS
+
+    // Get user airdrop proof
+    const airdropProof = await this.proofRepository.findByAddressAndContract(contractAddress, airdropContractAddress)
+
+    return {
+      balance,
+      isAirdropAvailable: airdropProof ? !airdropProof.isClaimed : false,
+    }
   }
 }
 

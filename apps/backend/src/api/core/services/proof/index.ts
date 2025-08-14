@@ -45,4 +45,8 @@ export default class ProofRepository extends SingletonBase implements ProofRepos
       throw error
     }
   }
+
+  async saveProofs(proofs: Proof[]): Promise<Proof[]> {
+    return this.repository.save(proofs)
+  }
 }

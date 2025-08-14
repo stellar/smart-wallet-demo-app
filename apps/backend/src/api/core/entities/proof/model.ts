@@ -14,6 +14,9 @@ export class Proof {
   @Column({ name: 'receiver_amount', type: 'bigint' })
   receiverAmount!: string
 
+  @Column({ default: false, name: 'is_claimed', type: 'boolean' })
+  isClaimed!: boolean
+
   @Column({ name: 'proofs', type: 'text', array: true })
   proofs!: string[]
 

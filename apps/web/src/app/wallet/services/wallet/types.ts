@@ -8,6 +8,8 @@ export interface IWalletService {
   getTransactionHistory: () => Promise<GetTransactionHistoryResult>
   getTransferOptions: (input: GetTransferOptionsInput) => Promise<GetTransferOptionsResult>
   postTransfer: (input: PostTransferInput) => Promise<PostTransferResult>
+  getAirdropOptions: () => Promise<GetAirdropOptionsResult>
+  postAirdrop: (input: PostAirdropInput) => Promise<PostAirdropResult>
 }
 
 export type GetWalletResult = IHTTPResponse<{
@@ -15,6 +17,7 @@ export type GetWalletResult = IHTTPResponse<{
   address: string
   email: string
   balance: number
+  is_airdrop_available: boolean
 }>
 export type GetTransactionHistoryResult = IHTTPResponse<{
   address: string
@@ -66,5 +69,20 @@ export type PostTransferInput = {
   authenticationResponseJSON: string
 } & GetTransferOptionsInput
 export type PostTransferResult = IHTTPResponse<{
+  hash: string
+}>
+
+export type GetAirdropOptionsResult = IHTTPResponse<{
+  options_json: string
+  user: {
+    address: string
+    email: string
+  }
+}>
+
+export type PostAirdropInput = {
+  authenticationResponseJSON: string
+}
+export type PostAirdropResult = IHTTPResponse<{
   hash: string
 }>

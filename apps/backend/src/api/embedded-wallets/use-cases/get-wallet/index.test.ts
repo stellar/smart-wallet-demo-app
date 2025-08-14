@@ -6,6 +6,7 @@ import { Asset as AssetModel } from 'api/core/entities/asset/model'
 import { userFactory } from 'api/core/entities/user/factory'
 import { User } from 'api/core/entities/user/types'
 import { mockAssetRepository } from 'api/core/services/asset/mock'
+import { mockProofRepository } from 'api/core/services/proof/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
@@ -18,8 +19,9 @@ import { SimulationResult } from 'interfaces/soroban/types'
 import { GetWallet, endpoint } from './index'
 
 const mockedUserRepository = mockUserRepository()
-const mockedSDPEmbeddedWallets = mockSDPEmbeddedWallets()
+const mockedProofRepository = mockProofRepository()
 const mockedAssetRepository = mockAssetRepository()
+const mockedSDPEmbeddedWallets = mockSDPEmbeddedWallets()
 const mockedSorobanService = mockSorobanService()
 
 const user = userFactory({
@@ -43,10 +45,11 @@ describe('GetWallet', () => {
     vi.clearAllMocks()
     getWallet = new GetWallet(
       mockedUserRepository,
+      mockedAssetRepository,
+      mockedProofRepository,
       mockedSDPEmbeddedWallets,
       mockedSorobanService,
-      undefined,
-      mockedAssetRepository
+      undefined
     )
   })
 
@@ -152,6 +155,7 @@ describe('GetWallet', () => {
         address: 'wallet-address',
         balance: 123.456,
         email: 'your@email.com',
+        is_airdrop_available: true,
       })
     ).toEqual({
       data: {
@@ -159,6 +163,7 @@ describe('GetWallet', () => {
         address: 'wallet-address',
         balance: 123.456,
         email: 'your@email.com',
+        is_airdrop_available: true,
       },
       message: 'Wallet details retrieved successfully',
     })

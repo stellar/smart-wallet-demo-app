@@ -10,6 +10,8 @@ import { GenerateRecoveryLink, endpoint as GenerateRecoveryLinkEndpoint } from '
 import { GetInvitationInfo, endpoint as GetInvitationInfoEndpoint } from './use-cases/get-invitation-info'
 import { GetWallet, endpoint as GetWalletEndpoint } from './use-cases/get-wallet'
 import { GetWalletHistory, endpoint as GetWalletHistoryEndpoint } from './use-cases/get-wallet-history'
+import { GiftComplete, endpoint as GiftCompleteEndpoint } from './use-cases/gift-complete'
+import { GiftOptions, endpoint as GiftOptionsEndpoint } from './use-cases/gift-options'
 import { ListNft, endpoint as ListNftEndpoint } from './use-cases/list-nft'
 import { LogIn, endpoint as LogInEndpoint } from './use-cases/login'
 import { LogInOptions, endpoint as LogInOptionsEndpoint } from './use-cases/login-options'
@@ -45,5 +47,7 @@ router.get(`${AirdropOptionsEndpoint}`, authentication, async (req, res) => Aird
 router.post(`${AirdropCompleteEndpoint}`, authentication, async (req, res) =>
   AirdropComplete.init().executeHttp(req, res)
 )
+router.get(`${GiftOptionsEndpoint}`, authentication, async (req, res) => GiftOptions.init().executeHttp(req, res))
+router.post(`${GiftCompleteEndpoint}`, authentication, async (req, res) => GiftComplete.init().executeHttp(req, res))
 
 export default router

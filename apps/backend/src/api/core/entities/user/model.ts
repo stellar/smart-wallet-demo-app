@@ -1,5 +1,6 @@
 import { Column, Entity, ModelBase, OneToMany, PrimaryGeneratedColumn } from 'api/core/framework/orm/base'
 
+import { GiftClaim } from '../gift-claim/model'
 import { Nft } from '../nft/model'
 import { Otp } from '../otp/model'
 import { Passkey } from '../passkey/model'
@@ -33,4 +34,7 @@ export class User extends ModelBase {
 
   @OneToMany(() => Nft, nft => nft.user)
   nfts: Nft[]
+
+  @OneToMany(() => GiftClaim, giftClaim => giftClaim.user)
+  giftClaims: GiftClaim[]
 }
