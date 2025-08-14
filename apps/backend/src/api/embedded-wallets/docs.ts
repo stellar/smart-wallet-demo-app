@@ -1,5 +1,7 @@
 import AirdropCompleteDocs from 'api/embedded-wallets/use-cases/airdrop-complete/index.docs'
 import AirdropOptionsDocs from 'api/embedded-wallets/use-cases/airdrop-options/index.docs'
+import ClaimNftDocs from 'api/embedded-wallets/use-cases/claim-nft/index.docs'
+import ClaimNftOptionsDocs from 'api/embedded-wallets/use-cases/claim-nft-options/index.docs'
 import CreateWalletDocs from 'api/embedded-wallets/use-cases/create-wallet/index.docs'
 import CreateWalletOptionsDocs from 'api/embedded-wallets/use-cases/create-wallet-options/index.docs'
 import GenerateRecoveryLinkDocs from 'api/embedded-wallets/use-cases/generate-recovery-link/index.docs'
@@ -75,5 +77,11 @@ export default {
   },
   '/api/embedded-wallets/gift/complete': {
     ...GiftCompleteDocs,
+  },
+  '/api/embedded-wallets/nft/claim/options': {
+    ...ClaimNftOptionsDocs,
+  },
+  '/api/embedded-wallets/nft/claim/complete': {
+    ...ClaimNftDocs,
   },
 }
