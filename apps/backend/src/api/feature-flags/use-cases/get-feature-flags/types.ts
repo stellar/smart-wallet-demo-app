@@ -6,8 +6,9 @@ export const ResponseSchema = createResponseSchema(
   z.object({
     flags: z
       .object({
+        id: z.string(),
         name: z.string(),
-        isActive: z.boolean(),
+        is_active: z.boolean(),
         description: z.string().optional(),
         metadata: z.record(z.any()).optional(),
       })

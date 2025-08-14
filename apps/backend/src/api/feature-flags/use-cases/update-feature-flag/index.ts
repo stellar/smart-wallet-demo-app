@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 
-import { FeatureFlagRepositoryType } from 'api/core/entities/feature-flag/types'
+import { FeatureFlag, FeatureFlagRepositoryType } from 'api/core/entities/feature-flag/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import FeatureFlagRepository from 'api/core/services/feature-flag'
@@ -19,23 +19,35 @@ export class UpdateFeatureFlag extends UseCaseBase implements IUseCaseHttp<Respo
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
-    const id = request.params?.id
-    const payload = { ...request.body, featureFlagId: id } as RequestSchemaT
+    const featureFlagId = request.params?.id
+    const payload = { ...request.body, id: featureFlagId } as RequestSchemaT
     const result = await this.handle(payload)
     return response.status(HttpStatusCodes.OK).json(result)
   }
 
+  parseResponseFlag(flag: FeatureFlag) {
+    return {
+      name: flag.name,
+      is_active: flag.isActive,
+      description: flag.description,
+      metadata: flag.metadata,
+    }
+  }
+
   async handle(payload: RequestSchemaT) {
     const validatedData = this.validate(payload, RequestSchema)
-    const requestBody = {
-      ...validatedData,
+    const updatedFields = {
+      name: validatedData.name,
+      isActive: validatedData.is_active,
+      description: validatedData.description,
+      metadata: validatedData.metadata,
     }
 
-    const updatedFlag = await this.featureFlagRepository.updateFeatureFlag(validatedData.featureFlagId, requestBody)
+    const updatedFlag = await this.featureFlagRepository.updateFeatureFlag(validatedData.id, updatedFields)
 
     return {
       data: {
-        flag: updatedFlag,
+        flag: this.parseResponseFlag(updatedFlag),
       },
       message: 'Feature flag updated successfully',
     }

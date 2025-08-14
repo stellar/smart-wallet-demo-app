@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 
-import { FeatureFlagRepositoryType } from 'api/core/entities/feature-flag/types'
+import { FeatureFlag, FeatureFlagRepositoryType } from 'api/core/entities/feature-flag/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import FeatureFlagRepository from 'api/core/services/feature-flag'
@@ -24,17 +24,29 @@ export class CreateFeatureFlag extends UseCaseBase implements IUseCaseHttp<Respo
     return response.status(HttpStatusCodes.CREATED).json(result)
   }
 
+  parseResponseFlag(flag: FeatureFlag) {
+    return {
+      name: flag.name,
+      is_active: flag.isActive,
+      description: flag.description,
+      metadata: flag.metadata,
+    }
+  }
+
   async handle(payload: RequestSchemaT) {
     const validatedData = this.validate(payload, RequestSchema)
-    const requestBody = {
-      ...validatedData,
+    const flag = {
+      name: validatedData.name,
+      isActive: validatedData.is_active,
+      description: validatedData.description,
+      metadata: validatedData.metadata,
     }
 
-    const newFlag = await this.featureFlagRepository.createFeatureFlag(requestBody, true)
+    const newFlag = await this.featureFlagRepository.createFeatureFlag(flag, true)
 
     return {
       data: {
-        flag: newFlag,
+        flag: this.parseResponseFlag(newFlag),
       },
       message: 'Feature flag created successfully',
     }

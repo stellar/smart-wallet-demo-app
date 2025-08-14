@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 
-import { FeatureFlagRepositoryType } from 'api/core/entities/feature-flag/types'
+import { FeatureFlag, FeatureFlagRepositoryType } from 'api/core/entities/feature-flag/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import FeatureFlagRepository from 'api/core/services/feature-flag'
@@ -23,12 +23,22 @@ export class GetFeatureFlags extends UseCaseBase implements IUseCaseHttp<Respons
     return response.status(HttpStatusCodes.OK).json(result)
   }
 
+  parseResponseFlags(flags: FeatureFlag[]) {
+    return flags.map(flag => ({
+      id: flag.featureFlagId,
+      name: flag.name,
+      is_active: flag.isActive,
+      description: flag.description,
+      metadata: flag.metadata,
+    }))
+  }
+
   async handle() {
     const flags = await this.featureFlagRepository.getFeatureFlags()
 
     return {
       data: {
-        flags,
+        flags: this.parseResponseFlags(flags),
       },
       message: 'Retrieved feature flags successfully',
     }
