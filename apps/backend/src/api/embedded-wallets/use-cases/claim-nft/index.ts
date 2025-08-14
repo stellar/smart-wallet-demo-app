@@ -96,7 +96,7 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
       throw new ResourceNotFoundException(messages.NFT_SUPPLY_NOT_FOUND)
     }
 
-    if (nftSupply.totaSupply - nftSupply.currentSupply <= 0) {
+    if (nftSupply.totaSupply - nftSupply.mintedAmount <= 0) {
       throw new ResourceNotFoundException(messages.NFT_SUPPLY_NOT_ENOUGH)
     }
 
@@ -118,38 +118,11 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
       },
     }
 
-    // Get total supply of already minted tokens
-    const { simulationResponse: simulationSupplyResponse } = await this.sorobanService.simulateContractOperation({
-      contractId: nftSupply.contractAddress,
-      method: 'total_supply',
-      args: [],
-    })
-    const totaSupply: number = Number(
-      ScConvert.scValToFormatString(simulationSupplyResponse.result?.retval as xdr.ScVal)
-    )
-    const lastMintedIndex = totaSupply - 1 // zero-based index
-
-    // Get tokenID of the last minted token in the contract
-    const { simulationResponse: simulationTokenIdResponse } = await this.sorobanService.simulateContractOperation({
-      contractId: nftSupply.contractAddress,
-      method: 'get_token_id',
-      args: [ScConvert.numberToScVal(lastMintedIndex)],
-    })
-
-    // Infer next tokenID from total supply and last minted tokenID
-    const lastMintedTokenId: number = Number(
-      ScConvert.scValToFormatString(simulationTokenIdResponse.result?.retval as xdr.ScVal)
-    )
-    const nextTokenId = lastMintedTokenId + 1 // Next tokenID to mint (when convention fro tokenID is a sequential number)
-
     // Simulate 'mint' transaction
     const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
       contractId: nftSupply.contractAddress,
       method: 'mint',
-      args: [
-        ScConvert.accountIdToScVal(user.contractAddress as string),
-        ScConvert.stringToScValUnsigned(nextTokenId.toString()),
-      ],
+      args: [ScConvert.accountIdToScVal(user.contractAddress as string)],
       signers: [transactionSigner],
     })
 
@@ -165,12 +138,9 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
       await queryRunner.connect()
       await queryRunner.startTransaction()
 
-      // Get tokenID of the newly minted token
-      mintedTokenId = nextTokenId.toString()
-
-      // Update user NFT data with the new minted token
+      // Update user NFT data for the new minted token
       newUserNft = await this.nftRepository.createNft(
-        { tokenId: mintedTokenId, sessionId: nftSupply.sessionId, contractAddress: nftSupply.contractAddress, user },
+        { sessionId: nftSupply.sessionId, contractAddress: nftSupply.contractAddress, user },
         true
       )
       if (!newUserNft) {
@@ -178,9 +148,7 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
       }
 
       // Update NFT supply
-      updatedNftSupply = await this.nftSupplyRepository.updateNftSupply(nftSupply.nftSupplyId, {
-        currentSupply: nftSupply.currentSupply + 1,
-      })
+      updatedNftSupply = await this.nftSupplyRepository.incrementMintedAmount(nftSupply.nftSupplyId)
       if (!updatedNftSupply) {
         throw new BadRequestException(messages.UNABLE_TO_UPDATE_NFT_SUPPLY)
       }
@@ -196,6 +164,11 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
       if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
         throw new ResourceNotFoundException(`${messages.UNABLE_TO_MINT_NFT} ${messages.UNABLE_TO_EXECUTE_TRANSACTION}`)
       }
+
+      mintedTokenId = ScConvert.scValToFormatString(txResponse.returnValue as xdr.ScVal)
+
+      // Update newUserNft with newly minted tokenId
+      await this.nftRepository.updateNft(newUserNft.nftId, { tokenId: mintedTokenId })
 
       // Commit transaction if all operations succeed
       await queryRunner.commitTransaction()

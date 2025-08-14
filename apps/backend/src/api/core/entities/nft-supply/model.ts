@@ -54,14 +54,14 @@ export class NftSupply extends ModelBase {
   })
   totaSupply: number
 
-  // Current supply already minted
+  // Current amount of tokens already minted
   @Column({
-    name: 'current_supply',
+    name: 'minted_amount',
     type: 'integer',
     nullable: true,
     default: 0,
   })
-  currentSupply: number
+  mintedAmount: number
 
   @Column({
     type: 'varchar',

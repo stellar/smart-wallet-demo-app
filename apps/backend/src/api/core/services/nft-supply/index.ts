@@ -3,6 +3,7 @@ import { DeleteResult } from 'typeorm'
 import { NftSupply as NftSupplyModel } from 'api/core/entities/nft-supply/model'
 import { NftSupply, NftSupplyRepositoryType } from 'api/core/entities/nft-supply/types'
 import { SingletonBase } from 'api/core/framework/singleton/interface'
+import { AppDataSource } from 'config/database'
 
 export default class NftSupplyRepository extends SingletonBase implements NftSupplyRepositoryType {
   constructor() {
@@ -56,5 +57,16 @@ export default class NftSupplyRepository extends SingletonBase implements NftSup
 
   saveNftSupply(nftSupply: NftSupply): Promise<NftSupply> {
     return NftSupplyModel.save(nftSupply)
+  }
+
+  async incrementMintedAmount(id: string, data: Partial<NftSupply> = {}): Promise<NftSupply> {
+    const result = await AppDataSource.createQueryBuilder()
+      .update(data)
+      .set({ mintedAmount: () => `"mintedAmount" + 1` }) // atomic increment in Postgres
+      .where('nft_supply_id = :id', { id })
+      .returning('*') // returns the updated row(s)
+      .execute()
+
+    return result.raw[0] as NftSupply // Updated entity with new mintedAmount
   }
 }

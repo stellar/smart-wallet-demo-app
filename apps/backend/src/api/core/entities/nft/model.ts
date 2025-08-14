@@ -4,14 +4,12 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
-  Index,
   ModelBase,
 } from 'api/core/framework/orm/base'
 
 import { User } from '../user/model'
 
 @Entity()
-@Index(['tokenId', 'contractAddress'], { unique: true }) // TokenID unique inside a contract
 export class Nft extends ModelBase {
   @PrimaryGeneratedColumn('uuid')
   nftId: string
@@ -19,6 +17,7 @@ export class Nft extends ModelBase {
   // TokenID that identify NFT inside a contract as per SEP-50 specs
   @Column({
     type: 'varchar',
+    nullable: true,
   })
   tokenId: string
 
