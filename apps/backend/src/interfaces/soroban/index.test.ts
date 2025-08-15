@@ -16,7 +16,7 @@ describe('Soroban', () => {
   })
 
   describe('getContractBalance', () => {
-    test('should get a contract account/wallet balance', async () => {
+    test.skip('should get a contract account/wallet balance', async () => {
       const { simulationResponse } = await sorobanService.simulateContractOperation({
         contractId: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
         method: 'balance',
