@@ -6,4 +6,12 @@ export type GetWalletResult = {
   email: string
   balance: number
   is_airdrop_available: boolean
+  swags?: {
+    code: string
+    name?: string
+    description: string
+    imageUrl?: string
+    assetCode: string
+    status: 'unclaimed' | 'claimed'
+  }[]
 }

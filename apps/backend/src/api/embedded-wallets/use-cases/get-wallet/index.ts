@@ -1,14 +1,19 @@
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
+import { Product, ProductRepositoryType } from 'api/core/entities/product/types'
 import { ProofRepositoryType } from 'api/core/entities/proof/types'
-import { UserRepositoryType } from 'api/core/entities/user/types'
+import { User, UserRepositoryType } from 'api/core/entities/user/types'
+import { UserProductStatus } from 'api/core/entities/user-product/model'
+import { UserProduct, UserProductRepositoryType } from 'api/core/entities/user-product/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import { getWalletBalance } from 'api/core/helpers/get-balance'
 import AssetRepository from 'api/core/services/asset'
+import ProductRepository from 'api/core/services/product'
 import ProofRepository from 'api/core/services/proof'
 import UserRepository from 'api/core/services/user'
+import UserProductRepository from 'api/core/services/user-product'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { sleepInSeconds } from 'api/core/utils/sleep'
 import { messages } from 'api/embedded-wallets/constants/messages'
@@ -30,6 +35,8 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
   private userRepository: UserRepositoryType
   private assetRepository: AssetRepositoryType
   private proofRepository: ProofRepositoryType
+  private productRepository: ProductRepositoryType
+  private userProductRepository: UserProductRepositoryType
   private sdpEmbeddedWallets: SDPEmbeddedWalletsType
   private sorobanService: ISorobanService
   private walletBackend: WalletBackend
@@ -38,6 +45,8 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     userRepository?: UserRepositoryType,
     assetRepository?: AssetRepositoryType,
     proofRepository?: ProofRepositoryType,
+    productRepository?: ProductRepositoryType,
+    userProductRepository?: UserProductRepositoryType,
     sdpEmbeddedWallets?: SDPEmbeddedWalletsType,
     sorobanService?: ISorobanService,
     walletBackend?: WalletBackend
@@ -46,6 +55,8 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     this.userRepository = userRepository || UserRepository.getInstance()
     this.assetRepository = assetRepository || AssetRepository.getInstance()
     this.proofRepository = proofRepository || ProofRepository.getInstance()
+    this.productRepository = productRepository || ProductRepository.getInstance()
+    this.userProductRepository = userProductRepository || UserProductRepository.getInstance()
     this.sdpEmbeddedWallets = sdpEmbeddedWallets || SDPEmbeddedWallets.getInstance()
     this.sorobanService = sorobanService || SorobanService.getInstance()
     this.walletBackend = walletBackend || WalletBackend.getInstance()
@@ -81,7 +92,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     // Check if user already has a wallet
     if (user.contractAddress) {
       // Get all info from a valid wallet (balance, etc)
-      const { balance, isAirdropAvailable } = await this.infoFromValidWallet(user.contractAddress)
+      const { balance, isAirdropAvailable, swags } = await this.infoFromValidWallet(user.userId, user.contractAddress)
 
       return this.parseResponse({
         status: WalletStatus.SUCCESS,
@@ -89,6 +100,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
         email: user.email,
         balance,
         is_airdrop_available: isAirdropAvailable,
+        swags,
       })
     }
 
@@ -115,7 +127,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     }
 
     // Get all info from a valid wallet (balance, etc)
-    const { balance, isAirdropAvailable } = await this.infoFromValidWallet(user.contractAddress)
+    const { balance, isAirdropAvailable, swags } = await this.infoFromValidWallet(user.userId, user.contractAddress)
 
     return this.parseResponse({
       status: walletStatus,
@@ -123,12 +135,14 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       email: user.email,
       balance,
       is_airdrop_available: isAirdropAvailable,
+      swags,
     })
   }
 
   private async infoFromValidWallet(
+    userId: string,
     contractAddress: string
-  ): Promise<{ balance: number; isAirdropAvailable: boolean }> {
+  ): Promise<{ balance: number; isAirdropAvailable: boolean; swags: ResponseSchemaT['data']['swags'] }> {
     // Get wallet balance
     const balance = await getWalletBalance({
       userContractAddress: contractAddress,
@@ -142,10 +156,61 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     // Get user airdrop proof
     const airdropProof = await this.proofRepository.findByAddressAndContract(contractAddress, airdropContractAddress)
 
+    // Map swags
+    const swags = await this.syncWalletSwags(userId, contractAddress)
+
     return {
       balance,
       isAirdropAvailable: airdropProof ? !airdropProof.isClaimed : false,
+      swags,
     }
+  }
+
+  private async syncWalletSwags(userId: string, contractAddress: string) {
+    // Get all visible swags
+    const visibleSwags = await this.productRepository.getSwagProducts({
+      where: { isHidden: false },
+      relations: ['asset'],
+    })
+
+    // If no visible swags, return
+    if (!visibleSwags.length) return
+
+    // Get existing user products (swags)
+    const existingUserProducts = await this.userProductRepository.getUserProductsByUserContractAddress(contractAddress)
+    const existingProductIds = new Set(existingUserProducts.map(up => up.product.productId))
+
+    // Check for missing swags (visible swags that the user does not have reference yet)
+    const missingSwags = visibleSwags.filter(swag => !existingProductIds.has(swag.productId))
+    if (!missingSwags.length) return this.parseSwags(existingUserProducts)
+
+    // Create new user products (swags) from missing swags
+    const newUserProducts: UserProduct[] = []
+    for (const swag of missingSwags) {
+      const userProduct = await this.userProductRepository.createUserProduct({
+        user: { userId } as User,
+        product: { productId: swag.productId } as Product,
+        status: 'unclaimed',
+      })
+      newUserProducts.push(userProduct)
+    }
+
+    // Save new user products (swags)
+    await this.userProductRepository.saveUserProducts(newUserProducts)
+    const userProducts = await this.userProductRepository.getUserProductsByUserContractAddress(contractAddress)
+
+    return this.parseSwags(userProducts)
+  }
+
+  private parseSwags(userProducts: UserProduct[]): ResponseSchemaT['data']['swags'] {
+    return userProducts.map(swag => ({
+      code: swag.product.code,
+      name: swag.product.name,
+      description: swag.product.description,
+      imageUrl: swag.product.imageUrl,
+      assetCode: swag.product.asset.code,
+      status: swag.status as UserProductStatus,
+    }))
   }
 }
 

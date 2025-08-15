@@ -1,7 +1,9 @@
-import { In } from 'typeorm'
+import { FindOneOptions, In } from 'typeorm'
 
+import { Asset } from 'api/core/entities/asset/types'
 import { Product as ProductModel } from 'api/core/entities/product/model'
 import { Product, ProductRepositoryType } from 'api/core/entities/product/types'
+import { UserProduct } from 'api/core/entities/user-product/types'
 import { SingletonBase } from 'api/core/framework/singleton/interface'
 
 export default class ProductRepository extends SingletonBase implements ProductRepositoryType {
@@ -17,7 +19,25 @@ export default class ProductRepository extends SingletonBase implements ProductR
     return ProductModel.findBy({ code: In(code) })
   }
 
-  async createProduct(product: { code: string; name?: string; description: string }, save?: boolean): Promise<Product> {
+  async getSwagProducts(options?: FindOneOptions<Product>): Promise<Product[]> {
+    const whereCondition = { isSwag: true, ...options?.where }
+
+    return ProductModel.find({ ...options, where: whereCondition })
+  }
+
+  async createProduct(
+    product: {
+      code: string
+      name?: string
+      imageUrl?: string
+      description: string
+      isSwag: boolean
+      isHidden: boolean
+      asset: Asset
+      userProducts?: UserProduct[]
+    },
+    save?: boolean
+  ): Promise<Product> {
     const newProduct = ProductModel.create({ ...product })
     if (save) {
       return this.saveProduct(newProduct)
