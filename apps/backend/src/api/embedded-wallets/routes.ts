@@ -45,15 +45,15 @@ router.get(`${TransferOptionsEndpoint}`, authentication, async (req, res) =>
 )
 router.post(`${TransferEndpoint}`, authentication, async (req, res) => Transfer.init().executeHttp(req, res))
 router.get(`${ListNftEndpoint}`, authentication, async (req, res) => ListNft.init().executeHttp(req, res))
+router.get(`${ClaimNftOptionsEndpoint}`, authentication, async (req, res) =>
+  ClaimNftOptions.init().executeHttp(req, res)
+)
+router.post(`${ClaimNftEndpoint}`, authentication, async (req, res) => ClaimNft.init().executeHttp(req, res))
 router.get(`${AirdropOptionsEndpoint}`, authentication, async (req, res) => AirdropOptions.init().executeHttp(req, res))
 router.post(`${AirdropCompleteEndpoint}`, authentication, async (req, res) =>
   AirdropComplete.init().executeHttp(req, res)
 )
 router.get(`${GiftOptionsEndpoint}`, authentication, async (req, res) => GiftOptions.init().executeHttp(req, res))
 router.post(`${GiftCompleteEndpoint}`, authentication, async (req, res) => GiftComplete.init().executeHttp(req, res))
-router.get(`${ClaimNftOptionsEndpoint}`, authentication, async (req, res) =>
-  ClaimNftOptions.init().executeHttp(req, res)
-)
-router.post(`${ClaimNftEndpoint}`, authentication, async (req, res) => ClaimNft.init().executeHttp(req, res))
 
 export default router

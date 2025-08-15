@@ -10,7 +10,7 @@ import GetWalletDocs from 'api/embedded-wallets/use-cases/get-wallet/index.docs'
 import GetWalletHistoryDocs from 'api/embedded-wallets/use-cases/get-wallet-history/index.docs'
 import GiftCompleteDocs from 'api/embedded-wallets/use-cases/gift-complete/index.docs'
 import GiftOptionsDocs from 'api/embedded-wallets/use-cases/gift-options/index.docs'
-import ListNfts from 'api/embedded-wallets/use-cases/list-nft/index.docs'
+import ListNftsDocs from 'api/embedded-wallets/use-cases/list-nft/index.docs'
 import LogInDocs from 'api/embedded-wallets/use-cases/login/index.docs'
 import LogInOptionsDocs from 'api/embedded-wallets/use-cases/login-options/index.docs'
 import RecoverWalletDocs from 'api/embedded-wallets/use-cases/recover-wallet/index.docs'
@@ -58,7 +58,13 @@ export default {
     ...ResendInviteDocs,
   },
   '/api/embedded-wallets/nft': {
-    ...ListNfts,
+    ...ListNftsDocs,
+  },
+  '/api/embedded-wallets/nft/claim/options': {
+    ...ClaimNftOptionsDocs,
+  },
+  '/api/embedded-wallets/nft/claim/complete': {
+    ...ClaimNftDocs,
   },
   '/api/embedded-wallets/transfer/options': {
     ...TransferOptionsDocs,
@@ -77,11 +83,5 @@ export default {
   },
   '/api/embedded-wallets/gift/complete': {
     ...GiftCompleteDocs,
-  },
-  '/api/embedded-wallets/nft/claim/options': {
-    ...ClaimNftOptionsDocs,
-  },
-  '/api/embedded-wallets/nft/claim/complete': {
-    ...ClaimNftDocs,
   },
 }
