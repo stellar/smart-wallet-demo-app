@@ -1,3 +1,5 @@
+import { FindOneOptions } from 'typeorm'
+
 import { Product } from 'api/core/entities/product/types'
 import { User } from 'api/core/entities/user/types'
 import { UserProduct as UserProductModel, UserProductStatus } from 'api/core/entities/user-product/model'
@@ -17,6 +19,24 @@ export default class UserProductRepository extends SingletonBase implements User
     return UserProductModel.find({
       where: { user: { contractAddress } },
       relations: ['user', 'product', 'product.asset'],
+      order: { product: { isHidden: 'DESC' } },
+    })
+  }
+
+  async getUserProductsByUserContractAddressAndAssetCode(
+    contractAddress: string,
+    assetCode: string,
+    options?: FindOneOptions<UserProduct>
+  ): Promise<UserProduct[]> {
+    const whereCondition = {
+      ...options?.where,
+      user: { contractAddress },
+      product: { asset: { code: assetCode } },
+    }
+
+    return UserProductModel.find({
+      where: whereCondition,
+      relations: ['product', 'product.asset'],
       order: { product: { isHidden: 'DESC' } },
     })
   }

@@ -22,7 +22,13 @@ const nftTypeSchema = z.object({
   id: z.string(),
 })
 
-export const RequestSchema = z.union([transferTypeSchema, nftTypeSchema])
+const swagTypeSchema = z.object({
+  ...baseSchema,
+  type: z.enum(['swag']),
+  amount: z.number(),
+})
+
+export const RequestSchema = z.union([transferTypeSchema, nftTypeSchema, swagTypeSchema])
 
 export type RequestSchemaT = z.infer<typeof RequestSchema>
 

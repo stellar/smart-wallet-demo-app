@@ -4,7 +4,8 @@ import { Request, Response } from 'express'
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
 import { Product, ProductRepositoryType } from 'api/core/entities/product/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
-import { VendorRepositoryType } from 'api/core/entities/vendor/types'
+import { UserProductRepositoryType } from 'api/core/entities/user-product/types'
+import { Vendor, VendorRepositoryType } from 'api/core/entities/vendor/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import { getWalletBalance } from 'api/core/helpers/get-balance'
@@ -13,6 +14,7 @@ import { IWebAuthnAuthentication } from 'api/core/helpers/webauthn/authenticatio
 import AssetRepository from 'api/core/services/asset'
 import ProductRepository from 'api/core/services/product'
 import UserRepository from 'api/core/services/user'
+import UserProductRepository from 'api/core/services/user-product'
 import VendorRepository from 'api/core/services/vendor'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
@@ -31,6 +33,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
   private userRepository: UserRepositoryType
   private vendorRepository: VendorRepositoryType
   private productRepository: ProductRepositoryType
+  private userProductRepository: UserProductRepositoryType
   private webauthnAuthenticationHelper: IWebAuthnAuthentication
   private sorobanService: ISorobanService
 
@@ -39,6 +42,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     userRepository?: UserRepositoryType,
     vendorRepository?: VendorRepositoryType,
     productRepository?: ProductRepositoryType,
+    userProductRepository?: UserProductRepositoryType,
     webauthnAuthenticationHelper?: IWebAuthnAuthentication,
     sorobanService?: ISorobanService
   ) {
@@ -47,6 +51,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     this.userRepository = userRepository || UserRepository.getInstance()
     this.vendorRepository = vendorRepository || VendorRepository.getInstance()
     this.productRepository = productRepository || ProductRepository.getInstance()
+    this.userProductRepository = userProductRepository || UserProductRepository.getInstance()
     this.webauthnAuthenticationHelper = webauthnAuthenticationHelper || WebAuthnAuthentication.getInstance()
     this.sorobanService = sorobanService || SorobanService.getInstance()
   }
@@ -95,18 +100,34 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
 
     const assetContractAddress = asset?.contractAddress
 
-    // Get user balance
+    // Check if user has available swags for this asset
+    if (validatedData.type === 'swag') {
+      const unclaimedSwags = await this.userProductRepository.getUserProductsByUserContractAddressAndAssetCode(
+        user.contractAddress,
+        asset.code,
+        { where: { status: 'unclaimed' } }
+      )
+
+      if (!unclaimedSwags.length)
+        throw new ResourceNotFoundException(messages.USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE)
+    }
+
+    // Get user balance from network
     const userBalance = await getWalletBalance({ userContractAddress: user.contractAddress, assetCode: asset.code })
 
     if (validatedData.type === 'transfer' && userBalance < validatedData.amount) {
       throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_ENOUGH_BALANCE)
     }
 
+    if (validatedData.type === 'swag' && userBalance < validatedData.amount) {
+      throw new ResourceNotFoundException(messages.USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE)
+    }
+
     // Set transaction params
     let args: xdr.ScVal[] = []
     let method: string = 'transfer'
 
-    if (validatedData.type === 'transfer') {
+    if (validatedData.type === 'transfer' || validatedData.type === 'swag') {
       method = 'transfer'
       args = [
         ScConvert.accountIdToScVal(user.contractAddress as string),
@@ -154,8 +175,11 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
       throw new ResourceNotFoundException(messages.UNABLE_TO_COMPLETE_PASSKEY_AUTHENTICATION)
     }
 
-    // Get vendor data
-    const vendor = await this.vendorRepository.getVendorByWalletAddress(validatedData.to)
+    // Get vendor data (for 'transfer' and 'nft' types only)
+    let vendor: Vendor | null = null
+    if (validatedData.type === 'transfer' || validatedData.type === 'nft') {
+      vendor = await this.vendorRepository.getVendorByWalletAddress(validatedData.to)
+    }
 
     // Get products data (for 'transfer' type only)
     let products: Product[] = []

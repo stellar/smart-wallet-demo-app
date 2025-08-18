@@ -2,6 +2,7 @@ import { rpc } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { UserRepositoryType } from 'api/core/entities/user/types'
+import { UserProductRepositoryType } from 'api/core/entities/user-product/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import { submitTx } from 'api/core/helpers/submit-tx'
@@ -9,6 +10,7 @@ import WebAuthnAuthentication from 'api/core/helpers/webauthn/authentication'
 import { IWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/types'
 import AssetRepository from 'api/core/services/asset'
 import UserRepository from 'api/core/services/user'
+import UserProductRepository from 'api/core/services/user-product'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { BadRequestException } from 'errors/exceptions/bad-request'
@@ -24,18 +26,21 @@ const endpoint = '/transfer/complete'
 export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
   private assetRepository: AssetRepository
   private userRepository: UserRepositoryType
+  private userProductRepository: UserProductRepositoryType
   private webauthnAuthenticationHelper: IWebAuthnAuthentication
   private sorobanService: ISorobanService
 
   constructor(
     userRepository?: UserRepositoryType,
     assetRepository?: AssetRepository,
+    userProductRepository?: UserProductRepositoryType,
     webauthnAuthenticationHelper?: IWebAuthnAuthentication,
     sorobanService?: ISorobanService
   ) {
     super()
     this.assetRepository = assetRepository || AssetRepository.getInstance()
     this.userRepository = userRepository || UserRepository.getInstance()
+    this.userProductRepository = userProductRepository || UserProductRepository.getInstance()
     this.webauthnAuthenticationHelper = webauthnAuthenticationHelper || WebAuthnAuthentication.getInstance()
     this.sorobanService = sorobanService || SorobanService.getInstance()
   }
@@ -130,6 +135,23 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
 
     if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
       throw new ResourceNotFoundException(messages.UNABLE_TO_EXECUTE_TRANSACTION)
+    }
+
+    if (validatedData.type === 'swag') {
+      const unclaimedSwags = await this.userProductRepository.getUserProductsByUserContractAddressAndAssetCode(
+        user.contractAddress,
+        asset.code,
+        { where: { status: 'unclaimed' } }
+      )
+
+      if (!unclaimedSwags.length)
+        throw new ResourceNotFoundException(messages.USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE)
+
+      const swagToClaim = unclaimedSwags[0]
+
+      swagToClaim.status = 'claimed'
+      swagToClaim.claimedAt = new Date()
+      await this.userProductRepository.saveUserProducts([swagToClaim])
     }
 
     return {
