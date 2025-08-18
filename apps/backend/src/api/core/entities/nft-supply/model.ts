@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, ModelBase } from 'api/core/framework/orm/base'
+import { Entity, Column, PrimaryGeneratedColumn, ModelBase, Index } from 'api/core/framework/orm/base'
 
 @Entity('nft_supply')
+@Index(['sessionId'], { unique: true })
 export class NftSupply extends ModelBase {
   @PrimaryGeneratedColumn('uuid')
   nftSupplyId: string

@@ -1,7 +1,11 @@
 import { Request, Response } from 'express'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+import { Passkey } from 'api/core/entities/passkey/model'
 import { userFactory } from 'api/core/entities/user/factory'
+import { User } from 'api/core/entities/user/model'
+import NftRepository from 'api/core/services/nft'
+import NftSupplyRepository from 'api/core/services/nft-supply'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
@@ -30,6 +34,8 @@ const mockNftSupplyRepository = {
   getNftSupplyByContractAddress: vi.fn(),
   getNftSupplyBySessionId: vi.fn(),
   getNftSupplyByResource: vi.fn(),
+  getNftSupplyByResourceAndSessionId: vi.fn(),
+  getNftSupplyByContractAndSessionId: vi.fn(),
   createNftSupply: vi.fn(),
   updateNftSupply: vi.fn(),
   deleteNftSupply: vi.fn(),
@@ -58,12 +64,25 @@ vi.mock('api/core/services/user', () => ({
   },
 }))
 
+const mockPasskey = {
+  passkeyId: 'passkey-123',
+  credentialId: 'credential-123',
+  credentialPublicKey: new Uint8Array([1, 2, 3]),
+  credentialHexPublicKey: 'hex-key',
+  webauthnUserId: 'webauthn-user-123',
+  counter: 1,
+  label: 'Test Passkey',
+  deviceType: 'usb' as const,
+  backedUp: true,
+  user: {} as unknown as User, // Will be set by userFactory
+} as unknown as Passkey
+
 const mockUser = userFactory({
   userId: 'user-123',
   email: 'test@example.com',
   contractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
   uniqueToken: 'unique-token',
-  passkeys: [{ passkeyId: 'passkey-123' } as any],
+  passkeys: [mockPasskey],
 })
 
 const mockNftSupply = {
@@ -168,7 +187,7 @@ describe('ClaimNftOptions', () => {
         email: 'test@example.com',
         contractAddress: undefined,
         uniqueToken: 'unique-token',
-        passkeys: [{ passkeyId: 'passkey-123' } as any],
+        passkeys: [{ passkeyId: 'passkey-123' } as unknown as Passkey],
       })
       mockedUserRepository.getUserByEmail.mockResolvedValue(userWithoutWallet)
       // Ensure NFT supply repository returns null to prevent the function from continuing
@@ -364,8 +383,8 @@ describe('ClaimNftOptions', () => {
   describe('constructor', () => {
     it('should use provided repositories when passed', () => {
       const customUserRepository = mockUserRepository()
-      const customNftRepository = { ...mockNftRepository } as any
-      const customNftSupplyRepository = { ...mockNftSupplyRepository } as any
+      const customNftRepository = { ...mockNftRepository } as unknown as NftRepository
+      const customNftSupplyRepository = { ...mockNftSupplyRepository } as unknown as NftSupplyRepository
 
       const customClaimNftOptions = new ClaimNftOptions(
         customUserRepository,

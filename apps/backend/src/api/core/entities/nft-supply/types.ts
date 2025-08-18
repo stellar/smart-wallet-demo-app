@@ -10,7 +10,7 @@ export type NftSupplyRepositoryType = {
   getNftSupplyBySessionId(session_id: string): Promise<NftSupply | null>
   getNftSupplyByResource(resource: string): Promise<NftSupply | null>
   getNftSupplyByResourceAndSessionId(resource: string, session_id: string): Promise<NftSupply | null>
-  getNftSupplyByContractAndSessionId(resource: string, session_id: string): Promise<NftSupply | null>
+  getNftSupplyByContractAndSessionId(contractAddress: string, session_id: string): Promise<NftSupply | null>
   createNftSupply(
     nftSupply: {
       name: string
@@ -29,4 +29,5 @@ export type NftSupplyRepositoryType = {
   updateNftSupply(nftId: string, data: Partial<NftSupply>): Promise<NftSupply>
   deleteNftSupply(nftId: string): Promise<DeleteResult>
   saveNftSupply(nft: NftSupply): Promise<NftSupply>
+  incrementMintedAmount(id: string, data?: Partial<NftSupply>): Promise<NftSupply>
 }
