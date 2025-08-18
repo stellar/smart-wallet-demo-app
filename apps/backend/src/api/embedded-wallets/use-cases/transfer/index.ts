@@ -144,8 +144,7 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
         { where: { status: 'unclaimed' } }
       )
 
-      if (!unclaimedSwags.length)
-        throw new ResourceNotFoundException(messages.USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE)
+      if (!unclaimedSwags.length) throw new BadRequestException(messages.USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE)
 
       const swagToClaim = unclaimedSwags[0]
 

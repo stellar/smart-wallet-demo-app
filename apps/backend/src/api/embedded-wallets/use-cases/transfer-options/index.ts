@@ -18,6 +18,7 @@ import UserProductRepository from 'api/core/services/user-product'
 import VendorRepository from 'api/core/services/vendor'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
+import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SorobanService from 'interfaces/soroban'
@@ -108,8 +109,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
         { where: { status: 'unclaimed' } }
       )
 
-      if (!unclaimedSwags.length)
-        throw new ResourceNotFoundException(messages.USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE)
+      if (!unclaimedSwags.length) throw new BadRequestException(messages.USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE)
     }
 
     // Get user balance from network
