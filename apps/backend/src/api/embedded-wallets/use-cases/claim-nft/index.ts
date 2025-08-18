@@ -50,7 +50,7 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     this.sorobanService = sorobanService || SorobanService.getInstance()
     this.walletBackend = walletBackend || WalletBackend.getInstance()
     this.transactionSigner =
-      transactionSigner || Keypair.fromSecret(getValueFromEnv('STELLAR_SOURCE_ACCOUNT_PRIVATE_KEY'))
+      transactionSigner || Keypair.fromSecret(getValueFromEnv('NFT_CONTRACT_DEPLOYER_PRIVATE_KEY'))
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
@@ -87,9 +87,15 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     }
 
     // Get NFT Supply data
-    let nftSupply = await this.nftSupplyRepository.getNftSupplyByResource(validatedData.resource)
+    let nftSupply = await this.nftSupplyRepository.getNftSupplyByResourceAndSessionId(
+      validatedData.resource,
+      validatedData.session_id
+    )
     if (!nftSupply) {
-      nftSupply = await this.nftSupplyRepository.getNftSupplyByContractAddress(validatedData.resource)
+      nftSupply = await this.nftSupplyRepository.getNftSupplyByResourceAndSessionId(
+        validatedData.resource,
+        validatedData.session_id
+      )
     }
 
     if (!nftSupply) {
@@ -183,7 +189,9 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
 
     return {
       data: {
+        // hash: 'hash123',
         hash: txResponse.txHash,
+        // tokenId: 'mintedTokenId123',
         tokenId: mintedTokenId,
       },
       message: 'NFT claimed successfully',

@@ -26,6 +26,10 @@ export default class NftSupplyRepository extends SingletonBase implements NftSup
     return NftSupplyModel.findOneBy({ resource })
   }
 
+  async getNftSupplyByResourceAndSessionId(resource: string, sessionId: string): Promise<NftSupply | null> {
+    return NftSupplyModel.findOneBy({ resource, sessionId })
+  }
+
   async createNftSupply(
     nftSupply: {
       name: string
@@ -60,9 +64,9 @@ export default class NftSupplyRepository extends SingletonBase implements NftSup
   }
 
   async incrementMintedAmount(id: string, data: Partial<NftSupply> = {}): Promise<NftSupply> {
-    const result = await AppDataSource.createQueryBuilder()
-      .update(data)
-      .set({ mintedAmount: () => `"mintedAmount" + 1` }) // atomic increment in Postgres
+    const result = await AppDataSource.createQueryBuilder(NftSupplyModel, 'nft_supply')
+      .update()
+      .set({ mintedAmount: () => `"minted_amount" + 1`, ...data }) // atomic increment in Postgres
       .where('nft_supply_id = :id', { id })
       .returning('*') // returns the updated row(s)
       .execute()
