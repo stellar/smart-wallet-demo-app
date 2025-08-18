@@ -8,6 +8,7 @@
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-slider": "^1.2.0",
     "@radix-ui/react-slot": "^1.0.2",
+    "@sentry/react": "^10.5.0",
     "@simplewebauthn/browser": "^13.1.2",
     "@stellar/design-system": "^3.1.1",
     "@stellar/stellar-sdk": "^13.3.0",

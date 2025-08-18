@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/react'
+import { ErrorInfo } from 'react'
 import { ErrorBoundary as ReactErrorBoundary, FallbackProps } from 'react-error-boundary'
 
 import styles from './styles.module.css'
@@ -39,8 +41,20 @@ const ErrorBoundary = ({
   displayMessage,
   children,
 }: IErrorBoundaryProps): JSX.Element => {
+  const handleError = (error: Error, errorInfo: ErrorInfo) => {
+    const eventId = Sentry.captureException(error, {
+      contexts: {
+        react: {
+          componentStack: errorInfo.componentStack,
+        },
+      },
+    })
+    return eventId
+  }
+
   return (
     <ReactErrorBoundary
+      onError={handleError}
       fallbackRender={(props: FallbackProps) =>
         fallback({
           error: props.error,
