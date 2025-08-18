@@ -171,7 +171,7 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
         throw new ResourceNotFoundException(`${messages.UNABLE_TO_MINT_NFT} ${messages.UNABLE_TO_EXECUTE_TRANSACTION}`)
       }
 
-      mintedTokenId = ScConvert.scValToFormatString(txResponse.returnValue as xdr.ScVal)
+      mintedTokenId = ScConvert.scValToString(txResponse.returnValue as xdr.ScVal)
 
       // Update newUserNft with newly minted tokenId
       await this.nftRepository.updateNft(newUserNft.nftId, { tokenId: mintedTokenId })
