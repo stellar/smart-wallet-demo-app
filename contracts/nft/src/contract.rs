@@ -1,13 +1,13 @@
 use crate::{
-  errors::NonFungibleTokenContractError,
-  types::{DataKey, TokenMetadata},
+    errors::NonFungibleTokenContractError,
+    types::{DataKey, TokenMetadata},
 };
 use soroban_sdk::{contract, contractimpl, panic_with_error, Address, Env, String, Vec};
 use stellar_default_impl_macro::default_impl;
 use stellar_non_fungible::{
-  burnable::NonFungibleBurnable,
-  enumerable::{Enumerable, NonFungibleEnumerable},
-  Base, NonFungibleToken, NonFungibleTokenError,
+    burnable::NonFungibleBurnable,
+    enumerable::{Enumerable, NonFungibleEnumerable},
+    Base, NonFungibleToken, NonFungibleTokenError,
 };
 
 #[contract]
@@ -15,132 +15,127 @@ pub struct Contract;
 
 #[contractimpl]
 impl Contract {
-  pub fn __constructor(env: &Env, owner: Address, total_supply: u128, metadata: TokenMetadata) {
-    let total_minted: u128 = 0;
+    pub fn __constructor(env: &Env, owner: Address, total_supply: u128, metadata: TokenMetadata) {
+        let total_minted: u128 = 0;
 
-    env.storage().instance().set(&DataKey::Owner, &owner);
-    env
-      .storage()
-      .instance()
-      .set(&DataKey::TotalMinted, &total_minted);
-    env
-      .storage()
-      .instance()
-      .set(&DataKey::MaxSupply, &total_supply);
+        env.storage().instance().set(&DataKey::Owner, &owner);
+        env.storage()
+            .instance()
+            .set(&DataKey::TotalMinted, &total_minted);
+        env.storage()
+            .instance()
+            .set(&DataKey::MaxSupply, &total_supply);
 
-    Base::set_metadata(env, metadata.base_uri, metadata.name, metadata.symbol);
-  }
-
-  pub fn set_metadata_uri(env: &Env, base_uri: String) {
-    let owner: Address = env
-      .storage()
-      .instance()
-      .get(&DataKey::Owner)
-      .expect("owner should be set");
-
-    owner.require_auth();
-
-    let metadata = Base::get_metadata(env);
-
-    Base::set_metadata(env, base_uri, metadata.name, metadata.symbol);
-  }
-
-  pub fn get_total_minted(env: &Env) -> u128 {
-    env
-      .storage()
-      .instance()
-      .get(&DataKey::TotalMinted)
-      .unwrap_or(0)
-  }
-
-  pub fn get_max_supply(env: &Env) -> u128 {
-    env
-      .storage()
-      .instance()
-      .get(&DataKey::MaxSupply)
-      .unwrap_or(0)
-  }
-
-  pub fn only_owner(env: &Env) {
-    let owner: Address = env
-      .storage()
-      .instance()
-      .get(&DataKey::Owner)
-      .unwrap_or_else(|| panic_with_error!(env, NonFungibleTokenContractError::UnsetOwner));
-
-    owner.require_auth();
-  }
-
-  pub fn mint(env: &Env, to: Address) -> Result<u32, NonFungibleTokenContractError> {
-    Self::only_owner(env);
-
-    let total_minted = Self::get_total_minted(env);
-    let total_supply = Self::get_max_supply(env);
-
-    if total_minted >= total_supply as u128 {
-      panic_with_error!(env, NonFungibleTokenContractError::MaxSupplyReached);
+        Base::set_metadata(env, metadata.base_uri, metadata.name, metadata.symbol);
     }
 
-    let token_id = Enumerable::sequential_mint(env, &to);
+    pub fn set_metadata_uri(env: &Env, base_uri: String) {
+        let owner: Address = env
+            .storage()
+            .instance()
+            .get(&DataKey::Owner)
+            .expect("owner should be set");
 
-    env
-      .storage()
-      .instance()
-      .set(&DataKey::TotalMinted, &(total_minted + 1));
+        owner.require_auth();
 
-    Ok(token_id)
-  }
+        let metadata = Base::get_metadata(env);
 
-  pub fn get_token_metadata(env: &Env) -> TokenMetadata {
-    let metadata = Base::get_metadata(env);
-
-    if metadata.base_uri.is_empty() {
-      panic_with_error!(env, NonFungibleTokenError::UnsetMetadata);
+        Base::set_metadata(env, base_uri, metadata.name, metadata.symbol);
     }
 
-    TokenMetadata {
-      name: metadata.name,
-      symbol: metadata.symbol,
-      base_uri: metadata.base_uri,
-    }
-  }
-
-  pub fn get_owner_tokens(env: &Env, owner: Address) -> Vec<TokenMetadata> {
-    let mut tokens = Vec::new(&env);
-    let total_minted = Self::get_total_minted(env);
-
-    for i in 0..total_minted {
-      let token_id: u32 = i.try_into().unwrap();
-
-      if Base::owner_of(env, token_id.clone()) == owner {
-        let token_details = Self::get_token_metadata(env);
-
-        tokens.push_back(token_details);
-      }
+    pub fn get_total_minted(env: &Env) -> u128 {
+        env.storage()
+            .instance()
+            .get(&DataKey::TotalMinted)
+            .unwrap_or(0)
     }
 
-    tokens
-  }
-
-  pub fn bulk_transfer(env: &Env, from: Address, to: Address, token_ids: Vec<u32>) {
-    Self::only_owner(env);
-
-    for token_id in token_ids {
-      let token_owner = Base::owner_of(env, token_id);
-
-      if token_owner != from {
-        panic_with_error!(env, NonFungibleTokenError::IncorrectOwner);
-      }
-
-      Enumerable::transfer_from(env, &token_owner, &token_owner, &to, token_id);
+    pub fn get_max_supply(env: &Env) -> u128 {
+        env.storage()
+            .instance()
+            .get(&DataKey::MaxSupply)
+            .unwrap_or(0)
     }
-  }
+
+    pub fn only_owner(env: &Env) {
+        let owner: Address = env
+            .storage()
+            .instance()
+            .get(&DataKey::Owner)
+            .unwrap_or_else(|| panic_with_error!(env, NonFungibleTokenContractError::UnsetOwner));
+
+        owner.require_auth();
+    }
+
+    pub fn mint(env: &Env, to: Address) -> Result<u32, NonFungibleTokenContractError> {
+        Self::only_owner(env);
+
+        let total_minted = Self::get_total_minted(env);
+        let total_supply = Self::get_max_supply(env);
+
+        if total_minted >= total_supply as u128 {
+            panic_with_error!(env, NonFungibleTokenContractError::MaxSupplyReached);
+        }
+
+        let token_id = Enumerable::sequential_mint(env, &to);
+
+        env.storage()
+            .instance()
+            .set(&DataKey::TotalMinted, &(total_minted + 1));
+
+        Ok(token_id)
+    }
+
+    pub fn get_token_metadata(env: &Env) -> TokenMetadata {
+        let metadata = Base::get_metadata(env);
+
+        if metadata.base_uri.is_empty() {
+            panic_with_error!(env, NonFungibleTokenError::UnsetMetadata);
+        }
+
+        TokenMetadata {
+            name: metadata.name,
+            symbol: metadata.symbol,
+            base_uri: metadata.base_uri,
+        }
+    }
+
+    pub fn get_owner_tokens(env: &Env, owner: Address) -> Vec<TokenMetadata> {
+        let mut tokens = Vec::new(&env);
+        let total_minted = Self::get_total_minted(env);
+
+        for i in 0..total_minted {
+            let token_id: u32 = i.try_into().unwrap();
+
+            if Base::owner_of(env, token_id.clone()) == owner {
+                let token_details = Self::get_token_metadata(env);
+
+                tokens.push_back(token_details);
+            }
+        }
+
+        tokens
+    }
+
+    pub fn bulk_transfer(env: &Env, from: Address, to: Address, token_ids: Vec<u32>) {
+        Self::only_owner(env);
+
+        for token_id in token_ids {
+            let token_owner = Base::owner_of(env, token_id);
+
+            if token_owner != from {
+                panic_with_error!(env, NonFungibleTokenError::IncorrectOwner);
+            }
+
+            Enumerable::transfer_from(env, &token_owner, &token_owner, &to, token_id);
+        }
+    }
 }
 
 #[default_impl]
 #[contractimpl]
 impl NonFungibleToken for Contract {
-  type ContractType = Enumerable;
+    type ContractType = Enumerable;
 }
 
 #[default_impl]
