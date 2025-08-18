@@ -9,6 +9,8 @@ export type NftSupplyRepositoryType = {
   getNftSupplyByContractAddress(contractAddress: string): Promise<NftSupply | null>
   getNftSupplyBySessionId(session_id: string): Promise<NftSupply | null>
   getNftSupplyByResource(resource: string): Promise<NftSupply | null>
+  getNftSupplyByResourceAndSessionId(resource: string, session_id: string): Promise<NftSupply | null>
+  getNftSupplyByContractAndSessionId(resource: string, session_id: string): Promise<NftSupply | null>
   createNftSupply(
     nftSupply: {
       name: string

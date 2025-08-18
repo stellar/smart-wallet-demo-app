@@ -30,6 +30,10 @@ export default class NftSupplyRepository extends SingletonBase implements NftSup
     return NftSupplyModel.findOneBy({ resource, sessionId })
   }
 
+  async getNftSupplyByContractAndSessionId(contractAddress: string, sessionId: string): Promise<NftSupply | null> {
+    return NftSupplyModel.findOneBy({ contractAddress, sessionId })
+  }
+
   async createNftSupply(
     nftSupply: {
       name: string

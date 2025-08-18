@@ -1,8 +1,9 @@
 import { xdr, rpc, Keypair } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
+import { Nft as NftModel } from 'api/core/entities/nft/model'
 import { Nft } from 'api/core/entities/nft/types'
-import { NftSupply } from 'api/core/entities/nft-supply/types'
+import { NftSupply as NftSupplyModel } from 'api/core/entities/nft-supply/model'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
@@ -92,7 +93,7 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       validatedData.session_id
     )
     if (!nftSupply) {
-      nftSupply = await this.nftSupplyRepository.getNftSupplyByResourceAndSessionId(
+      nftSupply = await this.nftSupplyRepository.getNftSupplyByContractAndSessionId(
         validatedData.resource,
         validatedData.session_id
       )
@@ -132,29 +133,57 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       signers: [transactionSigner],
     })
 
+    if (!tx || !simulationResponse) {
+      throw new ResourceNotFoundException(messages.UNABLE_TO_EXECUTE_TRANSACTION)
+    }
+
     // Execute all critical operations within a database transaction for "all or nothing" behavior
     const queryRunner = AppDataSource.createQueryRunner()
     let txResponse: rpc.Api.GetSuccessfulTransactionResponse
     let mintedTokenId: string
     let newUserNft: Nft
-    let updatedNftSupply: NftSupply
 
     try {
       // Start db transaction
       await queryRunner.connect()
       await queryRunner.startTransaction()
 
+      // Lock the row for update to avoid race conditions
+      const foundNftSupply = await queryRunner.manager
+        .createQueryBuilder(NftSupplyModel, 'nftSupply')
+        .setLock('pessimistic_write')
+        .where('nftSupply.resource = :resource', { resource: validatedData.resource })
+        .andWhere('nftSupply.sessionId = :sessionId', { sessionId: validatedData.session_id })
+        .getOne()
+
+      if (!foundNftSupply) {
+        throw new ResourceNotFoundException(messages.NFT_SUPPLY_NOT_FOUND)
+      }
+
+      if (foundNftSupply.totalSupply - foundNftSupply.mintedAmount <= 0) {
+        throw new ResourceNotFoundException(messages.NFT_SUPPLY_NOT_ENOUGH)
+      }
+
       // Update user NFT data for the new minted token
-      newUserNft = await this.nftRepository.createNft(
-        { sessionId: nftSupply.sessionId, contractAddress: nftSupply.contractAddress, user },
-        true
-      )
+      newUserNft = queryRunner.manager.create(NftModel, {
+        sessionId: nftSupply.sessionId,
+        contractAddress: nftSupply.contractAddress,
+        user,
+      })
+      await queryRunner.manager.save(newUserNft)
       if (!newUserNft) {
         throw new BadRequestException(messages.UNABLE_TO_SAVE_NFT_TO_USER)
       }
 
+      // Atomic increment of mintedAmount
+      const updatedNftSupply = await queryRunner.manager.increment(
+        NftSupplyModel,
+        { nftSupplyId: nftSupply.nftSupplyId },
+        'mintedAmount',
+        1
+      )
+
       // Update NFT supply
-      updatedNftSupply = await this.nftSupplyRepository.incrementMintedAmount(nftSupply.nftSupplyId)
       if (!updatedNftSupply) {
         throw new BadRequestException(messages.UNABLE_TO_UPDATE_NFT_SUPPLY)
       }
@@ -171,10 +200,11 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
         throw new ResourceNotFoundException(`${messages.UNABLE_TO_MINT_NFT} ${messages.UNABLE_TO_EXECUTE_TRANSACTION}`)
       }
 
+      // Get tokenId from tx response
       mintedTokenId = ScConvert.scValToString(txResponse.returnValue as xdr.ScVal)
 
       // Update newUserNft with newly minted tokenId
-      await this.nftRepository.updateNft(newUserNft.nftId, { tokenId: mintedTokenId })
+      await queryRunner.manager.update(NftModel, { nftId: newUserNft.nftId }, { tokenId: mintedTokenId })
 
       // Commit transaction if all operations succeed
       await queryRunner.commitTransaction()
