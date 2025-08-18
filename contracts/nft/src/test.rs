@@ -6,7 +6,7 @@ use crate::{
 };
 use soroban_sdk::{
     testutils::{Address as _, EnvTestConfig, Ledger as _, MockAuth, MockAuthInvoke},
-    vec, Address, Env, IntoVal, String, Vec,
+    vec, Address, Env, IntoVal, String,
 };
 
 const INITIAL_SEQUENCE_NUMBER: u32 = 10;
@@ -415,12 +415,6 @@ fn test_constructor_edge_cases() {
     let owner = Address::generate(&env);
     let zero_supply = 0u128;
     let max_supply = u128::MAX;
-
-    let metadata = TokenMetadata {
-        name: String::from_str(&env, ""),
-        symbol: String::from_str(&env, ""),
-        base_uri: String::from_str(&env, ""),
-    };
 
     let contract = get_contract(&env, &owner, zero_supply);
     assert_eq!(contract.get_max_supply(), 0);

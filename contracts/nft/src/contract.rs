@@ -73,7 +73,7 @@ impl Contract {
         let total_minted = Self::get_total_minted(env);
         let total_supply = Self::get_max_supply(env);
 
-        if total_minted >= total_supply as u128 {
+        if total_minted >= total_supply {
             panic_with_error!(env, NonFungibleTokenContractError::MaxSupplyReached);
         }
 
@@ -101,13 +101,13 @@ impl Contract {
     }
 
     pub fn get_owner_tokens(env: &Env, owner: Address) -> Vec<TokenMetadata> {
-        let mut tokens = Vec::new(&env);
+        let mut tokens = Vec::new(env);
         let total_minted = Self::get_total_minted(env);
 
         for i in 0..total_minted {
             let token_id: u32 = i.try_into().unwrap();
 
-            if Base::owner_of(env, token_id.clone()) == owner {
+            if Base::owner_of(env, token_id) == owner {
                 let token_details = Self::get_token_metadata(env);
 
                 tokens.push_back(token_details);
