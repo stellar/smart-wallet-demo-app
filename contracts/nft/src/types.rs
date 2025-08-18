@@ -26,7 +26,6 @@ pub struct TokenMetadata {
   pub name: String,
   pub symbol: String,
   pub base_uri: String,
-
   // ! todo: should we add these here or separately?
   // pub description: String,
   // pub image: String,
