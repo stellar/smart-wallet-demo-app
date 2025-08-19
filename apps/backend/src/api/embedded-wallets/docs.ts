@@ -1,5 +1,7 @@
 import AirdropCompleteDocs from 'api/embedded-wallets/use-cases/airdrop-complete/index.docs'
 import AirdropOptionsDocs from 'api/embedded-wallets/use-cases/airdrop-options/index.docs'
+import ClaimNftDocs from 'api/embedded-wallets/use-cases/claim-nft/index.docs'
+import ClaimNftOptionsDocs from 'api/embedded-wallets/use-cases/claim-nft-options/index.docs'
 import CreateWalletDocs from 'api/embedded-wallets/use-cases/create-wallet/index.docs'
 import CreateWalletOptionsDocs from 'api/embedded-wallets/use-cases/create-wallet-options/index.docs'
 import GenerateRecoveryLinkDocs from 'api/embedded-wallets/use-cases/generate-recovery-link/index.docs'
@@ -8,7 +10,7 @@ import GetWalletDocs from 'api/embedded-wallets/use-cases/get-wallet/index.docs'
 import GetWalletHistoryDocs from 'api/embedded-wallets/use-cases/get-wallet-history/index.docs'
 import GiftCompleteDocs from 'api/embedded-wallets/use-cases/gift-complete/index.docs'
 import GiftOptionsDocs from 'api/embedded-wallets/use-cases/gift-options/index.docs'
-import ListNfts from 'api/embedded-wallets/use-cases/list-nft/index.docs'
+import ListNftsDocs from 'api/embedded-wallets/use-cases/list-nft/index.docs'
 import LogInDocs from 'api/embedded-wallets/use-cases/login/index.docs'
 import LogInOptionsDocs from 'api/embedded-wallets/use-cases/login-options/index.docs'
 import RecoverWalletDocs from 'api/embedded-wallets/use-cases/recover-wallet/index.docs'
@@ -56,7 +58,13 @@ export default {
     ...ResendInviteDocs,
   },
   '/api/embedded-wallets/nft': {
-    ...ListNfts,
+    ...ListNftsDocs,
+  },
+  '/api/embedded-wallets/nft/claim/options': {
+    ...ClaimNftOptionsDocs,
+  },
+  '/api/embedded-wallets/nft/claim/complete': {
+    ...ClaimNftDocs,
   },
   '/api/embedded-wallets/transfer/options': {
     ...TransferOptionsDocs,

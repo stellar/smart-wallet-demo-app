@@ -24,7 +24,7 @@ describe('Soroban', () => {
           ScConvert.accountIdToScVal(
             getValueFromEnv(
               'STELLAR_SOURCE_ACCOUNT_PUBLIC_KEY',
-              'GAX7FKBADU7HQFB3EYLCYPFKIXHE7SJSBCX7CCGXVVWJ5OU3VTWOFEI5'
+              'GCUZ37M45SEMGYFYYZE7IBTS3ISKGPDLFRNHS73ORSTMNYM64NLEQO76'
             )
           ),
         ],
@@ -32,21 +32,6 @@ describe('Soroban', () => {
 
       expect(simulationResponse).toBeTypeOf('object')
       expect(ScConvert.scValToBigInt(simulationResponse.result?.retval as xdr.ScVal)).toBeTypeOf('bigint')
-      // expect(response).toEqual({
-      //   tx: {},
-      //   simulationResponse: {},
-      // })
     })
-    /* test('should throw an error if the request fails', async () => {
-      const { simulationResponse } = await sorobanService.simulateContract({
-        contractId: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
-        method: 'balance',
-        args: [ScConvert.accountIdToScVal('GA223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG')] // Wrong account
-      } as SimulateContract)
-
-      console.log('simulationResponse >>>', simulationResponse)
-
-      expect(simulationResponse).toThrowError()
-    }) */
   })
 })

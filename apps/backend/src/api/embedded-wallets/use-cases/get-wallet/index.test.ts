@@ -17,8 +17,15 @@ import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
 import { CheckWalletStatusResponse, WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 import { mockSorobanService } from 'interfaces/soroban/mock'
 import { SimulationResult } from 'interfaces/soroban/types'
+import WalletBackend from 'interfaces/wallet-backend'
+import { mockWalletBackend } from 'interfaces/wallet-backend/mock'
 
 import { GetWallet, endpoint } from './index'
+
+// Mock the sleep function to avoid real delays in tests
+vi.mock('api/core/utils/sleep', () => ({
+  sleepInSeconds: vi.fn().mockResolvedValue(undefined),
+}))
 
 const mockedUserRepository = mockUserRepository()
 const mockedAssetRepository = mockAssetRepository()
@@ -27,6 +34,7 @@ const mockedProductRepository = mockProductRepository()
 const mockedUserProductRepository = mockUserProductRepository()
 const mockedSDPEmbeddedWallets = mockSDPEmbeddedWallets()
 const mockedSorobanService = mockSorobanService()
+const mockedWalletBackend = mockWalletBackend()
 
 const user = userFactory({
   userId: 'user-123',
@@ -47,6 +55,7 @@ let getWallet: GetWallet
 describe('GetWallet', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+
     getWallet = new GetWallet(
       mockedUserRepository,
       mockedAssetRepository,
@@ -55,7 +64,7 @@ describe('GetWallet', () => {
       mockedUserProductRepository,
       mockedSDPEmbeddedWallets,
       mockedSorobanService,
-      undefined
+      mockedWalletBackend as unknown as WalletBackend
     )
   })
 
@@ -120,27 +129,23 @@ describe('GetWallet', () => {
 
   it('should check wallet status and update user if contract_address is returned', async () => {
     mockedUserRepository.getUserById.mockResolvedValue({ ...user, contractAddress: undefined } as User)
-    mockedSDPEmbeddedWallets.checkWalletStatus.mockResolvedValueOnce({
-      status: WalletStatus.PENDING,
-      contract_address: undefined,
-    } as CheckWalletStatusResponse)
-    mockedSDPEmbeddedWallets.checkWalletStatus.mockResolvedValueOnce({
+    mockedSDPEmbeddedWallets.checkWalletStatus.mockResolvedValue({
       status: WalletStatus.SUCCESS,
-      contract_address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+      contract_address: 'CCQ6FGYK3YRWZ3UEWFBZYKE3ZOJJSYQTM4WN7IC2TKA5AUP2BSAFPFVV',
     } as CheckWalletStatusResponse)
     mockedUserRepository.updateUser.mockResolvedValue({
       ...user,
-      contractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+      contractAddress: 'CCQ6FGYK3YRWZ3UEWFBZYKE3ZOJJSYQTM4WN7IC2TKA5AUP2BSAFPFVV',
     } as User)
     mockedProductRepository.getSwagProducts.mockResolvedValueOnce([])
 
     const payload = { id: 'user-123' }
     const result = await getWallet.handle(payload)
     expect(result.data.status).toBe(WalletStatus.SUCCESS)
-    expect(result.data.address).toBe('CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE')
-    expect(mockedSDPEmbeddedWallets.checkWalletStatus).toHaveBeenCalledTimes(2)
+    expect(result.data.address).toBe('CCQ6FGYK3YRWZ3UEWFBZYKE3ZOJJSYQTM4WN7IC2TKA5AUP2BSAFPFVV')
+    expect(mockedSDPEmbeddedWallets.checkWalletStatus).toHaveBeenCalledTimes(1)
     expect(mockedUserRepository.updateUser).toHaveBeenCalledWith('user-123', {
-      contractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+      contractAddress: 'CCQ6FGYK3YRWZ3UEWFBZYKE3ZOJJSYQTM4WN7IC2TKA5AUP2BSAFPFVV',
     })
   })
 

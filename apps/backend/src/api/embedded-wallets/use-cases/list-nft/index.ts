@@ -43,7 +43,9 @@ export class ListNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT
     const validatedData = this.validate(payload, RequestSchema)
 
     // Check if user exists
-    const user = await this.userRepository.getUserByEmail(validatedData.email, { relations: ['nfts'] })
+    const user = await this.userRepository.getUserByEmail(validatedData.email, {
+      relations: ['nfts', 'nfts.nftSupply'],
+    })
     if (!user) {
       throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
     }
@@ -56,13 +58,15 @@ export class ListNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT
     const nfts: NftSchemaT[] = []
 
     for (const userNft of user.nfts ?? []) {
-      const tokenData = await getTokenData({ assetContractAddress: userNft.contractAddress })
+      const tokenData = await getTokenData({ assetContractAddress: userNft.contractAddress, tokenId: userNft.tokenId })
 
       const nft: NftSchemaT = {
+        token_id: userNft.tokenId,
         code: tokenData.symbol,
         name: tokenData.name,
         description: tokenData.description || '',
-        url: tokenData.url || '',
+        url: userNft.nftSupply?.url || tokenData.url || '',
+        contract_address: userNft.contractAddress || '',
       }
 
       nfts.push(nft)

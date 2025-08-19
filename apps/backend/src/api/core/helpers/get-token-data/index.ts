@@ -4,10 +4,11 @@ import { Asset, AssetRepositoryType } from 'api/core/entities/asset/types'
 import { NftRepositoryType } from 'api/core/entities/nft/types'
 import AssetRepository from 'api/core/services/asset'
 import NftRepository from 'api/core/services/nft'
-import { fetchSep50Metadata, Sep50Metadata } from 'api/core/utils/fetch-sep50-metadata'
+// import { fetchSep50Metadata, Sep50Metadata } from 'api/core/utils/fetch-sep50-metadata'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import SorobanService from 'interfaces/soroban'
+// import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
 import { ISorobanService, SimulateContractOperation } from 'interfaces/soroban/types'
 
 import { TokenData } from './types'
@@ -51,6 +52,7 @@ export const getTokenData = async ({
   const { simulationResponse: symbolSimulationResponse } = await sorobanServiceInstance.simulateContractOperation({
     contractId: assetContractAddress,
     method: 'symbol',
+    args: [],
   } as SimulateContractOperation)
 
   const symbol: string = scValToNative(symbolSimulationResponse.result?.retval as xdr.ScVal).toString()
@@ -58,20 +60,23 @@ export const getTokenData = async ({
   const { simulationResponse: nameSimulationResponse } = await sorobanServiceInstance.simulateContractOperation({
     contractId: assetContractAddress,
     method: 'name',
+    args: [],
   } as SimulateContractOperation)
 
   const name: string = scValToNative(nameSimulationResponse.result?.retval as xdr.ScVal).toString()
 
-  const { simulationResponse: tokenUriSimulationResponse } = await sorobanServiceInstance.simulateContractOperation({
+  // TODO: Get token URI
+  /* const { simulationResponse: tokenUriSimulationResponse } = await sorobanServiceInstance.simulateContractOperation({
     contractId: assetContractAddress,
     method: 'token_uri',
-  } as SimulateContractOperation)
+    args: [ScConvert.stringToScVal(tokenId as string)],
+  } as SimulateContractOperation) */
 
-  let tokenUri: string = ''
-  let description: string = ''
-  let url: string = ''
-  let image: string = ''
-  let externalUrl: string = ''
+  // const tokenUri: string = ''
+  const description: string = ''
+  const url: string = ''
+  const image: string = ''
+  const externalUrl: string = ''
   let collection: { name: string; family: string } | undefined
   let attributes:
     | {
@@ -97,7 +102,8 @@ export const getTokenData = async ({
       >
     | undefined
 
-  if (tokenUriSimulationResponse) {
+  // TODO: parse token metadata
+  /* if (tokenUriSimulationResponse) {
     tokenUri = scValToNative(tokenUriSimulationResponse.result?.retval as xdr.ScVal).toString()
 
     // Fetch and parse SEP-50 metadata from the token URI
@@ -126,7 +132,7 @@ export const getTokenData = async ({
         }))
       }
     }
-  }
+  } */
 
   return {
     symbol,

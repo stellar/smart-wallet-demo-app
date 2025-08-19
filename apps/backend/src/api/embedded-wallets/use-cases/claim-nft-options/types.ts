@@ -2,27 +2,27 @@ import { z } from 'zod'
 
 import { createResponseSchema } from 'api/core/framework/use-case/base'
 
-export const NftSchema = z.object({
-  token_id: z.string(),
+export const NftSupplySchema = z.object({
   name: z.string(),
   description: z.string(),
   url: z.string(),
-  code: z.string(), // Symbol
-  contract_address: z.string().optional(),
-  issuer: z.string().optional(),
+  code: z.string(),
+  contractAddress: z.string(),
+  sessionId: z.string(),
+  resource: z.string(),
 })
-
-export type NftSchemaT = z.infer<typeof NftSchema>
 
 export const RequestSchema = z.object({
   email: z.string(),
+  session_id: z.string(),
+  resource: z.string(),
 })
 
 export type RequestSchemaT = z.infer<typeof RequestSchema>
 
 export const ResponseSchema = createResponseSchema(
   z.object({
-    nfts: z.array(NftSchema),
+    nft: NftSupplySchema,
   })
 )
 

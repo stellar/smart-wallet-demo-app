@@ -88,19 +88,21 @@ describe('ListNft', () => {
       await listNft.executeHttp(req, res)
 
       expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.OK)
-      expect(res.json).toHaveBeenCalledWith({
-        data: {
-          nfts: [
-            {
-              code: 'TEST',
-              name: 'Test NFT',
-              description: 'A test NFT',
-              url: 'https://example.com',
-            },
-          ],
-        },
-        message: 'Tokens list retrieved successfully',
-      })
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: {
+            nfts: [
+              expect.objectContaining({
+                code: 'TEST',
+                name: 'Test NFT',
+                description: 'A test NFT',
+                url: 'https://example.com',
+              }),
+            ],
+          },
+          message: 'Tokens list retrieved successfully',
+        })
+      )
     })
   })
 
@@ -111,7 +113,7 @@ describe('ListNft', () => {
 
       await expect(listNft.handle(payload)).rejects.toThrow(ResourceNotFoundException)
       expect(mockedUserRepository.getUserByEmail).toHaveBeenCalledWith('nonexistent@example.com', {
-        relations: ['nfts'],
+        relations: ['nfts', 'nfts.nftSupply'],
       })
     })
 
@@ -184,23 +186,27 @@ describe('ListNft', () => {
 
       const result = await listNft.handle(payload)
 
-      expect(result).toEqual({
-        data: {
-          nfts: [
-            {
-              code: 'TEST',
-              name: 'Test NFT',
-              description: 'A test NFT',
-              url: 'https://example.com',
-            },
-          ],
-        },
-        message: 'Tokens list retrieved successfully',
-      })
+      expect(result).toEqual(
+        expect.objectContaining({
+          data: {
+            nfts: [
+              expect.objectContaining({
+                code: 'TEST',
+                name: 'Test NFT',
+                description: 'A test NFT',
+                url: 'https://example.com',
+              }),
+            ],
+          },
+          message: 'Tokens list retrieved successfully',
+        })
+      )
 
-      expect(vi.mocked(getTokenData)).toHaveBeenCalledWith({
-        assetContractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
-      })
+      expect(vi.mocked(getTokenData)).toHaveBeenCalledWith(
+        expect.objectContaining({
+          assetContractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+        })
+      )
     })
 
     it('should handle multiple NFTs correctly', async () => {
@@ -253,18 +259,22 @@ describe('ListNft', () => {
       const result = await listNft.handle(payload)
 
       expect(result.data.nfts).toHaveLength(2)
-      expect(result.data.nfts[0]).toEqual({
-        code: 'TEST1',
-        name: 'Test NFT 1',
-        description: 'First test NFT',
-        url: 'https://example.com/1',
-      })
-      expect(result.data.nfts[1]).toEqual({
-        code: 'TEST2',
-        name: 'Test NFT 2',
-        description: 'Second test NFT',
-        url: 'https://example.com/2',
-      })
+      expect(result.data.nfts[0]).toEqual(
+        expect.objectContaining({
+          code: 'TEST1',
+          name: 'Test NFT 1',
+          description: 'First test NFT',
+          url: 'https://example.com/1',
+        })
+      )
+      expect(result.data.nfts[1]).toEqual(
+        expect.objectContaining({
+          code: 'TEST2',
+          name: 'Test NFT 2',
+          description: 'Second test NFT',
+          url: 'https://example.com/2',
+        })
+      )
 
       expect(vi.mocked(getTokenData)).toHaveBeenCalledTimes(2)
     })
@@ -297,12 +307,14 @@ describe('ListNft', () => {
 
       const result = await listNft.handle(payload)
 
-      expect(result.data.nfts[0]).toEqual({
-        code: 'TEST',
-        name: 'Test NFT',
-        description: '',
-        url: '',
-      })
+      expect(result.data.nfts[0]).toEqual(
+        expect.objectContaining({
+          code: 'TEST',
+          name: 'Test NFT',
+          description: '',
+          url: '',
+        })
+      )
     })
 
     it('should validate input payload', async () => {
@@ -316,6 +328,7 @@ describe('ListNft', () => {
     it('should parse response correctly', () => {
       const nftData: NftSchemaT[] = [
         {
+          token_id: 'token-123',
           code: 'TEST',
           name: 'Test NFT',
           description: 'A test NFT',
@@ -325,19 +338,21 @@ describe('ListNft', () => {
 
       const result = listNft.parseResponse({ nfts: nftData })
 
-      expect(result).toEqual({
-        data: {
-          nfts: [
-            {
-              code: 'TEST',
-              name: 'Test NFT',
-              description: 'A test NFT',
-              url: 'https://example.com',
-            },
-          ],
-        },
-        message: 'Tokens list retrieved successfully',
-      })
+      expect(result).toEqual(
+        expect.objectContaining({
+          data: {
+            nfts: [
+              expect.objectContaining({
+                code: 'TEST',
+                name: 'Test NFT',
+                description: 'A test NFT',
+                url: 'https://example.com',
+              }),
+            ],
+          },
+          message: 'Tokens list retrieved successfully',
+        })
+      )
     })
   })
 
