@@ -21,6 +21,10 @@ export default class UserRepository extends SingletonBase implements UserReposit
     return UserModel.findOne({ where: { email: email }, ...options })
   }
 
+  async getUserByContractAddress(contractAddress: string): Promise<User | null> {
+    return UserModel.findOneBy({ contractAddress })
+  }
+
   async createUser(user: { uniqueToken: string; email: string }, save?: boolean): Promise<User> {
     const newUser = UserModel.create({ ...user })
     if (save) {
