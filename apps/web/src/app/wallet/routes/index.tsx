@@ -19,16 +19,16 @@ const walletRootRoute = createRoute({
   path: WalletPagesPath.HOME,
   pendingComponent: WalletRouteLoading,
   errorComponent: WalletRouteError,
-  loader: async ({ context }) => {
-    // Early return if wallet is already initialized
-    let walletStatus = useWalletStatusStore.getState().status
-    if (walletStatus === 'SUCCESS') return
+  loaderDeps: () => ({ walletStatus: useWalletStatusStore.getState().status }),
+  loader: async ({ context, deps }) => {
+    // Exit if wallet is already initialized
+    if (deps.walletStatus === 'SUCCESS') return
 
     const maxRetries = 10
     for (let i = 0; i < maxRetries; i++) {
       // Check wallet status
       const getWalletResult = await context.client.fetchQuery(getWallet())
-      walletStatus = getWalletResult.status
+      const walletStatus = getWalletResult.status
 
       // Exit loop if wallet is initialized
       if (walletStatus === 'SUCCESS') return
