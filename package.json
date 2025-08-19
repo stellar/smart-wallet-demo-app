@@ -30,5 +30,8 @@
     "eslint-plugin-unicorn": "^55.0.0",
     "husky": "^9.1.7",
     "prettier": "^3.3.3"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "*"
   }
 }

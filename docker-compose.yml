@@ -72,12 +72,16 @@ services:
         PROD: ${PROD:-false}
         VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
         VITE_THEME_SWITCH_ENABLED: ${VITE_THEME_SWITCH_ENABLED:-false}
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+        VITE_SENTRY_RELEASE: ${VITE_SENTRY_RELEASE:-}
     environment:
       DEPLOY_STAGE: ${DEPLOY_STAGE:-local}
       PORT: ${PORT:-3000}
       PROD: ${PROD:-false}
       VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
       VITE_THEME_SWITCH_ENABLED: ${VITE_THEME_SWITCH_ENABLED:-false}
+      VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+      VITE_SENTRY_RELEASE: ${VITE_SENTRY_RELEASE:-}
     volumes:
       - './:/app'
       - 'web-root-node-modules:/app/node_modules'

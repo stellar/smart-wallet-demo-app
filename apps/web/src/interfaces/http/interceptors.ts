@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import * as Sentry from '@sentry/react'
 import axios, { AxiosResponse, HttpStatusCode, InternalAxiosRequestConfig } from 'axios'
 
 import { useAccessTokenStore } from 'src/app/auth/store'
@@ -22,6 +23,26 @@ export const accessTokenInterceptor = (config: InternalAxiosRequestConfig<any>) 
 export const unauthorizedInterceptor = [
   (response: AxiosResponse<any, any>) => response,
   (error: any) => {
+    const requestContext = {
+      url: error.config?.url,
+      method: error.config?.method,
+      userAgent: navigator.userAgent,
+    }
+
+    if (error.response?.status !== HttpStatusCode.Unauthorized && error.response?.status >= 500) {
+      Sentry.withScope((scope: Sentry.Scope) => {
+        scope.setLevel('error')
+        scope.setTag('errorType', 'api')
+        scope.setTag('section', 'http')
+        scope.setContext('request', requestContext)
+        scope.setExtra('status', error.response?.status)
+        scope.setExtra('statusText', error.response?.statusText)
+        scope.setExtra('responseData', error.response?.data)
+
+        Sentry.captureException(error)
+      })
+    }
+
     if (error.response?.status === HttpStatusCode.Unauthorized) {
       // Clear the access token and redirect to the login page
       useAccessTokenStore.getState().clearAccessToken()
