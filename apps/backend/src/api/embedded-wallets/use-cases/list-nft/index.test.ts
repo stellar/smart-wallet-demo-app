@@ -113,7 +113,7 @@ describe('ListNft', () => {
 
       await expect(listNft.handle(payload)).rejects.toThrow(ResourceNotFoundException)
       expect(mockedUserRepository.getUserByEmail).toHaveBeenCalledWith('nonexistent@example.com', {
-        relations: ['nfts'],
+        relations: ['nfts', 'nfts.nftSupply'],
       })
     })
 
