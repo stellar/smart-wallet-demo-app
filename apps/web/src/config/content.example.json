@@ -68,6 +68,7 @@
   "nftsListTitle": "NFT Collectibles",
   "noNftsListTitle": "Your NFT is empty",
   "claimNftButton": "Claim NFT",
+  "claimNFTSuccessMessage": "NFT claimed successfully!",
   "claimNftDescription1": "Claim your NFT",
   "claimNftDescription2": "Unique NFT",
   "claimNftTitle1": "NFT is ready!",

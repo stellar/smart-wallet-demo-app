@@ -43,7 +43,12 @@ export type NftClaimTypeParams = {
   resource: string
 }
 
-export const transferOptionsInputKeys: (keyof TransferTypeParams)[] = ['type', 'to', 'amount', 'asset']
+export const transferOptionsInputKeys: (keyof TransferTypeParams | keyof NftClaimTypeParams)[] = [
+  'type',
+  'to',
+  'amount',
+  'asset',
+]
 export const isNftClaimTypeParams = (params: { type: TransferTypes }): params is NftClaimTypeParams =>
   params.type === 'nft' && 'session_id' in params && 'resource' in params
 

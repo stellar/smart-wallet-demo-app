@@ -10,10 +10,10 @@ import { c } from 'src/interfaces/cms/useContent'
 import { queryClient } from 'src/interfaces/query-client'
 
 import { useNfts } from './use-nfts'
+import { useGetNftClaimOptions } from '../queries/use-get-nft-claim-options'
 import { useGetTransferOptions } from '../queries/use-get-transfer-options'
 import { getWallet } from '../queries/use-get-wallet'
 import { useTransfer } from '../queries/use-transfer'
-import { walletService } from '../services'
 import { isTransferTypeParams, isNftClaimTypeParams, TransferTypes } from '../services/wallet/types'
 
 type InitTransferProps = {
@@ -97,6 +97,14 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
     },
   })
 
+  const getNftClaimOptions = useGetNftClaimOptions({
+    onSuccess: ({ data: { nft } }) => {
+      if (isNftClaimTypeParams(params)) {
+        handleClaimNft(nft, params.session_id, params.resource)
+      }
+    },
+  })
+
   const handleTransferParams = useCallback(async () => {
     isHandlingTransfer.current = true
 
@@ -112,16 +120,9 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
       })
       await getTransferOptions.mutateAsync(params)
     } else if (isNftClaimTypeParams(params)) {
-      try {
-        const result = await walletService.getNftClaimOptions(params.session_id, params.resource)
-        const nftData = result.data.nft
-        handleClaimNft(nftData, params.session_id, params.resource)
-      } catch (error) {
-        ErrorHandling.handleError({ error })
-        exit({ closeModal: true })
-      }
+      await getNftClaimOptions.mutateAsync({ session_id: params.session_id, resource: params.resource })
     }
-  }, [getTransferOptions, params, exit, toast])
+  }, [getTransferOptions, getNftClaimOptions, params])
 
   useEffect(() => {
     modalService.setState(transactionDetailsModalKey, { isLoading: transfer.isPending })

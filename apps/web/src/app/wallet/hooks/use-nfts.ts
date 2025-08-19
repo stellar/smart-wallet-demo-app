@@ -32,16 +32,10 @@ export const useNfts = () => {
   const claimNft = useClaimNft({
     onSuccess: () => {
       toast.notify({
-        message: 'NFT claimed successfully!',
+        message: c('claimNFTSuccessMessage'),
         type: Toast.toastType.SUCCESS,
       })
       exit()
-    },
-    onError: () => {
-      toast.notify({
-        message: 'Failed to claim NFT',
-        type: Toast.toastType.ERROR,
-      })
     },
   })
 
