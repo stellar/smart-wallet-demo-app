@@ -20,16 +20,20 @@ const walletRootRoute = createRoute({
   pendingComponent: WalletRouteLoading,
   errorComponent: WalletRouteError,
   loader: async ({ context }) => {
+    // Early return if wallet is already initialized
     let walletStatus = useWalletStatusStore.getState().status
     if (walletStatus === 'SUCCESS') return
 
     const maxRetries = 10
     for (let i = 0; i < maxRetries; i++) {
+      // Check wallet status
       const getWalletResult = await context.client.fetchQuery(getWallet())
       walletStatus = getWalletResult.status
 
+      // Exit loop if wallet is initialized
       if (walletStatus === 'SUCCESS') return
 
+      // Throw error if wallet setup failed
       if (walletStatus === 'FAILED') throw new Error('Wallet setup failed')
 
       context.client.removeQueries(getWallet())
