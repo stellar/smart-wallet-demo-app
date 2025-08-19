@@ -56,13 +56,15 @@ export class ListNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT
     const nfts: NftSchemaT[] = []
 
     for (const userNft of user.nfts ?? []) {
-      const tokenData = await getTokenData({ assetContractAddress: userNft.contractAddress })
+      const tokenData = await getTokenData({ assetContractAddress: userNft.contractAddress, tokenId: userNft.tokenId })
 
       const nft: NftSchemaT = {
+        token_id: userNft.tokenId,
         code: tokenData.symbol,
         name: tokenData.name,
         description: tokenData.description || '',
         url: tokenData.url || '',
+        contract_address: userNft.contractAddress || '',
       }
 
       nfts.push(nft)
