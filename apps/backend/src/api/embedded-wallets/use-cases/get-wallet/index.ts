@@ -118,7 +118,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
         break
       }
       // If the address is not yet available, wait for a while before checking again
-      await sleepInSeconds(1)
+      await sleepInSeconds(2)
     }
 
     if (!user.contractAddress)
