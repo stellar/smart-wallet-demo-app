@@ -3,6 +3,7 @@ import { Asset as AssetModel } from 'api/core/entities/asset/model'
 export type Asset = AssetModel
 
 export type AssetRepositoryType = {
+  getAssets(): Promise<Asset[]>
   getAssetById(assetId: string): Promise<Asset | null>
   getAssetByContractAddress(contractAddress: string): Promise<Asset | null>
   getAssetByType(type: string): Promise<Asset | null>
