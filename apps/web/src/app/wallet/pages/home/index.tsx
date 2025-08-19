@@ -37,8 +37,6 @@ export const Home = () => {
     enabled: loaderDeps.shouldInitTransfer,
   })
 
-  const handlePayClick = () => navigate({ to: WalletPagesPath.SCAN })
-
   const handleNavbarButtonClick = (item: 'nft' | 'history' | 'profile') => {
     if (item === 'profile') {
       navigate({ to: WalletPagesPath.PROFILE })
@@ -48,6 +46,10 @@ export const Home = () => {
       navigate({ to: WalletPagesPath.NFTS })
     }
   }
+
+  const handlePayClick = () => navigate({ to: WalletPagesPath.SCAN })
+
+  const handleSwagClick = () => navigate({ to: WalletPagesPath.SCAN })
 
   const swags: React.ComponentProps<typeof ImageCard>[] = useMemo(() => {
     return (walletData?.swags || []).map(swag => ({
@@ -89,6 +91,7 @@ export const Home = () => {
       isProductActionButtonDisabled={isSwagActionButtonDisabled}
       onNavbarButtonClick={handleNavbarButtonClick}
       onPayClick={handlePayClick}
+      onProductActionButtonClick={handleSwagClick}
     />
   )
 }

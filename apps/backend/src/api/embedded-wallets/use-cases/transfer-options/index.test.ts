@@ -11,8 +11,10 @@ import { mockWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentica
 import { mockAssetRepository } from 'api/core/services/asset/mock'
 import { mockProductRepository } from 'api/core/services/product/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
+import { mockUserProductRepository } from 'api/core/services/user-product/mocks'
 import { mockVendorRepository } from 'api/core/services/vendor/mock'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { mockSorobanService } from 'interfaces/soroban/mock'
@@ -46,6 +48,11 @@ const mockAsset = assetFactory({
   type: 'native',
   contractAddress: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
 })
+const mockSwagAsset = assetFactory({
+  code: 'SWAG',
+  type: 'token',
+  contractAddress: 'CADJUKNJVG3HYITS5VQB3TJ2F3XPJCPPAYU3ETAFHRGC75ROWLY72CU2',
+})
 
 const mockVendor = vendorFactory({
   name: 'Test Vendor',
@@ -73,6 +80,7 @@ const mockedUserRepository = mockUserRepository()
 const mockedAssetRepository = mockAssetRepository()
 const mockedVendorRepository = mockVendorRepository()
 const mockedProductRepository = mockProductRepository()
+const mockedUserProductRepository = mockUserProductRepository()
 const mockedWebauthnAuthenticationHelper = mockWebAuthnAuthentication()
 const mockedSorobanService = mockSorobanService()
 
@@ -92,6 +100,7 @@ describe('TransferOptions', () => {
       mockedUserRepository,
       mockedVendorRepository,
       mockedProductRepository,
+      mockedUserProductRepository,
       mockedWebauthnAuthenticationHelper,
       mockedSorobanService
     )
@@ -202,6 +211,22 @@ describe('TransferOptions', () => {
       const result = await useCase.handle(payload)
 
       expect(result.data.vendor).toBeUndefined()
+    })
+
+    it('should throw BadRequestException when user does not have available off-chain swag', async () => {
+      const payload = {
+        email: mockUser.email,
+        type: 'swag' as const,
+        asset: 'SWAG',
+        to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
+        amount: 1,
+      }
+
+      mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
+      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockSwagAsset)
+      mockedUserProductRepository.getUserProductsByUserContractAddressAndAssetCode.mockResolvedValue([])
+
+      await expect(useCase.handle(payload)).rejects.toBeInstanceOf(BadRequestException)
     })
 
     it('should throw ResourceNotFoundException when asset not found', async () => {

@@ -1,6 +1,6 @@
 import { UseCaseBase } from 'src/app/core/framework/use-case/base'
 import logger from 'src/app/core/services/logger'
-import { transferTypeSchema } from 'src/app/wallet/pages/home/schema'
+import { swagTypeSchema, transferTypeSchema } from 'src/app/wallet/pages/home/schema'
 import {
   GetTransferOptionsInput,
   transferOptionsInputKeys,
@@ -35,6 +35,10 @@ export class ScanTxQrCodeUseCase extends UseCaseBase<ScanTxQrCodeResult> {
       switch (transferOptionsInput.type) {
         case 'transfer':
           transferTypeSchema.validateSync(transferOptionsInput)
+          break
+        case 'swag':
+          swagTypeSchema.validateSync(transferOptionsInput)
+          break
       }
 
       return transferOptionsInput

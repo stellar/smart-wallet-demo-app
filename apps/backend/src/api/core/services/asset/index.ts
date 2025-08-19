@@ -1,3 +1,5 @@
+import { ILike } from 'typeorm'
+
 import { Asset as AssetModel } from 'api/core/entities/asset/model'
 import { Asset, AssetRepositoryType } from 'api/core/entities/asset/types'
 import { SingletonBase } from 'api/core/framework/singleton/interface'
@@ -20,7 +22,7 @@ export default class AssetRepository extends SingletonBase implements AssetRepos
   }
 
   async getAssetByCode(code: string): Promise<Asset | null> {
-    return AssetModel.findOneBy({ code })
+    return AssetModel.findOneBy({ code: ILike(`%${code}%`) })
   }
 
   async createAsset(

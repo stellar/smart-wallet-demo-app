@@ -36,6 +36,7 @@ type Props = {
   }
   onNavbarButtonClick: (item: NavbarItemType) => void
   onPayClick: () => void
+  onProductActionButtonClick: () => void
 }
 
 export const HomeTemplate = ({
@@ -71,6 +72,7 @@ export const HomeTemplate = ({
   },
   onNavbarButtonClick,
   onPayClick,
+  onProductActionButtonClick,
 }: Props) => {
   const HorizontalRule = () => <div className="border-t border-borderPrimary w-full" />
 
@@ -183,6 +185,7 @@ export const HomeTemplate = ({
     <div className="flex flex-col items-center gap-3">
       <Button
         disabled={isProductActionButtonDisabled || isLoadingSwags}
+        onClick={onProductActionButtonClick}
         variant={'secondary'}
         size={'lg'}
         isRounded

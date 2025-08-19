@@ -1,3 +1,5 @@
+import { FindOneOptions } from 'typeorm'
+
 import { UserProduct as UserProductModel, UserProductStatus } from 'api/core/entities/user-product/model'
 
 import { Product } from '../product/types'
@@ -8,6 +10,11 @@ export type UserProduct = UserProductModel
 export type UserProductRepositoryType = {
   getUserProductById(userProductId: string): Promise<UserProduct | null>
   getUserProductsByUserContractAddress(contractAddress: string): Promise<UserProduct[]>
+  getUserProductsByUserContractAddressAndAssetCode(
+    contractAddress: string,
+    assetCode: string,
+    options?: FindOneOptions<UserProduct>
+  ): Promise<UserProduct[]>
   createUserProduct(
     userProduct: { user: User; product: Product; status: UserProductStatus; claimedAt?: Date },
     save?: boolean

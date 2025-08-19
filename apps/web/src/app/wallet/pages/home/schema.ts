@@ -17,3 +17,11 @@ export const nftTypeSchema = yup.object({
   asset: yup.string().required(),
   to: yup.string().required(),
 })
+
+// Swag Type schema
+export const swagTypeSchema = yup.object({
+  type: yup.string().required(),
+  amount: yup.number().required(),
+  asset: yup.string().required(),
+  to: yup.string().required(),
+})
