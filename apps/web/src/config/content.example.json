@@ -91,5 +91,11 @@
   "webauthnInvalidStateError": "This action cannot be completed right now. Please refresh the page or try again",
   "webauthnNotAllowedError": "The operation either cancelled, timed out, or was not allowed",
   "webauthnSecurityError": "This action is blocked for security reasons. Make sure you are using a secure connection and the correct site",
-  "webauthnConstraintError": "Some required information is missing or not valid. Please check your input and try again"
+  "webauthnConstraintError": "Some required information is missing or not valid. Please check your input and try again",
+  "defaultWalletRouteLoadingDescription": "Loading… please wait a moment.",
+  "stuckWalletRouteLoadingDescription": "We're having trouble right now. Please try again later.",
+  "defaultWalletRouteErrorDescription": "We're experiencing an issue right now. Please try again later.",
+  "walletStatusPending": "Your wallet setup is pending. Hang tight, we'll start soon.",
+  "walletStatusProcessing": "We're working on setting up your wallet right now.",
+  "walletStatusError": "Wallet setup failed. Please retry or contact support if the issue continues."
 }
