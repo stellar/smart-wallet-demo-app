@@ -30,4 +30,5 @@ export const messages = {
   UNABLE_TO_EXECUTE_GIFT_CLAIM: 'Unable to execute gift claim transaction',
   USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE:
     'The swag you are trying to claim has already been claimed or is not available',
+  UNABLE_TO_EXECUTE_ROTATE_SIGNER: 'Unable to execute rotate signer transaction',
 }

@@ -31,9 +31,14 @@ export type ResendInviteResponse = {
   message: string
 }
 
+export type CosignRecoveryResponse = {
+  transaction_xdr: string
+}
+
 export type SDPEmbeddedWalletsType = {
   createWallet(input: CreateWalletRequest): Promise<CreateWalletResponse>
   checkWalletStatus(token: string): Promise<CheckWalletStatusResponse>
   getContractAddress(id: string): Promise<GetContractAddressResponse>
   resendInvite(email: string): Promise<ResendInviteResponse>
+  cosignRecovery(contractAddress: string, xdr: string): Promise<CosignRecoveryResponse>
 }

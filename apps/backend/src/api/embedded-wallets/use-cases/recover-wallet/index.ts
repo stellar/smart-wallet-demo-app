@@ -1,10 +1,10 @@
-import { Keypair } from '@stellar/stellar-sdk'
+import { Keypair, rpc, xdr } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { OtpRepositoryType } from 'api/core/entities/otp/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
-import { submitTx } from 'api/core/helpers/submit-tx'
+import { buildTx } from 'api/core/helpers/build-tx'
 import WebAuthnRegistration from 'api/core/helpers/webauthn/registration'
 import { IWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/types'
 import OtpRepository from 'api/core/services/otp'
@@ -15,9 +15,11 @@ import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { generateToken } from 'interfaces/jwt'
+import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
+import { SDPEmbeddedWalletsType } from 'interfaces/sdp-embedded-wallets/types'
 import SorobanService from 'interfaces/soroban'
 import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
-import { ContractSigner, ISorobanService } from 'interfaces/soroban/types'
+import { ISorobanService } from 'interfaces/soroban/types'
 import WalletBackend from 'interfaces/wallet-backend'
 import { WalletBackendType } from 'interfaces/wallet-backend/types'
 
@@ -29,22 +31,30 @@ export class RecoverWallet extends UseCaseBase implements IUseCaseHttp<ResponseS
   private otpRepository: OtpRepositoryType
   private webauthnRegistrationHelper: IWebAuthnRegistration
   private sorobanService: ISorobanService
+  private sdpEmbeddedWallets: SDPEmbeddedWalletsType
   private walletBackend: WalletBackendType
-  private recoverySigner: Keypair
+  private recoverySignerCosigner: Keypair
 
   constructor(
     otpRepository?: OtpRepositoryType,
     webauthnRegistrationHelper?: IWebAuthnRegistration,
     sorobanService?: ISorobanService,
+    sdpEmbeddedWallets?: SDPEmbeddedWalletsType,
     walletBackend?: WalletBackendType,
-    recoverySigner?: Keypair
+    recoverySignerCosigner?: Keypair
   ) {
     super()
     this.otpRepository = otpRepository || OtpRepository.getInstance()
     this.webauthnRegistrationHelper = webauthnRegistrationHelper || WebAuthnRegistration.getInstance()
-    this.sorobanService = sorobanService || SorobanService.getInstance()
+    this.sorobanService =
+      sorobanService ||
+      SorobanService.getInstance({
+        publicKey: getValueFromEnv('RECOVERY_SIGNER_MASTER_PUBLIC_KEY'),
+      })
+    this.sdpEmbeddedWallets = sdpEmbeddedWallets || SDPEmbeddedWallets.getInstance()
     this.walletBackend = walletBackend || WalletBackend.getInstance()
-    this.recoverySigner = recoverySigner || Keypair.fromSecret(getValueFromEnv('RECOVERY_SIGNER_PRIVATE_KEY'))
+    this.recoverySignerCosigner =
+      recoverySignerCosigner || Keypair.fromSecret(getValueFromEnv('RECOVERY_COSIGNER_PRIVATE_KEY'))
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
@@ -78,32 +88,8 @@ export class RecoverWallet extends UseCaseBase implements IUseCaseHttp<ResponseS
     // Map new signer public key as Stellar value
     const newSignerPublicKey = ScConvert.hexPublicKeyToScVal(challengeResult.passkey.credentialHexPublicKey)
 
-    // Prepare recovery signer
-    const recoverySigner: ContractSigner = {
-      addressId: this.recoverySigner.publicKey(),
-      methodOptions: {
-        method: 'keypair',
-        options: {
-          secret: this.recoverySigner.secret(),
-        },
-      },
-    }
-
-    // Simulate 'rotate_signer' transaction
-    const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
-      contractId: otp.user.contractAddress,
-      method: 'rotate_signer',
-      args: [newSignerPublicKey],
-      signers: [recoverySigner],
-    })
-
-    // Submit transaction
-    await submitTx({
-      tx,
-      simulationResponse,
-      walletBackend: this.walletBackend,
-      sorobanService: this.sorobanService,
-    })
+    // Handle 'rotate_signer' transaction
+    await this.handleRotateSignerTx(otp.user.contractAddress, newSignerPublicKey)
 
     // Generate JWT token
     const authToken = generateToken(otp.user.userId, otp.user.email)
@@ -113,6 +99,43 @@ export class RecoverWallet extends UseCaseBase implements IUseCaseHttp<ResponseS
         token: authToken,
       },
       message: 'Wallet recovery completed successfully',
+    }
+  }
+
+  private async handleRotateSignerTx(contractAddress: string, newSignerPublicKey: xdr.ScVal): Promise<void> {
+    // Simulate 'rotate_signer' transaction
+    const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
+      contractId: contractAddress,
+      method: 'rotate_signer',
+      args: [newSignerPublicKey],
+    })
+
+    // Build transaction
+    const builtTx = await buildTx({
+      tx,
+      simulationResponse,
+      walletBackend: this.walletBackend,
+    })
+
+    // Sign transaction with recovery cosigner
+    builtTx.sign(this.recoverySignerCosigner)
+
+    // Cosign recovery with SDP
+    const { transaction_xdr: signedXdr } = await this.sdpEmbeddedWallets.cosignRecovery(
+      contractAddress,
+      builtTx.toXDR()
+    )
+
+    // Wrap the transaction in a fee bump transaction
+    const feeBumpedTxResponse = await this.walletBackend.createFeeBumpTransaction({
+      transaction: signedXdr,
+    })
+
+    // Send the final XDR transaction
+    const txResponse = await this.sorobanService.sendTransaction(feeBumpedTxResponse.transaction)
+
+    if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
+      throw new ResourceNotFoundException(messages.UNABLE_TO_EXECUTE_ROTATE_SIGNER)
     }
   }
 }
