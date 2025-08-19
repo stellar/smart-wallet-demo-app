@@ -3,11 +3,13 @@ import { Request, Response } from 'express'
 
 import { assetFactory } from 'api/core/entities/asset/factory'
 import { passkeyFactory } from 'api/core/entities/passkey/factory'
+import { productFactory } from 'api/core/entities/product/factory'
 import { userFactory } from 'api/core/entities/user/factory'
 import { vendorFactory } from 'api/core/entities/vendor/factory'
 import { getWalletBalance } from 'api/core/helpers/get-balance'
 import { mockWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/mocks'
 import { mockAssetRepository } from 'api/core/services/asset/mock'
+import { mockProductRepository } from 'api/core/services/product/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { mockVendorRepository } from 'api/core/services/vendor/mock'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
@@ -51,12 +53,26 @@ const mockVendor = vendorFactory({
   profileImage: 'https://example.com/image.png',
 })
 
+const mockProducts = [
+  productFactory({
+    code: 'product-1',
+    name: 'Test Product 1',
+    description: 'This is a test product 1',
+  }),
+  productFactory({
+    code: 'product-2',
+    name: 'Test Product 2',
+    description: 'This is a test product 2',
+  }),
+]
+
 const mockChallenge = 'mock-challenge-data'
 const mockOptions = '{"challenge":"mock-challenge","userVerification":"required"}'
 
 const mockedUserRepository = mockUserRepository()
 const mockedAssetRepository = mockAssetRepository()
 const mockedVendorRepository = mockVendorRepository()
+const mockedProductRepository = mockProductRepository()
 const mockedWebauthnAuthenticationHelper = mockWebAuthnAuthentication()
 const mockedSorobanService = mockSorobanService()
 
@@ -75,6 +91,7 @@ describe('TransferOptions', () => {
       mockedAssetRepository,
       mockedUserRepository,
       mockedVendorRepository,
+      mockedProductRepository,
       mockedWebauthnAuthenticationHelper,
       mockedSorobanService
     )
@@ -117,6 +134,51 @@ describe('TransferOptions', () => {
         wallet_address: mockVendor.walletAddress,
         profile_image: mockVendor.profileImage,
       })
+      expect(result.message).toBe('Retrieved transaction options successfully')
+    })
+
+    it('should return transfer options with products successfully', async () => {
+      const payload = {
+        email: mockUser.email,
+        type: 'transfer' as const,
+        asset: 'XLM',
+        to: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
+        amount: 5,
+        product: 'product-1,product-2',
+      }
+
+      mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
+      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
+      mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
+      mockedGenerateOptions.mockResolvedValue(mockOptions)
+      mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(mockVendor)
+      mockedProductRepository.getProductsByCode.mockResolvedValue(mockProducts)
+
+      const result = await useCase.handle(payload)
+
+      expect(result.data.options_json).toBe(mockOptions)
+      expect(result.data.user.email).toBe(mockUser.email)
+      expect(result.data.user.address).toBe(mockUser.contractAddress)
+      expect(result.data.user.balance).toBe(10) // Converted from stroops
+      expect(result.data.vendor).toEqual({
+        name: mockVendor.name,
+        wallet_address: mockVendor.walletAddress,
+        profile_image: mockVendor.profileImage,
+      })
+      expect(result.data.products).toEqual([
+        {
+          product_id: mockProducts[0].productId,
+          code: mockProducts[0].code,
+          name: mockProducts[0].name,
+          description: mockProducts[0].description,
+        },
+        {
+          product_id: mockProducts[1].productId,
+          code: mockProducts[1].code,
+          name: mockProducts[1].name,
+          description: mockProducts[1].description,
+        },
+      ])
       expect(result.message).toBe('Retrieved transaction options successfully')
     })
 

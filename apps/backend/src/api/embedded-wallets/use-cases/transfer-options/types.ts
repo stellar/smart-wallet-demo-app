@@ -13,6 +13,7 @@ const transferTypeSchema = z.object({
   ...baseSchema,
   type: z.enum(['transfer']),
   amount: z.number(),
+  product: z.string().optional(),
 })
 
 const nftTypeSchema = z.object({
@@ -39,6 +40,16 @@ export const ResponseSchema = createResponseSchema(
         wallet_address: z.string().optional(),
         profile_image: z.string().optional(),
       })
+      .optional(),
+    products: z
+      .array(
+        z.object({
+          product_id: z.string(),
+          code: z.string(),
+          name: z.string().optional(),
+          description: z.string(),
+        })
+      )
       .optional(),
   })
 )
