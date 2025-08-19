@@ -10,6 +10,9 @@ export interface IWalletService {
   postTransfer: (input: PostTransferInput) => Promise<PostTransferResult>
   getAirdropOptions: () => Promise<GetAirdropOptionsResult>
   postAirdrop: (input: PostAirdropInput) => Promise<PostAirdropResult>
+  getNfts: () => Promise<GetNftsResult>
+  getNftClaimOptions: (session_id: string, resource: string) => Promise<GetNftClaimOptionsResult>
+  claimNft: (input: ClaimNftInput) => Promise<ClaimNftResult>
 }
 
 export type GetWalletResult = IHTTPResponse<{
@@ -34,22 +37,17 @@ export type TransferTypeParams = {
 }
 export const isTransferTypeParams = (params: { type: TransferTypes }): params is TransferTypeParams =>
   params.type === 'transfer'
-export type NftTypeParams = {
+export type NftClaimTypeParams = {
   type: Extract<TransferTypes, 'nft'>
-  to: string
-  id: string
-  asset: string
+  session_id: string
+  resource: string
 }
-export const isNftTypeParams = (params: { type: TransferTypes }): params is NftTypeParams => params.type === 'nft'
 
-export type GetTransferOptionsInput = TransferTypeParams | NftTypeParams
-export const transferOptionsInputKeys: (keyof TransferTypeParams | keyof NftTypeParams)[] = [
-  'type',
-  'to',
-  'amount',
-  'asset',
-  'id',
-]
+export const transferOptionsInputKeys: (keyof TransferTypeParams)[] = ['type', 'to', 'amount', 'asset']
+export const isNftClaimTypeParams = (params: { type: TransferTypes }): params is NftClaimTypeParams =>
+  params.type === 'nft' && 'session_id' in params && 'resource' in params
+
+export type GetTransferOptionsInput = TransferTypeParams
 
 export type GetTransferOptionsResult = IHTTPResponse<{
   options_json: string
@@ -85,4 +83,40 @@ export type PostAirdropInput = {
 }
 export type PostAirdropResult = IHTTPResponse<{
   hash: string
+}>
+
+export interface Nft {
+  id?: string
+  name: string
+  description: string
+  url: string
+  code?: string
+  issuer?: string
+  resource?: string
+}
+
+export type GetNftsResult = IHTTPResponse<{
+  nfts: Nft[]
+}>
+
+export type ClaimNftInput = {
+  session_id: string
+  resource: string
+}
+
+export type ClaimNftResult = IHTTPResponse<{
+  hash: string
+  tokenId: string
+}>
+
+export type GetNftClaimOptionsResult = IHTTPResponse<{
+  nft: {
+    name: string
+    description: string
+    url: string
+    code: string
+    contractAddress: string
+    sessionId: string
+    resource: string
+  }
 }>
