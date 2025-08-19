@@ -43,9 +43,7 @@ export class ListNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT
     const validatedData = this.validate(payload, RequestSchema)
 
     // Check if user exists
-    const user = await this.userRepository.getUserByEmail(validatedData.email, {
-      relations: ['nfts', 'nfts.nftSupply'],
-    })
+    const user = await this.userRepository.getUserByEmail(validatedData.email, { relations: ['nfts'] })
     if (!user) {
       throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
     }
