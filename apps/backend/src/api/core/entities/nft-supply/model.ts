@@ -1,7 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn, ModelBase, Index } from 'api/core/framework/orm/base'
+import { Entity, Column, PrimaryGeneratedColumn, ModelBase, Index, OneToMany } from 'api/core/framework/orm/base'
+
+import { Nft } from '../nft/model'
 
 @Entity('nft_supply')
-@Index(['sessionId'], { unique: true })
+@Index(['sessionId', 'resource', 'contractAddress'], { unique: true })
 export class NftSupply extends ModelBase {
   @PrimaryGeneratedColumn('uuid')
   nftSupplyId: string
@@ -69,4 +71,7 @@ export class NftSupply extends ModelBase {
     nullable: true,
   })
   issuer: string
+
+  @OneToMany(() => Nft, nft => nft.nftSupply)
+  nfts: Nft[]
 }

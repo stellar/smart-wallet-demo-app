@@ -16,7 +16,7 @@ interface NftSupplyFactoryArgs {
   issuer?: string
 }
 
-export const nftFactory = ({
+export const nftSupplyFactory = ({
   nftSupplyId,
   name,
   description,

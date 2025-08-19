@@ -1,10 +1,10 @@
-import { xdr, rpc, Keypair } from '@stellar/stellar-sdk'
+import { xdr, rpc, Keypair, Transaction } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 import { nftFactory } from 'api/core/entities/nft/factory'
 import { Nft } from 'api/core/entities/nft/model'
-import { nftFactory as nftSupplyFactory } from 'api/core/entities/nft-supply/factory'
+import { nftSupplyFactory } from 'api/core/entities/nft-supply/factory'
 import { NftSupply } from 'api/core/entities/nft-supply/model'
 import { Passkey } from 'api/core/entities/passkey/model'
 import { userFactory } from 'api/core/entities/user/factory'
@@ -105,8 +105,8 @@ const mockNftSupply = nftSupplyFactory({
 const mockNft = nftFactory({
   nftId: 'nft-123',
   tokenId: 'token-123',
-  sessionId: 'session-123',
   contractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3L7T4V42VK6VHGN3LUBY65ZE',
+  nftSupply: mockNftSupply,
   user: mockUser,
 })
 
@@ -127,7 +127,7 @@ const mockSimulationResponse = {
 
 const mockTransaction = {
   toXDR: vi.fn().mockReturnValue('mock-xdr'),
-} as unknown as xdr.Transaction
+} as unknown as Transaction
 
 const mockTxResponse = {
   status: rpc.Api.GetTransactionStatus.SUCCESS,
@@ -272,8 +272,8 @@ describe('ClaimNft', () => {
     it('should find NFT supply by contract address if not found by resource', async () => {
       mockedUserRepository.getUserByEmail.mockResolvedValue({
         ...mockUser,
-        passkeys: [{ id: 'passkey-1' }],
-      })
+        passkeys: [{ credentialId: 'passkey-1' } as Passkey],
+      } as unknown as User)
 
       mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(null)
       mockedNftSupplyRepository.getNftSupplyByContractAndSessionId.mockResolvedValue(mockNftSupply)
