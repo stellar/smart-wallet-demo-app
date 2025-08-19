@@ -30,6 +30,132 @@ struct TokenMetadata {
 }
 ```
 
+## Running with Makefile
+
+The NFT contract includes a comprehensive Makefile that simplifies common development tasks. Here's how to use it:
+
+### Available Make Targets
+
+#### `make` or `make default`
+Builds the contract (default action)
+
+#### `make build`
+Builds the contract using `stellar contract build`
+
+#### `make test`
+Runs the contract tests using `cargo test`
+
+#### `make fmt`
+Formats the code using `cargo fmt --all`
+
+#### `make clean`
+Cleans build artifacts using `cargo clean`
+
+#### `make upload`
+Uploads the contract to the specified network
+
+#### `make deploy`
+Deploys the contract with constructor arguments
+
+#### `make all`
+Runs tests (alias for `make test`)
+
+### Makefile Variables
+
+You can customize the behavior by setting these environment variables:
+
+- `NETWORK`: Target network (default: `testnet`)
+- `CONTRACT_NAME`: Contract name (default: `nft`)
+- `SOURCE`: Source account for deployment (default: `admin`)
+- `CONTRACT_SYMBOL`: Token symbol (default: `TEST`)
+- `CONTRACT_URI`: Base URI for token metadata (default: `https://ipfs.io/ipfs/to-be-replaced`)
+- `CONTRACT_MAX_SUPPLY`: Maximum token supply (default: `10000`)
+- `CONTRACT_WASM_PATH`: Path to the compiled WASM file (default: `../target/wasm32v1-none/release/nft.wasm`)
+
+### Usage Examples
+
+#### Basic Build and Test
+```bash
+# Build the contract
+make build
+
+# Run tests
+make test
+
+# Format code
+make fmt
+```
+
+#### Upload Contract
+```bash
+# Upload to testnet
+make upload NETWORK=testnet SOURCE=your_account_address
+
+# Upload to mainnet
+make upload NETWORK=mainnet SOURCE=your_account_address
+```
+
+#### Deploy Contract
+```bash
+# Deploy with default parameters
+make deploy NETWORK=testnet SOURCE=your_account_address
+
+# Deploy with custom parameters
+make deploy \
+  NETWORK=testnet \
+  SOURCE=your_account_address \
+  CONTRACT_SYMBOL=MYNFT \
+  CONTRACT_URI=https://ipfs.io/ipfs/your-metadata-uri \
+  CONTRACT_MAX_SUPPLY=5000
+
+# Deploy to mainnet
+make deploy \
+  NETWORK=mainnet \
+  SOURCE=your_account_address \
+  CONTRACT_SYMBOL=PRODNFT \
+  CONTRACT_URI=https://ipfs.io/ipfs/production-metadata \
+  CONTRACT_MAX_SUPPLY=10000
+```
+
+#### Complete Workflow Example
+```bash
+# 1. Clean previous builds
+make clean
+
+# 2. Build the contract
+make build
+
+# 3. Run tests to ensure everything works
+make test
+
+# 4. Upload to testnet
+make upload NETWORK=testnet SOURCE=your_testnet_account
+
+# 5. Deploy with your desired parameters
+make deploy \
+  NETWORK=testnet \
+  SOURCE=your_testnet_account \
+  CONTRACT_SYMBOL=DEMO \
+  CONTRACT_URI=https://ipfs.io/ipfs/demo-metadata \
+  CONTRACT_MAX_SUPPLY=1000
+```
+
+### Prerequisites
+
+Before using the Makefile, ensure you have:
+
+1. **Stellar CLI** installed and configured
+2. **Rust toolchain** with `cargo` available
+3. **Valid Stellar account** with sufficient XLM for deployment
+4. **Network access** to the target Stellar network (testnet/mainnet)
+
+### Troubleshooting
+
+- **Build fails**: Ensure you're in the `contracts/nft` directory and have Rust installed
+- **Upload fails**: Check that your `SOURCE` account exists and has sufficient XLM
+- **Deploy fails**: Verify constructor arguments and ensure the contract was uploaded successfully
+- **Network issues**: Confirm you can reach the target Stellar network
+
 ## Deployment
 
 Build the contract:
