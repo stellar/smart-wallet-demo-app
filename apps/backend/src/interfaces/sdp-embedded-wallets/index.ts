@@ -6,6 +6,7 @@ import { getValueFromEnv } from 'config/env-utils'
 
 import {
   CheckWalletStatusResponse,
+  CosignRecoveryResponse,
   CreateWalletRequest,
   CreateWalletResponse,
   GetContractAddressResponse,
@@ -76,5 +77,16 @@ export default class SDPEmbeddedWallets extends SingletonBase implements SDPEmbe
     const response = await this.sdpConnection.post(resendInviteUrl, requestBody)
 
     return response.data as ResendInviteResponse
+  }
+
+  public async cosignRecovery(contractAddress: string, xdr: string): Promise<CosignRecoveryResponse> {
+    const cosignRecoveryUrl = `/cosign-recovery/${contractAddress}`
+
+    const requestBody = {
+      transaction_xdr: xdr,
+    }
+    const response = await this.sdpConnection.post(cosignRecoveryUrl, requestBody)
+
+    return response.data as CosignRecoveryResponse
   }
 }

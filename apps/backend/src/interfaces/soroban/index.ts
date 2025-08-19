@@ -32,9 +32,9 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
   public networkPassphrase: string
   public timeoutInSeconds: number
   public fee: string
-  public sourceAccountKP: Keypair
+  public sourceAccountKeypair: Keypair
 
-  constructor() {
+  constructor(sourceAccount?: { publicKey?: string; secretKey?: string }) {
     super()
     this.rpcClient = new rpc.Server(STELLAR.SOROBAN_RPC_URL, {
       allowHttp: STELLAR.SOROBAN_RPC_URL.startsWith('http://'),
@@ -42,7 +42,10 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
     this.networkPassphrase = STELLAR.NETWORK_PASSPHRASE
     this.timeoutInSeconds = 60
     this.fee = STELLAR.MAX_FEE
-    this.sourceAccountKP = Keypair.fromSecret(STELLAR.SOURCE_ACCOUNT.PRIVATE_KEY)
+
+    if (sourceAccount?.publicKey) this.sourceAccountKeypair = Keypair.fromPublicKey(sourceAccount.publicKey)
+    if (sourceAccount?.secretKey) this.sourceAccountKeypair = Keypair.fromPublicKey(sourceAccount.secretKey)
+    if (!sourceAccount) this.sourceAccountKeypair = Keypair.fromSecret(STELLAR.SOURCE_ACCOUNT.PRIVATE_KEY)
   }
 
   /**
@@ -278,12 +281,12 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
         },
       })
       // Fetch source account
-      const sourceAcc = await this.rpcClient.getAccount(this.sourceAccountKP.publicKey())
+      const sourceAcc = await this.rpcClient.getAccount(this.sourceAccountKeypair.publicKey())
 
       // Initialize the contract
       const tokenContract = new Contract(contractId)
       const contractCallOp = tokenContract.call(method, ...args)
-      contractCallOp.sourceAccount(xdr.MuxedAccount.keyTypeEd25519(this.sourceAccountKP.rawPublicKey()))
+      contractCallOp.sourceAccount(xdr.MuxedAccount.keyTypeEd25519(this.sourceAccountKeypair.rawPublicKey()))
 
       // Build the transaction
       let tx = new TransactionBuilder(sourceAcc, { fee: this.fee })
@@ -355,7 +358,7 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
     if (typeof tx === 'string') {
       tx = TransactionBuilder.fromXDR(tx, this.networkPassphrase)
     }
-    tx.sign(this.sourceAccountKP)
+    tx.sign(this.sourceAccountKeypair)
     return tx
   }
 
