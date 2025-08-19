@@ -3,10 +3,12 @@ import { z } from 'zod'
 import { createResponseSchema } from 'api/core/framework/use-case/base'
 
 export const NftSchema = z.object({
+  token_id: z.string(),
   name: z.string(),
   description: z.string(),
   url: z.string(),
   code: z.string(), // Symbol
+  contract_address: z.string().optional(),
   issuer: z.string().optional(),
 })
 

@@ -11,10 +11,7 @@ export type NftRepositoryType = {
   getNftByTokenId(tokenId: string): Promise<Nft | null>
   getNftBySessionId(sessionId: string): Promise<Nft | null>
   getNftByContractAddress(contractAddress: string): Promise<Nft | null>
-  createNft(
-    nft: { tokenId: string; sessionId: string; contractAddress: string; user: User },
-    save?: boolean
-  ): Promise<Nft>
+  createNft(nft: { tokenId: string; contractAddress: string; user: User }, save?: boolean): Promise<Nft>
   updateNft(nftId: string, data: Partial<Nft>): Promise<Nft>
   deleteNft(nftId: string): Promise<DeleteResult>
   saveNft(nft: Nft): Promise<Nft>

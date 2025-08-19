@@ -1,8 +1,18 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ModelBase } from 'api/core/framework/orm/base'
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  Index,
+  ManyToOne,
+  JoinColumn,
+  ModelBase,
+} from 'api/core/framework/orm/base'
 
+import { NftSupply } from '../nft-supply/model'
 import { User } from '../user/model'
 
 @Entity()
+@Index(['nftSupply'], { unique: true })
 export class Nft extends ModelBase {
   @PrimaryGeneratedColumn('uuid')
   nftId: string
@@ -14,13 +24,6 @@ export class Nft extends ModelBase {
   })
   tokenId: string
 
-  // Session ID: 'sometalk', 'treasure01', etc
-  @Column({
-    name: 'session_id',
-    type: 'varchar',
-  })
-  sessionId: string
-
   @Column({
     type: 'varchar',
   })
@@ -29,4 +32,8 @@ export class Nft extends ModelBase {
   @ManyToOne(() => User, user => user.userId, { nullable: false })
   @JoinColumn({ name: 'user_id' })
   user: User
+
+  @ManyToOne(() => NftSupply, nftSupply => nftSupply.nftSupplyId, { nullable: false })
+  @JoinColumn({ name: 'nft_supply_id' })
+  nftSupply: NftSupply
 }

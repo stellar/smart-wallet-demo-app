@@ -168,6 +168,7 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       newUserNft = queryRunner.manager.create(NftModel, {
         sessionId: nftSupply.sessionId,
         contractAddress: nftSupply.contractAddress,
+        nftSupply: foundNftSupply,
         user,
       })
       await queryRunner.manager.save(newUserNft)

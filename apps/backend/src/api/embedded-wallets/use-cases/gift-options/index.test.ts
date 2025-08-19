@@ -46,6 +46,7 @@ const mockProof: Proof = {
     '9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba',
   ],
   createdAt: new Date(),
+  isClaimed: true,
 }
 
 const mockGiftClaim = giftClaimFactory({

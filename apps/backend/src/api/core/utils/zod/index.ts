@@ -55,4 +55,12 @@ export const merkleProofDataSchema = z.object({
   proofs: z.array(hashSchema),
 })
 
+export const featureFlagSchema = z.object({
+  id: z.string().optional(),
+  name: z.string(),
+  is_active: z.boolean(),
+  description: z.string().optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
+})
+
 export type MerkleProofDataT = z.infer<typeof merkleProofDataSchema>

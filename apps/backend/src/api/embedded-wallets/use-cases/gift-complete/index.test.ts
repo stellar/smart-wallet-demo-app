@@ -42,6 +42,7 @@ const mockProof: Proof = {
   receiverAmount: '1000000000',
   proofs: ['1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'],
   createdAt: new Date(),
+  isClaimed: true,
 }
 
 const mockGiftId = 'test-gift-id'
