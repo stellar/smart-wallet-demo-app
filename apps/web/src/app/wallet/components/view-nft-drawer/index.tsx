@@ -7,7 +7,7 @@ import { NavigateButton } from 'src/components/molecules'
 import { ImageCard } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
-import { Nft } from '../../domain/models/nft'
+import { Nft } from '../../services/wallet/types'
 
 type Props = {
   nft: Nft | undefined
@@ -77,7 +77,7 @@ export const ViewNftDrawer = ({ nft, onClose }: Props) => {
 
               {/* NFT Image */}
               <div className="flex justify-center">
-                {nft?.imageUri && <ImageCard size="lg" radius="min" imageUri={nft?.imageUri} isClickable={false} />}
+                {nft?.url && <ImageCard size="lg" radius="min" imageUri={nft?.url} isClickable={false} />}
               </div>
 
               {/* Transfer Button */}

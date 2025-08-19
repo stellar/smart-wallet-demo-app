@@ -1,10 +1,11 @@
 import { useNavigate, useCanGoBack, useRouter } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 import NftsTemplate from './template'
 import { ViewNftDrawer } from '../../components'
-import { Nft } from '../../domain/models/nft'
+import { useGetNfts } from '../../queries/use-get-nfts'
 import { WalletPagesPath } from '../../routes/types'
+import { Nft } from '../../services/wallet/types'
 
 export const Nfts = () => {
   const navigate = useNavigate()
@@ -13,23 +14,18 @@ export const Nfts = () => {
 
   const [selectedNft, setSelectedNft] = useState<Nft | undefined>()
 
-  const mockedNfts: Nft[] = [
-    {
-      id: '1',
-      name: 'NFT #1',
-      imageUri: 'https://images.wsj.net/im-491396?width=700&height=700',
-    },
-    {
-      id: '2',
-      name: 'NFT #2',
-      imageUri: 'https://images.wsj.net/im-491398?width=700&height=700',
-    },
-    {
-      id: '3',
-      name: 'NFT #3',
-      imageUri: 'https://images.wsj.net/im-491399?width=700&height=700',
-    },
-  ]
+  const { data: nftsData, isLoading: isLoadingNfts } = useGetNfts()
+
+  const nfts = useMemo((): Nft[] => {
+    if (!nftsData?.data?.nfts) return []
+
+    return nftsData.data.nfts.map((nft, index) => ({
+      ...nft,
+      id: `nft-${index}`,
+      code: nft.name,
+      issuer: 'API',
+    }))
+  }, [nftsData])
 
   const handleGoBack = () => {
     if (canGoBack) router.history.back()
@@ -48,7 +44,7 @@ export const Nfts = () => {
     <>
       <ViewNftDrawer nft={selectedNft} onClose={handleCloseNftDrawer} />
 
-      <NftsTemplate isLoadingNftsList={false} nfts={mockedNfts} onGoBack={handleGoBack} onNftClick={handleClickNft} />
+      <NftsTemplate isLoadingNftsList={isLoadingNfts} nfts={nfts} onGoBack={handleGoBack} onNftClick={handleClickNft} />
     </>
   )
 }

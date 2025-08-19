@@ -29,7 +29,7 @@ export const Home = () => {
     enabled: isAirdropActive && isUserAirdropAvailable,
   })
 
-  // Init transfer when search params are present
+  // Init transfer when search params are present (handles both transfer and NFT)
   useInitTransfer({
     params: search,
     enabled: loaderDeps.shouldInitTransfer,

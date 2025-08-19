@@ -9,10 +9,12 @@ import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 import { queryClient } from 'src/interfaces/query-client'
 
+import { useNfts } from './use-nfts'
 import { useGetTransferOptions } from '../queries/use-get-transfer-options'
 import { getWallet } from '../queries/use-get-wallet'
 import { useTransfer } from '../queries/use-transfer'
-import { isNftTypeParams, isTransferTypeParams, TransferTypes } from '../services/wallet/types'
+import { walletService } from '../services'
+import { isTransferTypeParams, isNftClaimTypeParams, TransferTypes } from '../services/wallet/types'
 
 type InitTransferProps = {
   params: {
@@ -24,6 +26,7 @@ type InitTransferProps = {
 export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
   const router = useRouter()
   const toast = useToast()
+  const { handleClaimNft } = useNfts()
 
   const transactionDetailsModalKey = 'transaction-details'
   const loadingTransferParamsModalKey = 'loading-transfer-params'
@@ -99,26 +102,34 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
 
     if (!params.type) return
 
-    modalService.open({
-      key: loadingTransferParamsModalKey,
-      variantOptions: {
-        variant: 'loading',
-        isLocked: true,
-      },
-    })
-
     if (isTransferTypeParams(params)) {
+      modalService.open({
+        key: loadingTransferParamsModalKey,
+        variantOptions: {
+          variant: 'loading',
+          isLocked: true,
+        },
+      })
       await getTransferOptions.mutateAsync(params)
-    } else if (isNftTypeParams(params)) {
-      await getTransferOptions.mutateAsync(params)
+    } else if (isNftClaimTypeParams(params)) {
+      try {
+        const result = await walletService.getNftClaimOptions(params.session_id, params.resource)
+        const nftData = result.data.nft
+        handleClaimNft(nftData, params.session_id, params.resource)
+      } catch (error) {
+        ErrorHandling.handleError({ error })
+        exit({ closeModal: true })
+      }
     }
-  }, [getTransferOptions, params])
+  }, [getTransferOptions, params, exit, toast])
 
   useEffect(() => {
     modalService.setState(transactionDetailsModalKey, { isLoading: transfer.isPending })
   }, [transfer.isPending])
 
   useEffect(() => {
-    if (enabled && !isHandlingTransfer.current) handleTransferParams()
+    if (enabled && !isHandlingTransfer.current) {
+      handleTransferParams()
+    }
   }, [enabled, handleTransferParams, params])
 }

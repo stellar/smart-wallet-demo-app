@@ -6,7 +6,7 @@ import { ImageCard, SafeAreaView } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { EmptyList } from '../../components'
-import { Nft } from '../../domain/models/nft'
+import { Nft } from '../../services/wallet/types'
 
 interface NftsTemplateProps {
   isLoadingNftsList: boolean
@@ -19,7 +19,7 @@ export const NftsTemplate = ({ isLoadingNftsList, nfts, onGoBack, onNftClick }: 
   const isEmpty = !isLoadingNftsList && nfts.length === 0
 
   const NftListItem = ({ nft }: { nft: Nft }) => {
-    return <ImageCard size="adapt" radius="min" imageUri={nft.imageUri} onClick={() => onNftClick(nft)} />
+    return <ImageCard size="adapt" radius="min" imageUri={nft.url} onClick={() => onNftClick(nft)} />
   }
 
   return (

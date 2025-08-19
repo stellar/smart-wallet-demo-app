@@ -3,7 +3,9 @@ export enum WalletQueryKeys {
   GetTransactionHistory = 'GetTransactionHistory',
   GetTransferOptions = 'GetTransferOptions',
   Transfer = 'Transfer',
-  ScanTxQrCode = 'ScanTxQrCode',
+  ScanQrCode = 'ScanQrCode',
   ShareImage = 'ShareImage',
   ClaimAirdrop = 'ClaimAirdrop',
+  GetNfts = 'GetNfts',
+  ClaimNft = 'ClaimNft',
 }
