@@ -13,6 +13,7 @@ const transferTypeSchema = z.object({
   ...baseSchema,
   type: z.enum(['transfer']),
   amount: z.number(),
+  product: z.string().optional(),
 })
 
 const nftTypeSchema = z.object({
@@ -21,7 +22,13 @@ const nftTypeSchema = z.object({
   id: z.string(),
 })
 
-export const RequestSchema = z.union([transferTypeSchema, nftTypeSchema])
+const swagTypeSchema = z.object({
+  ...baseSchema,
+  type: z.enum(['swag']),
+  amount: z.number(),
+})
+
+export const RequestSchema = z.union([transferTypeSchema, nftTypeSchema, swagTypeSchema])
 
 export type RequestSchemaT = z.infer<typeof RequestSchema>
 
@@ -39,6 +46,16 @@ export const ResponseSchema = createResponseSchema(
         wallet_address: z.string().optional(),
         profile_image: z.string().optional(),
       })
+      .optional(),
+    products: z
+      .array(
+        z.object({
+          product_id: z.string(),
+          code: z.string(),
+          name: z.string().optional(),
+          description: z.string(),
+        })
+      )
       .optional(),
   })
 )

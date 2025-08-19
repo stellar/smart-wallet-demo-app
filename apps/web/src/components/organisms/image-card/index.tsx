@@ -6,6 +6,7 @@ import styles from './styles.module.css'
 
 type Props = {
   imageUri: string
+  variant?: 'enabled' | 'disabled'
   size?: 'sm' | 'md' | 'lg' | 'adapt'
   radius?: 'min' | 'max'
   name?: string
@@ -23,6 +24,7 @@ type Props = {
 
 export const ImageCard = ({
   imageUri,
+  variant = 'enabled',
   size = 'md',
   radius = 'max',
   name,
@@ -59,6 +61,9 @@ export const ImageCard = ({
       clsx(
         wrapperSizeClassNames,
         'relative',
+        'flex',
+        'flex-col',
+        'justify-center',
         'bg-cover',
         'bg-whitish',
         'p-4',
@@ -92,7 +97,7 @@ export const ImageCard = ({
             {leftBadge.label}
           </Badge>
         ) : (
-          <Badge icon={<Icon.CheckCircle />} iconPosition="left" variant="success">
+          <Badge icon={<Icon.Gift01 />} iconPosition="left" variant="success">
             {leftBadge.label}
           </Badge>
         )}
@@ -118,7 +123,10 @@ export const ImageCard = ({
 
       {name && (
         <div className="flex flex-col items-center gap-3">
-          <img src={imageUri} className="max-w-[120px] max-h-[120px] min-h-[120px]" />
+          <img
+            src={imageUri}
+            className={clsx('max-h-[120px] min-h-[120px])', variant === 'disabled' && 'grayscale opacity-50')}
+          />
           <div className="text-textSecondary">
             <Text as="p" size={'sm'} weight="medium">
               {name}

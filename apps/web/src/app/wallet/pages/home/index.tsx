@@ -3,6 +3,8 @@ import { useMemo } from 'react'
 
 import { featureFlagsState } from 'src/app/core/helpers'
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
+import { ImageCard } from 'src/components/organisms'
+import { c } from 'src/interfaces/cms/useContent'
 
 import { HomeTemplate } from './template'
 import { useHandleAirdrop } from '../../hooks/use-handle-airdrop'
@@ -35,8 +37,6 @@ export const Home = () => {
     enabled: loaderDeps.shouldInitTransfer,
   })
 
-  const handlePayClick = () => navigate({ to: WalletPagesPath.SCAN })
-
   const handleNavbarButtonClick = (item: 'nft' | 'history' | 'profile') => {
     if (item === 'profile') {
       navigate({ to: WalletPagesPath.PROFILE })
@@ -47,6 +47,34 @@ export const Home = () => {
     }
   }
 
+  const handlePayClick = () => navigate({ to: WalletPagesPath.SCAN })
+
+  const handleSwagClick = () => navigate({ to: WalletPagesPath.SCAN })
+
+  const swags: React.ComponentProps<typeof ImageCard>[] = useMemo(() => {
+    return (walletData?.swags || []).map(swag => ({
+      variant: swag.status === 'claimed' ? 'disabled' : 'enabled',
+      imageUri: swag.imageUrl ?? 'unknown',
+      name: swag.description ?? swag.name,
+      leftBadge:
+        swag.status === 'claimed'
+          ? { label: c('walletHomeProductListLeftBadgeOptionALabel'), variant: 'disabled' }
+          : { label: c('walletHomeProductListLeftBadgeOptionBLabel'), variant: 'success' },
+      isClickable: false,
+    }))
+  }, [walletData?.swags])
+
+  const isSwagActionButtonDisabled = useMemo(
+    () => (walletData?.swags || []).every(swag => swag.status === 'claimed'),
+    [walletData?.swags]
+  )
+
+  const isLoadingSwags = useMemo(() => {
+    if (!walletData?.swags && loaderDeps.shouldInitTransfer) return true
+
+    return getWallet.isPending || getWallet.isError
+  }, [getWallet.isError, getWallet.isPending, loaderDeps.shouldInitTransfer, walletData?.swags])
+
   const isLoadingBalance = useMemo(() => {
     if (!walletData?.balance && loaderDeps.shouldInitTransfer) return true
 
@@ -56,10 +84,14 @@ export const Home = () => {
   return (
     <HomeTemplate
       isLoadingBalance={isLoadingBalance}
+      isLoadingSwags={isLoadingSwags}
       balanceAmount={walletData?.balance || 0}
       banner={airdropBanner}
+      products={swags}
+      isProductActionButtonDisabled={isSwagActionButtonDisabled}
       onNavbarButtonClick={handleNavbarButtonClick}
       onPayClick={handlePayClick}
+      onProductActionButtonClick={handleSwagClick}
     />
   )
 }

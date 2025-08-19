@@ -5,7 +5,7 @@ import { Home, Scan, Profile, Transactions, Nfts, SpecialGift } from 'src/app/wa
 import { qrScanner } from 'src/interfaces/qr-scanner'
 
 import { WalletPagesPath } from './types'
-import { nftTypeSchema, transferTypeSchema } from '../pages/home/schema'
+import { nftTypeSchema, swagTypeSchema, transferTypeSchema } from '../pages/home/schema'
 import { TransferTypes } from '../services/wallet/types'
 
 const filterHomePath = (path: WalletPagesPath): string => path.split(WalletPagesPath.HOME)[1]
@@ -25,6 +25,8 @@ export const homeRoute = createRoute({
         return transferTypeSchema.validateSync(search)
       case 'nft':
         return nftTypeSchema.validateSync(search)
+      case 'swag':
+        return swagTypeSchema.validateSync(search)
     }
   },
   loaderDeps: ({ search }) => ({
