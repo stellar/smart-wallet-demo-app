@@ -10,7 +10,6 @@ import { mockProductRepository } from 'api/core/services/product/mocks'
 import { mockProofRepository } from 'api/core/services/proof/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { mockUserProductRepository } from 'api/core/services/user-product/mocks'
-import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
@@ -149,15 +148,19 @@ describe('GetWallet', () => {
     })
   })
 
-  it('should throw error if checkWalletStatus returns empty contractAddress', async () => {
+  it('should check wallet status and return properly info if contract_address is empty', async () => {
     mockedUserRepository.getUserById.mockResolvedValue({ ...user, contractAddress: undefined } as User)
     mockedSDPEmbeddedWallets.checkWalletStatus.mockResolvedValue({
-      status: WalletStatus.PENDING,
-      contract_address: undefined,
+      status: WalletStatus.PROCESSING,
     } as CheckWalletStatusResponse)
 
     const payload = { id: 'user-123' }
-    await expect(getWallet.handle(payload)).rejects.toBeInstanceOf(BadRequestException)
+    const result = await getWallet.handle(payload)
+    expect(result.data.status).toBe(WalletStatus.PROCESSING)
+    expect(result.data.address).toBe('unknown')
+    expect(result.data.balance).toBe(0)
+    expect(result.data.email).toBe(user.email)
+    expect(result.data.is_airdrop_available).toBe(false)
     expect(mockedSDPEmbeddedWallets.checkWalletStatus).toHaveBeenCalledTimes(3)
   })
 
