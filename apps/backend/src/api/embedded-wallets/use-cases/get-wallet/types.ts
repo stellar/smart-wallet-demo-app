@@ -9,6 +9,18 @@ export const ParseSchema = z.object({
   balance: z.number(),
   email: z.string().email(),
   is_airdrop_available: z.boolean(),
+  swags: z
+    .array(
+      z.object({
+        code: z.string(),
+        name: z.string().optional(),
+        description: z.string(),
+        imageUrl: z.string().optional(),
+        assetCode: z.string(),
+        status: z.enum(['unclaimed', 'claimed']),
+      })
+    )
+    .optional(),
 })
 
 export type ParseSchemaT = z.infer<typeof ParseSchema>

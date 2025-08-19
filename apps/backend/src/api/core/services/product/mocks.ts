@@ -6,6 +6,7 @@ export function mockProductRepository(): Mocked<ProductRepositoryType> {
   return {
     getProductById: vi.fn(),
     getProductsByCode: vi.fn(),
+    getSwagProducts: vi.fn(),
     createProduct: vi.fn(),
     updateProduct: vi.fn(),
     saveProduct: vi.fn(),

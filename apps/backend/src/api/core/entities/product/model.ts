@@ -1,4 +1,15 @@
-import { Column, Entity, ModelBase, PrimaryGeneratedColumn } from 'api/core/framework/orm/base'
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  ModelBase,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'api/core/framework/orm/base'
+
+import { Asset } from '../asset/model'
+import { UserProduct } from '../user-product/model'
 
 @Entity()
 export class Product extends ModelBase {
@@ -19,7 +30,32 @@ export class Product extends ModelBase {
   name?: string
 
   @Column({
+    nullable: true,
+    type: 'varchar',
+  })
+  imageUrl?: string
+
+  @Column({
     type: 'varchar',
   })
   description: string
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isSwag: boolean
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isHidden: boolean
+
+  @ManyToOne(() => Asset, asset => asset.products)
+  @JoinColumn({ name: 'asset_id' })
+  asset: Asset
+
+  @OneToMany(() => UserProduct, userProduct => userProduct.product)
+  userProducts: UserProduct[]
 }
