@@ -23,7 +23,7 @@ pub fn setup_test_env() -> Env {
     env
 }
 
-fn get_contract<'a>(env: &Env, owner: &Address, max_supply: u128) -> ContractClient<'a> {
+fn get_contract<'a>(env: &Env, owner: &Address, max_supply: u32) -> ContractClient<'a> {
     let address = env.register(
         Contract,
         (
@@ -44,11 +44,11 @@ fn get_contract<'a>(env: &Env, owner: &Address, max_supply: u128) -> ContractCli
 fn test_deploy() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
-    let total_supply = 1000u128;
+    let total_supply = 1000u32;
 
     let contract = get_contract(&env, &owner, total_supply);
 
-    assert_eq!(contract.get_total_minted(), 0);
+    assert_eq!(contract.total_supply(), 0);
     assert_eq!(contract.get_max_supply(), total_supply);
 
     let contract_metadata = contract.get_token_metadata();
@@ -69,7 +69,7 @@ fn test_mint_success() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
     let contract_address = contract.address.clone();
 
     env.mock_auths(&[MockAuth {
@@ -85,7 +85,7 @@ fn test_mint_success() {
     let token_id = contract.mint(&recipient);
 
     assert_eq!(token_id, 0);
-    assert_eq!(contract.get_total_minted(), 1);
+    assert_eq!(contract.total_supply(), 1);
     assert_eq!(contract.owner_of(&token_id), recipient);
 }
 
@@ -95,7 +95,7 @@ fn test_mint_max_supply_reached() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 1u128);
+    let contract = get_contract(&env, &owner, 1u32);
 
     contract.mint(&recipient);
     contract.mint(&recipient);
@@ -108,7 +108,7 @@ fn test_mint_unauthorized() {
     let owner = Address::generate(&env);
     let unauthorized = Address::generate(&env);
     let recipient = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 1000u32);
 
     env.mock_auths(&[MockAuth {
         address: &unauthorized,
@@ -129,14 +129,14 @@ fn test_multiple_mints() {
     let owner = Address::generate(&env);
     let recipient1 = Address::generate(&env);
     let recipient2 = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_id1 = contract.mint(&recipient1);
     let token_id2 = contract.mint(&recipient2);
 
     assert_eq!(token_id1, 0);
     assert_eq!(token_id2, 1);
-    assert_eq!(contract.get_total_minted(), 2);
+    assert_eq!(contract.total_supply(), 2);
     assert_eq!(contract.owner_of(&token_id1), recipient1);
     assert_eq!(contract.owner_of(&token_id2), recipient2);
 }
@@ -147,7 +147,7 @@ fn test_transfer() {
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
     let new_owner = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_id = contract.mint(&recipient);
 
@@ -162,7 +162,7 @@ fn test_transfer_from() {
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
     let new_owner = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_id = contract.mint(&recipient);
 
@@ -178,7 +178,7 @@ fn test_approve_and_transfer() {
     let recipient = Address::generate(&env);
     let spender = Address::generate(&env);
     let new_owner = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let live_until_ledger = INITIAL_SEQUENCE_NUMBER + 3;
 
@@ -198,7 +198,7 @@ fn test_bulk_transfer() {
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
     let new_owner = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_ids = vec![
         &env,
@@ -222,7 +222,7 @@ fn test_bulk_transfer_incorrect_owner() {
     let recipient = Address::generate(&env);
     let new_owner = Address::generate(&env);
     let wrong_owner = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_ids = vec![&env, contract.mint(&recipient)];
 
@@ -237,7 +237,7 @@ fn test_bulk_transfer_unauthorized() {
     let recipient = Address::generate(&env);
     let new_owner = Address::generate(&env);
     let wrong_owner = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_ids = vec![&env, contract.mint(&recipient)];
 
@@ -258,7 +258,7 @@ fn test_bulk_transfer_unauthorized() {
 fn test_set_metadata_uri() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let new_uri = "https://new-uri.com/metadata/";
     contract.set_metadata_uri(&String::from_str(&env, new_uri));
@@ -274,7 +274,7 @@ fn test_set_metadata_uri_unauthorized() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
     let unauthorized = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let new_uri = "https://new-uri.com/metadata/";
 
@@ -299,7 +299,7 @@ fn test_get_owner_tokens() {
     let owner = Address::generate(&env);
     let recipient1 = Address::generate(&env);
     let recipient2 = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     contract.mint(&recipient1);
     contract.mint(&recipient1);
@@ -320,7 +320,7 @@ fn test_get_owner_tokens_empty() {
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
     let empty_owner = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     contract.mint(&recipient);
 
@@ -333,13 +333,13 @@ fn test_burn() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_id = contract.mint(&recipient);
 
     contract.burn(&recipient, &token_id);
 
-    assert_eq!(contract.get_total_minted(), 1);
+    assert_eq!(contract.total_supply(), 0);
 }
 
 #[test]
@@ -348,7 +348,7 @@ fn test_revoke_approval() {
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
     let spender = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let live_until_ledger = INITIAL_SEQUENCE_NUMBER + 3;
 
@@ -365,7 +365,7 @@ fn test_enumeration() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_id1 = contract.mint(&recipient);
     let token_id2 = contract.mint(&recipient);
@@ -383,7 +383,7 @@ fn test_owner_enumeration() {
     let owner = Address::generate(&env);
     let recipient1 = Address::generate(&env);
     let recipient2 = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_id1 = contract.mint(&recipient1);
     let token_id2 = contract.mint(&recipient1);
@@ -400,7 +400,7 @@ fn test_balance_of() {
     let owner = Address::generate(&env);
     let recipient1 = Address::generate(&env);
     let recipient2 = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     contract.mint(&recipient1);
     contract.mint(&recipient1);
@@ -415,14 +415,14 @@ fn test_balance_of() {
 fn test_constructor_edge_cases() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
-    let zero_supply = 0u128;
-    let max_supply = u128::MAX;
+    let zero_supply = 0u32;
+    let max_supply = u32::MAX;
 
     let contract = get_contract(&env, &owner, zero_supply);
     assert_eq!(contract.get_max_supply(), 0);
 
     let contract = get_contract(&env, &owner, max_supply);
-    assert_eq!(contract.get_max_supply(), u128::MAX);
+    assert_eq!(contract.get_max_supply(), u32::MAX);
 }
 
 #[test]
@@ -430,7 +430,7 @@ fn test_mint_sequential_ids() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     for i in 0..10 {
         let token_id = contract.mint(&recipient);
@@ -443,7 +443,7 @@ fn test_transfer_to_self() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_id = contract.mint(&recipient);
 
@@ -457,7 +457,7 @@ fn test_approve_self() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let live_until_ledger = INITIAL_SEQUENCE_NUMBER + 3;
 
@@ -473,7 +473,7 @@ fn test_approve_for_all_self() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let live_until_ledger = INITIAL_SEQUENCE_NUMBER + 3;
 
@@ -488,7 +488,7 @@ fn test_approve_for_all_self() {
 fn test_metadata_persistence() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let metadata = contract.get_token_metadata();
 
@@ -505,7 +505,7 @@ fn test_set_token_data() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_id = contract.mint(&recipient);
 
@@ -528,7 +528,7 @@ fn test_set_token_data_unauthorized() {
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
     let unauthorized = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_id = contract.mint(&recipient);
 
@@ -555,7 +555,7 @@ fn test_get_token_data() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_id = contract.mint(&recipient);
 
@@ -576,7 +576,7 @@ fn test_mint_with_data() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_data = crate::types::TokenData {
         session_id: String::from_str(&env, "session_mint"),
@@ -586,7 +586,6 @@ fn test_mint_with_data() {
     let token_id = contract.mint_with_data(&recipient, &token_data);
 
     assert_eq!(token_id, 0);
-    assert_eq!(contract.get_total_minted(), 1);
     assert_eq!(contract.owner_of(&token_id), recipient);
 
     let retrieved_data = contract.get_token_data(&token_id);
@@ -601,7 +600,7 @@ fn test_mint_with_data_unauthorized() {
     let owner = Address::generate(&env);
     let recipient = Address::generate(&env);
     let unauthorized = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u128);
+    let contract = get_contract(&env, &owner, 100u32);
 
     let token_data = crate::types::TokenData {
         session_id: String::from_str(&env, "session_unauthorized"),

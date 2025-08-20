@@ -15,16 +15,9 @@ pub struct Contract;
 
 #[contractimpl]
 impl Contract {
-    pub fn __constructor(env: &Env, owner: Address, total_supply: u128, metadata: TokenMetadata) {
-        let total_minted: u128 = 0;
-
+    pub fn __constructor(env: &Env, owner: Address, total_supply: u32, metadata: TokenMetadata) {
         env.storage().instance().set(&DataKey::Owner, &owner);
-        env.storage()
-            .instance()
-            .set(&DataKey::TotalMinted, &total_minted);
-        env.storage()
-            .instance()
-            .set(&DataKey::MaxSupply, &total_supply);
+        env.storage().instance().set(&DataKey::MaxSupply, &total_supply);
 
         Base::set_metadata(env, metadata.base_uri, metadata.name, metadata.symbol);
     }
@@ -43,18 +36,11 @@ impl Contract {
         Base::set_metadata(env, base_uri, metadata.name, metadata.symbol);
     }
 
-    pub fn get_total_minted(env: &Env) -> u128 {
-        env.storage()
-            .instance()
-            .get(&DataKey::TotalMinted)
-            .unwrap_or(0)
-    }
-
-    pub fn get_max_supply(env: &Env) -> u128 {
+    pub fn get_max_supply(env: &Env) -> u32 {
         env.storage()
             .instance()
             .get(&DataKey::MaxSupply)
-            .unwrap_or(0)
+            .unwrap_or(0u32)
     }
 
     pub fn only_owner(env: &Env) {
@@ -90,7 +76,7 @@ impl Contract {
     pub fn mint(env: &Env, to: Address) -> u32 {
         Self::only_owner(env);
 
-        let total_minted = Self::get_total_minted(env);
+        let total_minted = Enumerable::total_supply(env);
         let total_supply = Self::get_max_supply(env);
 
         if total_minted >= total_supply {
@@ -98,10 +84,6 @@ impl Contract {
         }
 
         let token_id = Enumerable::sequential_mint(env, &to);
-
-        env.storage()
-            .instance()
-            .set(&DataKey::TotalMinted, &(total_minted + 1));
 
         token_id
     }
@@ -122,7 +104,7 @@ impl Contract {
 
     pub fn get_owner_tokens(env: &Env, owner: Address) -> Vec<u32> {
         let mut ids = Vec::new(env);
-        let total_minted = Self::get_total_minted(env);
+        let total_minted = Enumerable::total_supply(env);
 
         for i in 0..total_minted {
             let token_id: u32 = i.try_into().unwrap();
