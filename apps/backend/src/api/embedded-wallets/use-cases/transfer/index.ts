@@ -1,6 +1,7 @@
 import { rpc } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
+import { Nft } from 'api/core/entities/nft/model'
 import { NftRepositoryType } from 'api/core/entities/nft/types'
 import { NftSupply } from 'api/core/entities/nft-supply/model'
 import { NftSupplyRepositoryType } from 'api/core/entities/nft-supply/types'
@@ -101,8 +102,9 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
 
     const assetContractAddress = asset?.contractAddress
 
+    let userNft: Nft | null = null
     if (validatedData.type == TransferTypes.NFT) {
-      const userNft = await this.nftRepository.getNftByTokenIdAndContractAddress(validatedData.id, assetContractAddress)
+      userNft = await this.nftRepository.getNftByTokenIdAndContractAddress(validatedData.id, assetContractAddress)
       if (!userNft) {
         throw new ResourceNotFoundException(messages.NFT_NOT_FOUND_FOR_THE_USER)
       }
@@ -173,7 +175,6 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     } else if (validatedData.type === TransferTypes.NFT) {
       // Update nft data in db:
       // delete from current user and update to new user if it's an app user (get user by account/contract address)
-      const userNft = await this.nftRepository.getNftByTokenIdAndContractAddress(validatedData.id, assetContractAddress)
 
       // If destination address is from an app user
       const newUser = await this.userRepository.getUserByContractAddress(validatedData.to)
