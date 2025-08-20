@@ -22,8 +22,11 @@ type NavbarItemType = 'nft' | 'history' | 'profile'
 
 type Props = {
   isLoadingBalance: boolean
+  isLoadingSwags: boolean
   balanceAmount: number
+  banner?: BannerOptions
   products?: React.ComponentProps<typeof ImageCard>[]
+  isProductActionButtonDisabled?: boolean
   faq?: {
     title: string
     items: {
@@ -31,14 +34,29 @@ type Props = {
       description: string
     }[]
   }
-  banner?: BannerOptions
   onNavbarButtonClick: (item: NavbarItemType) => void
   onPayClick: () => void
+  onProductActionButtonClick: () => void
 }
 
 export const HomeTemplate = ({
   isLoadingBalance,
+  isLoadingSwags,
   balanceAmount,
+  banner,
+  products = [
+    {
+      imageUri: ProductMock01,
+      name: 'Jacket',
+      leftBadge: { label: c('walletHomeProductListLeftBadgeOptionALabel'), variant: 'success' },
+    },
+    {
+      imageUri: ProductMock02,
+      name: 'Ecobag',
+      leftBadge: { label: c('walletHomeProductListLeftBadgeOptionBLabel'), variant: 'disabled' },
+    },
+  ],
+  isProductActionButtonDisabled,
   faq = {
     title: c('frequentlyAskedQuestions'),
     items: [
@@ -52,21 +70,9 @@ export const HomeTemplate = ({
       },
     ],
   },
-  products = [
-    {
-      imageUri: ProductMock01,
-      name: 'Jacket',
-      leftBadge: { label: c('walletHomeProductListLeftBadgeOptionALabel'), variant: 'success' },
-    },
-    {
-      imageUri: ProductMock02,
-      name: 'Ecobag',
-      leftBadge: { label: c('walletHomeProductListLeftBadgeOptionBLabel'), variant: 'disabled' },
-    },
-  ],
-  banner,
   onNavbarButtonClick,
   onPayClick,
+  onProductActionButtonClick,
 }: Props) => {
   const HorizontalRule = () => <div className="border-t border-borderPrimary w-full" />
 
@@ -121,7 +127,14 @@ export const HomeTemplate = ({
           <AssetAmount amount={balanceAmount} size="lg" asset={{ value: 'XLM', variant: 'sm' }} />
         </div>
 
-        <Button variant={'secondary'} size={'lg'} icon={<Icon.Scan />} iconPosition="left" onClick={onPayClick}>
+        <Button
+          disabled={balanceAmount === 0}
+          variant={'secondary'}
+          size={'lg'}
+          icon={<Icon.Scan />}
+          iconPosition="left"
+          onClick={onPayClick}
+        >
           {c('pay')}
         </Button>
       </div>
@@ -160,15 +173,24 @@ export const HomeTemplate = ({
 
   const ProductList = () => (
     <Carousel title={c('walletHomeProductListTitle')} className="gap-3 py-2 px-4 -mx-4">
-      {products.map((product, index) => (
-        <ImageCard key={index} {...product} />
-      ))}
+      {isLoadingSwags
+        ? Array.from({ length: 3 }).map((_, index) => (
+            <Skeleton key={index} height={220} width={224} borderRadius={24} />
+          ))
+        : products.map((product, index) => <ImageCard key={index} {...product} />)}
     </Carousel>
   )
 
   const ProductActionButton = () => (
     <div className="flex flex-col items-center gap-3">
-      <Button variant={'secondary'} size={'lg'} isRounded isFullWidth>
+      <Button
+        disabled={isProductActionButtonDisabled || isLoadingSwags}
+        onClick={onProductActionButtonClick}
+        variant={'secondary'}
+        size={'lg'}
+        isRounded
+        isFullWidth
+      >
         {c('walletHomeProductListButtonText')}
       </Button>
       <div className="text-textSecondary">

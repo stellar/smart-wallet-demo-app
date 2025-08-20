@@ -3,6 +3,7 @@ import { AxiosError, CanceledError } from 'axios'
 
 import logger from 'src/app/core/services/logger'
 import { Toast } from 'src/app/core/services/toast'
+import { c } from 'src/interfaces/cms/useContent'
 
 import BaseError, { ErrorSeverity } from './base-error'
 
@@ -71,8 +72,26 @@ export class ErrorHandling {
   }
 
   private static webauthnErrorHandler(error: WebAuthnError): void {
-    const message = error.message
+    let message = error.message
     logger.error(message, { error })
+
+    switch (error.name) {
+      case 'NotSupportedError':
+        message = c('webauthnNotSupportedError')
+        break
+      case 'InvalidStateError':
+        message = c('webauthnInvalidStateError')
+        break
+      case 'NotAllowedError':
+        message = c('webauthnNotAllowedError')
+        break
+      case 'SecurityError':
+        message = c('webauthnSecurityError')
+        break
+      case 'ConstraintError':
+        message = c('webauthnConstraintError')
+        break
+    }
 
     ErrorHandling.catchError({
       message,

@@ -91,5 +91,11 @@
   "shareImageSuccess": "Done! The image was shared successfully",
   "shareImageTitle": "Save this image",
   "shareImageText": "Move this image where you need it",
-  "claimAirdropSuccess": "Done! You've successfully claimed your airdrop"
+  "claimAirdropSuccess": "Done! You've successfully claimed your airdrop",
+  "claimSwagSuccess": "Done! Your swag was claimed successfully",
+  "webauthnNotSupportedError": "Your browser does not support WebAuthn. Please use a modern browser that supports security keys or biometrics",
+  "webauthnInvalidStateError": "This action cannot be completed right now. Please refresh the page or try again",
+  "webauthnNotAllowedError": "The operation either cancelled, timed out, or was not allowed",
+  "webauthnSecurityError": "This action is blocked for security reasons. Make sure you are using a secure connection and the correct site",
+  "webauthnConstraintError": "Some required information is missing or not valid. Please check your input and try again"
 }

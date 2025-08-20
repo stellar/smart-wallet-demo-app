@@ -14,6 +14,7 @@ export type ModalTransactionDetailsProps = {
     name: string
     imageUri?: string
   }
+  descriptionItems?: string[]
   amount: {
     value: number
     asset: string
@@ -26,6 +27,7 @@ export type ModalTransactionDetailsProps = {
 export const ModalTransactionDetails = ({
   date,
   vendor,
+  descriptionItems,
   amount,
   availableBalance,
   transactionHash,
@@ -62,7 +64,51 @@ export const ModalTransactionDetails = ({
     </div>
   )
 
-  const TopComponentWithImage = ({ name, imageUri }: { name: string; imageUri: string }) => (
+  const Vendor = ({ name }: { name: string }) => (
+    <div className="flex flex-col items-center gap-1">
+      <Text
+        as="span"
+        size="lg"
+        weight="medium"
+        addlClassName="text-center text-textSecondary break-words whitespace-normal"
+      >
+        {createShortStellarAddress(name, { onlyValidAddress: true })}
+      </Text>
+    </div>
+  )
+
+  const Description = ({ descriptionItems }: { descriptionItems: string[] }) =>
+    descriptionItems.length && (
+      <div className="flex flex-col items-center">
+        {descriptionItems.length === 1 ? (
+          <Text as="span" size="sm" weight="semi-bold" addlClassName="text-center break-words whitespace-normal">
+            {descriptionItems[0]}
+          </Text>
+        ) : (
+          descriptionItems.map((item, index) => (
+            <Text
+              as="span"
+              size="sm"
+              weight="semi-bold"
+              addlClassName="text-center break-words whitespace-normal"
+              key={index}
+            >
+              {`• ${item}`}
+            </Text>
+          ))
+        )}
+      </div>
+    )
+
+  const TopComponentWithImage = ({
+    name,
+    descriptionItems,
+    imageUri,
+  }: {
+    name: string
+    descriptionItems: string[]
+    imageUri: string
+  }) => (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <DateBadge />
@@ -73,35 +119,20 @@ export const ModalTransactionDetails = ({
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-1">
-          <Text
-            as="span"
-            size="lg"
-            weight="medium"
-            addlClassName="text-center text-textSecondary break-words whitespace-normal"
-          >
-            {createShortStellarAddress(name, { onlyValidAddress: true })}
-          </Text>
-        </div>
+        <Vendor name={name} />
+        <Description descriptionItems={descriptionItems} />
       </div>
 
       <Amount />
     </div>
   )
 
-  const TopComponentWithoutImage = ({ name }: { name: string }) => (
-    <div className="flex flex-col gap-2">
-      <DateBadge />
-
-      <div className="flex flex-col items-center gap-1">
-        <Text
-          as="span"
-          size="lg"
-          weight="medium"
-          addlClassName="text-center text-textSecondary break-words whitespace-normal"
-        >
-          {createShortStellarAddress(name, { onlyValidAddress: true })}
-        </Text>
+  const TopComponentWithoutImage = ({ name, descriptionItems }: { name: string; descriptionItems: string[] }) => (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <DateBadge />
+        <Vendor name={name} />
+        <Description descriptionItems={descriptionItems} />
       </div>
 
       <Amount />
@@ -122,9 +153,13 @@ export const ModalTransactionDetails = ({
 
       {/* Top Section with Date, Type, and Amount */}
       {vendor.imageUri ? (
-        <TopComponentWithImage name={vendor.name} imageUri={vendor.imageUri} />
+        <TopComponentWithImage
+          name={vendor.name}
+          descriptionItems={descriptionItems ?? []}
+          imageUri={vendor.imageUri}
+        />
       ) : (
-        <TopComponentWithoutImage name={vendor.name} />
+        <TopComponentWithoutImage name={vendor.name} descriptionItems={descriptionItems ?? []} />
       )}
 
       {/* Transaction ID Section */}

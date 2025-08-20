@@ -1,4 +1,6 @@
-import { Column, Entity, ModelBase, PrimaryGeneratedColumn } from 'api/core/framework/orm/base'
+import { Column, Entity, ModelBase, OneToMany, PrimaryGeneratedColumn } from 'api/core/framework/orm/base'
+
+import { Product } from '../product/model'
 
 @Entity()
 export class Asset extends ModelBase {
@@ -24,4 +26,7 @@ export class Asset extends ModelBase {
     type: 'varchar',
   })
   contractAddress: string
+
+  @OneToMany(() => Product, product => product.asset)
+  products: Product[]
 }

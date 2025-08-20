@@ -6,8 +6,10 @@ import { Asset as AssetModel } from 'api/core/entities/asset/model'
 import { userFactory } from 'api/core/entities/user/factory'
 import { User } from 'api/core/entities/user/types'
 import { mockAssetRepository } from 'api/core/services/asset/mock'
+import { mockProductRepository } from 'api/core/services/product/mocks'
 import { mockProofRepository } from 'api/core/services/proof/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
+import { mockUserProductRepository } from 'api/core/services/user-product/mocks'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
@@ -26,8 +28,10 @@ vi.mock('api/core/utils/sleep', () => ({
 }))
 
 const mockedUserRepository = mockUserRepository()
-const mockedProofRepository = mockProofRepository()
 const mockedAssetRepository = mockAssetRepository()
+const mockedProofRepository = mockProofRepository()
+const mockedProductRepository = mockProductRepository()
+const mockedUserProductRepository = mockUserProductRepository()
 const mockedSDPEmbeddedWallets = mockSDPEmbeddedWallets()
 const mockedSorobanService = mockSorobanService()
 const mockedWalletBackend = mockWalletBackend()
@@ -56,6 +60,8 @@ describe('GetWallet', () => {
       mockedUserRepository,
       mockedAssetRepository,
       mockedProofRepository,
+      mockedProductRepository,
+      mockedUserProductRepository,
       mockedSDPEmbeddedWallets,
       mockedSorobanService,
       mockedWalletBackend as unknown as WalletBackend
@@ -103,6 +109,7 @@ describe('GetWallet', () => {
         },
       },
     } as unknown as SimulationResult)
+    mockedProductRepository.getSwagProducts.mockResolvedValueOnce([])
 
     const payload = { id: 'user-123' }
 
@@ -130,6 +137,7 @@ describe('GetWallet', () => {
       ...user,
       contractAddress: 'CCQ6FGYK3YRWZ3UEWFBZYKE3ZOJJSYQTM4WN7IC2TKA5AUP2BSAFPFVV',
     } as User)
+    mockedProductRepository.getSwagProducts.mockResolvedValueOnce([])
 
     const payload = { id: 'user-123' }
     const result = await getWallet.handle(payload)

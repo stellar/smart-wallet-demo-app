@@ -4,6 +4,7 @@ import { GiftClaim } from '../gift-claim/model'
 import { Nft } from '../nft/model'
 import { Otp } from '../otp/model'
 import { Passkey } from '../passkey/model'
+import { UserProduct } from '../user-product/model'
 
 @Entity()
 export class User extends ModelBase {
@@ -37,4 +38,7 @@ export class User extends ModelBase {
 
   @OneToMany(() => GiftClaim, giftClaim => giftClaim.user)
   giftClaims: GiftClaim[]
+
+  @OneToMany(() => UserProduct, userProduct => userProduct.user)
+  userProducts: UserProduct[]
 }

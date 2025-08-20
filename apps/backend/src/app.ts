@@ -1,4 +1,5 @@
-import 'config/env'
+import './instrument'
+import * as Sentry from '@sentry/node'
 import express, { Router } from 'express'
 
 import { exceptionMiddleware } from 'api/core/middlewares/exception'
@@ -39,6 +40,9 @@ class Application {
 
       // API ROUTES
       routes(this.server)
+
+      // Sentry error handler
+      Sentry.setupExpressErrorHandler(http)
 
       // Error handling
       http.use(exceptionMiddleware)

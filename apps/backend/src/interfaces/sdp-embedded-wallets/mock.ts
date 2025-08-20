@@ -8,5 +8,6 @@ export function mockSDPEmbeddedWallets(): Mocked<SDPEmbeddedWalletsType> {
     checkWalletStatus: vi.fn(),
     getContractAddress: vi.fn(),
     resendInvite: vi.fn(),
+    cosignRecovery: vi.fn(),
   }
 }

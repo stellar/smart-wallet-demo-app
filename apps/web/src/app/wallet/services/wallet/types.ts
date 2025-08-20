@@ -21,19 +21,28 @@ export type GetWalletResult = IHTTPResponse<{
   email: string
   balance: number
   is_airdrop_available: boolean
+  swags?: {
+    code: string
+    name?: string
+    description: string
+    imageUrl?: string
+    assetCode: string
+    status: 'unclaimed' | 'claimed'
+  }[]
 }>
 export type GetTransactionHistoryResult = IHTTPResponse<{
   address: string
   transactions: Transaction[]
 }>
 
-export const transferTypes = ['transfer', 'nft'] as const
+export const transferTypes = ['transfer', 'nft', 'swag'] as const
 export type TransferTypes = (typeof transferTypes)[number]
 export type TransferTypeParams = {
   type: Extract<TransferTypes, 'transfer'>
   to: string
   amount: number
   asset: string
+  product?: string
 }
 export const isTransferTypeParams = (params: { type: TransferTypes }): params is TransferTypeParams =>
   params.type === 'transfer'
@@ -43,6 +52,15 @@ export type NftClaimTypeParams = {
   resource: string
 }
 
+export type SwagTypeParams = {
+  type: Extract<TransferTypes, 'swag'>
+  to: string
+  amount: number
+  asset: string
+}
+export const isSwagTypeParams = (params: { type: TransferTypes }): params is SwagTypeParams => params.type === 'swag'
+
+export type GetTransferOptionsInput = TransferTypeParams | NftClaimTypeParams | SwagTypeParams
 export const transferOptionsInputKeys: (keyof TransferTypeParams | keyof NftClaimTypeParams)[] = [
   'type',
   'to',
@@ -50,11 +68,10 @@ export const transferOptionsInputKeys: (keyof TransferTypeParams | keyof NftClai
   'asset',
   'session_id',
   'resource',
+  'product',
 ]
 export const isNftClaimTypeParams = (params: { type: TransferTypes }): params is NftClaimTypeParams =>
   params.type === 'nft' && 'session_id' in params && 'resource' in params
-
-export type GetTransferOptionsInput = TransferTypeParams
 
 export type GetTransferOptionsResult = IHTTPResponse<{
   options_json: string
@@ -68,6 +85,12 @@ export type GetTransferOptionsResult = IHTTPResponse<{
     email: string
     balance: number
   }
+  products?: {
+    product_id: string
+    code: string
+    name?: string
+    description: string
+  }[]
 }>
 
 export type PostTransferInput = {

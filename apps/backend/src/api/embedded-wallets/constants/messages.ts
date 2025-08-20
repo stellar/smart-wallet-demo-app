@@ -35,4 +35,7 @@ export const messages = {
   GIFT_PROOF_NOT_FOUND: 'Gift proof not found for your address',
   GIFT_ALREADY_CLAIMED: 'Gift has already been claimed and cannot be claimed again',
   UNABLE_TO_EXECUTE_GIFT_CLAIM: 'Unable to execute gift claim transaction',
+  USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE:
+    'The swag you are trying to claim has already been claimed or is not available',
+  UNABLE_TO_EXECUTE_ROTATE_SIGNER: 'Unable to execute rotate signer transaction',
 }

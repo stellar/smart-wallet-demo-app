@@ -14,7 +14,7 @@ import { useGetNftClaimOptions } from '../queries/use-get-nft-claim-options'
 import { useGetTransferOptions } from '../queries/use-get-transfer-options'
 import { getWallet } from '../queries/use-get-wallet'
 import { useTransfer } from '../queries/use-transfer'
-import { isTransferTypeParams, isNftClaimTypeParams, TransferTypes } from '../services/wallet/types'
+import { isNftClaimTypeParams, isSwagTypeParams, isTransferTypeParams, TransferTypes } from '../services/wallet/types'
 
 type InitTransferProps = {
   params: {
@@ -48,20 +48,26 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
   )
 
   const transfer = useTransfer({
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      const message = variables.type === 'swag' ? c('claimSwagSuccess') : c('transferSuccess')
       toast.notify({
-        message: c('transferSuccess'),
+        message: message,
         type: Toast.toastType.SUCCESS,
       })
       exit({ closeModal: true })
+    },
+    onError: (error, variables) => {
+      ErrorHandling.handleError({ error })
+      if (variables.type === 'swag') exit({ closeModal: true })
     },
   })
 
   const getTransferOptions = useGetTransferOptions({
     onSuccess: result => {
-      modalService.remove(loadingTransferParamsModalKey)
-
+      // Classic transfer
       if (isTransferTypeParams(params)) {
+        modalService.remove(loadingTransferParamsModalKey)
+
         const { data } = result
 
         modalService.open({
@@ -72,6 +78,7 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
               name: data.vendor?.name || data.vendor?.wallet_address || 'Unknown Source',
               imageUri: data.vendor?.profile_image,
             },
+            descriptionItems: result.data.products?.map(product => product.description),
             amount: {
               value: params.amount,
               asset: params.asset,
@@ -89,6 +96,11 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
           backgroundImageUri: a('customModalBackground'),
           onClose: () => exit(),
         })
+      }
+
+      // Swag transfer
+      if (isSwagTypeParams(params)) {
+        transfer.mutate({ ...params, optionsJSON: result.data.options_json })
       }
     },
     onError: error => {
@@ -121,6 +133,8 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
       await getTransferOptions.mutateAsync(params)
     } else if (isNftClaimTypeParams(params)) {
       await getNftClaimOptions.mutateAsync({ session_id: params.session_id, resource: params.resource })
+    } else if (isSwagTypeParams(params)) {
+      await getTransferOptions.mutateAsync(params)
     }
   }, [getTransferOptions, getNftClaimOptions, params])
 

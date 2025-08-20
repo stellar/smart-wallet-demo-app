@@ -41,12 +41,12 @@ const mockProof: Proof = {
   contractAddress: STELLAR.GIFT_AIRDROP_CONTRACT_ADDRESS,
   index: 123,
   receiverAmount: '1000000000',
+  isClaimed: false,
   proofs: [
     '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
     '9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba',
   ],
   createdAt: new Date(),
-  isClaimed: true,
 }
 
 const mockGiftClaim = giftClaimFactory({

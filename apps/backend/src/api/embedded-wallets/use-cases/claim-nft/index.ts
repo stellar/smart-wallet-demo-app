@@ -220,9 +220,7 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
 
     return {
       data: {
-        // hash: 'hash123',
         hash: txResponse.txHash,
-        // tokenId: 'mintedTokenId123',
         tokenId: mintedTokenId,
       },
       message: 'NFT claimed successfully',

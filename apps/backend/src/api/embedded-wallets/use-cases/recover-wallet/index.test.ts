@@ -9,6 +9,7 @@ import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { generateToken } from 'interfaces/jwt'
+import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
 import { mockSorobanService } from 'interfaces/soroban/mock'
 import { mockWalletBackend } from 'interfaces/wallet-backend/mock'
 
@@ -17,6 +18,7 @@ import { RecoverWallet, endpoint } from './index'
 const mockedOtpRepository = mockOtpRepository()
 const mockedWebauthnRegistrationHelper = mockWebAuthnRegistration()
 const mockedSorobanService = mockSorobanService()
+const mockedSdpEmbeddedWallets = mockSDPEmbeddedWallets()
 const mockedWalletBackend = mockWalletBackend()
 
 const mockedHexPublicKey =
@@ -25,12 +27,11 @@ const mockedUser = userFactory({})
 const mockedOtp = otpFactory({ user: mockedUser })
 
 const mockedCompleteRegistration = vi.fn()
-const mockedSubmitTx = vi.fn()
+const mockedBuildTx = vi.fn()
 mockedWebauthnRegistrationHelper.complete = mockedCompleteRegistration
-vi.mock('api/core/helpers/submit-tx', () => ({
-  submitTx: () => mockedSubmitTx(),
+vi.mock('api/core/helpers/build-tx', () => ({
+  buildTx: () => mockedBuildTx(),
 }))
-
 let useCase: RecoverWallet
 
 describe('RecoverWallet', () => {
@@ -40,8 +41,11 @@ describe('RecoverWallet', () => {
       mockedOtpRepository,
       mockedWebauthnRegistrationHelper,
       mockedSorobanService,
+      mockedSdpEmbeddedWallets,
       mockedWalletBackend
     )
+
+    mockedBuildTx.mockResolvedValue({ sign: vi.fn(), toXDR: vi.fn() } as unknown as Transaction)
   })
 
   it('should recover a wallet', async () => {
@@ -57,11 +61,48 @@ describe('RecoverWallet', () => {
       tx: { hash: 'test-tx-hash' } as unknown as Transaction,
       simulationResponse: { id: 'simulation-id' } as unknown as rpc.Api.SimulateTransactionSuccessResponse,
     })
+    mockedSdpEmbeddedWallets.cosignRecovery.mockResolvedValueOnce({
+      transaction_xdr: 'test-transaction-xdr',
+    })
+    mockedWalletBackend.createFeeBumpTransaction.mockResolvedValue({
+      transaction: 'test-transaction-xdr',
+      networkPassphrase: 'test-network-passphrase',
+    })
+    mockedSorobanService.sendTransaction.mockResolvedValue({
+      status: rpc.Api.GetTransactionStatus.SUCCESS,
+    } as unknown as rpc.Api.GetSuccessfulTransactionResponse)
 
     const result = await useCase.handle(payload)
 
     expect(result.data.token).toBe(generateToken(mockedUser.userId, mockedUser.email))
     expect(result.message).toBe('Wallet recovery completed successfully')
+  })
+
+  it('should throw an error when rpc tx result status is not success', async () => {
+    const payload = {
+      code: mockedOtp.code,
+      registration_response_json: '{"id":"TestPayload123"}',
+    }
+    mockedOtpRepository.getOtpByCode.mockResolvedValue(mockedOtp)
+    mockedCompleteRegistration.mockResolvedValueOnce({
+      passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: mockedHexPublicKey },
+    })
+    mockedSorobanService.simulateContractOperation.mockResolvedValue({
+      tx: { hash: 'test-tx-hash' } as unknown as Transaction,
+      simulationResponse: { id: 'simulation-id' } as unknown as rpc.Api.SimulateTransactionSuccessResponse,
+    })
+    mockedSdpEmbeddedWallets.cosignRecovery.mockResolvedValueOnce({
+      transaction_xdr: 'test-transaction-xdr',
+    })
+    mockedWalletBackend.createFeeBumpTransaction.mockResolvedValue({
+      transaction: 'test-transaction-xdr',
+      networkPassphrase: 'test-network-passphrase',
+    })
+    mockedSorobanService.sendTransaction.mockResolvedValue({
+      status: rpc.Api.GetTransactionStatus.FAILED,
+    } as unknown as rpc.Api.GetSuccessfulTransactionResponse)
+
+    await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
   })
 
   it('should throw error if user not found', async () => {
@@ -96,6 +137,16 @@ describe('RecoverWallet', () => {
       tx: { hash: 'test-tx-hash' } as unknown as Transaction,
       simulationResponse: { id: 'simulation-id' } as unknown as rpc.Api.SimulateTransactionSuccessResponse,
     })
+    mockedSdpEmbeddedWallets.cosignRecovery.mockResolvedValueOnce({
+      transaction_xdr: 'test-transaction-xdr',
+    })
+    mockedWalletBackend.createFeeBumpTransaction.mockResolvedValue({
+      transaction: 'test-transaction-xdr',
+      networkPassphrase: 'test-network-passphrase',
+    })
+    mockedSorobanService.sendTransaction.mockResolvedValue({
+      status: rpc.Api.GetTransactionStatus.SUCCESS,
+    } as unknown as rpc.Api.GetSuccessfulTransactionResponse)
 
     await useCase.executeHttp(req, res)
 

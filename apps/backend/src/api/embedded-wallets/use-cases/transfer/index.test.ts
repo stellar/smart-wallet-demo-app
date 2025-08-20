@@ -5,9 +5,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { assetFactory } from 'api/core/entities/asset/factory'
 import { passkeyFactory } from 'api/core/entities/passkey/factory'
 import { userFactory } from 'api/core/entities/user/factory'
+import { UserProduct } from 'api/core/entities/user-product/types'
 import { mockWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/mocks'
 import { mockAssetRepository } from 'api/core/services/asset/mock'
 import { mockUserRepository } from 'api/core/services/user/mocks'
+import { mockUserProductRepository } from 'api/core/services/user-product/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
@@ -61,6 +63,11 @@ const mockAsset = assetFactory({
   contractAddress: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
   type: 'token',
 })
+const mockSwagAsset = assetFactory({
+  code: 'SWAG',
+  type: 'token',
+  contractAddress: 'CADJUKNJVG3HYITS5VQB3TJ2F3XPJCPPAYU3ETAFHRGC75ROWLY72CU2',
+})
 
 const mockSimulationResponse = { id: 'simulation-id' } as unknown as rpc.Api.SimulateTransactionSuccessResponse
 
@@ -75,6 +82,7 @@ const mockTxResponse = {
 
 const mockedUserRepository = mockUserRepository()
 const mockedAssetRepository = mockAssetRepository()
+const mockedUserProductRepository = mockUserProductRepository()
 const mockedWebauthnAuthenticationHelper = mockWebAuthnAuthentication()
 const mockedSorobanService = mockSorobanService()
 
@@ -95,6 +103,7 @@ describe('Transfer', () => {
     useCase = new Transfer(
       mockedUserRepository,
       mockedAssetRepository,
+      mockedUserProductRepository,
       mockedWebauthnAuthenticationHelper,
       mockedSorobanService
     )
@@ -107,7 +116,7 @@ describe('Transfer', () => {
     it('should successfully transfer assets', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 100,
@@ -153,10 +162,72 @@ describe('Transfer', () => {
       expect(mockedSubmitTx).toHaveBeenCalled()
     })
 
+    it('should successfully transfer swag asset and update user product', async () => {
+      const payload = {
+        email: mockUser.email,
+        type: 'swag' as const,
+        asset: 'SWAG',
+        to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
+        amount: 1,
+        authentication_response_json: '{"id":"TestPayload123"}',
+      }
+
+      mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
+      mockedCompleteAuthentication.mockResolvedValue(mockAuthenticationResponse)
+      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockSwagAsset)
+      mockedSignAuthEntries.mockResolvedValue(mockTransaction)
+      mockedSimulateTransaction.mockResolvedValue(mockSimulationResponse)
+      mockedSubmitTx.mockResolvedValue(mockTxResponse)
+      mockedUserProductRepository.getUserProductsByUserContractAddressAndAssetCode.mockResolvedValue([
+        {
+          status: 'unclaimed',
+          claimedAt: undefined,
+        } as UserProduct,
+      ])
+      mockedUserProductRepository.saveUserProducts.mockResolvedValue([
+        {
+          status: 'claimed',
+          claimedAt: new Date(),
+        } as UserProduct,
+      ])
+
+      const result = await useCase.handle(payload)
+
+      expect(result.data.hash).toBe('mock-tx-hash-123')
+      expect(result.message).toBe('Transaction executed successfully')
+      expect(mockedUserRepository.getUserByEmail).toHaveBeenCalledWith(mockUser.email, { relations: ['passkeys'] })
+      expect(mockedCompleteAuthentication).toHaveBeenCalledWith({
+        type: 'raw',
+        user: mockUser,
+        authenticationResponseJSON: payload.authentication_response_json,
+      })
+      expect(mockedAssetRepository.getAssetByCode).toHaveBeenCalledWith('SWAG')
+      expect(mockedSignAuthEntries).toHaveBeenCalledWith({
+        contractId: mockSwagAsset.contractAddress,
+        tx: { hash: 'test-tx-hash' },
+        simulationResponse: { id: 'simulation-id' },
+        signers: [
+          {
+            addressId: mockUser.contractAddress,
+            methodOptions: {
+              method: 'webauthn',
+              options: {
+                clientDataJSON: mockAuthenticationResponse.clientDataJSON,
+                authenticatorData: mockAuthenticationResponse.authenticatorData,
+                signature: mockAuthenticationResponse.compactSignature,
+              },
+            },
+          },
+        ],
+      })
+      expect(mockedSubmitTx).toHaveBeenCalled()
+      expect(mockedUserProductRepository.saveUserProducts).toHaveBeenCalled()
+    })
+
     it('should throw ResourceNotFoundException when asset not found in database', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'XLM',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 100,
@@ -175,7 +246,7 @@ describe('Transfer', () => {
     it('should throw ResourceNotFoundException when user does not exist', async () => {
       const payload = {
         email: 'notfound@example.com',
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 100,
@@ -197,7 +268,7 @@ describe('Transfer', () => {
 
       const payload = {
         email: userWithoutPasskeys.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 100,
@@ -213,7 +284,7 @@ describe('Transfer', () => {
     it('should throw ResourceNotFoundException when authentication fails', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 100,
@@ -231,7 +302,7 @@ describe('Transfer', () => {
     it('should throw Error when transaction execution fails', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 100,
@@ -254,7 +325,7 @@ describe('Transfer', () => {
     it('should throw Error when submitTx returns null', async () => {
       const payload = {
         email: mockUser.email,
-        type: 'transfer',
+        type: 'transfer' as const,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 100,
@@ -277,7 +348,7 @@ describe('Transfer', () => {
       const req = {
         userData: { email: mockUser.email },
         body: {
-          type: 'transfer',
+          type: 'transfer' as const,
           asset: 'USDC',
           to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
           amount: 100,
