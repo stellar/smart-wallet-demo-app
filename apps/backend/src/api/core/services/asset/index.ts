@@ -9,6 +9,10 @@ export default class AssetRepository extends SingletonBase implements AssetRepos
     super()
   }
 
+  async getAssets(): Promise<Asset[]> {
+    return AssetModel.find()
+  }
+
   async getAssetById(assetId: string): Promise<Asset | null> {
     return AssetModel.findOneBy({ assetId })
   }

@@ -63,4 +63,12 @@ export const featureFlagSchema = z.object({
   metadata: z.record(z.string(), z.any()).optional(),
 })
 
+export const assetSchema = z.object({
+  id: z.string().optional(),
+  name: z.string(),
+  code: z.string(),
+  type: z.string().optional(),
+  contract_address: z.string().optional(),
+})
+
 export type MerkleProofDataT = z.infer<typeof merkleProofDataSchema>
