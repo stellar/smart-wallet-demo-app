@@ -90,9 +90,7 @@ impl Contract {
             panic_with_error!(env, NonFungibleTokenContractError::MaxSupplyReached);
         }
 
-        let token_id = Enumerable::sequential_mint(env, &to);
-
-        token_id
+        Enumerable::sequential_mint(env, &to)
     }
 
     pub fn get_token_metadata(env: &Env) -> TokenMetadata {
@@ -113,9 +111,7 @@ impl Contract {
         let mut ids = Vec::new(env);
         let total_minted = Enumerable::total_supply(env);
 
-        for i in 0..total_minted {
-            let token_id: u32 = i.try_into().unwrap();
-
+        for token_id in 0..total_minted {
             if Base::owner_of(env, token_id) == owner {
                 ids.push_back(token_id);
             }
