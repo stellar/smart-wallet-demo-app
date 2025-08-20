@@ -17,7 +17,9 @@ pub struct Contract;
 impl Contract {
     pub fn __constructor(env: &Env, owner: Address, total_supply: u32, metadata: TokenMetadata) {
         env.storage().instance().set(&DataKey::Owner, &owner);
-        env.storage().instance().set(&DataKey::MaxSupply, &total_supply);
+        env.storage()
+            .instance()
+            .set(&DataKey::MaxSupply, &total_supply);
 
         Base::set_metadata(env, metadata.base_uri, metadata.name, metadata.symbol);
     }
@@ -58,14 +60,19 @@ impl Contract {
 
         owner.require_auth();
 
-        env.storage().instance().set(&DataKey::TokenData(token_id), &data);
+        env.storage()
+            .instance()
+            .set(&DataKey::TokenData(token_id), &data);
     }
 
     pub fn get_token_data(env: &Env, token_id: u32) -> TokenData {
-        env.storage().instance().get(&DataKey::TokenData(token_id)).unwrap()
+        env.storage()
+            .instance()
+            .get(&DataKey::TokenData(token_id))
+            .unwrap()
     }
 
-    pub fn mint_with_data(env: &Env, to: Address, data: TokenData) -> u32 {        
+    pub fn mint_with_data(env: &Env, to: Address, data: TokenData) -> u32 {
         let token_id = Self::mint(env, to);
 
         Self::set_token_data(env, token_id, data);
