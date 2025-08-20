@@ -30,7 +30,7 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
   const { handleClaimNft } = useNfts()
 
   const transactionDetailsModalKey = 'transaction-details'
-  const loadingTransferParamsModalKey = 'loading-transfer-params'
+  const loadingParamsModalKey = 'loading-params'
   const isHandlingTransfer = useRef(false)
 
   const exit = useCallback(
@@ -67,7 +67,7 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
     onSuccess: result => {
       // Classic transfer
       if (isTransferTypeParams(params)) {
-        modalService.remove(loadingTransferParamsModalKey)
+        modalService.remove(loadingParamsModalKey)
 
         const { data } = result
 
@@ -113,6 +113,8 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
   const getNftClaimOptions = useGetNftClaimOptions({
     onSuccess: ({ data: { nft } }) => {
       if (isNftClaimTypeParams(params)) {
+        modalService.remove(loadingParamsModalKey)
+
         handleClaimNft(nft, params.session_id, params.resource)
       }
     },
@@ -127,14 +129,15 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
 
     if (!params.type) return
 
+    modalService.open({
+      key: loadingParamsModalKey,
+      variantOptions: {
+        variant: 'loading',
+        isLocked: true,
+      },
+    })
+
     if (isTransferTypeParams(params)) {
-      modalService.open({
-        key: loadingTransferParamsModalKey,
-        variantOptions: {
-          variant: 'loading',
-          isLocked: true,
-        },
-      })
       await getTransferOptions.mutateAsync(params)
     } else if (isNftClaimTypeParams(params)) {
       await getNftClaimOptions.mutateAsync(params)

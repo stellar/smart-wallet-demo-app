@@ -21,7 +21,7 @@ export const Home = () => {
 
   // Wallet information
   const getWallet = useGetWallet({
-    enabled: !loaderDeps.shouldInitTransfer || search.type !== 'transfer',
+    enabled: !loaderDeps.shouldInitTransfer,
   })
   const walletData = getWallet.data
   const isUserAirdropAvailable = walletData ? walletData.is_airdrop_available : false
