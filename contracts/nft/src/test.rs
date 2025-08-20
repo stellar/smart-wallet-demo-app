@@ -499,3 +499,124 @@ fn test_metadata_persistence() {
         String::from_str(&env, "https://nft.com/")
     );
 }
+
+#[test]
+fn test_set_token_data() {
+    let env = setup_test_env();
+    let owner = Address::generate(&env);
+    let recipient = Address::generate(&env);
+    let contract = get_contract(&env, &owner, 100u128);
+
+    let token_id = contract.mint(&recipient);
+
+    let token_data = crate::types::TokenData {
+        session_id: String::from_str(&env, "session_123"),
+        resource: String::from_str(&env, "resource_456"),
+    };
+
+    contract.set_token_data(&token_id, &token_data);
+
+    let retrieved_data = contract.get_token_data(&token_id);
+    assert_eq!(retrieved_data.session_id, token_data.session_id);
+    assert_eq!(retrieved_data.resource, token_data.resource);
+}
+
+#[test]
+#[should_panic]
+fn test_set_token_data_unauthorized() {
+    let env = setup_test_env();
+    let owner = Address::generate(&env);
+    let recipient = Address::generate(&env);
+    let unauthorized = Address::generate(&env);
+    let contract = get_contract(&env, &owner, 100u128);
+
+    let token_id = contract.mint(&recipient);
+
+    let token_data = crate::types::TokenData {
+        session_id: String::from_str(&env, "session_123"),
+        resource: String::from_str(&env, "resource_456"),
+    };
+
+    env.mock_auths(&[MockAuth {
+        address: &unauthorized,
+        invoke: &MockAuthInvoke {
+            contract: &contract.address,
+            fn_name: "set_token_data",
+            args: (&unauthorized,).into_val(&env),
+            sub_invokes: &[],
+        },
+    }]);
+
+    contract.set_token_data(&token_id, &token_data);
+}
+
+#[test]
+fn test_get_token_data() {
+    let env = setup_test_env();
+    let owner = Address::generate(&env);
+    let recipient = Address::generate(&env);
+    let contract = get_contract(&env, &owner, 100u128);
+
+    let token_id = contract.mint(&recipient);
+
+    let token_data = crate::types::TokenData {
+        session_id: String::from_str(&env, "session_789"),
+        resource: String::from_str(&env, "resource_abc"),
+    };
+
+    contract.set_token_data(&token_id, &token_data);
+
+    let retrieved_data = contract.get_token_data(&token_id);
+    assert_eq!(retrieved_data.session_id, token_data.session_id);
+    assert_eq!(retrieved_data.resource, token_data.resource);
+}
+
+#[test]
+fn test_mint_with_data() {
+    let env = setup_test_env();
+    let owner = Address::generate(&env);
+    let recipient = Address::generate(&env);
+    let contract = get_contract(&env, &owner, 100u128);
+
+    let token_data = crate::types::TokenData {
+        session_id: String::from_str(&env, "session_mint"),
+        resource: String::from_str(&env, "resource_mint"),
+    };
+
+    let token_id = contract.mint_with_data(&recipient, &token_data);
+
+    assert_eq!(token_id, 0);
+    assert_eq!(contract.get_total_minted(), 1);
+    assert_eq!(contract.owner_of(&token_id), recipient);
+
+    let retrieved_data = contract.get_token_data(&token_id);
+    assert_eq!(retrieved_data.session_id, token_data.session_id);
+    assert_eq!(retrieved_data.resource, token_data.resource);
+}
+
+#[test]
+#[should_panic]
+fn test_mint_with_data_unauthorized() {
+    let env = setup_test_env();
+    let owner = Address::generate(&env);
+    let recipient = Address::generate(&env);
+    let unauthorized = Address::generate(&env);
+    let contract = get_contract(&env, &owner, 100u128);
+
+    let token_data = crate::types::TokenData {
+        session_id: String::from_str(&env, "session_unauthorized"),
+        resource: String::from_str(&env, "resource_unauthorized"),
+    };
+
+    env.mock_auths(&[MockAuth {
+        address: &unauthorized,
+        invoke: &MockAuthInvoke {
+            contract: &contract.address,
+            fn_name: "mint_with_data",
+            args: (&unauthorized,).into_val(&env),
+            sub_invokes: &[],
+        },
+    }]);
+
+    contract.mint_with_data(&recipient, &token_data);
+}

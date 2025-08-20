@@ -5,6 +5,7 @@ pub enum DataKey {
     Owner,
     TotalMinted,
     MaxSupply,
+    TokenData(u32),
 }
 
 #[contracttype]
@@ -19,6 +20,12 @@ pub struct TokenAttribute {
     pub trait_type: String,
     pub value: AttributeValue,
     pub max_value: u64,
+}
+
+#[contracttype]
+pub struct TokenData {
+    pub session_id: String,
+    pub resource: String,
 }
 
 #[contracttype]

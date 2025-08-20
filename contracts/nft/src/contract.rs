@@ -1,6 +1,6 @@
 use crate::{
     errors::NonFungibleTokenContractError,
-    types::{DataKey, TokenMetadata},
+    types::{DataKey, TokenData, TokenMetadata},
 };
 use soroban_sdk::{contract, contractimpl, panic_with_error, Address, Env, String, Vec};
 use stellar_default_impl_macro::default_impl;
@@ -67,7 +67,27 @@ impl Contract {
         owner.require_auth();
     }
 
-    pub fn mint(env: &Env, to: Address) -> Result<u32, NonFungibleTokenContractError> {
+    pub fn set_token_data(env: &Env, token_id: u32, data: TokenData) {
+        let owner: Address = Base::owner_of(env, token_id);
+
+        owner.require_auth();
+
+        env.storage().instance().set(&DataKey::TokenData(token_id), &data);
+    }
+
+    pub fn get_token_data(env: &Env, token_id: u32) -> TokenData {
+        env.storage().instance().get(&DataKey::TokenData(token_id)).unwrap()
+    }
+
+    pub fn mint_with_data(env: &Env, to: Address, data: TokenData) -> u32 {        
+        let token_id = Self::mint(env, to);
+
+        Self::set_token_data(env, token_id, data);
+
+        token_id
+    }
+
+    pub fn mint(env: &Env, to: Address) -> u32 {
         Self::only_owner(env);
 
         let total_minted = Self::get_total_minted(env);
@@ -83,7 +103,7 @@ impl Contract {
             .instance()
             .set(&DataKey::TotalMinted, &(total_minted + 1));
 
-        Ok(token_id)
+        token_id
     }
 
     pub fn get_token_metadata(env: &Env) -> TokenMetadata {
