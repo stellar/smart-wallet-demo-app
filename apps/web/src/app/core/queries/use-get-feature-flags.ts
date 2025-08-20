@@ -1,7 +1,7 @@
 import { queryOptions, useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
 
-import { generalSettingsService } from 'src/app/core/services/general-setttings'
-import { GetFeatureFlagsResult } from 'src/app/core/services/general-setttings/types'
+import { generalSettingsService } from 'src/app/core/services/general-settings'
+import { GetFeatureFlagsResult } from 'src/app/core/services/general-settings/types'
 
 import { CoreQueryKeys } from './query-keys'
 

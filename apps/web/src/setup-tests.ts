@@ -18,6 +18,20 @@ vi.mock('@stellar/design-system', async () => {
   }
 })
 
+// MOCKS
+vi.mock('src/app/core/services/general-settings', async () => {
+  const actual = await vi.importActual<typeof import('src/app/core/services/general-settings')>(
+    'src/app/core/services/general-settings'
+  )
+
+  return {
+    ...actual,
+    generalSettingsService: {
+      getFeatureFlags: vi.fn(),
+    },
+  }
+})
+
 // GLOBAL MOCKS
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),

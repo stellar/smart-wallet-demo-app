@@ -1,5 +1,5 @@
 import { CoreQueryKeys } from 'src/app/core/queries/query-keys'
-import { FeatureFlags, GetFeatureFlagsResult } from 'src/app/core/services/general-setttings/types'
+import { FeatureFlags, GetFeatureFlagsResult } from 'src/app/core/services/general-settings/types'
 import { queryClient } from 'src/interfaces/query-client'
 
 export const featureFlagsState = (flags: FeatureFlags[]): boolean[] => {
