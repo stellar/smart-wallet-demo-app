@@ -100,21 +100,19 @@ impl Contract {
         }
     }
 
-    pub fn get_owner_tokens(env: &Env, owner: Address) -> Vec<TokenMetadata> {
-        let mut tokens = Vec::new(env);
+    pub fn get_owner_tokens(env: &Env, owner: Address) -> Vec<u32> {
+        let mut ids = Vec::new(env);
         let total_minted = Self::get_total_minted(env);
 
         for i in 0..total_minted {
             let token_id: u32 = i.try_into().unwrap();
 
             if Base::owner_of(env, token_id) == owner {
-                let token_details = Self::get_token_metadata(env);
-
-                tokens.push_back(token_details);
+                ids.push_back(token_id);
             }
         }
 
-        tokens
+        ids
     }
 
     pub fn bulk_transfer(env: &Env, from: Address, to: Address, token_ids: Vec<u32>) {

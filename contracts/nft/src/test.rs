@@ -310,6 +310,8 @@ fn test_get_owner_tokens() {
 
     assert_eq!(recipient1_tokens.len(), 2);
     assert_eq!(recipient2_tokens.len(), 1);
+    assert_eq!(recipient1_tokens.get(0), Some(&0u32).copied());
+    assert_eq!(recipient1_tokens.get(1), Some(&1u32).copied());
 }
 
 #[test]
