@@ -1,5 +1,5 @@
 import { CoreQueryKeys } from 'src/app/core/queries/query-keys'
-import { FeatureFlags, GetFeatureFlagsResult } from 'src/app/core/services/setttings/types'
+import { FeatureFlags, GetFeatureFlagsResult } from 'src/app/core/services/general-settings/types'
 import { queryClient } from 'src/interfaces/query-client'
 
 export const featureFlagsState = (flags: FeatureFlags[]): boolean[] => {
@@ -9,5 +9,5 @@ export const featureFlagsState = (flags: FeatureFlags[]): boolean[] => {
 
   const storedFlags = result.data.flags
 
-  return flags.map(flag => storedFlags.find(storedFlag => storedFlag.name === flag)?.value ?? false)
+  return flags.map(flag => storedFlags.find(storedFlag => storedFlag.name === flag)?.is_active ?? false)
 }
