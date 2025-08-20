@@ -1,6 +1,6 @@
 import { UseCaseBase } from 'src/app/core/framework/use-case/base'
 import logger from 'src/app/core/services/logger'
-import { swagTypeSchema, transferTypeSchema } from 'src/app/wallet/pages/home/schema'
+import { swagTypeSchema, transferTypeSchema, nftTypeSchema } from 'src/app/wallet/pages/home/schema'
 import {
   GetTransferOptionsInput,
   transferOptionsInputKeys,
@@ -10,10 +10,10 @@ import {
 import BaseError from 'src/helpers/error-handling/base-error'
 import { c } from 'src/interfaces/cms/useContent'
 
-import { ScanTxQrCodeInput, ScanTxQrCodeResult } from './types'
+import { ScanQrCodeInput, ScanQrCodeResult } from './types'
 
-export class ScanTxQrCodeUseCase extends UseCaseBase<ScanTxQrCodeResult> {
-  async handle(input: ScanTxQrCodeInput): Promise<ScanTxQrCodeResult> {
+export class ScanQrCodeUseCase extends UseCaseBase<ScanQrCodeResult> {
+  async handle(input: ScanQrCodeInput): Promise<ScanQrCodeResult> {
     const { decodedText } = input
 
     const invalidQrCodeError = new BaseError(c('invalidQrCode'))
@@ -26,12 +26,10 @@ export class ScanTxQrCodeUseCase extends UseCaseBase<ScanTxQrCodeResult> {
       const parsed = new URL(decodedText)
       const searchParams = new URLSearchParams(parsed.search)
 
-      // Get transfer options input from search params
       const transferOptionsInput = Object.fromEntries(
         transferOptionsInputKeys.map(key => [key, searchParams.get(key)])
       ) as Partial<GetTransferOptionsInput>
 
-      // Validate transfer options input
       switch (transferOptionsInput.type) {
         case 'transfer':
           transferTypeSchema.validateSync(transferOptionsInput)
@@ -39,6 +37,8 @@ export class ScanTxQrCodeUseCase extends UseCaseBase<ScanTxQrCodeResult> {
         case 'swag':
           swagTypeSchema.validateSync(transferOptionsInput)
           break
+        case 'nft':
+          nftTypeSchema.validateSync(transferOptionsInput)
       }
 
       return transferOptionsInput
@@ -52,13 +52,10 @@ export class ScanTxQrCodeUseCase extends UseCaseBase<ScanTxQrCodeResult> {
     try {
       const parsed = new URL(url)
 
-      // Check if domain matches
       if (parsed.origin !== window.location.origin) return false
 
-      // Check if path matches
       if (parsed.pathname !== '/wallet') return false
 
-      // Check if type param exists and is allowed
       const type = parsed.searchParams.get('type')
       return !!type && transferTypes.includes(type as TransferTypes)
     } catch {
@@ -67,6 +64,6 @@ export class ScanTxQrCodeUseCase extends UseCaseBase<ScanTxQrCodeResult> {
   }
 }
 
-const scanTxQrCodeUseCase = new ScanTxQrCodeUseCase()
+const scanQrCodeUseCase = new ScanQrCodeUseCase()
 
-export { scanTxQrCodeUseCase }
+export { scanQrCodeUseCase }

@@ -9,13 +9,11 @@ export const transferTypeSchema = yup.object({
   product: yup.string().optional(),
 })
 
-// TODO: replace with real NFT model schema
-// Nft Type schema
+// NFT Claim schema
 export const nftTypeSchema = yup.object({
-  type: yup.string().required(),
-  id: yup.string().required(),
-  asset: yup.string().required(),
-  to: yup.string().required(),
+  type: yup.string().oneOf(['nft']).required(),
+  session_id: yup.string().required(),
+  resource: yup.string().required(),
 })
 
 // Swag Type schema

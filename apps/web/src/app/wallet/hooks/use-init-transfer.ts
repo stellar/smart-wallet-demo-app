@@ -9,10 +9,12 @@ import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 import { queryClient } from 'src/interfaces/query-client'
 
+import { useNfts } from './use-nfts'
+import { useGetNftClaimOptions } from '../queries/use-get-nft-claim-options'
 import { useGetTransferOptions } from '../queries/use-get-transfer-options'
 import { getWallet } from '../queries/use-get-wallet'
 import { useTransfer } from '../queries/use-transfer'
-import { isNftTypeParams, isSwagTypeParams, isTransferTypeParams, TransferTypes } from '../services/wallet/types'
+import { isNftClaimTypeParams, isSwagTypeParams, isTransferTypeParams, TransferTypes } from '../services/wallet/types'
 
 type InitTransferProps = {
   params: {
@@ -24,6 +26,7 @@ type InitTransferProps = {
 export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
   const router = useRouter()
   const toast = useToast()
+  const { handleClaimNft } = useNfts()
 
   const transactionDetailsModalKey = 'transaction-details'
   const loadingTransferParamsModalKey = 'loading-transfer-params'
@@ -106,33 +109,42 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
     },
   })
 
+  const getNftClaimOptions = useGetNftClaimOptions({
+    onSuccess: ({ data: { nft } }) => {
+      if (isNftClaimTypeParams(params)) {
+        handleClaimNft(nft, params.session_id, params.resource)
+      }
+    },
+  })
+
   const handleTransferParams = useCallback(async () => {
     isHandlingTransfer.current = true
 
     if (!params.type) return
 
-    modalService.open({
-      key: loadingTransferParamsModalKey,
-      variantOptions: {
-        variant: 'loading',
-        isLocked: true,
-      },
-    })
-
     if (isTransferTypeParams(params)) {
+      modalService.open({
+        key: loadingTransferParamsModalKey,
+        variantOptions: {
+          variant: 'loading',
+          isLocked: true,
+        },
+      })
       await getTransferOptions.mutateAsync(params)
-    } else if (isNftTypeParams(params)) {
-      await getTransferOptions.mutateAsync(params)
+    } else if (isNftClaimTypeParams(params)) {
+      await getNftClaimOptions.mutateAsync({ session_id: params.session_id, resource: params.resource })
     } else if (isSwagTypeParams(params)) {
       await getTransferOptions.mutateAsync(params)
     }
-  }, [getTransferOptions, params])
+  }, [getTransferOptions, getNftClaimOptions, params])
 
   useEffect(() => {
     modalService.setState(transactionDetailsModalKey, { isLoading: transfer.isPending })
   }, [transfer.isPending])
 
   useEffect(() => {
-    if (enabled && !isHandlingTransfer.current) handleTransferParams()
+    if (enabled && !isHandlingTransfer.current) {
+      handleTransferParams()
+    }
   }, [enabled, handleTransferParams, params])
 }

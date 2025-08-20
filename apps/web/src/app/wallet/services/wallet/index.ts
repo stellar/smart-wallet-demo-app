@@ -11,6 +11,10 @@ import {
   GetAirdropOptionsResult,
   PostAirdropInput,
   PostAirdropResult,
+  GetNftsResult,
+  ClaimNftInput,
+  ClaimNftResult,
+  GetNftClaimOptionsResult,
 } from './types'
 
 export class WalletService implements IWalletService {
@@ -53,6 +57,26 @@ export class WalletService implements IWalletService {
     const response = await authHttp.post(`/api/embedded-wallets/airdrop/complete`, {
       authentication_response_json: input.authenticationResponseJSON,
     })
+
+    return response.data
+  }
+
+  async getNfts(): Promise<GetNftsResult> {
+    const response = await authHttp.get('/api/embedded-wallets/nft')
+
+    return response.data
+  }
+
+  async getNftClaimOptions(session_id: string, resource: string): Promise<GetNftClaimOptionsResult> {
+    const response = await authHttp.get('/api/embedded-wallets/nft/claim/options', {
+      params: { session_id, resource },
+    })
+
+    return response.data
+  }
+
+  async claimNft(input: ClaimNftInput): Promise<ClaimNftResult> {
+    const response = await authHttp.post(`/api/embedded-wallets/nft/claim/complete`, input)
 
     return response.data
   }
