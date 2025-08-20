@@ -21,7 +21,7 @@ export const accessTokenInterceptor = (config: InternalAxiosRequestConfig<any>) 
 }
 
 export const apiKeyInterceptor = (config: InternalAxiosRequestConfig<any>) => {
-  const apiKey = import.meta.env.VITE_API_KEY
+  const apiKey = import.meta.env.VITE_X_API_KEY
 
   config.headers['x-api-key'] = `${apiKey}`
 
