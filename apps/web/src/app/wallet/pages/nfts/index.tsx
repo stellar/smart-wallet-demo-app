@@ -1,4 +1,4 @@
-import { useNavigate, useCanGoBack, useRouter } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { useState, useMemo } from 'react'
 
 import NftsTemplate from './template'
@@ -9,8 +9,6 @@ import { Nft } from '../../services/wallet/types'
 
 export const Nfts = () => {
   const navigate = useNavigate()
-  const canGoBack = useCanGoBack()
-  const router = useRouter()
 
   const [selectedNft, setSelectedNft] = useState<Nft | undefined>()
 
@@ -28,8 +26,11 @@ export const Nfts = () => {
   }, [nftsData])
 
   const handleGoBack = () => {
-    if (canGoBack) router.history.back()
-    navigate({ to: WalletPagesPath.HOME })
+    navigate({
+      to: WalletPagesPath.HOME,
+      search: undefined,
+      replace: true,
+    })
   }
 
   const handleClickNft = (nft: Nft) => {

@@ -25,6 +25,7 @@ type InitTransferProps = {
 
 export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
   const router = useRouter()
+
   const toast = useToast()
   const { handleClaimNft } = useNfts()
 
@@ -115,6 +116,10 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
         handleClaimNft(nft, params.session_id, params.resource)
       }
     },
+    onError: error => {
+      ErrorHandling.handleError({ error })
+      exit({ closeModal: true })
+    },
   })
 
   const handleTransferParams = useCallback(async () => {
@@ -132,7 +137,7 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
       })
       await getTransferOptions.mutateAsync(params)
     } else if (isNftClaimTypeParams(params)) {
-      await getNftClaimOptions.mutateAsync({ session_id: params.session_id, resource: params.resource })
+      await getNftClaimOptions.mutateAsync(params)
     } else if (isSwagTypeParams(params)) {
       await getTransferOptions.mutateAsync(params)
     }

@@ -16,14 +16,11 @@ import { Nft } from '../services/wallet/types'
 export const useNfts = () => {
   const toast = useToast()
   const navigate = useNavigate()
-
   const nftModalKey = 'nft'
 
   const exit = useCallback(() => {
     navigate({
       to: WalletPagesPath.NFTS,
-      search: undefined,
-      replace: true,
     })
     queryClient.invalidateQueries({ queryKey: [WalletQueryKeys.GetNfts] })
     modalService.close()
