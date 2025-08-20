@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router'
+import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect } from 'react'
 
 import { useToast } from 'src/app/core/hooks/use-toast'
@@ -14,20 +14,24 @@ import { WalletPagesPath } from '../routes/types'
 import { Nft } from '../services/wallet/types'
 
 export const useNfts = () => {
-  const toast = useToast()
-  const navigate = useNavigate()
+  const router = useRouter()
 
+  const toast = useToast()
   const nftModalKey = 'nft'
 
   const exit = useCallback(() => {
-    navigate({
-      to: WalletPagesPath.NFTS,
+    // Reset search params
+    router.navigate({
       search: undefined,
       replace: true,
     })
+    // Navigate to nft page
+    router.navigate({
+      to: WalletPagesPath.NFTS,
+    })
     queryClient.invalidateQueries({ queryKey: [WalletQueryKeys.GetNfts] })
     modalService.close()
-  }, [navigate])
+  }, [router])
 
   const claimNft = useClaimNft({
     onSuccess: () => {
