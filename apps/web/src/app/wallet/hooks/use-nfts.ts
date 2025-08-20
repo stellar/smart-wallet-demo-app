@@ -10,6 +10,7 @@ import { queryClient } from 'src/interfaces/query-client'
 
 import { WalletQueryKeys } from '../queries/query-keys'
 import { useClaimNft } from '../queries/use-claim-nft'
+import { getWallet } from '../queries/use-get-wallet'
 import { WalletPagesPath } from '../routes/types'
 import { Nft } from '../services/wallet/types'
 
@@ -73,9 +74,17 @@ export const useNfts = () => {
           },
         },
         backgroundImageUri: a('nftModalBackground'),
+        onClose: () => {
+          router.navigate({
+            search: undefined,
+            replace: true,
+          })
+          queryClient.fetchQuery(getWallet())
+          modalService.close()
+        },
       })
     },
-    [claimNft]
+    [claimNft, router]
   )
 
   useEffect(() => {
