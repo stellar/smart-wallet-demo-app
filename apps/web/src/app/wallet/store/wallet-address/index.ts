@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
-import { EMAIL_STORAGE_KEY } from 'src/app/auth/constants/storage'
+import { WALLET_ADDRESS_STORAGE_KEY } from 'src/app/auth/constants/storage'
 
 import { WalletAddressStoreFields, WalletAddressStoreState } from './types'
 
@@ -17,7 +17,7 @@ export const useWalletAddressStore = create<WalletAddressStoreState>()(
       clearWalletAddress: () => set({ address: null }),
     }),
     {
-      name: EMAIL_STORAGE_KEY,
+      name: WALLET_ADDRESS_STORAGE_KEY,
       storage: createJSONStorage(() => localStorage),
     }
   )

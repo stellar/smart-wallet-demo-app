@@ -18,7 +18,6 @@ import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { sleepInSeconds } from 'api/core/utils/sleep'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { STELLAR } from 'config/stellar'
-import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
@@ -119,12 +118,17 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
         break
       }
       // If the address is not yet available, wait for a while before checking again
-      await sleepInSeconds(1)
+      await sleepInSeconds(2)
     }
 
-    if (!user.contractAddress) {
-      throw new BadRequestException(messages.UNKNOWN_CONTRACT_ADDRESS_CREATION_ERROR)
-    }
+    if (!user.contractAddress)
+      return this.parseResponse({
+        status: walletStatus,
+        address: 'unknown',
+        balance: 0,
+        email: user.email,
+        is_airdrop_available: false,
+      })
 
     // Get all info from a valid wallet (balance, etc)
     const { balance, isAirdropAvailable, swags } = await this.infoFromValidWallet(user.userId, user.contractAddress)

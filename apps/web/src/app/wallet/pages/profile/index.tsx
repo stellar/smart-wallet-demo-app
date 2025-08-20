@@ -8,12 +8,14 @@ import { ProfileTemplate } from './template'
 import { useGetWallet } from '../../queries/use-get-wallet'
 import { WalletPagesPath } from '../../routes/types'
 import { useWalletAddressStore } from '../../store'
+import { useWalletStatusStore } from '../../store/wallet-status'
 
 export const Profile = () => {
   const navigate = useNavigate()
   const { clearAccessToken } = useAccessTokenStore()
   const { clearEmail } = useEmailStore()
   const { clearWalletAddress } = useWalletAddressStore()
+  const { clearWalletStatus } = useWalletStatusStore()
   const canGoBack = useCanGoBack()
   const router = useRouter()
 
@@ -38,6 +40,7 @@ export const Profile = () => {
     clearAccessToken(AuthPagesPath.WELCOME)
     clearEmail()
     clearWalletAddress()
+    clearWalletStatus()
   }
 
   return (
