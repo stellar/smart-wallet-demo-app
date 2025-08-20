@@ -1,7 +1,7 @@
 import { queryOptions, useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
 
-import { settingsService } from 'src/app/core/services/setttings'
-import { GetFeatureFlagsResult } from 'src/app/core/services/setttings/types'
+import { generalSettingsService } from 'src/app/core/services/general-setttings'
+import { GetFeatureFlagsResult } from 'src/app/core/services/general-setttings/types'
 
 import { CoreQueryKeys } from './query-keys'
 
@@ -10,7 +10,7 @@ type UseCaseResult = GetFeatureFlagsResult
 export const getFeatureFlags = () =>
   queryOptions<UseCaseResult, Error>({
     queryKey: [CoreQueryKeys.GetFeatureFlags],
-    queryFn: () => settingsService.getFeatureFlags(),
+    queryFn: () => generalSettingsService.getFeatureFlags(),
     staleTime: Infinity,
     gcTime: Infinity,
   })

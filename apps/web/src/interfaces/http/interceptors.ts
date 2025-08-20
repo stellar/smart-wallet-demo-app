@@ -20,6 +20,14 @@ export const accessTokenInterceptor = (config: InternalAxiosRequestConfig<any>) 
   return config
 }
 
+export const apiKeyInterceptor = (config: InternalAxiosRequestConfig<any>) => {
+  const apiKey = import.meta.env.VITE_API_KEY
+
+  config.headers['x-api-key'] = `${apiKey}`
+
+  return config
+}
+
 export const unauthorizedInterceptor = [
   (response: AxiosResponse<any, any>) => response,
   (error: any) => {
