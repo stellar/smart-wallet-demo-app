@@ -79,7 +79,7 @@ export const useNfts = () => {
             search: undefined,
             replace: true,
           })
-          queryClient.fetchQuery(getWallet())
+          queryClient.forceRefetch(getWallet())
           modalService.close()
         },
       })

@@ -1,26 +1,20 @@
 import { useNavigate, useCanGoBack, useRouter } from '@tanstack/react-router'
 
 import { AuthPagesPath } from 'src/app/auth/routes/types'
-import { useAccessTokenStore, useEmailStore } from 'src/app/auth/store'
-import { queryClient } from 'src/interfaces/query-client'
+import { useAccessTokenStore } from 'src/app/auth/store'
 
 import { ProfileTemplate } from './template'
 import { useGetWallet } from '../../queries/use-get-wallet'
 import { WalletPagesPath } from '../../routes/types'
-import { useWalletAddressStore } from '../../store'
-import { useWalletStatusStore } from '../../store/wallet-status'
 
 export const Profile = () => {
   const navigate = useNavigate()
   const { clearAccessToken } = useAccessTokenStore()
-  const { clearEmail } = useEmailStore()
-  const { clearWalletAddress } = useWalletAddressStore()
-  const { clearWalletStatus } = useWalletStatusStore()
   const canGoBack = useCanGoBack()
   const router = useRouter()
 
   // Get wallet data from query
-  const { data: walletData, isPending: isLoadingProfile } = useGetWallet()
+  const { data: walletData, isLoading: isLoadingProfile } = useGetWallet()
 
   // Extract data from the API response
   const email = walletData?.email || ''
@@ -33,14 +27,8 @@ export const Profile = () => {
   }
 
   const handleSignOut = () => {
-    // Clear query cache
-    queryClient.clear()
-
     // Clear session data and redirect to welcome page
     clearAccessToken(AuthPagesPath.WELCOME)
-    clearEmail()
-    clearWalletAddress()
-    clearWalletStatus()
   }
 
   return (

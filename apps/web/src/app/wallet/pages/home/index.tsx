@@ -47,7 +47,7 @@ export const Home = () => {
     }
   }
 
-  const handlePayClick = () => navigate({ to: WalletPagesPath.SCAN })
+  const handleScanClick = () => navigate({ to: WalletPagesPath.SCAN })
 
   const handleSwagClick = () => navigate({ to: WalletPagesPath.SCAN })
 
@@ -72,14 +72,14 @@ export const Home = () => {
   const isLoadingSwags = useMemo(() => {
     if (!walletData?.swags && loaderDeps.shouldInitTransfer) return true
 
-    return getWallet.isPending || getWallet.isError
-  }, [getWallet.isError, getWallet.isPending, loaderDeps.shouldInitTransfer, walletData?.swags])
+    return getWallet.isLoading || getWallet.isError
+  }, [getWallet.isError, getWallet.isLoading, loaderDeps.shouldInitTransfer, walletData?.swags])
 
   const isLoadingBalance = useMemo(() => {
     if (!walletData?.balance && loaderDeps.shouldInitTransfer) return true
 
-    return getWallet.isPending || getWallet.isError
-  }, [getWallet.isError, getWallet.isPending, loaderDeps.shouldInitTransfer, walletData?.balance])
+    return getWallet.isLoading || getWallet.isError
+  }, [getWallet.isError, getWallet.isLoading, loaderDeps.shouldInitTransfer, walletData?.balance])
 
   return (
     <HomeTemplate
@@ -90,7 +90,7 @@ export const Home = () => {
       products={swags}
       isProductActionButtonDisabled={isSwagActionButtonDisabled}
       onNavbarButtonClick={handleNavbarButtonClick}
-      onPayClick={handlePayClick}
+      onScanClick={handleScanClick}
       onProductActionButtonClick={handleSwagClick}
     />
   )

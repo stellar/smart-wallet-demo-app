@@ -41,7 +41,7 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
         replace: true,
       })
       // Refetch wallet
-      queryClient.fetchQuery(getWallet())
+      queryClient.forceRefetch(getWallet())
       // Close modal
       if (args?.closeModal) modalService.close()
     },
