@@ -204,8 +204,12 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       // Get tokenId from tx response
       mintedTokenId = ScConvert.scValToString(txResponse.returnValue as xdr.ScVal)
 
-      // Update newUserNft with newly minted tokenId
-      await queryRunner.manager.update(NftModel, { nftId: newUserNft.nftId }, { tokenId: mintedTokenId })
+      // Update newUserNft with newly minted tokenId and mint tx hash
+      await queryRunner.manager.update(
+        NftModel,
+        { nftId: newUserNft.nftId },
+        { tokenId: mintedTokenId, transactionHash: txResponse.txHash }
+      )
 
       // Commit transaction if all operations succeed
       await queryRunner.commitTransaction()

@@ -62,9 +62,10 @@ export class ListNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT
 
       const nft: NftSchemaT = {
         token_id: userNft.tokenId,
-        code: tokenData.symbol,
-        name: tokenData.name,
-        description: tokenData.description || '',
+        transaction_hash: userNft.transactionHash,
+        code: userNft.nftSupply?.code || tokenData.symbol,
+        name: userNft.nftSupply?.name || tokenData.name,
+        description: userNft.nftSupply?.description || tokenData.description || '',
         url: userNft.nftSupply?.url || tokenData.url || '',
         contract_address: userNft.contractAddress || '',
       }
