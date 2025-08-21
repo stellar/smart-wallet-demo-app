@@ -33,7 +33,7 @@ export default class NftRepository extends SingletonBase implements NftRepositor
       .getOne()
   }
 
-  async getNftByUserIdSessionId(userId: string, sessionId: string): Promise<Nft | null> {
+  async getNftByUserAndSessionId(userId: string, sessionId: string): Promise<Nft | null> {
     return NftModel.createQueryBuilder('nft')
       .leftJoinAndSelect('nft.nftSupply', 'nftSupply')
       .where('nftSupply.sessionId = :sessionId', { sessionId })
