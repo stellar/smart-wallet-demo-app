@@ -2,7 +2,7 @@ import { Mocked } from 'vitest'
 
 import { NftSupplyRepositoryType } from 'api/core/entities/nft-supply/types'
 
-export function mockNftRepository(): Mocked<NftSupplyRepositoryType> {
+export function mockNftSupplyRepository(): Mocked<NftSupplyRepositoryType> {
   return {
     getNftSupplyById: vi.fn(),
     getNftSupplyByContractAddress: vi.fn(),

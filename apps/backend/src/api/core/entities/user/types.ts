@@ -11,6 +11,7 @@ export type User = UserModel
 export type UserRepositoryType = {
   getUserById(userId: string): Promise<User | null>
   getUserByToken(token: string): Promise<User | null>
+  getUserByContractAddress(contractAddress: string): Promise<User | null>
   getUserByEmail(email: string, options?: FindOneOptions<User>): Promise<User | null>
   createUser(
     user: {

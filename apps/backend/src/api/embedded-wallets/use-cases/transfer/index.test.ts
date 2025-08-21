@@ -11,6 +11,7 @@ import { mockAssetRepository } from 'api/core/services/asset/mock'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { mockUserProductRepository } from 'api/core/services/user-product/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+import { TransferTypes } from 'api/embedded-wallets/use-cases/transfer-options/types'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { mockSorobanService } from 'interfaces/soroban/mock'
@@ -49,14 +50,6 @@ const mockUser = userFactory({
   passkeys: mockPasskeys,
 })
 
-const mockAuthenticationResponse = {
-  passkey: { credentialId: 'cred-1' },
-  clientDataJSON: 'client-data-json',
-  authenticatorData: 'authenticator-data',
-  compactSignature: 'compact-signature',
-  customMetadata: { type: 'soroban', tx: { hash: 'test-tx-hash' }, simulationResponse: { id: 'simulation-id' } },
-}
-
 const mockAsset = assetFactory({
   assetId: 'asset-1',
   code: 'USDC',
@@ -75,6 +68,18 @@ const mockTransaction = {
   toXDR: vi.fn().mockReturnValue('mock-xdr'),
 } as unknown as Transaction
 
+const mockAuthenticationResponse = {
+  passkey: mockPasskeys[0],
+  clientDataJSON: Buffer.from('client-data-json'),
+  authenticatorData: Buffer.from('authenticator-data'),
+  compactSignature: Buffer.from('compact-signature'),
+  customMetadata: {
+    type: 'soroban' as const,
+    tx: mockTransaction,
+    simulationResponse: mockSimulationResponse,
+  },
+}
+
 const mockTxResponse = {
   status: rpc.Api.GetTransactionStatus.SUCCESS,
   txHash: 'mock-tx-hash-123',
@@ -86,37 +91,45 @@ const mockedUserProductRepository = mockUserProductRepository()
 const mockedWebauthnAuthenticationHelper = mockWebAuthnAuthentication()
 const mockedSorobanService = mockSorobanService()
 
-const mockedCompleteAuthentication = vi.fn()
-mockedWebauthnAuthenticationHelper.complete = mockedCompleteAuthentication
-
-const mockedSignAuthEntries = vi.fn()
-mockedSorobanService.signAuthEntries = mockedSignAuthEntries
-
-const mockedSimulateTransaction = vi.fn()
-mockedSorobanService.simulateTransaction = mockedSimulateTransaction
+mockedWebauthnAuthenticationHelper.complete = vi.fn()
+mockedSorobanService.signAuthEntries = vi.fn()
+mockedSorobanService.simulateTransaction = vi.fn()
 
 let useCase: Transfer
 
 describe('Transfer', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+
+    // Mock the complete authentication method to return the expected structure
+    mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(mockAuthenticationResponse)
+
+    // Mock the simulateContractOperation method
+    mockedSorobanService.signAuthEntries.mockResolvedValue({ hash: 'test-tx-hash' } as unknown as Transaction)
+
     useCase = new Transfer(
       mockedUserRepository,
       mockedAssetRepository,
       mockedUserProductRepository,
+      undefined, // nftRepository
+      undefined, // nftSupplyRepository
       mockedWebauthnAuthenticationHelper,
       mockedSorobanService
     )
-
-    // Mock the simulateContractOperation method
-    mockedSorobanService.signAuthEntries.mockResolvedValue({ hash: 'test-tx-hash' } as unknown as Transaction)
   })
 
   describe('handle', () => {
     it('should successfully transfer assets', async () => {
-      const payload = {
+      const payload: {
+        email: string
+        type: TransferTypes.TRANSFER
+        asset: string
+        to: string
+        amount: number
+        authentication_response_json: string
+      } = {
         email: mockUser.email,
-        type: 'transfer' as const,
+        type: TransferTypes.TRANSFER,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 100,
@@ -124,10 +137,10 @@ describe('Transfer', () => {
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedCompleteAuthentication.mockResolvedValue(mockAuthenticationResponse)
+      mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(mockAuthenticationResponse)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedSignAuthEntries.mockResolvedValue(mockTransaction)
-      mockedSimulateTransaction.mockResolvedValue(mockSimulationResponse)
+      mockedSorobanService.signAuthEntries.mockResolvedValue(mockTransaction)
+      mockedSorobanService.simulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue(mockTxResponse)
 
       const result = await useCase.handle(payload)
@@ -135,15 +148,15 @@ describe('Transfer', () => {
       expect(result.data.hash).toBe('mock-tx-hash-123')
       expect(result.message).toBe('Transaction executed successfully')
       expect(mockedUserRepository.getUserByEmail).toHaveBeenCalledWith(mockUser.email, { relations: ['passkeys'] })
-      expect(mockedCompleteAuthentication).toHaveBeenCalledWith({
+      expect(mockedWebauthnAuthenticationHelper.complete).toHaveBeenCalledWith({
         type: 'raw',
         user: mockUser,
         authenticationResponseJSON: payload.authentication_response_json,
       })
       expect(mockedAssetRepository.getAssetByCode).toHaveBeenCalledWith('USDC')
-      expect(mockedSignAuthEntries).toHaveBeenCalledWith({
+      expect(mockedSorobanService.signAuthEntries).toHaveBeenCalledWith({
         contractId: mockAsset.contractAddress,
-        tx: { hash: 'test-tx-hash' },
+        tx: mockTransaction,
         simulationResponse: { id: 'simulation-id' },
         signers: [
           {
@@ -163,9 +176,16 @@ describe('Transfer', () => {
     })
 
     it('should successfully transfer swag asset and update user product', async () => {
-      const payload = {
+      const payload: {
+        email: string
+        type: TransferTypes.SWAG
+        asset: string
+        to: string
+        amount: number
+        authentication_response_json: string
+      } = {
         email: mockUser.email,
-        type: 'swag' as const,
+        type: TransferTypes.SWAG,
         asset: 'SWAG',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 1,
@@ -173,10 +193,10 @@ describe('Transfer', () => {
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedCompleteAuthentication.mockResolvedValue(mockAuthenticationResponse)
+      mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(mockAuthenticationResponse)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockSwagAsset)
-      mockedSignAuthEntries.mockResolvedValue(mockTransaction)
-      mockedSimulateTransaction.mockResolvedValue(mockSimulationResponse)
+      mockedSorobanService.signAuthEntries.mockResolvedValue(mockTransaction)
+      mockedSorobanService.simulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue(mockTxResponse)
       mockedUserProductRepository.getUserProductsByUserContractAddressAndAssetCode.mockResolvedValue([
         {
@@ -196,15 +216,15 @@ describe('Transfer', () => {
       expect(result.data.hash).toBe('mock-tx-hash-123')
       expect(result.message).toBe('Transaction executed successfully')
       expect(mockedUserRepository.getUserByEmail).toHaveBeenCalledWith(mockUser.email, { relations: ['passkeys'] })
-      expect(mockedCompleteAuthentication).toHaveBeenCalledWith({
+      expect(mockedWebauthnAuthenticationHelper.complete).toHaveBeenCalledWith({
         type: 'raw',
         user: mockUser,
         authenticationResponseJSON: payload.authentication_response_json,
       })
       expect(mockedAssetRepository.getAssetByCode).toHaveBeenCalledWith('SWAG')
-      expect(mockedSignAuthEntries).toHaveBeenCalledWith({
+      expect(mockedSorobanService.signAuthEntries).toHaveBeenCalledWith({
         contractId: mockSwagAsset.contractAddress,
-        tx: { hash: 'test-tx-hash' },
+        tx: mockTransaction,
         simulationResponse: { id: 'simulation-id' },
         signers: [
           {
@@ -225,9 +245,16 @@ describe('Transfer', () => {
     })
 
     it('should throw ResourceNotFoundException when asset not found in database', async () => {
-      const payload = {
+      const payload: {
+        email: string
+        type: TransferTypes.TRANSFER
+        asset: string
+        to: string
+        amount: number
+        authentication_response_json: string
+      } = {
         email: mockUser.email,
-        type: 'transfer' as const,
+        type: TransferTypes.TRANSFER,
         asset: 'XLM',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 100,
@@ -235,7 +262,7 @@ describe('Transfer', () => {
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedCompleteAuthentication.mockResolvedValue(mockAuthenticationResponse)
+      mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(mockAuthenticationResponse)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(null)
 
       await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
@@ -244,9 +271,16 @@ describe('Transfer', () => {
     })
 
     it('should throw ResourceNotFoundException when user does not exist', async () => {
-      const payload = {
+      const payload: {
+        email: string
+        type: TransferTypes.TRANSFER
+        asset: string
+        to: string
+        amount: number
+        authentication_response_json: string
+      } = {
         email: 'notfound@example.com',
-        type: 'transfer' as const,
+        type: TransferTypes.TRANSFER,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 100,
@@ -256,7 +290,7 @@ describe('Transfer', () => {
       mockedUserRepository.getUserByEmail.mockResolvedValue(null)
 
       await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
-      expect(mockedCompleteAuthentication).not.toHaveBeenCalled()
+      expect(mockedWebauthnAuthenticationHelper.complete).not.toHaveBeenCalled()
     })
 
     it('should throw ResourceNotFoundException when user has no passkeys', async () => {
@@ -266,9 +300,16 @@ describe('Transfer', () => {
         passkeys: [],
       })
 
-      const payload = {
+      const payload: {
+        email: string
+        type: TransferTypes.TRANSFER
+        asset: string
+        to: string
+        amount: number
+        authentication_response_json: string
+      } = {
         email: userWithoutPasskeys.email,
-        type: 'transfer' as const,
+        type: TransferTypes.TRANSFER,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 100,
@@ -278,13 +319,20 @@ describe('Transfer', () => {
       mockedUserRepository.getUserByEmail.mockResolvedValue(userWithoutPasskeys)
 
       await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
-      expect(mockedCompleteAuthentication).not.toHaveBeenCalled()
+      expect(mockedWebauthnAuthenticationHelper.complete).not.toHaveBeenCalled()
     })
 
     it('should throw ResourceNotFoundException when authentication fails', async () => {
-      const payload = {
+      const payload: {
+        email: string
+        type: TransferTypes.TRANSFER
+        asset: string
+        to: string
+        amount: number
+        authentication_response_json: string
+      } = {
         email: mockUser.email,
-        type: 'transfer' as const,
+        type: TransferTypes.TRANSFER,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 100,
@@ -292,7 +340,7 @@ describe('Transfer', () => {
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedCompleteAuthentication.mockResolvedValue(false)
+      mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(false)
 
       await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
       await expect(useCase.handle(payload)).rejects.toThrow('The requested resource was not found')
@@ -300,9 +348,16 @@ describe('Transfer', () => {
     })
 
     it('should throw Error when transaction execution fails', async () => {
-      const payload = {
+      const payload: {
+        email: string
+        type: TransferTypes.TRANSFER
+        asset: string
+        to: string
+        amount: number
+        authentication_response_json: string
+      } = {
         email: mockUser.email,
-        type: 'transfer' as const,
+        type: TransferTypes.TRANSFER,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 100,
@@ -310,10 +365,10 @@ describe('Transfer', () => {
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedCompleteAuthentication.mockResolvedValue(mockAuthenticationResponse)
+      mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(mockAuthenticationResponse)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedSignAuthEntries.mockResolvedValue(mockTransaction)
-      mockedSimulateTransaction.mockResolvedValue(mockSimulationResponse)
+      mockedSorobanService.signAuthEntries.mockResolvedValue(mockTransaction)
+      mockedSorobanService.simulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue({
         ...mockTxResponse,
         status: rpc.Api.GetTransactionStatus.FAILED,
@@ -323,9 +378,16 @@ describe('Transfer', () => {
     })
 
     it('should throw Error when submitTx returns null', async () => {
-      const payload = {
+      const payload: {
+        email: string
+        type: TransferTypes.TRANSFER
+        asset: string
+        to: string
+        amount: number
+        authentication_response_json: string
+      } = {
         email: mockUser.email,
-        type: 'transfer' as const,
+        type: TransferTypes.TRANSFER,
         asset: 'USDC',
         to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
         amount: 100,
@@ -333,10 +395,10 @@ describe('Transfer', () => {
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedCompleteAuthentication.mockResolvedValue(mockAuthenticationResponse)
+      mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(mockAuthenticationResponse)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedSignAuthEntries.mockResolvedValue(mockTransaction)
-      mockedSimulateTransaction.mockResolvedValue(mockSimulationResponse)
+      mockedSorobanService.signAuthEntries.mockResolvedValue(mockTransaction)
+      mockedSorobanService.simulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue(null as unknown as rpc.Api.GetSuccessfulTransactionResponse)
 
       await expect(useCase.handle(payload)).rejects.toThrow('The requested resource was not found')
@@ -348,7 +410,7 @@ describe('Transfer', () => {
       const req = {
         userData: { email: mockUser.email },
         body: {
-          type: 'transfer' as const,
+          type: TransferTypes.TRANSFER,
           asset: 'USDC',
           to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
           amount: 100,
@@ -362,10 +424,10 @@ describe('Transfer', () => {
       } as unknown as Response
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedCompleteAuthentication.mockResolvedValue(mockAuthenticationResponse)
+      mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(mockAuthenticationResponse)
       mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
-      mockedSignAuthEntries.mockResolvedValue(mockTransaction)
-      mockedSimulateTransaction.mockResolvedValue(mockSimulationResponse)
+      mockedSorobanService.signAuthEntries.mockResolvedValue(mockTransaction)
+      mockedSorobanService.simulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue(mockTxResponse)
 
       await useCase.executeHttp(req, res)
@@ -383,11 +445,11 @@ describe('Transfer', () => {
       const req = {
         userData: {},
         body: {
-          type: 'transfer',
+          type: TransferTypes.TRANSFER,
           asset: 'USDC',
           to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
           amount: 100,
-          authenticationResponseJSON: '{"id":"TestPayload123"}',
+          authentication_response_json: '{"id":"TestPayload123"}',
         },
       } as unknown as Request
 
@@ -403,11 +465,11 @@ describe('Transfer', () => {
     it('should throw UnauthorizedException when userData is missing', async () => {
       const req = {
         body: {
-          type: 'transfer',
+          type: TransferTypes.TRANSFER,
           asset: 'USDC',
           to: 'GB223OFHVKVAH2NBXP4AURJRVJTSOVHGBMKJNL6GRJWNN4SARVGSITYG',
           amount: 100,
-          authenticationResponseJSON: '{"id":"TestPayload123"}',
+          authentication_response_json: '{"id":"TestPayload123"}',
         },
       } as unknown as Request
 
