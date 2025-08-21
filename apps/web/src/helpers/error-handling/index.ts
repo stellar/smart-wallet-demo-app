@@ -80,7 +80,11 @@ export class ErrorHandling {
         message = c('webauthnNotSupportedError')
         break
       case 'InvalidStateError':
-        message = c('webauthnInvalidStateError')
+        if (error.code === 'ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED') {
+          message = c('webauthnInvalidStateErrorAuthenticatorAlreadyRegistered')
+        } else {
+          message = c('webauthnInvalidStateError')
+        }
         break
       case 'NotAllowedError':
         message = c('webauthnNotAllowedError')

@@ -95,6 +95,7 @@
   "claimSwagSuccess": "Done! Your swag was claimed successfully",
   "webauthnNotSupportedError": "Your browser does not support WebAuthn. Please use a modern browser that supports security keys or biometrics",
   "webauthnInvalidStateError": "This action cannot be completed right now. Please refresh the page or try again",
+  "webauthnInvalidStateErrorAuthenticatorAlreadyRegistered": "Looks like you already have a passkey registered. Please log in or delete the existing passkey to register a new one",
   "webauthnNotAllowedError": "The operation either cancelled, timed out, or was not allowed",
   "webauthnSecurityError": "This action is blocked for security reasons. Make sure you are using a secure connection and the correct site",
   "webauthnConstraintError": "Some required information is missing or not valid. Please check your input and try again",

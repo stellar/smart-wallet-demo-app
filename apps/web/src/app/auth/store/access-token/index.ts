@@ -2,10 +2,15 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
 import { ACCESS_TOKEN_STORAGE_KEY, AUTH_TOKEN_CHANNEL_KEY } from 'src/app/auth/constants/storage'
+import { CoreQueryKeys } from 'src/app/core/queries/query-keys'
 import { router } from 'src/app/core/router'
+import { useWalletAddressStore } from 'src/app/wallet/store'
+import { useWalletStatusStore } from 'src/app/wallet/store/wallet-status'
+import { queryClient } from 'src/interfaces/query-client'
 
 import { AccessTokenStoreFields, AccessTokenStoreState } from './types'
 import { AuthPagesPath } from '../../routes/types'
+import { useEmailStore } from '../email'
 
 const INITIAL_STATE: AccessTokenStoreFields = {
   accessToken: null,
@@ -56,7 +61,13 @@ export const useAccessTokenStore = create<AccessTokenStoreState>()(
        * Defaults to `true`.
        */
       clearAccessToken: (redirectTo = AuthPagesPath.LOGIN, broadcast = true) => {
+        queryClient.clearExcept([[CoreQueryKeys.GetFeatureFlags]])
+
         set({ accessToken: null })
+        useEmailStore.getState().clearEmail()
+        useWalletAddressStore.getState().clearWalletAddress()
+        useWalletStatusStore.getState().clearWalletStatus()
+
         if (broadcast) channel.postMessage({ type: 'CLEAR_TOKEN' })
         if (redirectTo) {
           router.clearCache()
