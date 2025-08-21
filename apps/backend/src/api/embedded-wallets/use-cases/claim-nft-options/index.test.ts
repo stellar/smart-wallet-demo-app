@@ -22,6 +22,7 @@ const mockNftRepository = {
   getNftById: vi.fn(),
   getNftByTokenId: vi.fn(),
   getNftBySessionId: vi.fn(),
+  getNftByUserIdSessionId: vi.fn(),
   getNftByContractAddress: vi.fn(),
   createNft: vi.fn(),
   updateNft: vi.fn(),
@@ -134,7 +135,7 @@ describe('ClaimNftOptions', () => {
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockNftSupplyRepository.getNftSupplyByResource.mockResolvedValue(mockNftSupply)
-      mockNftRepository.getNftBySessionId.mockResolvedValue(null)
+      mockNftRepository.getNftByUserIdSessionId.mockResolvedValue(null)
 
       await claimNftOptions.executeHttp(req, res)
 
@@ -158,7 +159,7 @@ describe('ClaimNftOptions', () => {
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockNftSupplyRepository.getNftSupplyByResource.mockResolvedValue(mockNftSupply)
-      mockNftRepository.getNftBySessionId.mockResolvedValue(null)
+      mockNftRepository.getNftByUserIdSessionId.mockResolvedValue(null)
 
       await claimNftOptions.executeHttp(req, res)
 
@@ -244,7 +245,7 @@ describe('ClaimNftOptions', () => {
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockNftSupplyRepository.getNftSupplyByResource.mockResolvedValue(null)
       mockNftSupplyRepository.getNftSupplyByContractAddress.mockResolvedValue(mockNftSupply)
-      mockNftRepository.getNftBySessionId.mockResolvedValue(null)
+      mockNftRepository.getNftByUserIdSessionId.mockResolvedValue(null)
 
       const payload: RequestSchemaT = {
         email: 'test@example.com',
@@ -294,7 +295,7 @@ describe('ClaimNftOptions', () => {
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockNftSupplyRepository.getNftSupplyByResource.mockResolvedValue(mockNftSupply)
-      mockNftRepository.getNftBySessionId.mockResolvedValue(existingNft)
+      mockNftRepository.getNftByUserIdSessionId.mockResolvedValue(existingNft)
 
       const payload: RequestSchemaT = {
         email: 'test@example.com',
@@ -303,13 +304,13 @@ describe('ClaimNftOptions', () => {
       }
 
       await expect(claimNftOptions.handle(payload)).rejects.toThrow(ResourceNotFoundException)
-      expect(mockNftRepository.getNftBySessionId).toHaveBeenCalledWith('session-123')
+      expect(mockNftRepository.getNftByUserIdSessionId).toHaveBeenCalledWith('user-123', 'session-123')
     })
 
     it('should return NFT options successfully when all conditions are met', async () => {
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockNftSupplyRepository.getNftSupplyByResource.mockResolvedValue(mockNftSupply)
-      mockNftRepository.getNftBySessionId.mockResolvedValue(null)
+      mockNftRepository.getNftByUserIdSessionId.mockResolvedValue(null)
 
       const payload: RequestSchemaT = {
         email: 'test@example.com',
