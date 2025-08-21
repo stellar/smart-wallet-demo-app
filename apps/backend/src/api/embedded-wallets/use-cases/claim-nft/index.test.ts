@@ -202,7 +202,7 @@ describe('ClaimNft', () => {
       } as unknown as User)
 
       mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(mockNftSupply)
-      mockedNftRepository.getNftBySessionId.mockResolvedValue(null)
+      mockedNftRepository.getNftByUserIdSessionId.mockResolvedValue(null)
       mockedNftRepository.createNft.mockResolvedValue(mockNft)
       mockedNftSupplyRepository.incrementMintedAmount.mockResolvedValue({
         ...mockNftSupply,
@@ -279,7 +279,7 @@ describe('ClaimNft', () => {
       mockedNftSupplyRepository.getNftSupplyByContractAndSessionId.mockResolvedValue(mockNftSupply)
 
       // Mock the rest of the flow
-      mockedNftRepository.getNftBySessionId.mockResolvedValue(null)
+      mockedNftRepository.getNftByUserIdSessionId.mockResolvedValue(null)
       mockedNftRepository.createNft.mockResolvedValue(mockNft)
       mockedNftSupplyRepository.incrementMintedAmount.mockResolvedValue({
         ...mockNftSupply,
@@ -320,7 +320,7 @@ describe('ClaimNft', () => {
       } as unknown as User)
 
       mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(mockNftSupply)
-      mockedNftRepository.getNftBySessionId.mockResolvedValue(mockNft)
+      mockedNftRepository.getNftByUserIdSessionId.mockResolvedValue(mockNft)
 
       await expect(claimNft.handle(validPayload)).rejects.toThrow(ResourceNotFoundException)
     })
@@ -424,7 +424,7 @@ describe('ClaimNft', () => {
       } as unknown as User)
 
       mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(mockNftSupply)
-      mockedNftRepository.getNftBySessionId.mockResolvedValue(null)
+      mockedNftRepository.getNftByUserIdSessionId.mockResolvedValue(null)
       mockedNftRepository.createNft.mockResolvedValue(mockNft)
       mockedNftSupplyRepository.incrementMintedAmount.mockResolvedValue({
         ...mockNftSupply,
@@ -453,7 +453,7 @@ describe('ClaimNft', () => {
       } as unknown as User)
 
       mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(mockNftSupply)
-      mockedNftRepository.getNftBySessionId.mockResolvedValue(null)
+      mockedNftRepository.getNftByUserIdSessionId.mockResolvedValue(null)
       mockedNftRepository.createNft.mockResolvedValue(mockNft)
       mockedNftSupplyRepository.incrementMintedAmount.mockResolvedValue({
         ...mockNftSupply,
@@ -483,7 +483,7 @@ describe('ClaimNft', () => {
       } as unknown as User)
 
       mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(mockNftSupply)
-      mockedNftRepository.getNftBySessionId.mockResolvedValue(null)
+      mockedNftRepository.getNftByUserIdSessionId.mockResolvedValue(null)
       mockedNftRepository.createNft.mockResolvedValue(mockNft)
       mockedNftSupplyRepository.incrementMintedAmount.mockResolvedValue({
         ...mockNftSupply,
