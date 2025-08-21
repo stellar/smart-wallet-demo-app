@@ -9,8 +9,8 @@ export default class UserRepository extends SingletonBase implements UserReposit
     super()
   }
 
-  async getUserById(userId: string): Promise<User | null> {
-    return UserModel.findOneBy({ userId })
+  async getUserById(userId: string, options?: FindOneOptions<User>): Promise<User | null> {
+    return UserModel.findOne({ where: { userId: userId }, ...options })
   }
 
   async getUserByToken(token: string): Promise<User | null> {
@@ -19,6 +19,10 @@ export default class UserRepository extends SingletonBase implements UserReposit
 
   async getUserByEmail(email: string, options?: FindOneOptions<User>): Promise<User | null> {
     return UserModel.findOne({ where: { email: email }, ...options })
+  }
+
+  async getUserByContractAddress(contractAddress: string): Promise<User | null> {
+    return UserModel.findOneBy({ contractAddress })
   }
 
   async createUser(user: { uniqueToken: string; email: string }, save?: boolean): Promise<User> {

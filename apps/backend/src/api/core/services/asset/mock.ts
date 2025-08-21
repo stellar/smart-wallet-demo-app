@@ -4,6 +4,7 @@ import { AssetRepositoryType } from 'api/core/entities/asset/types'
 
 export function mockAssetRepository(): Mocked<AssetRepositoryType> {
   return {
+    getAssets: vi.fn(),
     getAssetById: vi.fn(),
     getAssetByContractAddress: vi.fn(),
     getAssetByType: vi.fn(),

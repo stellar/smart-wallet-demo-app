@@ -3,6 +3,12 @@ import { z } from 'zod'
 import { createResponseSchema } from 'api/core/framework/use-case/base'
 import { refineJsonString } from 'api/core/utils/zod'
 
+export const enum TransferTypes {
+  TRANSFER = 'transfer',
+  NFT = 'nft',
+  SWAG = 'swag',
+}
+
 const baseSchema = {
   email: z.string(),
   asset: z.string(),

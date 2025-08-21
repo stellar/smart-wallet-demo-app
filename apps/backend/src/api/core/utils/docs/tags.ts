@@ -1,5 +1,5 @@
 export enum Tags {
-  EMBEDDED_WALLETS = 'embedded-wallets',
-  FEATURE_FLAGS = 'feature-flags',
-  ADMIN = 'admin',
+  EMBEDDED_WALLETS = 'Embedded Wallets',
+  FEATURE_FLAGS = 'Feature Flags',
+  ADMIN = 'Admin',
 }

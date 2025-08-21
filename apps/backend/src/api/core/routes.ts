@@ -4,7 +4,7 @@ import express, { NextFunction, Request, Response, Router } from 'express'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 
 import embeddedWalletsRoutes from '../embedded-wallets/routes'
-import { router as featureFlagsRoutes, adminRouter as adminFeatureFlagsRoutes } from '../general-settings/routes'
+import { featureFlagsRoutes, adminFeatureFlagsRoutes, adminAssetsRoutes } from '../general-settings/routes'
 
 function routes(http: express.Router): void {
   http.get('/health', (_req, res) => {
@@ -15,6 +15,7 @@ function routes(http: express.Router): void {
   http.use('/api/feature-flags', featureFlagsRoutes)
 
   http.use('/api/admin/feature-flags', adminFeatureFlagsRoutes)
+  http.use('/api/admin/assets', adminAssetsRoutes)
 }
 
 export { routes, Request, Response, Router, NextFunction }

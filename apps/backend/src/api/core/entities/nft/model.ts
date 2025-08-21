@@ -13,6 +13,7 @@ import { User } from '../user/model'
 
 @Entity()
 @Index(['nftSupply'], { unique: true })
+@Index(['tokenId', 'contractAddress'], { unique: true })
 export class Nft extends ModelBase {
   @PrimaryGeneratedColumn('uuid')
   nftId: string

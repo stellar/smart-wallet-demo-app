@@ -4,6 +4,7 @@ import { User } from 'api/core/entities/user/model'
 import { randomContractAddress } from 'test-utils'
 
 import { GiftClaim } from '../gift-claim/model'
+import { Nft } from '../nft/model'
 import { Passkey } from '../passkey/types'
 import { UserProduct } from '../user-product/types'
 
@@ -15,6 +16,7 @@ interface UserFactoryArgs {
   passkeys?: Passkey[]
   giftClaims?: GiftClaim[]
   userProducts?: UserProduct[]
+  nfts?: Nft[]
 }
 
 export const userFactory = ({
@@ -25,6 +27,7 @@ export const userFactory = ({
   passkeys,
   giftClaims,
   userProducts,
+  nfts,
 }: UserFactoryArgs): User => {
   const user = new User()
   user.userId = userId ?? faker.string.uuid()
@@ -34,5 +37,6 @@ export const userFactory = ({
   user.passkeys = passkeys ?? []
   user.giftClaims = giftClaims ?? []
   user.userProducts = userProducts ?? []
+  user.nfts = nfts ?? []
   return user
 }
