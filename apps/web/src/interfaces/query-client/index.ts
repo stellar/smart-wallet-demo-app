@@ -2,12 +2,6 @@ import { QueryClient, FetchQueryOptions, QueryKey } from '@tanstack/react-query'
 
 import { ErrorHandling } from 'src/helpers/error-handling'
 
-/**
- * Same as fetchQuery but removes the query from cache first.
- * If the query is currently fetching, it will be cancelled.
- * @param options - The options to fetch the query with.
- * @returns A promise that resolves or rejects with the result of the query.
- */
 QueryClient.prototype.forceRefetch = async function <TQueryFnData = unknown, TError = unknown, TData = TQueryFnData>(
   options: FetchQueryOptions<TQueryFnData, TError, TData>
 ): Promise<TData> {
@@ -33,11 +27,6 @@ QueryClient.prototype.forceRefetch = async function <TQueryFnData = unknown, TEr
   }
 }
 
-/**
- * Clear all queries from the cache except the ones with the given keys.
- * @param excludedKeys - The keys of the queries to keep in the cache.
- * @returns void
- */
 QueryClient.prototype.clearExcept = function (excludedKeys: QueryKey[][]): void {
   const cache = this.getQueryCache()
   const queries = cache.getAll()
