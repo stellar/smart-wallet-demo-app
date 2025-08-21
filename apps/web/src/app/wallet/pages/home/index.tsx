@@ -47,7 +47,7 @@ export const Home = () => {
     }
   }
 
-  const handlePayClick = () => navigate({ to: WalletPagesPath.SCAN })
+  const handleScanClick = () => navigate({ to: WalletPagesPath.SCAN })
 
   const handleSwagClick = () => navigate({ to: WalletPagesPath.SCAN })
 
@@ -90,7 +90,7 @@ export const Home = () => {
       products={swags}
       isProductActionButtonDisabled={isSwagActionButtonDisabled}
       onNavbarButtonClick={handleNavbarButtonClick}
-      onPayClick={handlePayClick}
+      onScanClick={handleScanClick}
       onProductActionButtonClick={handleSwagClick}
     />
   )
