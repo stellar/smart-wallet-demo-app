@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
 
@@ -14,14 +14,17 @@ import { AuthPagesPath } from '../../routes/types'
 export const Invite = () => {
   const search = inviteRoute.useSearch()
   const navigate = useNavigate()
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   const createWallet = useCreateWallet({
     onSuccess: () => {
+      setIsRedirecting(true)
       navigate({ to: WalletPagesPath.HOME })
     },
   })
   const logIn = useLogIn({
     onSuccess: () => {
+      setIsRedirecting(true)
       navigate({ to: WalletPagesPath.HOME })
     },
   })
@@ -46,11 +49,16 @@ export const Invite = () => {
     navigate({ to: AuthPagesPath.RECOVER })
   }
 
+  // Reset redirecting state when component mounts
+  useEffect(() => {
+    setIsRedirecting(false)
+  }, [])
+
   return (
     <InviteTemplate
       isReturningUser={isReturningUser}
-      isCreatingWallet={createWallet.isPending}
-      isLoggingIn={createWallet.isPending}
+      isCreatingWallet={createWallet.isPending || isRedirecting}
+      isLoggingIn={logIn.isPending || isRedirecting}
       onCreateWallet={handleCreateWallet}
       onLogIn={handleLogIn}
       onForgotPassword={handleForgotPassword}

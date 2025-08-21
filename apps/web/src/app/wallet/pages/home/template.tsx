@@ -35,7 +35,7 @@ type Props = {
     }[]
   }
   onNavbarButtonClick: (item: NavbarItemType) => void
-  onPayClick: () => void
+  onScanClick: () => void
   onProductActionButtonClick: () => void
 }
 
@@ -71,7 +71,7 @@ export const HomeTemplate = ({
     ],
   },
   onNavbarButtonClick,
-  onPayClick,
+  onScanClick,
   onProductActionButtonClick,
 }: Props) => {
   const HorizontalRule = () => <div className="border-t border-borderPrimary w-full" />
@@ -127,15 +127,8 @@ export const HomeTemplate = ({
           <AssetAmount amount={balanceAmount} size="lg" asset={{ value: 'XLM', variant: 'sm' }} />
         </div>
 
-        <Button
-          disabled={balanceAmount === 0}
-          variant={'secondary'}
-          size={'lg'}
-          icon={<Icon.Scan />}
-          iconPosition="left"
-          onClick={onPayClick}
-        >
-          {c('pay')}
+        <Button variant={'secondary'} size={'lg'} icon={<Icon.Scan />} iconPosition="left" onClick={onScanClick}>
+          {c('scan')}
         </Button>
       </div>
     )

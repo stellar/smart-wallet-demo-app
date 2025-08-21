@@ -7,6 +7,12 @@ on:
         required: true
       APP_CONTENT_URL:
         required: true
+      SENTRY_ORG:
+        required: false
+      SENTRY_PROJECT_WEB:
+        required: false
+      SENTRY_AUTH_TOKEN:
+        required: false
 
 jobs:
   build:
@@ -45,6 +51,10 @@ jobs:
           push: false
           tags: build-web:${{ steps.get-version.outputs.version }}
           outputs: type=docker,dest=/tmp/docker_image_web.tar
+          build-args: |
+            SENTRY_ORG=${{ secrets.SENTRY_ORG || '' }}
+            SENTRY_PROJECT_WEB=${{ secrets.SENTRY_PROJECT_WEB || '' }}
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN || '' }}
 
       - name: Upload image artifact
         uses: actions/upload-artifact@v4

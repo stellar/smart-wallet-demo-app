@@ -25,7 +25,7 @@ import SorobanService from 'interfaces/soroban'
 import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
 import { ISorobanService } from 'interfaces/soroban/types'
 
-import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
+import { RequestSchema, RequestSchemaT, ResponseSchemaT, TransferTypes } from './types'
 
 const endpoint = '/transfer/options'
 
@@ -102,7 +102,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     const assetContractAddress = asset?.contractAddress
 
     // Check if user has available swags for this asset
-    if (validatedData.type === 'swag') {
+    if (validatedData.type === TransferTypes.SWAG) {
       const unclaimedSwags = await this.userProductRepository.getUserProductsByUserContractAddressAndAssetCode(
         user.contractAddress,
         asset.code,
@@ -115,11 +115,11 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     // Get user balance from network
     const userBalance = await getWalletBalance({ userContractAddress: user.contractAddress, assetCode: asset.code })
 
-    if (validatedData.type === 'transfer' && userBalance < validatedData.amount) {
+    if (validatedData.type === TransferTypes.TRANSFER && userBalance < validatedData.amount) {
       throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_ENOUGH_BALANCE)
     }
 
-    if (validatedData.type === 'swag' && userBalance < validatedData.amount) {
+    if (validatedData.type === TransferTypes.SWAG && userBalance < validatedData.amount) {
       throw new ResourceNotFoundException(messages.USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE)
     }
 
@@ -127,14 +127,14 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     let args: xdr.ScVal[] = []
     let method: string = 'transfer'
 
-    if (validatedData.type === 'transfer' || validatedData.type === 'swag') {
+    if (validatedData.type === TransferTypes.TRANSFER || validatedData.type === TransferTypes.SWAG) {
       method = 'transfer'
       args = [
         ScConvert.accountIdToScVal(user.contractAddress as string),
         ScConvert.accountIdToScVal(validatedData.to as string),
         ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount.toString())),
       ]
-    } else if (validatedData.type === 'nft') {
+    } else if (validatedData.type === TransferTypes.NFT) {
       method = 'transfer'
       args = [
         ScConvert.accountIdToScVal(user.contractAddress as string),
@@ -177,14 +177,14 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
 
     // Get vendor data (for 'transfer' and 'nft' types only)
     let vendor: Vendor | null = null
-    if (validatedData.type === 'transfer' || validatedData.type === 'nft') {
+    if (validatedData.type === TransferTypes.TRANSFER || validatedData.type === TransferTypes.NFT) {
       vendor = await this.vendorRepository.getVendorByWalletAddress(validatedData.to)
     }
 
     // Get products data (for 'transfer' type only)
     let products: Product[] = []
     const productCodes =
-      validatedData.type === 'transfer'
+      validatedData.type === TransferTypes.TRANSFER
         ? validatedData.product
             ?.replace(/\s+/g, '')
             .split(',')

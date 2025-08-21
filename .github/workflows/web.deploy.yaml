@@ -27,6 +27,9 @@ jobs:
     secrets:
       APP_ASSETS_URL: ${{ secrets.WEB_APP_ASSETS_URL }}
       APP_CONTENT_URL: ${{ secrets.WEB_APP_CONTENT_URL }}
+      SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+      SENTRY_PROJECT_WEB: ${{ secrets.SENTRY_PROJECT_WEB }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
   code-quality:
     name: Code quality

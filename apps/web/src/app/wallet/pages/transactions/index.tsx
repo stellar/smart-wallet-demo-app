@@ -15,7 +15,7 @@ export const Transactions = () => {
   const canGoBack = useCanGoBack()
   const router = useRouter()
 
-  const { data: transactionHistoryData, isPending: isLoadingTransactionHistory } = useGetTransactionHistory()
+  const { data: transactionHistoryData, isLoading: isLoadingTransactionHistory } = useGetTransactionHistory()
 
   const transactions = transactionHistoryData?.data.transactions || []
 
