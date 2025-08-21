@@ -3,6 +3,7 @@ import { Vendor as VendorModel } from 'api/core/entities/vendor/model'
 export type Vendor = VendorModel
 
 export type VendorRepositoryType = {
+  getVendors(): Promise<Vendor[]>
   getVendorById(vendorId: string): Promise<Vendor | null>
   getVendorByWalletAddress(walletAddress: string): Promise<Vendor | null>
   createVendor(
