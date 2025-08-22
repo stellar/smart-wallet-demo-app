@@ -8,4 +8,5 @@ export enum WalletQueryKeys {
   ClaimAirdrop = 'ClaimAirdrop',
   GetNfts = 'GetNfts',
   ClaimNft = 'ClaimNft',
+  ClaimGift = 'ClaimGift',
 }

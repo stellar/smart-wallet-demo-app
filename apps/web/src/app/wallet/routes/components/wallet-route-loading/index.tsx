@@ -5,7 +5,11 @@ import { useWalletStatusStore } from 'src/app/wallet/store/wallet-status'
 import { Loading } from 'src/components/atoms'
 import { c } from 'src/interfaces/cms/useContent'
 
-export const WalletRouteLoading = () => {
+type Props = {
+  overrideDescription?: string
+}
+
+export const WalletRouteLoading = ({ overrideDescription }: Props) => {
   const { status: walletStatus } = useWalletStatusStore()
   const [timeoutReached, setTimeoutReached] = useState(false)
 
@@ -38,7 +42,7 @@ export const WalletRouteLoading = () => {
 
         {/* Description */}
         <Text as="span" size="md" weight="medium" addlClassName="text-center">
-          {description}
+          {overrideDescription ? overrideDescription : description}
         </Text>
       </div>
     </div>

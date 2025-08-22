@@ -94,7 +94,10 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     // Check if user already has a wallet
     if (user.contractAddress) {
       // Get all info from a valid wallet (balance, etc)
-      const { balance, isAirdropAvailable, swags } = await this.infoFromValidWallet(user.userId, user.contractAddress)
+      const { balance, isAirdropAvailable, isGiftAvailable, swags } = await this.infoFromValidWallet(
+        user.userId,
+        user.contractAddress
+      )
 
       // Get NFT balances
       let nftBalances: TokenBalanceT[] = []
@@ -109,6 +112,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
         balance,
         token_balances: nftBalances,
         is_airdrop_available: isAirdropAvailable,
+        is_gift_available: isGiftAvailable,
         swags,
       })
     }
@@ -138,10 +142,14 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
         balance: 0,
         email: user.email,
         is_airdrop_available: false,
+        is_gift_available: false,
       })
 
     // Get all info from a valid wallet (balance, etc)
-    const { balance, isAirdropAvailable, swags } = await this.infoFromValidWallet(user.userId, user.contractAddress)
+    const { balance, isAirdropAvailable, isGiftAvailable, swags } = await this.infoFromValidWallet(
+      user.userId,
+      user.contractAddress
+    )
 
     let nftBalances: TokenBalanceT[] = []
     if (user.nfts.length > 0) {
@@ -155,6 +163,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       balance,
       token_balances: nftBalances,
       is_airdrop_available: isAirdropAvailable,
+      is_gift_available: isGiftAvailable,
       swags,
     })
   }
@@ -162,7 +171,12 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
   private async infoFromValidWallet(
     userId: string,
     contractAddress: string
-  ): Promise<{ balance: number; isAirdropAvailable: boolean; swags: ResponseSchemaT['data']['swags'] }> {
+  ): Promise<{
+    balance: number
+    isAirdropAvailable: boolean
+    isGiftAvailable: boolean
+    swags: ResponseSchemaT['data']['swags']
+  }> {
     // Get wallet balance
     const balance = await getWalletBalance({
       userContractAddress: contractAddress,
@@ -170,11 +184,13 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       sorobanService: this.sorobanService,
     })
 
-    // Get airdrop contract address from config
+    // Get airdrop contract addresses from config
     const airdropContractAddress = STELLAR.AIRDROP_CONTRACT_ADDRESS
+    const giftContractAddress = STELLAR.GIFT_AIRDROP_CONTRACT_ADDRESS
 
-    // Get user airdrop proof
+    // Get user airdrop proofs
     const airdropProof = await this.proofRepository.findByAddressAndContract(contractAddress, airdropContractAddress)
+    const giftProof = await this.proofRepository.findByAddressAndContract(contractAddress, giftContractAddress)
 
     // Map swags
     const swags = await this.syncWalletSwags(userId, contractAddress)
@@ -182,6 +198,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     return {
       balance,
       isAirdropAvailable: airdropProof ? !airdropProof.isClaimed : false,
+      isGiftAvailable: giftProof ? !giftProof.isClaimed : false,
       swags,
     }
   }

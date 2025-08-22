@@ -1,8 +1,11 @@
-import { createRoute } from '@tanstack/react-router'
+import { createRoute, ErrorComponent } from '@tanstack/react-router'
+import * as yup from 'yup'
 
 import { privateRootRoute } from 'src/app/core/router/routeTree'
 import { Home, Scan, Profile, Transactions, Nfts, SpecialGift } from 'src/app/wallet/pages'
+import { checkImageExists } from 'src/helpers/check-image-exists'
 import { sleepInSeconds } from 'src/helpers/sleep'
+import { c } from 'src/interfaces/cms/useContent'
 import { qrScanner } from 'src/interfaces/qr-scanner'
 
 import { WalletRouteError, WalletRouteLoading } from './components'
@@ -49,6 +52,7 @@ export const homeRoute = createRoute({
   getParentRoute: () => walletRootRoute,
   path: '/',
   component: Home,
+  errorComponent: ({ error }) => <ErrorComponent error={error} />,
   validateSearch: search => {
     switch (search.type as TransferTypes) {
       case 'transfer':
@@ -91,10 +95,34 @@ const nftsRoute = createRoute({
   component: Nfts,
 })
 
-const specialGiftRoute = createRoute({
+export const specialGiftRoute = createRoute({
   getParentRoute: () => walletRootRoute,
   path: filterHomePath(WalletPagesPath.SPECIAL_GIFT),
   component: SpecialGift,
+  pendingComponent: () => <WalletRouteLoading overrideDescription={c('specialGiftRouteLoadingDescription')} />,
+  errorComponent: ({ error }) => <ErrorComponent error={error} />,
+  validateSearch: search =>
+    yup
+      .object({
+        photo_id: yup.string().required(),
+      })
+      .validateSync(search),
+  loaderDeps: ({ search }) => ({
+    photo_id: search.photo_id,
+  }),
+  loader: async ({ deps }) => {
+    const url = `${import.meta.env.VITE_GIFT_STORAGE_BASE_URL}/${deps.photo_id}.jpg`
+    const maxRetries = 10
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        await checkImageExists(url)
+        return { url }
+      } catch {
+        await sleepInSeconds(1)
+      }
+    }
+    throw new Error('Photo not found. Please try again later.')
+  },
 })
 
 walletRootRoute.addChildren([homeRoute, scanRoute, profileRoute, transactionsRoute, nftsRoute, specialGiftRoute])

@@ -1,17 +1,19 @@
 import { rpc } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
-import { GiftReservationRepositoryType } from 'api/core/entities/gift-claim/types'
+import { ProductRepositoryType } from 'api/core/entities/product/types'
 import { ProofRepositoryType } from 'api/core/entities/proof/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
+import { UserProductRepositoryType } from 'api/core/entities/user-product/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import { submitTx } from 'api/core/helpers/submit-tx'
 import WebAuthnAuthentication from 'api/core/helpers/webauthn/authentication'
 import { IWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/types'
-import GiftReservationRepository from 'api/core/services/gift-claim'
+import ProductRepository from 'api/core/services/product'
 import ProofRepository from 'api/core/services/proof'
 import UserRepository from 'api/core/services/user'
+import UserProductRepository from 'api/core/services/user-product'
 import { sha256Hash } from 'api/core/utils/crypto'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
@@ -30,21 +32,24 @@ const endpoint = '/gift/complete'
 export class GiftComplete extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
   private proofRepository: ProofRepositoryType
   private userRepository: UserRepositoryType
-  private giftReservationRepository: GiftReservationRepositoryType
+  private productRepository: ProductRepositoryType
+  private userProductRepository: UserProductRepositoryType
   private webauthnAuthenticationHelper: IWebAuthnAuthentication
   private sorobanService: ISorobanService
 
   constructor(
     proofRepository?: ProofRepositoryType,
     userRepository?: UserRepositoryType,
-    giftReservationRepository?: GiftReservationRepositoryType,
+    productRepository?: ProductRepositoryType,
+    userProductRepository?: UserProductRepositoryType,
     webauthnAuthenticationHelper?: IWebAuthnAuthentication,
     sorobanService?: ISorobanService
   ) {
     super()
     this.proofRepository = proofRepository || ProofRepository.getInstance()
     this.userRepository = userRepository || UserRepository.getInstance()
-    this.giftReservationRepository = giftReservationRepository || GiftReservationRepository.getInstance()
+    this.productRepository = productRepository || ProductRepository.getInstance()
+    this.userProductRepository = userProductRepository || UserProductRepository.getInstance()
     this.webauthnAuthenticationHelper = webauthnAuthenticationHelper || WebAuthnAuthentication.getInstance()
     this.sorobanService = sorobanService || SorobanService.getInstance()
   }
@@ -81,6 +86,11 @@ export class GiftComplete extends UseCaseBase implements IUseCaseHttp<ResponseSc
 
     if (!user.passkeys.length) {
       throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_PASSKEYS)
+    }
+
+    const giftProduct = await this.productRepository.getProductByCode('gift')
+    if (!giftProduct) {
+      throw new ResourceNotFoundException(messages.UNABLE_TO_FIND_GIFT_PRODUCT)
     }
 
     const giftContractAddress = STELLAR.GIFT_AIRDROP_CONTRACT_ADDRESS
@@ -138,6 +148,18 @@ export class GiftComplete extends UseCaseBase implements IUseCaseHttp<ResponseSc
     if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
       throw new ResourceNotFoundException(messages.UNABLE_TO_EXECUTE_GIFT_CLAIM)
     }
+
+    // Update database proof
+    proof.isClaimed = true
+    await this.proofRepository.saveProofs([proof])
+
+    // Create user product
+    const userProduct = await this.userProductRepository.createUserProduct({
+      user,
+      product: giftProduct,
+      status: 'unclaimed',
+    })
+    await this.userProductRepository.saveUserProducts([userProduct])
 
     logger.info(
       {
