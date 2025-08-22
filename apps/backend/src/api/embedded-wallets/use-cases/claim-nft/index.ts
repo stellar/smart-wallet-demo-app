@@ -108,7 +108,7 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     }
 
     // Validate if user already own a NFT to that session
-    const userNft = await this.nftRepository.getNftBySessionId(nftSupply.sessionId)
+    const userNft = await this.nftRepository.getNftByUserIdSessionId(user.userId, nftSupply.sessionId)
 
     if (userNft) {
       throw new ResourceNotFoundException(messages.NFT_ALREADY_OWNED_BY_USER)
@@ -204,8 +204,12 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       // Get tokenId from tx response
       mintedTokenId = ScConvert.scValToString(txResponse.returnValue as xdr.ScVal)
 
-      // Update newUserNft with newly minted tokenId
-      await queryRunner.manager.update(NftModel, { nftId: newUserNft.nftId }, { tokenId: mintedTokenId })
+      // Update newUserNft with newly minted tokenId and mint tx hash
+      await queryRunner.manager.update(
+        NftModel,
+        { nftId: newUserNft.nftId },
+        { tokenId: mintedTokenId, transactionHash: txResponse.txHash }
+      )
 
       // Commit transaction if all operations succeed
       await queryRunner.commitTransaction()

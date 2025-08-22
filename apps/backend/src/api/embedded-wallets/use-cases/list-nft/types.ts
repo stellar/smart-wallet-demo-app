@@ -9,6 +9,7 @@ export const NftSchema = z.object({
   url: z.string(),
   code: z.string(), // Symbol
   contract_address: z.string().optional(),
+  transaction_hash: z.string().optional(),
   issuer: z.string().optional(),
 })
 

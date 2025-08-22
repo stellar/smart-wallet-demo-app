@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import { createResponseSchema } from 'api/core/framework/use-case/base'
 import { refineJsonString } from 'api/core/utils/zod'
+import { TransferTypes } from 'api/embedded-wallets/use-cases/transfer-options/types'
 
 const baseSchema = {
   email: z.string(),
@@ -12,20 +13,20 @@ const baseSchema = {
 
 const transferTypeSchema = z.object({
   ...baseSchema,
-  type: z.enum(['transfer']),
+  type: z.enum([TransferTypes.TRANSFER]),
   amount: z.number(),
   product: z.string().optional(),
 })
 
 const nftTypeSchema = z.object({
   ...baseSchema,
-  type: z.enum(['nft']),
+  type: z.enum([TransferTypes.NFT]),
   id: z.string(),
 })
 
 const swagTypeSchema = z.object({
   ...baseSchema,
-  type: z.enum(['swag']),
+  type: z.enum([TransferTypes.SWAG]),
   amount: z.number(),
 })
 

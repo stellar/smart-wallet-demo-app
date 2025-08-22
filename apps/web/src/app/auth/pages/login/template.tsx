@@ -11,12 +11,13 @@ import { c } from 'src/interfaces/cms/useContent'
 import { FormValues } from './schema'
 
 type Props = {
+  isLoggingIn: boolean
   form: UseFormReturn<FormValues>
   onGoBack: () => void
   onLogIn: (values: FormValues) => void
 }
 
-export const LogInTemplate = ({ form, onGoBack, onLogIn }: Props) => {
+export const LogInTemplate = ({ isLoggingIn, form, onGoBack, onLogIn }: Props) => {
   const { watch } = form
 
   const emailValue = watch('email')
@@ -48,7 +49,14 @@ export const LogInTemplate = ({ form, onGoBack, onLogIn }: Props) => {
             />
 
             <div className="mt-3">
-              <Form.Submit disabled={isSendResetLinkDisabled} size="lg" variant="tertiary" isRounded isFullWidth>
+              <Form.Submit
+                disabled={isSendResetLinkDisabled}
+                isLoading={isLoggingIn}
+                size="lg"
+                variant="tertiary"
+                isRounded
+                isFullWidth
+              >
                 {c('logIn')}
               </Form.Submit>
             </div>

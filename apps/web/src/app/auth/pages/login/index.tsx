@@ -1,5 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
@@ -14,9 +15,11 @@ export const LogIn = () => {
   const router = useRouter()
   const navigate = useNavigate()
   const canGoBack = useCanGoBack()
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   const logIn = useLogIn({
     onSuccess: () => {
+      setIsRedirecting(true)
       navigate({ to: WalletPagesPath.HOME })
     },
   })
@@ -37,9 +40,21 @@ export const LogIn = () => {
     navigate({ to: AuthPagesPath.WELCOME })
   }
 
-  const handleLogIn = async (values: FormValues) => {
-    await logIn.mutateAsync({ email: values.email })
+  const handleLogIn = (values: FormValues) => {
+    logIn.mutate({ email: values.email })
   }
 
-  return <LogInTemplate form={form} onGoBack={handleGoBack} onLogIn={handleLogIn} />
+  // Reset redirecting state when component mounts
+  useEffect(() => {
+    setIsRedirecting(false)
+  }, [])
+
+  return (
+    <LogInTemplate
+      isLoggingIn={logIn.isPending || isRedirecting}
+      form={form}
+      onGoBack={handleGoBack}
+      onLogIn={handleLogIn}
+    />
+  )
 }
