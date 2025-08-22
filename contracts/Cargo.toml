@@ -10,6 +10,7 @@ stellar-ownable = { git = "https://github.com/OpenZeppelin/stellar-contracts", t
 stellar-crypto = { git = "https://github.com/OpenZeppelin/stellar-contracts", tag = "v0.3.0" }
 stellar-merkle-distributor = { git = "https://github.com/OpenZeppelin/stellar-contracts", tag = "v0.3.0" }
 stellar-default-impl-macro = { git = "https://github.com/OpenZeppelin/stellar-contracts", tag = "v0.3.0" }
+stellar-non-fungible = { git = "https://github.com/OpenZeppelin/stellar-contracts", tag = "v0.3.0" }
 
 [profile.release]
 opt-level = "z"

@@ -769,6 +769,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
+name = "nft"
+version = "0.0.0"
+dependencies = [
+ "hex-literal 1.0.0",
+ "soroban-sdk",
+ "stellar-default-impl-macro",
+ "stellar-non-fungible",
+]
+
+[[package]]
 name = "num-bigint"
 version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1384,6 +1394,15 @@ dependencies = [
  "soroban-sdk",
  "stellar-constants",
  "stellar-crypto",
+]
+
+[[package]]
+name = "stellar-non-fungible"
+version = "0.3.0"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts?tag=v0.3.0#659fcabdc0e4712254dfebe4f45efd54f49826e9"
+dependencies = [
+ "soroban-sdk",
+ "stellar-constants",
 ]
 
 [[package]]
