@@ -1,4 +1,5 @@
-import { Button, Icon } from '@stellar/design-system'
+import { Text, Button, Icon } from '@stellar/design-system'
+import Skeleton from 'react-loading-skeleton'
 
 import { Typography, TypographyVariant } from 'src/components/atoms'
 import { GhostButton } from 'src/components/molecules'
@@ -7,14 +8,24 @@ import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 
 type Props = {
+  isCheckingGiftEligibility: boolean
   isSharingImage: boolean
+  isGiftClaimed: boolean
   imageUri: string
   onGoBack: () => void
   onClaimGift: () => void
   onShareImage: () => void
 }
 
-export const SpecialGiftTemplate = ({ isSharingImage, imageUri, onGoBack, onClaimGift, onShareImage }: Props) => {
+export const SpecialGiftTemplate = ({
+  isCheckingGiftEligibility,
+  isSharingImage,
+  isGiftClaimed,
+  imageUri,
+  onGoBack,
+  onClaimGift,
+  onShareImage,
+}: Props) => {
   return (
     <SafeAreaView>
       {/* Centered component */}
@@ -31,9 +42,30 @@ export const SpecialGiftTemplate = ({ isSharingImage, imageUri, onGoBack, onClai
         </div>
 
         <div className="flex flex-col w-full gap-4">
-          <Button variant={'secondary'} size="lg" onClick={onClaimGift} isRounded isFullWidth>
-            {c('claimGift')}
-          </Button>
+          {isCheckingGiftEligibility ? (
+            <Skeleton height={40} borderRadius={'1.25rem'} />
+          ) : (
+            <div className="flex flex-col gap-[10px]">
+              <Button
+                disabled={isGiftClaimed}
+                variant={'secondary'}
+                size="lg"
+                onClick={onClaimGift}
+                isRounded
+                isFullWidth
+              >
+                {c('claimGift')}
+              </Button>
+              {isGiftClaimed && (
+                <div className="text-center text-textSecondary">
+                  <Text as={'p'} size="sm" weight="medium">
+                    {c('specialGiftClaimedDescription')}
+                  </Text>
+                </div>
+              )}
+            </div>
+          )}
+
           <Button
             isLoading={isSharingImage}
             variant={'tertiary'}

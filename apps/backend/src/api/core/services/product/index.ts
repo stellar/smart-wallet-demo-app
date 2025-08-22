@@ -15,6 +15,10 @@ export default class ProductRepository extends SingletonBase implements ProductR
     return ProductModel.findOneBy({ productId })
   }
 
+  async getProductByCode(code: string): Promise<Product | null> {
+    return ProductModel.findOneBy({ code })
+  }
+
   async getProductsByCode(code: string[]): Promise<Product[]> {
     return ProductModel.findBy({ code: In(code) })
   }

@@ -2,13 +2,15 @@ import { rpc, Transaction } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { passkeyFactory } from 'api/core/entities/passkey/factory'
+import { productFactory } from 'api/core/entities/product/factory'
 import { Proof } from 'api/core/entities/proof/model'
 import { userFactory } from 'api/core/entities/user/factory'
 import { submitTx } from 'api/core/helpers/submit-tx'
 import { mockWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/mocks'
-import { mockGiftReservationRepository } from 'api/core/services/gift-claim/mocks'
+import { mockProductRepository } from 'api/core/services/product/mocks'
 import { mockProofRepository } from 'api/core/services/proof/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
+import { mockUserProductRepository } from 'api/core/services/user-product/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { STELLAR } from 'config/stellar'
 import { BadRequestException } from 'errors/exceptions/bad-request'
@@ -45,13 +47,21 @@ const mockProof: Proof = {
   createdAt: new Date(),
 }
 
+const mockProduct = productFactory({
+  code: 'gift',
+  name: 'Gift',
+  isHidden: true,
+  isSwag: true,
+})
+
 const mockGiftId = 'test-gift-id'
 const mockAuthResponseJson = '{"id":"credential-id","response":{"authenticatorData":"mock-data"}}'
 const mockTxHash = 'mock-transaction-hash'
 
 const mockedUserRepository = mockUserRepository()
 const mockedProofRepository = mockProofRepository()
-const mockedGiftReservationRepository = mockGiftReservationRepository()
+const mockedProductRepository = mockProductRepository()
+const mockedUserProductRepository = mockUserProductRepository()
 const mockedWebAuthnAuthentication = mockWebAuthnAuthentication()
 const mockedSorobanService = mockSorobanService()
 const mockedSubmitTx = vi.mocked(submitTx)
@@ -80,13 +90,15 @@ describe('GiftComplete', () => {
     useCase = new GiftComplete(
       mockedProofRepository,
       mockedUserRepository,
-      mockedGiftReservationRepository,
+      mockedProductRepository,
+      mockedUserProductRepository,
       mockedWebAuthnAuthentication,
       mockedSorobanService
     )
 
     mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
     mockedProofRepository.findByAddressAndContract.mockResolvedValue(mockProof)
+    mockedProductRepository.getProductByCode.mockResolvedValue(mockProduct)
     mockedWebAuthnAuthentication.complete.mockResolvedValue(mockVerifyAuthResult)
     mockedSorobanService.signAuthEntries.mockResolvedValue({ hash: 'signed-tx-hash' } as unknown as Transaction)
     mockedSorobanService.simulateTransaction.mockResolvedValue({} as rpc.Api.SimulateTransactionSuccessResponse)
@@ -166,6 +178,13 @@ describe('GiftComplete', () => {
         authenticationResponseJSON: mockAuthResponseJson,
       })
       expect(mockedSorobanService.signAuthEntries).toHaveBeenCalled()
+      expect(mockedProofRepository.saveProofs).toHaveBeenCalled()
+      expect(mockedUserProductRepository.createUserProduct).toHaveBeenCalledWith({
+        user: mockUser,
+        product: mockProduct,
+        status: 'unclaimed',
+      })
+      expect(mockedUserProductRepository.saveUserProducts).toHaveBeenCalled()
       expect(mockedSubmitTx).toHaveBeenCalled()
     })
 
@@ -186,6 +205,18 @@ describe('GiftComplete', () => {
         ...mockUser,
         contractAddress: null,
       } as unknown as typeof mockUser)
+
+      await expect(
+        useCase.handle({
+          email: mockUser.email,
+          giftId: mockGiftId,
+          authentication_response_json: mockAuthResponseJson,
+        })
+      ).rejects.toThrow(ResourceNotFoundException)
+    })
+
+    it('should throw error when gift product not found', async () => {
+      mockedProductRepository.getProductByCode.mockResolvedValue(null)
 
       await expect(
         useCase.handle({

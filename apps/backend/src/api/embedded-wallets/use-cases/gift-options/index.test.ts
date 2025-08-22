@@ -3,10 +3,12 @@ import { Request, Response } from 'express'
 
 import { giftClaimFactory } from 'api/core/entities/gift-claim/factory'
 import { passkeyFactory } from 'api/core/entities/passkey/factory'
+import { productFactory } from 'api/core/entities/product/factory'
 import { Proof } from 'api/core/entities/proof/model'
 import { userFactory } from 'api/core/entities/user/factory'
 import { mockWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/mocks'
 import { mockGiftReservationRepository } from 'api/core/services/gift-claim/mocks'
+import { mockProductRepository } from 'api/core/services/product/mocks'
 import { mockProofRepository } from 'api/core/services/proof/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
@@ -54,6 +56,13 @@ const mockGiftClaim = giftClaimFactory({
   contractAddress: mockUser.contractAddress as string,
 })
 
+const mockProduct = productFactory({
+  code: 'gift',
+  name: 'Gift',
+  isHidden: true,
+  isSwag: true,
+})
+
 const mockGiftId = 'test-gift-id'
 const mockChallenge = 'mock-challenge-data'
 const mockOptions = '{"challenge":"mock-challenge","userVerification":"required"}'
@@ -61,6 +70,7 @@ const mockOptions = '{"challenge":"mock-challenge","userVerification":"required"
 const mockedUserRepository = mockUserRepository()
 const mockedProofRepository = mockProofRepository()
 const mockedGiftReservationRepository = mockGiftReservationRepository()
+const mockedProductRepository = mockProductRepository()
 const mockedWebAuthnAuthentication = mockWebAuthnAuthentication()
 const mockedSorobanService = mockSorobanService()
 const mockedGiftEligibilityService = mockGiftEligibilityService()
@@ -78,6 +88,7 @@ describe('GiftOptions', () => {
       mockedProofRepository,
       mockedUserRepository,
       mockedGiftReservationRepository,
+      mockedProductRepository,
       mockedWebAuthnAuthentication,
       mockedSorobanService,
       mockedGiftEligibilityService
@@ -86,6 +97,7 @@ describe('GiftOptions', () => {
     mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
     mockedProofRepository.findByAddressAndContract.mockResolvedValue(mockProof)
     mockedGiftReservationRepository.reserveGift.mockResolvedValue(mockGiftClaim)
+    mockedProductRepository.getProductByCode.mockResolvedValue(mockProduct)
     vi.mocked(mockedGiftEligibilityService.checkGiftEligibility).mockResolvedValue(true)
     mockedSorobanService.simulateContractOperation
       .mockResolvedValueOnce({
@@ -235,6 +247,17 @@ describe('GiftOptions', () => {
         passkeys: [],
       })
       mockedUserRepository.getUserByEmail.mockResolvedValue(userWithoutPasskeys)
+
+      await expect(
+        useCase.handle({
+          email: mockUser.email,
+          giftId: mockGiftId,
+        })
+      ).rejects.toThrow(ResourceNotFoundException)
+    })
+
+    it('should throw error when gift product not found', async () => {
+      mockedProductRepository.getProductByCode.mockResolvedValue(null)
 
       await expect(
         useCase.handle({

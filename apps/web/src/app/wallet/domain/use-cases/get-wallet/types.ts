@@ -6,6 +6,7 @@ export type GetWalletResult = {
   email: string
   balance: number
   is_airdrop_available: boolean
+  is_gift_available: boolean
   swags?: {
     code: string
     name?: string

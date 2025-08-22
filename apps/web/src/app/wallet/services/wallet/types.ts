@@ -13,6 +13,8 @@ export interface IWalletService {
   getNfts: () => Promise<GetNftsResult>
   getNftClaimOptions: (session_id: string, resource: string) => Promise<GetNftClaimOptionsResult>
   claimNft: (input: ClaimNftInput) => Promise<ClaimNftResult>
+  getGiftOptions: (input: GetGiftOptionsInput) => Promise<GetGiftOptionsResult>
+  postGift: (input: PostGiftInput) => Promise<PostAirdropResult>
 }
 
 export type GetWalletResult = IHTTPResponse<{
@@ -21,6 +23,7 @@ export type GetWalletResult = IHTTPResponse<{
   email: string
   balance: number
   is_airdrop_available: boolean
+  is_gift_available: boolean
   swags?: {
     code: string
     name?: string
@@ -149,4 +152,23 @@ export type GetNftClaimOptionsResult = IHTTPResponse<{
     sessionId: string
     resource: string
   }
+}>
+
+export type GetGiftOptionsInput = {
+  giftId: string
+}
+export type GetGiftOptionsResult = IHTTPResponse<{
+  options_json: string
+  user: {
+    address: string
+    email: string
+  }
+}>
+
+export type PostGiftInput = {
+  giftId: string
+  authenticationResponseJSON: string
+}
+export type PostGiftResult = IHTTPResponse<{
+  hash: string
 }>

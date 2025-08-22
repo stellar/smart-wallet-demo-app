@@ -15,6 +15,10 @@ import {
   ClaimNftInput,
   ClaimNftResult,
   GetNftClaimOptionsResult,
+  GetGiftOptionsResult,
+  PostGiftInput,
+  PostGiftResult,
+  GetGiftOptionsInput,
 } from './types'
 
 export class WalletService implements IWalletService {
@@ -77,6 +81,21 @@ export class WalletService implements IWalletService {
 
   async claimNft(input: ClaimNftInput): Promise<ClaimNftResult> {
     const response = await authHttp.post(`/api/embedded-wallets/nft/claim/complete`, input)
+
+    return response.data
+  }
+
+  async getGiftOptions(input: GetGiftOptionsInput): Promise<GetGiftOptionsResult> {
+    const response = await authHttp.get('/api/embedded-wallets/gift/options', { params: input })
+
+    return response.data
+  }
+
+  async postGift(input: PostGiftInput): Promise<PostGiftResult> {
+    const response = await authHttp.post(`/api/embedded-wallets/gift/complete`, {
+      giftId: input.giftId,
+      authentication_response_json: input.authenticationResponseJSON,
+    })
 
     return response.data
   }
