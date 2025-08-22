@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/react'
 import axios, { AxiosResponse, HttpStatusCode, InternalAxiosRequestConfig } from 'axios'
 
 import { useAccessTokenStore } from 'src/app/auth/store'
+import logger from 'src/app/core/services/logger'
 
 export const accessTokenInterceptor = (config: InternalAxiosRequestConfig<any>) => {
   const accessToken = useAccessTokenStore.getState().accessToken
@@ -38,17 +39,21 @@ export const unauthorizedInterceptor = [
     }
 
     if (error.response?.status !== HttpStatusCode.Unauthorized && error.response?.status >= 500) {
-      Sentry.withScope((scope: Sentry.Scope) => {
-        scope.setLevel('error')
-        scope.setTag('errorType', 'api')
-        scope.setTag('section', 'http')
-        scope.setContext('request', requestContext)
-        scope.setExtra('status', error.response?.status)
-        scope.setExtra('statusText', error.response?.statusText)
-        scope.setExtra('responseData', error.response?.data)
+      try {
+        Sentry.withScope((scope: Sentry.Scope) => {
+          scope.setLevel('error')
+          scope.setTag('errorType', 'api')
+          scope.setTag('section', 'http')
+          scope.setContext('request', requestContext)
+          scope.setExtra('status', error.response?.status)
+          scope.setExtra('statusText', error.response?.statusText)
+          scope.setExtra('responseData', error.response?.data)
 
-        Sentry.captureException(error)
-      })
+          Sentry.captureException(error)
+        })
+      } catch (sentryError) {
+        logger.warn('Failed to send error to Sentry:', sentryError)
+      }
     }
 
     if (error.response?.status === HttpStatusCode.Unauthorized) {

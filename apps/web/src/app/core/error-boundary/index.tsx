@@ -2,6 +2,8 @@ import * as Sentry from '@sentry/react'
 import { ErrorInfo } from 'react'
 import { ErrorBoundary as ReactErrorBoundary, FallbackProps } from 'react-error-boundary'
 
+import logger from 'src/app/core/services/logger'
+
 import styles from './styles.module.css'
 
 export type ErrorBoundaryFallback = ({
@@ -42,13 +44,18 @@ const ErrorBoundary = ({
   children,
 }: IErrorBoundaryProps): JSX.Element => {
   const handleError = (error: Error, errorInfo: ErrorInfo) => {
-    const eventId = Sentry.captureException(error, {
-      contexts: {
-        react: {
-          componentStack: errorInfo.componentStack,
+    let eventId = null
+    try {
+      eventId = Sentry.captureException(error, {
+        contexts: {
+          react: {
+            componentStack: errorInfo.componentStack,
+          },
         },
-      },
-    })
+      })
+    } catch (sentryError) {
+      logger.warn('Failed to send error to Sentry:', sentryError)
+    }
     return eventId
   }
 
