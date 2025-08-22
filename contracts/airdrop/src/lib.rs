@@ -152,7 +152,7 @@ impl AirdropContract {
         }
     }
 
-    fn token_client(e: &Env) -> TokenClient {
+    fn token_client(e: &Env) -> TokenClient<'_> {
         let token_address = e
             .storage()
             .instance()

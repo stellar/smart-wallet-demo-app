@@ -1,0 +1,11 @@
+[DOCUMENTATION]
+ORG_URL=""
+
+[[CURRENCIES]]
+code=""
+issuer=""
+display_decimals=0
+name=""
+desc=""
+image=""
+fixed_number=""
