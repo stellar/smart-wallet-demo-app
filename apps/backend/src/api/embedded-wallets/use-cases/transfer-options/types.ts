@@ -17,20 +17,20 @@ const baseSchema = {
 
 const transferTypeSchema = z.object({
   ...baseSchema,
-  type: z.enum(['transfer']),
+  type: z.enum([TransferTypes.TRANSFER]),
   amount: z.number(),
   product: z.string().optional(),
 })
 
 const nftTypeSchema = z.object({
   ...baseSchema,
-  type: z.enum(['nft']),
-  id: z.string(), // tokenID
+  type: z.enum([TransferTypes.NFT]),
+  id: z.union([z.string(), z.array(z.string())]), // tokenID
 })
 
 const swagTypeSchema = z.object({
   ...baseSchema,
-  type: z.enum(['swag']),
+  type: z.enum([TransferTypes.SWAG]),
   amount: z.number(),
 })
 

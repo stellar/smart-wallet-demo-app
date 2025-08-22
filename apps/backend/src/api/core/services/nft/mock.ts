@@ -7,7 +7,7 @@ export function mockNftRepository(): Mocked<NftRepositoryType> {
     getNftById: vi.fn(),
     getNftByTokenId: vi.fn(),
     getNftBySessionId: vi.fn(),
-    getNftByUserIdSessionId: vi.fn(),
+    getNftByUserAndSessionId: vi.fn(),
     getNftByContractAddress: vi.fn(),
     getNftByTokenIdAndContractAddress: vi.fn(),
     createNft: vi.fn(),

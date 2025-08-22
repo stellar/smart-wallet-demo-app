@@ -135,12 +135,21 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
         ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount.toString())),
       ]
     } else if (validatedData.type === TransferTypes.NFT) {
-      method = 'transfer'
-      args = [
-        ScConvert.accountIdToScVal(user.contractAddress as string),
-        ScConvert.accountIdToScVal(validatedData.to as string),
-        ScConvert.stringToScValUnsigned(validatedData.id),
-      ]
+      if (Array.isArray(validatedData.id)) {
+        method = 'bulk_transfer'
+        args = [
+          ScConvert.accountIdToScVal(user.contractAddress as string),
+          ScConvert.accountIdToScVal(validatedData.to as string),
+          ...validatedData.id.map(tokenId => ScConvert.stringToScVal(tokenId)),
+        ]
+      } else {
+        method = 'transfer'
+        args = [
+          ScConvert.accountIdToScVal(user.contractAddress as string),
+          ScConvert.accountIdToScVal(validatedData.to as string),
+          ScConvert.stringToScVal(validatedData.id),
+        ]
+      }
     }
 
     // Simulate contract

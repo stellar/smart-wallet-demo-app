@@ -102,6 +102,7 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
 
     const assetContractAddress = asset?.contractAddress
 
+    // Validate if NFT belongs to user
     let userNft: Nft | null = null
     if (validatedData.type == TransferTypes.NFT) {
       userNft = await this.nftRepository.getNftByTokenIdAndContractAddress(validatedData.id, assetContractAddress)
@@ -195,9 +196,9 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       }
 
       // Delete NFT from previous user (who's transfering)
-      const deteledUserNft = await this.nftRepository.deleteNft(userNft?.nftId as string)
+      const deletedUserNft = await this.nftRepository.deleteNft(userNft?.nftId as string)
 
-      if (!deteledUserNft) {
+      if (!deletedUserNft) {
         throw new BadRequestException(messages.UNABLE_TO_DELETE_USER_NFT)
       }
     }
