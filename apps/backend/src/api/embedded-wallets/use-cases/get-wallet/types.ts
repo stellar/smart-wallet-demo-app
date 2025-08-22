@@ -9,6 +9,7 @@ export const ParseSchema = z.object({
   balance: z.number(),
   email: z.string().email(),
   is_airdrop_available: z.boolean(),
+  is_gift_available: z.boolean(),
   swags: z
     .array(
       z.object({

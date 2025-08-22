@@ -48,7 +48,7 @@ export class GiftEligibilityService extends SingletonBase implements IGiftEligib
     logger.debug({ giftIdHash }, 'Checking gift eligibility in storage')
 
     try {
-      const response = await this.connection.head(`/${giftId}`)
+      const response = await this.connection.head(`/${giftId}.jpg`)
 
       if (response.status === 200) {
         logger.info({ giftIdHash }, 'Gift is eligible for claiming')
