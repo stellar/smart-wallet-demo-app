@@ -1,0 +1,102 @@
+.navbar-button-container {
+  flex: 1;
+  height: 100%;
+  display: flex;
+}
+
+.navbar-button-container .navbar-button {
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  
+  padding: 6px 10px !important;
+  border-radius: 6px !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  
+  color: var(--color-text-secondary) !important;
+  
+  font-family: var(--font-family);
+  font-size: 14px !important;
+  font-weight: var(--font-weight-semibold) !important;
+  letter-spacing: -0.4px !important;
+  
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  min-height: auto !important;
+}
+
+.navbar-button-container .navbar-button:hover {
+  background-color: var(--color-muted) !important;
+  color: var(--color-brand-primary) !important;
+}
+
+.navbar-button-container--active .navbar-button {
+  background: var(--Brand-State-Primary, #EDE9FE) !important;
+  color: var(--color-brand-primary) !important;
+}
+
+.navbar-button-container--active .navbar-button:hover {
+  background-color: lighten(var(--color-brand-primary), 0.3) !important;
+}
+
+.navbar-button-container .navbar-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.navbar-button-container .navbar-button:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+.navbar-button__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.navbar-button__label {
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.4px;
+  line-height: 1;
+  color: inherit;
+}
+
+.navbar-button-container--icon-only .navbar-button {
+  padding: 6px !important;
+  gap: 0;
+  min-width: 32px;
+}
+
+.navbar-button-container--icon-only .navbar-button__label {
+  display: none;
+}
+
+.navbar-button-container .navbar-button * {
+  color: inherit !important;
+}
+
+@media (max-width: 640px) {
+  .navbar-button-container .navbar-button {
+    padding: 6px 10px !important;
+    gap: 4px;
+  }
+
+  .navbar-button__label {
+    font-size: 14px;
+  }
+
+  .navbar-button-container--icon-only .navbar-button {
+    padding: 6px !important;
+    min-width: 32px;
+  }
+}
