@@ -1,4 +1,4 @@
-import { xdr, rpc, Keypair } from '@stellar/stellar-sdk'
+import { xdr, rpc, nativeToScVal, Keypair } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { Nft as NftModel } from 'api/core/entities/nft/model'
@@ -125,11 +125,41 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       },
     }
 
+    // NFT metadata
+    const metadataMap = nativeToScVal({
+      'session_id': nftSupply.sessionId,
+      'resource': nftSupply.resource,
+    })
+
+    /* const typeMap = {
+      'session_id': [ 'symbol', 'scvString' ],
+      'resource': [ 'symbol', 'scvString' ],
+    } */
+
+    /* const metadataMap = xdr.ScVal.scvMap([
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol('session_id'),
+        val: xdr.ScVal.scvString(nftSupply.sessionId),
+      }),
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol('resource'),
+        val: xdr.ScVal.scvString(nftSupply.resource),
+      }),
+    ]) */
+
+    /* const metadataMap = nativeToScVal({
+      session_id: xdr.ScVal.scvString(nftSupply.sessionId),
+      resource: xdr.ScVal.scvString(nftSupply.resource),
+    }) */
+
     // Simulate 'mint' transaction
     const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
       contractId: nftSupply.contractAddress,
-      method: 'mint',
-      args: [ScConvert.accountIdToScVal(user.contractAddress as string)],
+      method: 'mint_with_data',
+      args: [
+        ScConvert.accountIdToScVal(user.contractAddress as string),
+        metadataMap,
+      ],
       signers: [transactionSigner],
     })
 
