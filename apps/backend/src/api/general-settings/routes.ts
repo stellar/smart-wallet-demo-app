@@ -4,10 +4,13 @@ import { apiKeyAuthentication } from 'api/core/middlewares/api-key-authenticatio
 
 import { CreateAsset, endpoint as CreateAssetEndpoint } from './use-cases/create-asset'
 import { CreateFeatureFlag, endpoint as CreateFeatureFlagEndpoint } from './use-cases/create-feature-flag'
+import { CreateVendor, endpoint as CreateVendorEndpoint } from './use-cases/create-vendor'
 import { GetAssets, endpoint as GetAssetsEndpoint } from './use-cases/get-assets'
 import { GetFeatureFlags, endpoint as GetFeatureFlagsEndpoint } from './use-cases/get-feature-flags'
+import { GetVendors, endpoint as GetVendorsEndpoint } from './use-cases/get-vendors'
 import { UpdateAsset, endpoint as UpdateAssetEndpoint } from './use-cases/update-asset'
 import { UpdateFeatureFlag, endpoint as UpdateFeatureFlagEndpoint } from './use-cases/update-feature-flag'
+import { UpdateVendor, endpoint as UpdateVendorEndpoint } from './use-cases/update-vendor'
 
 const featureFlagsRoutes = Router()
 featureFlagsRoutes.get(`${GetFeatureFlagsEndpoint}`, apiKeyAuthentication, async (req, res) =>
@@ -36,4 +39,15 @@ adminAssetsRoutes.patch(`${UpdateAssetEndpoint}`, apiKeyAuthentication, async (r
   UpdateAsset.init().executeHttp(req, res)
 )
 
-export { featureFlagsRoutes, adminFeatureFlagsRoutes, adminAssetsRoutes }
+const adminVendorsRoutes = Router()
+adminVendorsRoutes.get(`${GetVendorsEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  GetVendors.init().executeHttp(req, res)
+)
+adminVendorsRoutes.post(`${CreateVendorEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  CreateVendor.init().executeHttp(req, res)
+)
+adminVendorsRoutes.patch(`${UpdateVendorEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  UpdateVendor.init().executeHttp(req, res)
+)
+
+export { featureFlagsRoutes, adminFeatureFlagsRoutes, adminAssetsRoutes, adminVendorsRoutes }

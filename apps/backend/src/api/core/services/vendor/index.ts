@@ -7,6 +7,10 @@ export default class VendorRepository extends SingletonBase implements VendorRep
     super()
   }
 
+  async getVendors(): Promise<Vendor[]> {
+    return VendorModel.find()
+  }
+
   async getVendorById(vendorId: string): Promise<Vendor | null> {
     return VendorModel.findOneBy({ vendorId })
   }

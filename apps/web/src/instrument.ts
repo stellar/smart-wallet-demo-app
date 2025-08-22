@@ -5,27 +5,31 @@ import logger from 'src/app/core/services/logger'
 const dsn = import.meta.env.VITE_SENTRY_DSN
 
 if (dsn) {
-  const environment = import.meta.env.VITE_ENVIRONMENT_NAME || 'development'
+  try {
+    const environment = import.meta.env.VITE_ENVIRONMENT_NAME || 'development'
 
-  Sentry.init({
-    dsn,
-    environment,
-    release: import.meta.env.VITE_SENTRY_RELEASE || undefined,
+    Sentry.init({
+      dsn,
+      environment,
+      release: import.meta.env.VITE_SENTRY_RELEASE || undefined,
 
-    beforeSend(event) {
-      if (event.request?.headers) {
-        delete event.request.headers.authorization
-      }
+      beforeSend(event) {
+        if (event.request?.headers) {
+          delete event.request.headers.authorization
+        }
 
-      return event
-    },
+        return event
+      },
 
-    sendDefaultPii: false,
-    attachStacktrace: true,
-    debug: environment !== 'production',
-  })
+      sendDefaultPii: false,
+      attachStacktrace: true,
+      debug: environment !== 'production',
+    })
 
-  logger.log('Sentry initialized successfully')
+    logger.log('Sentry initialized successfully')
+  } catch (sentryError) {
+    logger.warn('Failed to initialize Sentry:', sentryError)
+  }
 } else {
   logger.log('Sentry DSN not configured, skipping initialization')
 }

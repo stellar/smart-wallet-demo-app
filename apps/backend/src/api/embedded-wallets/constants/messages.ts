@@ -36,6 +36,7 @@ export const messages = {
   GIFT_ALREADY_CLAIMED_BY_ANOTHER_ADDRESS: 'Gift has already been claimed by another address',
   GIFT_PROOF_NOT_FOUND: 'Gift proof not found for your address',
   GIFT_ALREADY_CLAIMED: 'Gift has already been claimed and cannot be claimed again',
+  UNABLE_TO_FIND_GIFT_PRODUCT: 'There is no gift available',
   UNABLE_TO_EXECUTE_GIFT_CLAIM: 'Unable to execute gift claim transaction',
   USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE:
     'The swag you are trying to claim has already been claimed or is not available',

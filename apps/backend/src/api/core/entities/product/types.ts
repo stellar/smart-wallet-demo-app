@@ -9,6 +9,7 @@ export type Product = ProductModel
 
 export type ProductRepositoryType = {
   getProductById(productId: string): Promise<Product | null>
+  getProductByCode(code: string): Promise<Product | null>
   getProductsByCode(code: string[]): Promise<Product[]>
   getSwagProducts(options?: FindOneOptions<Product>): Promise<Product[]>
   createProduct(

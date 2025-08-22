@@ -18,6 +18,7 @@ export const ParseSchema = z.object({
   token_balances: z.array(TokenBalance).optional(),
   email: z.string().email(),
   is_airdrop_available: z.boolean(),
+  is_gift_available: z.boolean(),
   swags: z
     .array(
       z.object({

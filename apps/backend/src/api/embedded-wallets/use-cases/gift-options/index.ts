@@ -2,6 +2,7 @@ import { nativeToScVal, xdr } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { GiftReservationRepositoryType } from 'api/core/entities/gift-claim/types'
+import { ProductRepositoryType } from 'api/core/entities/product/types'
 import { ProofRepositoryType } from 'api/core/entities/proof/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
@@ -9,6 +10,7 @@ import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import WebAuthnAuthentication from 'api/core/helpers/webauthn/authentication'
 import { IWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/types'
 import GiftReservationRepository from 'api/core/services/gift-claim'
+import ProductRepository from 'api/core/services/product'
 import ProofRepository from 'api/core/services/proof'
 import UserRepository from 'api/core/services/user'
 import { sha256Hash } from 'api/core/utils/crypto'
@@ -31,6 +33,7 @@ export class GiftOptions extends UseCaseBase implements IUseCaseHttp<ResponseSch
   private proofRepository: ProofRepositoryType
   private userRepository: UserRepositoryType
   private giftReservationRepository: GiftReservationRepositoryType
+  private productRepository: ProductRepositoryType
   private webauthnAuthenticationHelper: IWebAuthnAuthentication
   private sorobanService: ISorobanService
   private giftEligibilityService: IGiftEligibilityService
@@ -39,6 +42,7 @@ export class GiftOptions extends UseCaseBase implements IUseCaseHttp<ResponseSch
     proofRepository?: ProofRepositoryType,
     userRepository?: UserRepositoryType,
     giftReservationRepository?: GiftReservationRepositoryType,
+    productRepository?: ProductRepositoryType,
     webauthnAuthenticationHelper?: IWebAuthnAuthentication,
     sorobanService?: ISorobanService,
     giftEligibilityService?: IGiftEligibilityService
@@ -47,6 +51,7 @@ export class GiftOptions extends UseCaseBase implements IUseCaseHttp<ResponseSch
     this.proofRepository = proofRepository || ProofRepository.getInstance()
     this.userRepository = userRepository || UserRepository.getInstance()
     this.giftReservationRepository = giftReservationRepository || GiftReservationRepository.getInstance()
+    this.productRepository = productRepository || ProductRepository.getInstance()
     this.webauthnAuthenticationHelper = webauthnAuthenticationHelper || WebAuthnAuthentication.getInstance()
     this.sorobanService = sorobanService || SorobanService.getInstance()
     this.giftEligibilityService = giftEligibilityService || new GiftEligibilityService()
@@ -82,6 +87,11 @@ export class GiftOptions extends UseCaseBase implements IUseCaseHttp<ResponseSch
 
     if (!user.passkeys.length) {
       throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_PASSKEYS)
+    }
+
+    const giftProduct = await this.productRepository.getProductByCode('gift')
+    if (!giftProduct) {
+      throw new ResourceNotFoundException(messages.UNABLE_TO_FIND_GIFT_PRODUCT)
     }
 
     const eligible = await this.giftEligibilityService.checkGiftEligibility(giftId)
