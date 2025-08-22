@@ -10,6 +10,7 @@ import {
   xdr,
 } from '@stellar/stellar-sdk'
 
+import { Retryable } from 'api/core/framework/retryable/interface'
 import { SingletonBase } from 'api/core/framework/singleton/interface'
 import { logger } from 'config/logger'
 import { STELLAR } from 'config/stellar'
@@ -38,6 +39,7 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
     super()
     this.rpcClient = new rpc.Server(STELLAR.SOROBAN_RPC_URL, {
       allowHttp: STELLAR.SOROBAN_RPC_URL.startsWith('http://'),
+      timeout: 30000, // 30 seconds
     })
     this.networkPassphrase = STELLAR.NETWORK_PASSPHRASE
     this.timeoutInSeconds = 60
@@ -246,7 +248,7 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
 
     // Fetch the current contract ledger seq
     let validUntilLedgerSeq = 0
-    const entryRes = await this.rpcClient.getLedgerEntries(ledgerKey)
+    const entryRes = await Retryable.retry(() => this.rpcClient.getLedgerEntries(ledgerKey))
     if (entryRes.entries && entryRes.entries.length) {
       // set auth entry to expire when contract data expires, but could any number of blocks in the future
       validUntilLedgerSeq = entryRes.entries[0].liveUntilLedgerSeq || 0
@@ -281,7 +283,7 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
         },
       })
       // Fetch source account
-      const sourceAcc = await this.rpcClient.getAccount(this.sourceAccountKeypair.publicKey())
+      const sourceAcc = await Retryable.retry(() => this.rpcClient.getAccount(this.sourceAccountKeypair.publicKey()))
 
       // Initialize the contract
       const tokenContract = new Contract(contractId)
@@ -333,8 +335,8 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
    * @throws {Error} If the simulation fails.
    */
   public async simulateTransaction(tx: Transaction): Promise<rpc.Api.SimulateTransactionSuccessResponse> {
-    const simulationResponse = (await this.rpcClient.simulateTransaction(
-      tx
+    const simulationResponse = (await Retryable.retry(() =>
+      this.rpcClient.simulateTransaction(tx)
     )) as rpc.Api.SimulateTransactionSuccessResponse
     if (!rpc.Api.isSimulationSuccess(simulationResponse)) {
       this.logError('simulateTransaction', { context: { xdr: tx.toXDR(), simulationResponse } })
@@ -376,17 +378,16 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
     }
 
     // Send the transaction
-    const sendResponse = await this.rpcClient.sendTransaction(tx)
+    const sendResponse = await Retryable.retry(() => this.rpcClient.sendTransaction(tx))
     if (sendResponse.errorResult) {
       this.logError('sendTransaction', { context: { sendResponse } })
       throw new Error(ERRORS.SUBMIT_TX_FAILED)
     }
 
     // Poll for transaction status
-    let txResponse = await this.rpcClient.getTransaction(sendResponse.hash)
+    let txResponse = await Retryable.retry(() => this.rpcClient.getTransaction(sendResponse.hash))
     while (txResponse.status === rpc.Api.GetTransactionStatus.NOT_FOUND) {
-      txResponse = await this.rpcClient.getTransaction(sendResponse.hash)
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      txResponse = await Retryable.retry(() => this.rpcClient.getTransaction(sendResponse.hash))
     }
 
     // Check if transaction succeeded
