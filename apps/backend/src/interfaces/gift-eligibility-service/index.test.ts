@@ -41,7 +41,7 @@ describe('GiftEligibilityService', () => {
 
       expect(result).toBe(true)
       expect(connection.head).toHaveBeenCalledTimes(1)
-      expect(connection.head).toHaveBeenCalledWith(`/${testGiftId}`)
+      expect(connection.head).toHaveBeenCalledWith(`/${testGiftId}.jpg`)
     })
 
     it('should return false when gift is not eligible (404)', async () => {

@@ -172,6 +172,7 @@ describe('GetWallet', () => {
         balance: 123.456,
         email: 'your@email.com',
         is_airdrop_available: true,
+        is_gift_available: true,
       })
     ).toEqual({
       data: {
@@ -180,6 +181,7 @@ describe('GetWallet', () => {
         balance: 123.456,
         email: 'your@email.com',
         is_airdrop_available: true,
+        is_gift_available: true,
       },
       message: 'Wallet details retrieved successfully',
     })
