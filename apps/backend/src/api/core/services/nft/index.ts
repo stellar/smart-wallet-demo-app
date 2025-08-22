@@ -33,12 +33,20 @@ export default class NftRepository extends SingletonBase implements NftRepositor
       .getOne()
   }
 
+  async getNftByUserIdSessionId(userId: string, sessionId: string): Promise<Nft | null> {
+    return NftModel.createQueryBuilder('nft')
+      .leftJoinAndSelect('nft.nftSupply', 'nftSupply')
+      .where('nftSupply.sessionId = :sessionId', { sessionId })
+      .andWhere('nft.user = :userId', { userId })
+      .getOne()
+  }
+
   async getNftByContractAddress(contractAddress: string): Promise<Nft | null> {
     return NftModel.findOneBy({ contractAddress })
   }
 
   async createNft(
-    nft: { tokenId?: string; contractAddress: string; user: User; nftSupply: NftSupply },
+    nft: { tokenId?: string; contractAddress: string; nftSupply?: NftSupply; transactionHash?: string; user: User },
     save?: boolean
   ): Promise<Nft> {
     const newNft = NftModel.create({ ...nft })

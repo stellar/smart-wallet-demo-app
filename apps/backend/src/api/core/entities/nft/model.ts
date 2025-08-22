@@ -25,6 +25,13 @@ export class Nft extends ModelBase {
   })
   tokenId: string
 
+  // Hash of the token mint transaction
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  transactionHash: string
+
   @Column({
     type: 'varchar',
   })

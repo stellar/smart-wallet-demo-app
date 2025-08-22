@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
+import { Nft } from 'api/core/entities/nft/model'
 import { Product, ProductRepositoryType } from 'api/core/entities/product/types'
 import { ProofRepositoryType } from 'api/core/entities/proof/types'
 import { User, UserRepositoryType } from 'api/core/entities/user/types'
@@ -26,7 +27,7 @@ import SorobanService from 'interfaces/soroban'
 import { ISorobanService } from 'interfaces/soroban/types'
 import WalletBackend from 'interfaces/wallet-backend'
 
-import { ParseSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
+import { ParseSchemaT, RequestSchema, RequestSchemaT, ResponseSchemaT, TokenBalanceT } from './types'
 
 const endpoint = '/'
 
@@ -83,7 +84,9 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     const validatedData = this.validate(payload, RequestSchema)
 
     // Check if user exists (should not be necessary, but added for safety)
-    let user = await this.userRepository.getUserById(validatedData.id)
+    let user = await this.userRepository.getUserById(validatedData.id, {
+      relations: ['nfts', 'nfts.nftSupply'],
+    })
     if (!user) {
       throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_ID)
     }
@@ -96,11 +99,18 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
         user.contractAddress
       )
 
+      // Get NFT balances
+      let nftBalances: TokenBalanceT[] = []
+      if (user.nfts.length > 0) {
+        nftBalances = await this.getUserTokenBalances(user.nfts, user.contractAddress)
+      }
+
       return this.parseResponse({
         status: WalletStatus.SUCCESS,
         address: user.contractAddress,
         email: user.email,
         balance,
+        token_balances: nftBalances,
         is_airdrop_available: isAirdropAvailable,
         is_gift_available: isGiftAvailable,
         swags,
@@ -141,11 +151,17 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       user.contractAddress
     )
 
+    let nftBalances: TokenBalanceT[] = []
+    if (user.nfts.length > 0) {
+      nftBalances = await this.getUserTokenBalances(user.nfts, user.contractAddress)
+    }
+
     return this.parseResponse({
       status: walletStatus,
       address: user.contractAddress,
       email: user.email,
       balance,
+      token_balances: nftBalances,
       is_airdrop_available: isAirdropAvailable,
       is_gift_available: isGiftAvailable,
       swags,
@@ -185,6 +201,34 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       isGiftAvailable: giftProof ? !giftProof.isClaimed : false,
       swags,
     }
+  }
+
+  private async getUserTokenBalances(userTokens: Nft[], userContractAddress: string): Promise<TokenBalanceT[]> {
+    const nftBalances: TokenBalanceT[] = []
+
+    for (const userNft of userTokens ?? []) {
+      const nftContractAddress = userNft.nftSupply.contractAddress
+
+      if (nftBalances.some(nftBalance => nftBalance.contract_address == nftContractAddress)) {
+        continue
+      }
+
+      const nftBalance = await getWalletBalance({
+        userContractAddress: userContractAddress,
+        assetRepository: this.assetRepository,
+        sorobanService: this.sorobanService,
+        assetContract: nftContractAddress,
+        isToken: true,
+      })
+
+      nftBalances.push({
+        contract_address: nftContractAddress,
+        balance: nftBalance,
+        type: 'nft',
+      })
+    }
+
+    return nftBalances
   }
 
   private async syncWalletSwags(userId: string, contractAddress: string) {
