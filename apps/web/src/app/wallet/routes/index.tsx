@@ -2,7 +2,7 @@ import { createRoute, ErrorComponent } from '@tanstack/react-router'
 import * as yup from 'yup'
 
 import { privateRootRoute } from 'src/app/core/router/routeTree'
-import { Home, Scan, Profile, Transactions, Nfts, SpecialGift } from 'src/app/wallet/pages'
+import { Home, Scan, Profile, Transactions, Nfts, LeftAssets, SpecialGift } from 'src/app/wallet/pages'
 import { checkImageExists } from 'src/helpers/check-image-exists'
 import { sleepInSeconds } from 'src/helpers/sleep'
 import { c } from 'src/interfaces/cms/useContent'
@@ -96,6 +96,12 @@ const nftsRoute = createRoute({
   component: Nfts,
 })
 
+const leftAssetsRoute = createRoute({
+  getParentRoute: () => walletRootRoute,
+  path: filterHomePath(WalletPagesPath.LEFT_ASSETS),
+  component: LeftAssets,
+})
+
 export const specialGiftRoute = createRoute({
   getParentRoute: () => walletRootRoute,
   path: filterHomePath(WalletPagesPath.SPECIAL_GIFT),
@@ -126,6 +132,14 @@ export const specialGiftRoute = createRoute({
   },
 })
 
-walletRootRoute.addChildren([homeRoute, scanRoute, profileRoute, transactionsRoute, nftsRoute, specialGiftRoute])
+walletRootRoute.addChildren([
+  homeRoute,
+  scanRoute,
+  profileRoute,
+  transactionsRoute,
+  nftsRoute,
+  leftAssetsRoute,
+  specialGiftRoute,
+])
 
 export const walletRoutes = [walletRootRoute]

@@ -22,6 +22,7 @@ export const Nfts = () => {
       id: `nft-${index}`,
       code: nft.name,
       issuer: 'API',
+      transaction_hash: nft.transaction_hash,
     }))
   }, [nftsData])
 

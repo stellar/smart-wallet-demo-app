@@ -1,4 +1,4 @@
-import { Button, Text } from '@stellar/design-system'
+import { Button, Text, Icon, IconButton } from '@stellar/design-system'
 import clsx from 'clsx'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useMemo } from 'react'
@@ -8,6 +8,7 @@ import { ImageCard } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { Nft } from '../../services/wallet/types'
+import { openExplorer } from '../../utils/explorer'
 
 type Props = {
   nft: Nft | undefined
@@ -65,9 +66,20 @@ export const ViewNftDrawer = ({ nft, onClose }: Props) => {
             <div className="flex flex-col mt-[61px] gap-8 p-6">
               {/* Title & Subtitle */}
               <div className="flex flex-col text-center gap-1">
-                <Text as="h2" size="xl" weight="semi-bold">
-                  {title}
-                </Text>
+                <div className="flex items-center justify-center gap-2">
+                  <Text as="h2" size="xl" weight="semi-bold">
+                    {title}
+                  </Text>
+                  {nft?.transaction_hash && (
+                    <IconButton
+                      icon={<Icon.LinkExternal01 />}
+                      altText="Stellar Explorer"
+                      onClick={() => openExplorer(nft.transaction_hash)}
+                      variant="default"
+                      className="w-4 h-4"
+                    />
+                  )}
+                </div>
                 <div className="text-textSecondary">
                   <Text as="p" size="md" weight="medium">
                     {c('viewNftDrawerSubtitle')}
