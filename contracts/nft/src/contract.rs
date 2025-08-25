@@ -15,11 +15,11 @@ pub struct Contract;
 
 #[contractimpl]
 impl Contract {
-    pub fn __constructor(env: &Env, owner: Address, total_supply: u32, metadata: TokenMetadata) {
+    pub fn __constructor(env: &Env, owner: Address, max_supply: u32, metadata: TokenMetadata) {
         env.storage().instance().set(&DataKey::Owner, &owner);
         env.storage()
             .instance()
-            .set(&DataKey::MaxSupply, &total_supply);
+            .set(&DataKey::MaxSupply, &max_supply);
 
         Base::set_metadata(env, metadata.base_uri, metadata.name, metadata.symbol);
     }
@@ -29,7 +29,7 @@ impl Contract {
             .storage()
             .instance()
             .get(&DataKey::Owner)
-            .expect("owner should be set");
+            .unwrap_or_else(|| panic_with_error!(env, NonFungibleTokenContractError::UnsetOwner));
 
         owner.require_auth();
 
@@ -65,7 +65,7 @@ impl Contract {
         env.storage()
             .instance()
             .get(&DataKey::TokenData(token_id))
-            .unwrap()
+            .unwrap_or_else(|| panic_with_error!(env, NonFungibleTokenContractError::UnsetTokenData))
     }
 
     pub fn mint_with_data(env: &Env, to: Address, data: TokenData) -> u32 {

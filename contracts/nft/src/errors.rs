@@ -6,4 +6,5 @@ pub enum NonFungibleTokenContractError {
     UnsetMaxSupply = 2,
     UnsetTotalMinted = 3,
     UnsetOwner = 4,
+    UnsetTokenData = 5,
 }
