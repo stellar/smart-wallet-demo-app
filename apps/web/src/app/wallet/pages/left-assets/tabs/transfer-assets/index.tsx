@@ -5,15 +5,6 @@ import TransferAssetsTemplate from './template'
 export const TransferAssets = () => {
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleTransfer = async () => {
-    setIsLoading(true)
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-12">
