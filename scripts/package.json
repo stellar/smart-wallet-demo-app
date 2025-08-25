@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "generate-proofs": "node generate-proofs.mjs",
-    "upload-proofs": "node upload-proofs-to-db.mjs"
+    "upload-proofs": "node upload-proofs-to-db.mjs",
+    "deploy-airdrop": "node deploy-airdrop.mjs"
   },
   "engines": {
     "node": ">=20"
