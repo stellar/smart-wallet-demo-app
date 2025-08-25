@@ -56,9 +56,7 @@ impl Contract {
     }
 
     pub fn set_token_data(env: &Env, token_id: u32, data: TokenData) {
-        let owner: Address = Base::owner_of(env, token_id);
-
-        owner.require_auth();
+        Self::only_owner(env);
 
         env.storage()
             .instance()
