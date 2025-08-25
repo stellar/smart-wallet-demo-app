@@ -35,6 +35,6 @@ deploy:
 		--wasm $(CONTRACT_WASM_PATH) \
 		-- \
 		--owner $(SOURCE) \
-		--total-supply $(CONTRACT_MAX_SUPPLY) \
+		--max-supply $(CONTRACT_MAX_SUPPLY) \
 		--metadata "{\"name\": \"$(CONTRACT_NAME)\", \"symbol\": \"$(CONTRACT_SYMBOL)\", \"base_uri\": \"$(CONTRACT_URI)\"}" ); \
 	echo "Deployed contract ID: $$CONTRACT_ID"
