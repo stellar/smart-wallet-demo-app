@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 
 import { Loading } from 'src/components/atoms'
+
 import { useGetNfts } from '../../../../queries/use-get-nfts'
 import { Nft } from '../../../../services/wallet/types'
 import TransferNftsTemplate from './template'
@@ -29,7 +30,7 @@ export const TransferNfts = () => {
     } else {
       newSelected.add(nftId)
     }
- setSelectedNfts(newSelected)
+    setSelectedNfts(newSelected)
   }
 
   const handleWalletAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,12 +42,10 @@ export const TransferNfts = () => {
       const text = await navigator.clipboard.readText()
       setWalletAddress(text)
     } catch (err) {
-      console.error('Failed to read clipboard contents: ', err)
     }
   }
 
   const handleReview = () => {
-    console.log('Review transfer:', { selectedNfts: Array.from(selectedNfts), walletAddress })
   }
 
   if (isLoadingNfts) {

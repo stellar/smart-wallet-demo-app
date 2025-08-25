@@ -8,7 +8,6 @@ export const TransferAssets = () => {
   const handleTransfer = async () => {
     setIsLoading(true)
     try {
-      console.log('Transfer assets logic')
       await new Promise(resolve => setTimeout(resolve, 1000))
     } finally {
       setIsLoading(false)

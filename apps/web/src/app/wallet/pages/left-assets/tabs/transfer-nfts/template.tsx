@@ -45,14 +45,16 @@ export const TransferNftsTemplate = ({
       <div className="rounded-lg">
         <div className="grid grid-cols-2 gap-3">
           {nfts.map(nft => {
-            const isSelected = selectedNfts.has(nft.id || '')
+            const nftId = nft.id || ''
+            const isSelected = selectedNfts.has(nftId)
+
             return (
               <ImageCard
                 key={nft.id}
                 size="adapt"
                 radius="min"
                 imageUri={nft.url}
-                onClick={() => onNftToggle(nft.id!)}
+                onClick={() => onNftToggle(nftId)}
                 isClickable={true}
                 isSelected={isSelected}
               />
