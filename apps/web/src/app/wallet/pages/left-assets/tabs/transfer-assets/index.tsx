@@ -3,7 +3,7 @@ import { useState } from 'react'
 import TransferAssetsTemplate from './template'
 
 export const TransferAssets = () => {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading] = useState(false)
 
   if (isLoading) {
     return (
