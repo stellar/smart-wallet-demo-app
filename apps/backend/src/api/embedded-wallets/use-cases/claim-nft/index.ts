@@ -125,39 +125,28 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       },
     }
 
-    // NFT metadata
-    const metadataMap = nativeToScVal({
-      'session_id': nftSupply.sessionId,
-      'resource': nftSupply.resource,
-    })
+    console.log('TX SIGNER >>>', transactionSigner)
 
-    /* const typeMap = {
-      'session_id': [ 'symbol', 'scvString' ],
-      'resource': [ 'symbol', 'scvString' ],
-    } */
+    // NFT metadata - create simple object matching contract call data format
+    const metadataObj = {
+      session_id: nftSupply.sessionId,
+      resource: nftSupply.resource,
+    }
 
-    /* const metadataMap = xdr.ScVal.scvMap([
-      new xdr.ScMapEntry({
-        key: xdr.ScVal.scvSymbol('session_id'),
-        val: xdr.ScVal.scvString(nftSupply.sessionId),
-      }),
-      new xdr.ScMapEntry({
-        key: xdr.ScVal.scvSymbol('resource'),
-        val: xdr.ScVal.scvString(nftSupply.resource),
-      }),
-    ]) */
-
-    /* const metadataMap = nativeToScVal({
-      session_id: xdr.ScVal.scvString(nftSupply.sessionId),
-      resource: xdr.ScVal.scvString(nftSupply.resource),
-    }) */
+    // Convert to XDR ScVec (struct) for contract call - matches TokenData struct
+    const metadataMap = xdr.ScVal.scvVec([
+      xdr.ScVal.scvString(nftSupply.sessionId), // session_id first
+      xdr.ScVal.scvString(nftSupply.resource), // resource second
+    ])
 
     // Simulate 'mint' transaction
     const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
       contractId: nftSupply.contractAddress,
       method: 'mint_with_data',
+      // method: 'mint',
       args: [
-        ScConvert.accountIdToScVal(user.contractAddress as string),
+        // ScConvert.accountIdToScVal(user.contractAddress as string),
+        ScConvert.accountIdToScVal(this.transactionSigner.publicKey() as string),
         metadataMap,
       ],
       signers: [transactionSigner],
