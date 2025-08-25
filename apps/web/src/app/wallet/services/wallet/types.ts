@@ -59,7 +59,7 @@ export type SwagTypeParams = {
   type: Extract<TransferTypes, 'swag'>
   to: string
   amount: number
-  asset: string
+  asset: string | string[]
 }
 export const isSwagTypeParams = (params: { type: TransferTypes }): params is SwagTypeParams => params.type === 'swag'
 
@@ -86,7 +86,10 @@ export type GetTransferOptionsResult = IHTTPResponse<{
   user: {
     address: string
     email: string
-    balance: number
+    balances: {
+      amount: number
+      asset: string
+    }[]
   }
   products?: {
     product_id: string
