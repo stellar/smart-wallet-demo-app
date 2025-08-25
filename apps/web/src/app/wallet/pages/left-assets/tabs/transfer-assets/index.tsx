@@ -22,7 +22,7 @@ export const TransferAssets = () => {
     )
   }
 
-  return <TransferAssetsTemplate onTransfer={handleTransfer} />
+  return <TransferAssetsTemplate />
 }
 
 export default TransferAssets
