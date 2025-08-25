@@ -26,6 +26,8 @@ export const nftSupplyFactory = ({
   sessionId,
   resource,
   totalSupply,
+  mintedAmount,
+  issuer,
 }: NftSupplyFactoryArgs): NftSupply => {
   const nft = new NftSupply()
   nft.nftSupplyId = nftSupplyId ?? faker.string.uuid()
@@ -37,5 +39,7 @@ export const nftSupplyFactory = ({
   nft.sessionId = sessionId ?? faker.string.alphanumeric({ casing: 'lower' })
   nft.resource = resource ?? faker.string.alphanumeric({ casing: 'lower' })
   nft.totalSupply = totalSupply ?? faker.number.int({ min: 10, max: 100 })
+  nft.mintedAmount = mintedAmount ?? 0
+  nft.issuer = issuer as string
   return nft
 }
