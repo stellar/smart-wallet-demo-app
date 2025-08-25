@@ -1,8 +1,4 @@
-interface TransferAssetsTemplateProps {
-  onTransfer: () => Promise<void>
-}
-
-export const TransferAssetsTemplate = ({ onTransfer }: TransferAssetsTemplateProps) => {
+export const TransferAssetsTemplate = () => {
   return (
     <div className="flex flex-col gap-6">
       <div className="p-4 border rounded-lg">

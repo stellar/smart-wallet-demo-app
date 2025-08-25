@@ -2,9 +2,9 @@ import { useState, useMemo } from 'react'
 
 import { Loading } from 'src/components/atoms'
 
+import TransferNftsTemplate from './template'
 import { useGetNfts } from '../../../../queries/use-get-nfts'
 import { Nft } from '../../../../services/wallet/types'
-import TransferNftsTemplate from './template'
 
 export const TransferNfts = () => {
   const [selectedNfts, setSelectedNfts] = useState<Set<string>>(new Set())
@@ -38,14 +38,8 @@ export const TransferNfts = () => {
   }
 
   const handlePaste = async () => {
-    try {
-      const text = await navigator.clipboard.readText()
-      setWalletAddress(text)
-    } catch (err) {
-    }
-  }
-
-  const handleReview = () => {
+    const text = await navigator.clipboard.readText()
+    setWalletAddress(text)
   }
 
   if (isLoadingNfts) {
@@ -64,7 +58,7 @@ export const TransferNfts = () => {
       onNftToggle={handleNftToggle}
       onWalletAddressChange={handleWalletAddressChange}
       onPaste={handlePaste}
-      onReview={handleReview}
+      onReview={handlePaste}
     />
   )
 }

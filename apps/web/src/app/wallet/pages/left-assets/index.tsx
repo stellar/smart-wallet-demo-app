@@ -1,13 +1,13 @@
-import { useState, useMemo } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { useState, useMemo } from 'react'
 
 import { HorizontalNavbar, NavigateButton } from 'src/components/molecules'
 import { SafeAreaView } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
-import { WalletPagesPath } from '../../routes/types'
 import TransferAssets from './tabs/transfer-assets'
 import TransferNfts from './tabs/transfer-nfts'
+import { WalletPagesPath } from '../../routes/types'
 
 export const LeftAssets = () => {
   const navigate = useNavigate()
