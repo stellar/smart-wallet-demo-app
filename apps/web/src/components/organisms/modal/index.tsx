@@ -96,7 +96,8 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
             ? {
                 backgroundImage: `url(${backgroundImageUri})`,
                 backgroundSize: 'cover',
-                backgroundPosition: 'top',
+                backgroundPositionY: 'top',
+                backgroundPositionX: 'center',
               }
             : undefined
         }

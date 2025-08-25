@@ -18,8 +18,7 @@ export const Home = () => {
   const loaderDeps = homeRoute.useLoaderDeps()
   const navigate = useNavigate()
 
-  const [isAirdropActive] = featureFlagsState(['airdrop'])
-  const [isTransferLeftAssetsActive] = featureFlagsState(['transfer-left-assets'])
+  const [isAirdropActive, isTransferLeftAssetsActive] = featureFlagsState(['airdrop', 'transfer-left-assets'])
 
   // Wallet information
   const getWallet = useGetWallet({
