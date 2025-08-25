@@ -13,7 +13,7 @@ import { WalletPagesPath } from './types'
 import { nftTypeSchema, swagTypeSchema, transferTypeSchema } from '../pages/home/schema'
 import { getWallet } from '../queries/use-get-wallet'
 import { TransferTypes } from '../services/wallet/types'
-import { useWalletStatusStore } from '../store/wallet-status'
+import { useWalletStatusStore } from '../store'
 
 const filterHomePath = (path: WalletPagesPath): string => path.split(WalletPagesPath.HOME)[1]
 
