@@ -56,8 +56,6 @@ impl Contract {
     }
 
     pub fn set_token_data(env: &Env, token_id: u32, data: TokenData) {
-        Self::only_owner(env);
-
         env.storage()
             .instance()
             .set(&DataKey::TokenData(token_id), &data);

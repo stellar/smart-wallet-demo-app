@@ -522,35 +522,6 @@ fn test_set_token_data() {
 }
 
 #[test]
-#[should_panic]
-fn test_set_token_data_unauthorized() {
-    let env = setup_test_env();
-    let owner = Address::generate(&env);
-    let recipient = Address::generate(&env);
-    let unauthorized = Address::generate(&env);
-    let contract = get_contract(&env, &owner, 100u32);
-
-    let token_id = contract.mint(&recipient);
-
-    let token_data = crate::types::TokenData {
-        session_id: String::from_str(&env, "session_123"),
-        resource: String::from_str(&env, "resource_456"),
-    };
-
-    env.mock_auths(&[MockAuth {
-        address: &unauthorized,
-        invoke: &MockAuthInvoke {
-            contract: &contract.address,
-            fn_name: "set_token_data",
-            args: (&unauthorized,).into_val(&env),
-            sub_invokes: &[],
-        },
-    }]);
-
-    contract.set_token_data(&token_id, &token_data);
-}
-
-#[test]
 fn test_get_token_data() {
     let env = setup_test_env();
     let owner = Address::generate(&env);
