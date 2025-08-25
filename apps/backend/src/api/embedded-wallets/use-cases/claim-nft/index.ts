@@ -1,4 +1,4 @@
-import { xdr, rpc, nativeToScVal, Keypair } from '@stellar/stellar-sdk'
+import { xdr, rpc, Keypair } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { Nft as NftModel } from 'api/core/entities/nft/model'
@@ -125,14 +125,6 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       },
     }
 
-    console.log('TX SIGNER >>>', transactionSigner)
-
-    // NFT metadata - create simple object matching contract call data format
-    const metadataObj = {
-      session_id: nftSupply.sessionId,
-      resource: nftSupply.resource,
-    }
-
     // Convert to XDR ScVec (struct) for contract call - matches TokenData struct
     const metadataMap = xdr.ScVal.scvVec([
       xdr.ScVal.scvString(nftSupply.sessionId), // session_id first
@@ -143,12 +135,7 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
       contractId: nftSupply.contractAddress,
       method: 'mint_with_data',
-      // method: 'mint',
-      args: [
-        // ScConvert.accountIdToScVal(user.contractAddress as string),
-        ScConvert.accountIdToScVal(this.transactionSigner.publicKey() as string),
-        metadataMap,
-      ],
+      args: [ScConvert.accountIdToScVal(user.contractAddress as string), metadataMap],
       signers: [transactionSigner],
     })
 
