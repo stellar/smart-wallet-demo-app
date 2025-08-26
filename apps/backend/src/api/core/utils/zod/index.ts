@@ -78,4 +78,12 @@ export const vendorSchema = z.object({
   profile_image: z.string().optional(),
 })
 
+export const ngoSchema = z.object({
+  id: z.string().optional(),
+  name: z.string(),
+  description: z.string(),
+  wallet_address: z.string().optional(),
+  profile_image: z.string().optional(),
+})
+
 export type MerkleProofDataT = z.infer<typeof merkleProofDataSchema>
