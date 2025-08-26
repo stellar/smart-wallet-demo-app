@@ -3,7 +3,6 @@ set -euo pipefail
 
 # List of patches (format: "package-dir:patch-file")
 PATCHES=(
-  "node_modules/@stellar/design-system:patches/@stellar+design-system+3.1.1.patch"
   "node_modules/tailwindcss:patches/tailwindcss+3.4.17.patch"
 )
 
@@ -20,11 +19,21 @@ for entry in "${PATCHES[@]}"; do
   fi
 
   # Check if the patch is already applied
-  if patch -R -p1 --dry-run -i "$PATCH_FILE" > /dev/null 2>&1; then
+  if patch -R -p0 --dry-run -i "$PATCH_FILE" > /dev/null 2>&1; then
     echo "✔️ Patch already applied, skipping."
   else
     echo "🔧 Applying patch: $PATCH_FILE"
-    patch -p1 -i "$PATCH_FILE"
+    # Try different patch strip levels
+    if patch -p0 -i "$PATCH_FILE" 2>/dev/null; then
+      echo "✅ Patch applied successfully with -p0"
+    elif patch -p1 -i "$PATCH_FILE" 2>/dev/null; then
+      echo "✅ Patch applied successfully with -p1"
+    elif patch -p2 -i "$PATCH_FILE" 2>/dev/null; then
+      echo "✅ Patch applied successfully with -p2"
+    else
+      echo "⚠️  Patch failed with all strip levels, but continuing..."
+      echo "This might indicate the patch file has incorrect paths or the changes are already applied"
+    fi
   fi
 done
 

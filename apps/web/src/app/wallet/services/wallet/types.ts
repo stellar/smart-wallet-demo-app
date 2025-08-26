@@ -126,6 +126,7 @@ export interface Nft {
   code?: string
   issuer?: string
   resource?: string
+  transaction_hash: string
 }
 
 export type GetNftsResult = IHTTPResponse<{
@@ -151,6 +152,7 @@ export type GetNftClaimOptionsResult = IHTTPResponse<{
     contractAddress: string
     sessionId: string
     resource: string
+    transaction_hash: string
   }
 }>
 
