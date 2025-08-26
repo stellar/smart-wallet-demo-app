@@ -1,6 +1,7 @@
-import { createRoute, ErrorComponent } from '@tanstack/react-router'
+import { createRoute, ErrorComponent, redirect } from '@tanstack/react-router'
 import * as yup from 'yup'
 
+import { featureFlagsState } from 'src/app/core/helpers'
 import { privateRootRoute } from 'src/app/core/router/routeTree'
 import { Home, Scan, Profile, Transactions, Nfts, LeftAssets, SpecialGift } from 'src/app/wallet/pages'
 import { checkImageExists } from 'src/helpers/check-image-exists'
@@ -100,6 +101,16 @@ const leftAssetsRoute = createRoute({
   getParentRoute: () => walletRootRoute,
   path: filterHomePath(WalletPagesPath.LEFT_ASSETS),
   component: LeftAssets,
+  beforeLoad: () => {
+    const [isTransferLeftAssetsActive] = featureFlagsState(['transfer-left-assets'])
+
+    // Redirect to home page if feature flag is disabled
+    if (!isTransferLeftAssetsActive) {
+      throw redirect({
+        to: WalletPagesPath.HOME,
+      })
+    }
+  },
 })
 
 export const specialGiftRoute = createRoute({
