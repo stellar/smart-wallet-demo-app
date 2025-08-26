@@ -17,6 +17,7 @@ export const THEME_STYLES = {
         textTertiary: 'var(--color-text-tertiary)',
         foreground: 'var(--color-foreground-primary)',
         background: 'var(--color-background)',
+        backgroundPrimary: 'var(--color-background-primary)',
         backgroundSecondary: 'var(--color-background-secondary)',
         backgroundTertiary: 'var(--color-background-tertiary)',
         borderPrimary: 'var(--color-border-primary)',

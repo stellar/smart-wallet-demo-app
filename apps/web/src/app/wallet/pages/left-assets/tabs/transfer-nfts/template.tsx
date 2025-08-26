@@ -1,5 +1,8 @@
-import { Button, Text, Icon, Input } from '@stellar/design-system'
+import { Text, Icon } from '@stellar/design-system'
+import { UseFormReturn } from 'react-hook-form'
 
+import { WalletAddressForm } from 'src/app/wallet/components'
+import { WalletAddressFormValues } from 'src/app/wallet/components/wallet-address-form/schema'
 import { ImageCard } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
@@ -8,28 +11,24 @@ import { Nft } from '../../../../services/wallet/types'
 interface TransferNftsTemplateProps {
   nfts: Nft[]
   selectedNfts: Set<string>
-  walletAddress: string
+  nftsReviewForm: UseFormReturn<WalletAddressFormValues>
   onNftToggle: (nftId: string) => void
-  onWalletAddressChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  onPaste: () => void
-  onReview: () => void
+  onReview: (values: WalletAddressFormValues) => void
 }
 
 export const TransferNftsTemplate = ({
   nfts,
   selectedNfts,
-  walletAddress,
+  nftsReviewForm,
   onNftToggle,
-  onWalletAddressChange,
-  onPaste,
   onReview,
 }: TransferNftsTemplateProps) => {
-  const isReviewDisabled = selectedNfts.size === 0 || !walletAddress.trim()
+  const isReviewDisabled = selectedNfts.size === 0
 
   if (nfts.length === 0) {
     return (
       <div className="flex flex-col gap-6">
-        <div className="bg-background rounded-lg p-6 shadow-sm border border-borderSecondary">
+        <div className="bg-background rounded-2xl p-6 shadow-sm border-borderSecondary">
           <div className="text-center py-8">
             <Text as="p" size="md" className="text-textSecondary">
               {c('transferNftsNoNftsAvailable')}
@@ -42,7 +41,7 @@ export const TransferNftsTemplate = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-lg">
+      <div className="rounded-2xl">
         <div className="grid grid-cols-2 gap-3">
           {nfts.map(nft => {
             const nftId = nft.id || ''
@@ -63,38 +62,13 @@ export const TransferNftsTemplate = ({
         </div>
       </div>
 
-      <div className="bg-background rounded-lg p-6 shadow-sm border border-borderSecondary">
-        <div className="space-y-3">
-          <Input
-            id="wallet-address"
-            fieldSize="lg"
-            label={c('transferNftsWalletAddressLabel')}
-            placeholder={c('transferNftsWalletAddressPlaceholder')}
-            value={walletAddress}
-            onChange={onWalletAddressChange}
-            rightElement={
-              <button
-                onClick={onPaste}
-                className="px-2 rounded-full border border-borderPrimary bg-backgroundPrimary hover:bg-muted transition-colors"
-              >
-                <Text as="span" size="md" className="font-semibold text-text text-xs">
-                  {c('transferNftsPasteButton')}
-                </Text>
-              </button>
-            }
-          />
-
-          <div className="text-center text-brandPrimary">
-            <Text as="p" size="xs" className="font-semibold text-sm">
-              {c('transferNftsNoWalletMessage')}
-            </Text>
-          </div>
-        </div>
-      </div>
-
-      <Button variant="secondary" size="xl" isRounded isFullWidth disabled={isReviewDisabled} onClick={onReview}>
-        {c('transferNftsReviewButton')}
-      </Button>
+      <WalletAddressForm
+        form={nftsReviewForm}
+        submitButtonText={c('transferNftsReviewButton')}
+        submitVariant="outside"
+        isSubmitDisabled={isReviewDisabled}
+        onSubmit={onReview}
+      />
 
       <div className="border border-borderPrimary rounded-lg p-3 flex gap-3">
         <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">

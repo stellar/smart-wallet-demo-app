@@ -23,6 +23,7 @@ const SLIDER_COLOR_STYLE: Record<ThemeColor, string> = {
   accentMuted: 'bg-accent-muted',
   foreground: 'bg-foreground',
   background: 'bg-background',
+  backgroundPrimary: 'bg-background-primary',
   backgroundSecondary: 'bg-background-secondary',
   backgroundTertiary: 'bg-background-tertiary',
   borderPrimary: 'bg-border-primary',

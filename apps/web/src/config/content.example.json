@@ -112,10 +112,16 @@
   "transferAssetsTabLabel": "Transfer Assets",
   "transferNftsTabLabel": "Transfer NFTs",
   "transferNftsNoNftsAvailable": "No NFTs available for transfer",
-  "transferNftsWalletAddressLabel": "Enter Wallet Address",
-  "transferNftsWalletAddressPlaceholder": "G...",
-  "transferNftsPasteButton": "Paste",
-  "transferNftsNoWalletMessage": "Don't have a wallet yet? Try Freighter",
+  "walletAddressFormLabel": "Enter Stellar Wallet Address",
+  "walletAddressFormPlaceholder": "G...",
+  "paste": "Paste",
+  "walletAddressFormNoWalletLink": "Don't have a wallet yet? Try Freighter",
   "transferNftsReviewButton": "Review",
-  "transferNftsAlertTitle": "You can send NFTs to any Stellar address but not all wallets display them appropriately. Freighter does!"
+  "transferNftsAlertTitle": "You can send NFTs to any Stellar address but not all wallets display them appropriately. Freighter does!",
+  "transferAssetsBalanceText": "XLM",
+  "transferAssetsOrganizationListTitle": "Transfer to Organizations",
+  "transferAssetsOrganizationListDescription": "Transfer XLM to trusted organizations on Stellar. Any XLM can be transferred to another Stellar wallet.",
+  "transferAssetsStandardTransferTitle": "Transfer XLM",
+  "transferAssetsStandardTransferDescription": "Transfer any XLM to a personal Stellar wallet.",
+  "transferAssetsStandardTransferDisclaimer": "Do not transfer to accounts that require a Stellar memo, including exchanges like Coinbase. You could lose funds."
 }
