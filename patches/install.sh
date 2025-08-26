@@ -3,7 +3,6 @@ set -euo pipefail
 
 # List of patches (format: "package-dir:patch-file")
 PATCHES=(
-  "node_modules/@stellar/design-system:patches/@stellar+design-system+3.1.4.patch"
   "node_modules/tailwindcss:patches/tailwindcss+3.4.17.patch"
 )
 
