@@ -29,6 +29,14 @@ export default class AssetRepository extends SingletonBase implements AssetRepos
     return AssetModel.findOneBy({ code: ILike(`%${code}%`) })
   }
 
+  async getAssetsByCode(codes: string[]): Promise<Asset[]> {
+    return AssetModel.find({
+      where: codes.map(code => ({
+        code: ILike(`%${code}%`),
+      })),
+    })
+  }
+
   async createAsset(
     asset: { name: string; code: string; type: string; contractAddress: string },
     save?: boolean

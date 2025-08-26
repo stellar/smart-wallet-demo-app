@@ -9,6 +9,7 @@ export function mockAssetRepository(): Mocked<AssetRepositoryType> {
     getAssetByContractAddress: vi.fn(),
     getAssetByType: vi.fn(),
     getAssetByCode: vi.fn(),
+    getAssetsByCode: vi.fn(),
     createAsset: vi.fn(),
     updateAsset: vi.fn(),
     saveAsset: vi.fn(),

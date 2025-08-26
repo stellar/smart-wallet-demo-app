@@ -18,6 +18,7 @@ import UserProductRepository from 'api/core/services/user-product'
 import VendorRepository from 'api/core/services/vendor'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
+import { getValueFromEnv } from 'config/env-utils'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
@@ -37,6 +38,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
   private userProductRepository: UserProductRepositoryType
   private webauthnAuthenticationHelper: IWebAuthnAuthentication
   private sorobanService: ISorobanService
+  private multicallContract: string
 
   constructor(
     assetRepository?: AssetRepositoryType,
@@ -45,7 +47,8 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     productRepository?: ProductRepositoryType,
     userProductRepository?: UserProductRepositoryType,
     webauthnAuthenticationHelper?: IWebAuthnAuthentication,
-    sorobanService?: ISorobanService
+    sorobanService?: ISorobanService,
+    multicallContract?: string
   ) {
     super()
     this.assetRepository = assetRepository || AssetRepository.getInstance()
@@ -55,6 +58,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     this.userProductRepository = userProductRepository || UserProductRepository.getInstance()
     this.webauthnAuthenticationHelper = webauthnAuthenticationHelper || WebAuthnAuthentication.getInstance()
     this.sorobanService = sorobanService || SorobanService.getInstance()
+    this.multicallContract = multicallContract || getValueFromEnv('STELLAR_MULTICALL_CONTRACT')
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
@@ -92,35 +96,45 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     }
 
     // Get asset contract address from db
-    const asset = await this.assetRepository.getAssetByCode(validatedData.asset)
+    const assetCodes = validatedData.asset
+      ?.replace(/\s+/g, '')
+      .split(',')
+      .filter(code => code.length)
+    const assets = await this.assetRepository.getAssetsByCode(assetCodes)
 
-    if (!asset || !asset?.contractAddress) {
+    if (!assets.length || !assets[0]?.contractAddress) {
       // TODO: get asset data from network as fallback?
       throw new ResourceNotFoundException(messages.UNABLE_TO_FIND_ASSET_OR_CONTRACT)
     }
 
-    const assetContractAddress = asset?.contractAddress
-
     // Check if user has available swags for this asset
     if (validatedData.type === TransferTypes.SWAG) {
-      const unclaimedSwags = await this.userProductRepository.getUserProductsByUserContractAddressAndAssetCode(
-        user.contractAddress,
-        asset.code,
-        { where: { status: 'unclaimed' } }
-      )
+      for (const asset of assets) {
+        const unclaimedSwags = await this.userProductRepository.getUserProductsByUserContractAddressAndAssetCode(
+          user.contractAddress,
+          asset.code,
+          { where: { status: 'unclaimed' } }
+        )
 
-      if (!unclaimedSwags.length) throw new BadRequestException(messages.USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE)
+        if (!unclaimedSwags.length) throw new BadRequestException(messages.USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE)
+      }
     }
 
-    // Get user balance from network
-    const userBalance = await getWalletBalance({ userContractAddress: user.contractAddress, assetCode: asset.code })
+    const userBalances: { amount: number; asset: string }[] = []
 
-    if (validatedData.type === TransferTypes.TRANSFER && userBalance < validatedData.amount) {
-      throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_ENOUGH_BALANCE)
-    }
+    // Check if user has enough balance
+    for (const asset of assets) {
+      const balance = await getWalletBalance({ userContractAddress: user.contractAddress, assetCode: asset.code })
 
-    if (validatedData.type === TransferTypes.SWAG && userBalance < validatedData.amount) {
-      throw new ResourceNotFoundException(messages.USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE)
+      if (validatedData.type === TransferTypes.TRANSFER && balance < validatedData.amount) {
+        throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_ENOUGH_BALANCE)
+      }
+
+      if (validatedData.type === TransferTypes.SWAG && balance < validatedData.amount) {
+        throw new ResourceNotFoundException(messages.USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE)
+      }
+
+      userBalances.push({ amount: balance, asset: asset.code })
     }
 
     // Set transaction params
@@ -128,12 +142,30 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     let method: string = 'transfer'
 
     if (validatedData.type === TransferTypes.TRANSFER || validatedData.type === TransferTypes.SWAG) {
-      method = 'transfer'
-      args = [
-        ScConvert.accountIdToScVal(user.contractAddress as string),
-        ScConvert.accountIdToScVal(validatedData.to as string),
-        ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount.toString())),
-      ]
+      if (validatedData.type === TransferTypes.SWAG && assetCodes.length > 1) {
+        method = 'exec'
+        args = [
+          ScConvert.accountIdToScVal(user.contractAddress as string), // caller
+          ScConvert.arrayToScVal(
+            assets.map(asset => [
+              ScConvert.accountIdToScVal(asset.contractAddress),
+              ScConvert.symbolToScVal('transfer'),
+              [
+                ScConvert.accountIdToScVal(user.contractAddress as string),
+                ScConvert.accountIdToScVal(validatedData.to as string),
+                ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount.toString())),
+              ],
+            ])
+          ),
+        ]
+      } else {
+        method = 'transfer'
+        args = [
+          ScConvert.accountIdToScVal(user.contractAddress as string),
+          ScConvert.accountIdToScVal(validatedData.to as string),
+          ScConvert.stringToScVal(ScConvert.stringToPaddedString(validatedData.amount.toString())),
+        ]
+      }
     } else if (validatedData.type === TransferTypes.NFT) {
       if (Array.isArray(validatedData.id)) {
         method = 'bulk_transfer'
@@ -152,16 +184,18 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
       }
     }
 
+    const contractId = assetCodes.length > 1 ? this.multicallContract : assets[0]?.contractAddress
+
     // Simulate contract
     const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
-      contractId: assetContractAddress,
+      contractId: contractId,
       method,
       args,
     })
 
     // Generate challenge
     const challenge = await this.sorobanService.generateWebAuthnChallenge({
-      contractId: assetContractAddress,
+      contractId: contractId,
       simulationResponse: simulationResponse,
       signer: {
         addressId: user.contractAddress as string,
@@ -209,7 +243,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
         user: {
           email: user.email,
           address: user.contractAddress,
-          balance: userBalance,
+          balances: userBalances,
         },
         vendor: vendor
           ? {

@@ -8,6 +8,7 @@ export type AssetRepositoryType = {
   getAssetByContractAddress(contractAddress: string): Promise<Asset | null>
   getAssetByType(type: string): Promise<Asset | null>
   getAssetByCode(code: string): Promise<Asset | null>
+  getAssetsByCode(codes: string[]): Promise<Asset[]>
   createAsset(
     asset: { name: string; code: string; type: string; contractAddress: string },
     save?: boolean

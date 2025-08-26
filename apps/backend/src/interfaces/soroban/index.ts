@@ -256,6 +256,11 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
       throw new Error(ERRORS.CANNOT_FETCH_LEDGER_ENTRY)
     }
 
+    // If validUntilLedgerSeq still 0, set auth entry to expire in 10000 blocks
+    if (!validUntilLedgerSeq) {
+      validUntilLedgerSeq = (await this.rpcClient.getLatestLedger()).sequence + 10000
+    }
+
     return { entry, validUntilLedgerSeq }
   }
 
