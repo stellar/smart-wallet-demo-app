@@ -4,18 +4,18 @@ import { apiKeyAuthentication } from 'api/core/middlewares/api-key-authenticatio
 
 import { CreateAsset, endpoint as CreateAssetEndpoint } from './use-cases/create-asset'
 import { CreateFeatureFlag, endpoint as CreateFeatureFlagEndpoint } from './use-cases/create-feature-flag'
-import { CreateNgo, endpoint as CreateNgoEndpoint } from './use-cases/create-ngo'
 import { CreateNftSupply, endpoint as CreateNftSupplyEndpoint } from './use-cases/create-nft-supply'
+import { CreateNgo, endpoint as CreateNgoEndpoint } from './use-cases/create-ngo'
 import { CreateVendor, endpoint as CreateVendorEndpoint } from './use-cases/create-vendor'
 import { GetAssets, endpoint as GetAssetsEndpoint } from './use-cases/get-assets'
 import { GetFeatureFlags, endpoint as GetFeatureFlagsEndpoint } from './use-cases/get-feature-flags'
-import { GetNgos, endpoint as GetNgosEndpoint } from './use-cases/get-ngos'
 import { GetNftSupply, endpoint as GetNftSupplyEndpoint } from './use-cases/get-nft-supply'
+import { GetNgos, endpoint as GetNgosEndpoint } from './use-cases/get-ngos'
 import { GetVendors, endpoint as GetVendorsEndpoint } from './use-cases/get-vendors'
 import { UpdateAsset, endpoint as UpdateAssetEndpoint } from './use-cases/update-asset'
 import { UpdateFeatureFlag, endpoint as UpdateFeatureFlagEndpoint } from './use-cases/update-feature-flag'
-import { UpdateNgo, endpoint as UpdateNgoEndpoint } from './use-cases/update-ngo'
 import { UpdateNftSupply, endpoint as UpdateNftSupplyEndpoint } from './use-cases/update-nft-supply'
+import { UpdateNgo, endpoint as UpdateNgoEndpoint } from './use-cases/update-ngo'
 import { UpdateVendor, endpoint as UpdateVendorEndpoint } from './use-cases/update-vendor'
 
 const featureFlagsRoutes = Router()
@@ -78,4 +78,11 @@ adminNgosRoutes.patch(`${UpdateNgoEndpoint}`, apiKeyAuthentication, async (req, 
   UpdateNgo.init().executeHttp(req, res)
 )
 
-export { featureFlagsRoutes, adminFeatureFlagsRoutes, adminAssetsRoutes, adminVendorsRoutes, adminNgosRoutes, adminNftSupplyRoutes }
+export {
+  featureFlagsRoutes,
+  adminFeatureFlagsRoutes,
+  adminAssetsRoutes,
+  adminVendorsRoutes,
+  adminNgosRoutes,
+  adminNftSupplyRoutes,
+}
