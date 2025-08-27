@@ -5,6 +5,7 @@ import { NftSupplyRepositoryType } from 'api/core/entities/nft-supply/types'
 export function mockNftSupplyRepository(): Mocked<NftSupplyRepositoryType> {
   return {
     getNftSupplyById: vi.fn(),
+    getNftSupplyList: vi.fn(),
     getNftSupplyByContractAddress: vi.fn(),
     getNftSupplyBySessionId: vi.fn(),
     getNftSupplyByResource: vi.fn(),
