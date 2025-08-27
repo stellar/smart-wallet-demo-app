@@ -6,7 +6,7 @@ import { ngoSchema } from 'api/core/utils/zod'
 export const RequestSchema = z.object({
   name: z.string(),
   description: z.string(),
-  wallet_address: z.string().optional(),
+  wallet_address: z.string(),
   profile_image: z.string().optional(),
 })
 
