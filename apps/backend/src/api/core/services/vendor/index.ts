@@ -1,3 +1,5 @@
+import { ILike } from 'typeorm'
+
 import { Vendor as VendorModel } from 'api/core/entities/vendor/model'
 import { Vendor, VendorRepositoryType } from 'api/core/entities/vendor/types'
 import { SingletonBase } from 'api/core/framework/singleton/interface'
@@ -16,7 +18,7 @@ export default class VendorRepository extends SingletonBase implements VendorRep
   }
 
   async getVendorByWalletAddress(walletAddress: string): Promise<Vendor | null> {
-    return VendorModel.findOneBy({ walletAddress })
+    return VendorModel.findOneBy({ walletAddress: ILike(walletAddress) })
   }
 
   async createVendor(

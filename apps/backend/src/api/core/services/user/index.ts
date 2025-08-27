@@ -1,4 +1,4 @@
-import { FindOneOptions } from 'typeorm'
+import { FindOneOptions, ILike } from 'typeorm'
 
 import { User as UserModel } from 'api/core/entities/user/model'
 import { User, UserRepositoryType } from 'api/core/entities/user/types'
@@ -18,11 +18,11 @@ export default class UserRepository extends SingletonBase implements UserReposit
   }
 
   async getUserByEmail(email: string, options?: FindOneOptions<User>): Promise<User | null> {
-    return UserModel.findOne({ where: { email: email }, ...options })
+    return UserModel.findOne({ where: { email: ILike(email) }, ...options })
   }
 
   async getUserByContractAddress(contractAddress: string): Promise<User | null> {
-    return UserModel.findOneBy({ contractAddress })
+    return UserModel.findOneBy({ contractAddress: ILike(contractAddress) })
   }
 
   async createUser(user: { uniqueToken: string; email: string }, save?: boolean): Promise<User> {
@@ -33,9 +33,9 @@ export default class UserRepository extends SingletonBase implements UserReposit
     return newUser
   }
 
-  async updateUser(userId: string, data: Partial<User>): Promise<User> {
+  async updateUser(userId: string, data: Partial<User>, options?: FindOneOptions<User>): Promise<User> {
     await UserModel.update(userId, data)
-    return this.getUserById(userId) as Promise<User>
+    return this.getUserById(userId, options) as Promise<User>
   }
 
   async saveUser(user: User): Promise<User> {

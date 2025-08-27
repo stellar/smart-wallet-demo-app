@@ -13,7 +13,7 @@ export const RecoverConfirmTemplate = ({ isRecoveringWallet, onCreatePasskey }: 
   return (
     <div>
       <OnboardingBackgroundImage className="bg-[95%]" />
-      <div className="mt-[calc(100vh-55vh)] flex flex-col justify-start px-8">
+      <div className="mt-[calc(100vh-60vh)] flex flex-col justify-start px-8">
         <div className="flex flex-col gap-4">
           <Typography className="text-whitish" variant={TypographyVariant.h1} weight={TypographyWeight.bold}>
             {c('recoverConfirmTitle')}
