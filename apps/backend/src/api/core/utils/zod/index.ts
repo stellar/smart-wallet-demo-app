@@ -78,6 +78,14 @@ export const vendorSchema = z.object({
   profile_image: z.string().optional(),
 })
 
+export const ngoSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  wallet_address: z.string(),
+  profile_image: z.string().optional(),
+})
+
 export const nftSupplySchema = z.object({
   id: z.string().optional(),
   name: z.string(),
