@@ -1,5 +1,6 @@
 import { Badge, Text, Notification } from '@stellar/design-system'
 import clsx from 'clsx'
+import { useMemo } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import Skeleton from 'react-loading-skeleton'
 
@@ -72,21 +73,25 @@ export const TransferAssetsTemplate = ({
     </div>
   )
 
-  const StandardTransfer = () => (
-    <div className="flex flex-col gap-4">
-      {isLoadingBalance ? (
-        <Skeleton height={32} />
-      ) : (
-        <AssetAmount amount={balanceAmount} size="lg" asset={{ value: 'XLM', variant: 'sm' }} />
-      )}
+  const standardTransfer = useMemo(
+    () => (
+      <div className="flex flex-col gap-4">
+        {isLoadingBalance ? (
+          <Skeleton height={32} />
+        ) : (
+          <AssetAmount amount={balanceAmount} size="lg" asset={{ value: 'XLM', variant: 'sm' }} />
+        )}
 
-      <WalletAddressForm
-        form={standardTransferForm}
-        submitButtonText={c('transfer')}
-        onSubmit={onStandardTransferSubmit}
-      />
-      <Notification variant="warning" title={c('transferAssetsStandardTransferDisclaimer')} />
-    </div>
+        <WalletAddressForm
+          form={standardTransferForm}
+          submitButtonText={c('transfer')}
+          onSubmit={onStandardTransferSubmit}
+        />
+
+        <Notification variant="warning" title={c('transferAssetsStandardTransferDisclaimer')} />
+      </div>
+    ),
+    [balanceAmount, isLoadingBalance, onStandardTransferSubmit, standardTransferForm]
   )
 
   return (
@@ -115,7 +120,7 @@ export const TransferAssetsTemplate = ({
             text: c('transferAssetsStandardTransferDescription'),
           }}
         >
-          <StandardTransfer />
+          {standardTransfer}
         </CollapseItem>
       </Collapse>
     </div>
