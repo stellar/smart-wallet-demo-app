@@ -2,6 +2,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { ConfirmTransferDrawer } from 'src/app/wallet/components'
 import { walletAddressFormSchema, WalletAddressFormValues } from 'src/app/wallet/components/wallet-address-form/schema'
 import { TransferInput } from 'src/app/wallet/domain/use-cases/transfer/types'
 import { getWallet as getWalletQueryOptions, useGetWallet } from 'src/app/wallet/queries/use-get-wallet'
@@ -10,7 +11,6 @@ import { ErrorHandling } from 'src/helpers/error-handling'
 import BaseError from 'src/helpers/error-handling/base-error'
 import { queryClient } from 'src/interfaces/query-client'
 
-import { ConfirmTransferDrawer } from './components'
 import TransferAssetsTemplate, { Organization } from './template'
 
 export const TransferAssets = () => {
