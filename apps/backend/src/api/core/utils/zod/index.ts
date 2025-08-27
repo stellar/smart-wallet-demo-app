@@ -82,7 +82,7 @@ export const ngoSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string(),
-  wallet_address: z.string().optional(),
+  wallet_address: z.string(),
   profile_image: z.string().optional(),
 })
 
