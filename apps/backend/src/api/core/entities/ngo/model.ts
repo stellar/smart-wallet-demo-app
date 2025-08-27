@@ -18,7 +18,7 @@ export class Ngo extends ModelBase {
   @Column({
     type: 'varchar',
   })
-  walletAddress?: string
+  walletAddress: string
 
   @Column({
     type: 'varchar',
