@@ -29,9 +29,13 @@ export function Layout(): JSX.Element {
   }
 
   return (
-    <div>
-      <Outlet />
-      <TanStackRouterDevtools />
+    <div className="fixed inset-0 flex flex-col">
+      <main className="flex-1 overflow-auto">
+        <SDSLayout.Content>
+          <Outlet />
+          <TanStackRouterDevtools />
+        </SDSLayout.Content>
+      </main>
     </div>
   )
 }
