@@ -10,6 +10,10 @@ export default class NftSupplyRepository extends SingletonBase implements NftSup
     super()
   }
 
+  async getNftSupplyList(): Promise<NftSupply[]> {
+    return NftSupplyModel.find()
+  }
+
   async getNftSupplyById(nftSupplyId: string): Promise<NftSupply | null> {
     return NftSupplyModel.findOneBy({ nftSupplyId })
   }
