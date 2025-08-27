@@ -1,4 +1,4 @@
-import { DeleteResult } from 'typeorm'
+import { DeleteResult, ILike } from 'typeorm'
 
 import { NftSupply as NftSupplyModel } from 'api/core/entities/nft-supply/model'
 import { NftSupply, NftSupplyRepositoryType } from 'api/core/entities/nft-supply/types'
@@ -15,7 +15,7 @@ export default class NftSupplyRepository extends SingletonBase implements NftSup
   }
 
   async getNftSupplyByContractAddress(contractAddress: string): Promise<NftSupply | null> {
-    return NftSupplyModel.findOneBy({ contractAddress })
+    return NftSupplyModel.findOneBy({ contractAddress: ILike(contractAddress) })
   }
 
   async getNftSupplyBySessionId(sessionId: string): Promise<NftSupply | null> {
@@ -31,7 +31,7 @@ export default class NftSupplyRepository extends SingletonBase implements NftSup
   }
 
   async getNftSupplyByContractAndSessionId(contractAddress: string, sessionId: string): Promise<NftSupply | null> {
-    return NftSupplyModel.findOneBy({ contractAddress, sessionId })
+    return NftSupplyModel.findOneBy({ contractAddress: ILike(contractAddress), sessionId })
   }
 
   async createNftSupply(

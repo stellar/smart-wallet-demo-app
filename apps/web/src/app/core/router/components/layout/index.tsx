@@ -9,8 +9,16 @@ export function Layout(): JSX.Element {
 
   if (layout === 'mobile') {
     return (
-      <div className="flex flex-col h-screen overflow-hidden">
-        <main className="flex-1 overflow-y-auto">
+      <div
+        className="fixed inset-0 flex flex-col"
+        style={{
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          paddingLeft: 'env(safe-area-inset-left)',
+          paddingRight: 'env(safe-area-inset-right)',
+        }}
+      >
+        <main className="flex-1 overflow-auto">
           <SDSLayout.Content>
             <Outlet />
             <TanStackRouterDevtools />

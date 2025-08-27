@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm'
+import { ILike, Repository } from 'typeorm'
 
 import { SingletonBase } from 'api/core/framework/singleton/interface'
 import { AppDataSource } from 'config/database'
@@ -20,8 +20,8 @@ export default class ProofRepository extends SingletonBase implements ProofRepos
     try {
       const proof = await this.repository.findOne({
         where: {
-          receiverAddress,
-          contractAddress,
+          receiverAddress: ILike(receiverAddress),
+          contractAddress: ILike(contractAddress),
         },
       })
 
