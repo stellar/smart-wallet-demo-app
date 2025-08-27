@@ -11,7 +11,6 @@ import { ErrorHandling } from 'src/helpers/error-handling'
 import BaseError from 'src/helpers/error-handling/base-error'
 import { queryClient } from 'src/interfaces/query-client'
 
-import { ConfirmTransferDrawer } from './components'
 import TransferAssetsTemplate, { Organization } from './template'
 
 export const TransferAssets = () => {
