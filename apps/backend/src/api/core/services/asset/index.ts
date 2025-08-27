@@ -21,6 +21,14 @@ export default class AssetRepository extends SingletonBase implements AssetRepos
     return AssetModel.findOneBy({ contractAddress })
   }
 
+  async getAssetsByContractAddress(contractAddresses: string[]): Promise<Asset[]> {
+    return AssetModel.find({
+      where: contractAddresses.map(contractAddress => ({
+        contractAddress: ILike(`%${contractAddress}%`),
+      })),
+    })
+  }
+
   async getAssetByType(type: string): Promise<Asset | null> {
     return AssetModel.findOneBy({ type })
   }

@@ -100,7 +100,11 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
       ?.replace(/\s+/g, '')
       .split(',')
       .filter(code => code.length)
-    const assets = await this.assetRepository.getAssetsByCode(assetCodes)
+    let assets = await this.assetRepository.getAssetsByCode(assetCodes)
+
+    if (!assets.length || !assets[0]?.contractAddress) {
+      assets = await this.assetRepository.getAssetsByContractAddress(assetCodes)
+    }
 
     if (!assets.length || !assets[0]?.contractAddress) {
       // TODO: get asset data from network as fallback?
@@ -176,6 +180,16 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
         ]
       } else {
         method = 'transfer'
+
+        console.log(
+          'NFT TRANSFER >>>',
+          assets[0]?.contractAddress,
+          method,
+          user.contractAddress,
+          validatedData.to,
+          validatedData.id
+        )
+
         args = [
           ScConvert.accountIdToScVal(user.contractAddress as string),
           ScConvert.accountIdToScVal(validatedData.to as string),
@@ -185,6 +199,8 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     }
 
     const contractId = assetCodes.length > 1 ? this.multicallContract : assets[0]?.contractAddress
+
+    console.log('CONTRACT ID >>>', contractId)
 
     // Simulate contract
     const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
