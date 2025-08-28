@@ -134,5 +134,8 @@
   "confirmTransferDrawerDescription3": "like Coinbase. You could lose funds.",
   "selectAmountTransferDrawerTitle": "Send to",
   "selectAmountTransferDrawerInputDescription": "Balance:",
-  "selectAmountTransferDrawerSubmitText": "Transfer"
+  "selectAmountTransferDrawerSubmitText": "Transfer",
+  "transferSuccessModalTitle": "Transfer Complete!",
+  "transferSuccessModalMessage": "Your NFTs have been sent!",
+  "transferSuccessModalButtonText": "Go to Home"
 }

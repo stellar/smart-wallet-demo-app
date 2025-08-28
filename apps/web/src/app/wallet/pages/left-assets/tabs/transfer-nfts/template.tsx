@@ -3,16 +3,17 @@ import { UseFormReturn } from 'react-hook-form'
 
 import { WalletAddressForm } from 'src/app/wallet/components'
 import { WalletAddressFormValues } from 'src/app/wallet/components/wallet-address-form/schema'
+import { Nft } from 'src/app/wallet/services/wallet/types'
+import { CustomCheckbox } from 'src/components/atoms'
 import { ImageCard } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
-
-import { Nft } from '../../../../services/wallet/types'
 
 interface TransferNftsTemplateProps {
   nfts: Nft[]
   selectedNfts: Set<string>
   nftsReviewForm: UseFormReturn<WalletAddressFormValues>
   onNftToggle: (nftId: string) => void
+  onSelectAll: () => void
   onReview: (values: WalletAddressFormValues) => void
 }
 
@@ -21,9 +22,11 @@ export const TransferNftsTemplate = ({
   selectedNfts,
   nftsReviewForm,
   onNftToggle,
+  onSelectAll,
   onReview,
 }: TransferNftsTemplateProps) => {
   const isReviewDisabled = selectedNfts.size === 0
+  const isAllSelected = nfts.length > 0 && selectedNfts.size === nfts.length
 
   if (nfts.length === 0) {
     return (
@@ -41,6 +44,18 @@ export const TransferNftsTemplate = ({
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <Text as="span" size="sm" className="text-textSecondary text-sm ">
+          {nfts.length} NFTs
+        </Text>
+        <button onClick={onSelectAll} className="flex items-center gap-2 px-3 py-2 rounded-lg">
+          <CustomCheckbox checked={isAllSelected} size="md" onClick={onSelectAll} />
+          <Text as="span" size="sm" className="font-medium text-sm text-textSecondary">
+            Select all
+          </Text>
+        </button>
+      </div>
+
       <div className="rounded-2xl">
         <div className="grid grid-cols-2 gap-3">
           {nfts.map(nft => {
