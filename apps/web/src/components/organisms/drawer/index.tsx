@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 import { NavigateButton } from 'src/components/molecules'
 
@@ -38,7 +39,7 @@ export const Drawer = ({
     }
   }, [isLocked, onClose])
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -48,7 +49,7 @@ export const Drawer = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className={clsx('fixed inset-0 z-50 flex items-end justify-center bg-black/70  transition-opacity')}
+          className={clsx('absolute inset-0 z-50 flex items-end justify-center bg-black/70 transition-opacity')}
           onClick={isLocked ? undefined : onClose}
         >
           <motion.div
@@ -58,7 +59,7 @@ export const Drawer = ({
             exit={{ y: '100%' }}
             transition={{ duration: 0.1, ease: 'easeOut' }}
             className={clsx(
-              'w-full relative flex flex-col bg-backgroundSecondary rounded-t-3xl max-h-[92.5%] shadow-lg transform transition-transform',
+              'relative w-full max-w-[736px] flex flex-col bg-backgroundSecondary rounded-t-3xl max-h-[92.5%] shadow-lg transform transition-transform',
               size === 'max-height' && 'min-h-[92.5%]'
             )}
             onClick={e => e.stopPropagation()}
@@ -80,7 +81,8 @@ export const Drawer = ({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }
 

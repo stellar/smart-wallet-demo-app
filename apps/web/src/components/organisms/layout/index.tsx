@@ -65,14 +65,14 @@ export function Layout({ children }: { children: React.ReactNode }): React.React
           paddingRight: 'env(safe-area-inset-right)',
         }}
       >
-        <main className="absolute inset-0 flex flex-col overflow-auto">{children}</main>
+        <main className="absolute inset-0 flex flex-col overflow-auto scrollbar-hide">{children}</main>
       </div>
     )
   }
 
   return (
     <div className="relative w-[768px] mx-auto" style={{ height: vh }}>
-      <main className="absolute inset-0 flex flex-col overflow-auto">{children}</main>
+      <main className="absolute inset-0 flex flex-col overflow-auto scrollbar-hide">{children}</main>
     </div>
   )
 }
