@@ -197,7 +197,7 @@ export const HomeTemplate = ({
   const Faq = () => (
     <Collapse title={faq.title}>
       {faq.items.map((item, index) => (
-        <CollapseItem key={index} title={item.title}>
+        <CollapseItem key={index} title={{ text: item.title }}>
           <Text as={'p'} size={'sm'}>
             {item.description}
           </Text>

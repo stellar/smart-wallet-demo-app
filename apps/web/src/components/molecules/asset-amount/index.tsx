@@ -28,19 +28,19 @@ export const AssetAmount = ({ amount, amountVariant = 'default', size = 'md', we
     switch (size) {
       case 'sm':
         return (
-          <Text as="span" size="sm" weight={weight}>
+          <Text addlClassName="text-text" as="span" size="sm" weight={weight}>
             {formattedAmount}
           </Text>
         )
       case 'md':
         return (
-          <Heading as={'h2'} size={'xs'} weight={weight}>
+          <Heading addlClassName="text-text" as={'h2'} size={'xs'} weight={weight}>
             {formattedAmount}
           </Heading>
         )
       case 'lg':
         return (
-          <Heading as={'h1'} size={'xs'} weight={weight}>
+          <Heading addlClassName="text-text" as={'h1'} size={'xs'} weight={weight}>
             {formattedAmount}
           </Heading>
         )
