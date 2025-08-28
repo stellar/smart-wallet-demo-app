@@ -35,7 +35,7 @@ export const WalletRouteLoading = ({ overrideDescription }: Props) => {
   }, [timeoutReached, walletStatus])
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center h-full">
       <div className="flex flex-col gap-6 px-11">
         {/* Loading Indicator */}
         <Loading />

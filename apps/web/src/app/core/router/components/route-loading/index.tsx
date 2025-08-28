@@ -6,7 +6,7 @@ export const RouteLoading = () => {
   const { accessToken } = useAccessTokenStore()
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center h-full">
       {!accessToken && <OnboardingBackgroundImage />}
 
       <Loading />
