@@ -36,7 +36,7 @@ export const NftsTemplate = ({ isLoadingNftsList, nfts, onGoBack, onNftClick }: 
 
         {!isEmpty && (
           <div className="flex justify-center">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 w-full">
               {nfts.map(nft => (
                 <NftListItem key={nft.id} nft={nft} />
               ))}

@@ -12,10 +12,12 @@ import { openExplorer } from '../../utils/explorer'
 
 type Props = {
   nft: Nft | undefined
+  isTransferDisabled: boolean
   onClose: () => void
+  onTransferClick: () => void
 }
 
-export const ViewNftDrawer = ({ nft, onClose }: Props) => {
+export const ViewNftDrawer = ({ nft, isTransferDisabled, onClose, onTransferClick }: Props) => {
   // ESC to close
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -93,16 +95,25 @@ export const ViewNftDrawer = ({ nft, onClose }: Props) => {
               </div>
 
               {/* Transfer Button */}
-              <Button variant={'secondary'} size={'lg'} disabled isRounded isFullWidth>
+              <Button
+                variant={'secondary'}
+                size={'lg'}
+                disabled={isTransferDisabled}
+                onClick={onTransferClick}
+                isRounded
+                isFullWidth
+              >
                 {c('transfer')}
               </Button>
 
               {/* Disabled Reason */}
-              <div className="text-center text-textSecondary">
-                <Text as="p" size="sm">
-                  {c('viewNftDrawerDisclaimer')}
-                </Text>
-              </div>
+              {isTransferDisabled && (
+                <div className="text-center text-textSecondary">
+                  <Text as="p" size="sm">
+                    {c('viewNftDrawerDisclaimer')}
+                  </Text>
+                </div>
+              )}
             </div>
           </motion.div>
         </motion.div>

@@ -44,7 +44,7 @@ export const ImageCard = ({
       case 'lg':
         return clsx('w-[262px]', 'h-[266px]')
       case 'adapt':
-        return clsx('w-[45vw]', 'h-[45vw]')
+        return clsx('w-full', 'aspect-square')
     }
   }, [size])
 

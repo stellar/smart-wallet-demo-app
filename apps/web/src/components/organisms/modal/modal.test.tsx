@@ -98,7 +98,8 @@ describe('Modal', () => {
     expect(modalContainer).toHaveStyle({
       backgroundImage: `url(${backgroundUri})`,
       backgroundSize: 'cover',
-      backgroundPosition: 'top',
+      backgroundPositionY: 'top',
+      backgroundPositionX: 'center',
     })
   })
 })

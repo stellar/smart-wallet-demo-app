@@ -1,5 +1,8 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import { useState, useMemo } from 'react'
+import { useForm } from 'react-hook-form'
 
+import { walletAddressFormSchema, WalletAddressFormValues } from 'src/app/wallet/components/wallet-address-form/schema'
 import { Loading } from 'src/components/atoms'
 
 import TransferNftsTemplate from './template'
@@ -8,9 +11,13 @@ import { Nft } from '../../../../services/wallet/types'
 
 export const TransferNfts = () => {
   const [selectedNfts, setSelectedNfts] = useState<Set<string>>(new Set())
-  const [walletAddress, setWalletAddress] = useState('')
 
   const { data: nftsData, isLoading: isLoadingNfts } = useGetNfts()
+
+  const nftsReviewForm = useForm<WalletAddressFormValues>({
+    resolver: yupResolver(walletAddressFormSchema),
+    mode: 'onSubmit',
+  })
 
   const nfts = useMemo((): Nft[] => {
     if (!nftsData?.data?.nfts) return []
@@ -33,13 +40,8 @@ export const TransferNfts = () => {
     setSelectedNfts(newSelected)
   }
 
-  const handleWalletAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setWalletAddress(e.target.value)
-  }
-
-  const handlePaste = async () => {
-    const text = await navigator.clipboard.readText()
-    setWalletAddress(text)
+  const handleReview = (_values: WalletAddressFormValues) => {
+    // TODO: open transfer drawer function
   }
 
   if (isLoadingNfts) {
@@ -54,11 +56,9 @@ export const TransferNfts = () => {
     <TransferNftsTemplate
       nfts={nfts}
       selectedNfts={selectedNfts}
-      walletAddress={walletAddress}
+      nftsReviewForm={nftsReviewForm}
       onNftToggle={handleNftToggle}
-      onWalletAddressChange={handleWalletAddressChange}
-      onPaste={handlePaste}
-      onReview={handlePaste}
+      onReview={handleReview}
     />
   )
 }

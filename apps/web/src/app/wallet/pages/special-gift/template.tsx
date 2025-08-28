@@ -26,7 +26,7 @@ export const SpecialGiftTemplate = ({
   onShareImage,
 }: Props) => {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-full">
       {/* Scrollable + Centerable content */}
       <div className="flex-1 overflow-y-auto flex justify-center items-center">
         <div className="flex flex-col items-center justify-center gap-6 py-8 px-4 min-h-full">

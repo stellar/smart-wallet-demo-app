@@ -143,9 +143,15 @@ describe('GetWallet', () => {
     expect(result.data.status).toBe(WalletStatus.SUCCESS)
     expect(result.data.address).toBe('CCQ6FGYK3YRWZ3UEWFBZYKE3ZOJJSYQTM4WN7IC2TKA5AUP2BSAFPFVV')
     expect(mockedSDPEmbeddedWallets.checkWalletStatus).toHaveBeenCalledTimes(1)
-    expect(mockedUserRepository.updateUser).toHaveBeenCalledWith('user-123', {
-      contractAddress: 'CCQ6FGYK3YRWZ3UEWFBZYKE3ZOJJSYQTM4WN7IC2TKA5AUP2BSAFPFVV',
-    })
+    expect(mockedUserRepository.updateUser).toHaveBeenCalledWith(
+      'user-123',
+      {
+        contractAddress: 'CCQ6FGYK3YRWZ3UEWFBZYKE3ZOJJSYQTM4WN7IC2TKA5AUP2BSAFPFVV',
+      },
+      {
+        relations: ['nfts', 'nfts.nftSupply'],
+      }
+    )
   })
 
   it('should check wallet status and return properly info if contract_address is empty', async () => {

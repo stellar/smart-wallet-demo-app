@@ -1,6 +1,8 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useState, useMemo } from 'react'
 
+import { featureFlagsState } from 'src/app/core/helpers'
+
 import NftsTemplate from './template'
 import { ViewNftDrawer } from '../../components'
 import { useGetNfts } from '../../queries/use-get-nfts'
@@ -11,6 +13,7 @@ export const Nfts = () => {
   const navigate = useNavigate()
 
   const [selectedNft, setSelectedNft] = useState<Nft | undefined>()
+  const [isTransferLeftAssetsActive] = featureFlagsState(['transfer-left-assets'])
 
   const { data: nftsData, isLoading: isLoadingNfts } = useGetNfts()
 
@@ -34,6 +37,10 @@ export const Nfts = () => {
     })
   }
 
+  const handleTransferClick = () => {
+    // TODO: navigate to left-assets page (NFT tab)
+  }
+
   const handleClickNft = (nft: Nft) => {
     setSelectedNft(nft)
   }
@@ -44,7 +51,12 @@ export const Nfts = () => {
 
   return (
     <>
-      <ViewNftDrawer nft={selectedNft} onClose={handleCloseNftDrawer} />
+      <ViewNftDrawer
+        nft={selectedNft}
+        isTransferDisabled={!isTransferLeftAssetsActive}
+        onClose={handleCloseNftDrawer}
+        onTransferClick={handleTransferClick}
+      />
 
       <NftsTemplate isLoadingNftsList={isLoadingNfts} nfts={nfts} onGoBack={handleGoBack} onNftClick={handleClickNft} />
     </>

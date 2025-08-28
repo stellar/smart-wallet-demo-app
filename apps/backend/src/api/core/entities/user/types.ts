@@ -25,6 +25,6 @@ export type UserRepositoryType = {
     },
     save?: boolean
   ): Promise<User>
-  updateUser(userId: string, data: Partial<User>): Promise<User>
+  updateUser(userId: string, data: Partial<User>, options?: FindOneOptions<User>): Promise<User>
   saveUser(user: User): Promise<User>
 }

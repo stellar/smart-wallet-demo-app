@@ -22,14 +22,14 @@ export const ScanTemplate = ({ onGoBack, onScan }: Props) => {
     <SafeAreaView>
       <NavigateButton className="absolute" variant="secondary" onClick={onGoBack} />
 
-      <div className="absolute w-full h-screen top-0 left-0 pointer-events-none">
-        <div className="relative w-full h-screen overflow-hidden">
+      <div className="absolute w-full h-full top-0 left-0 pointer-events-none">
+        <div className="relative w-full h-full overflow-hidden">
           {/* Layer 0: Background */}
           <div className="absolute inset-0 bg-transparent z-[-3]" />
 
           {/* Layer 1: Content under the cutout */}
           <div className="absolute z-[-2] inset-0">
-            <div id={qrScanner.getElementId()} className="flex flex-col h-screen w-screen justify-center" />
+            <div id={qrScanner.getElementId()} className="flex flex-col h-full w-screen justify-center" />
           </div>
 
           {/* Layer 2: Overlay with transparent hole */}
