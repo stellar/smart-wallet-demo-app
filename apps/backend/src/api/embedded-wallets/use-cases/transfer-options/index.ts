@@ -193,7 +193,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
         args = [
           ScConvert.accountIdToScVal(user.contractAddress as string),
           ScConvert.accountIdToScVal(validatedData.to as string),
-          // ScConvert.stringToTokenId(validatedData.id),
+          // ScConvert.stringToScVal(validatedData.id),
           nativeToScVal(validatedData.id as string, { type: 'u32' }),
         ]
       }

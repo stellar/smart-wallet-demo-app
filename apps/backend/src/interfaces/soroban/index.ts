@@ -302,6 +302,8 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
         .setNetworkPassphrase(this.networkPassphrase)
         .build()
 
+      this.logInfo('result', 'transaction XDR', { tx: tx.toXDR() })
+
       let simulationResponse = await this.simulateTransaction(tx)
 
       // Add signed auth entries if signers are provided
