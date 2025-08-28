@@ -8,6 +8,7 @@ import {
   featureFlagsRoutes,
   adminFeatureFlagsRoutes,
   adminAssetsRoutes,
+  adminNftSupplyRoutes,
   adminVendorsRoutes,
 } from '../general-settings/routes'
 
@@ -21,6 +22,7 @@ function routes(http: express.Router): void {
 
   http.use('/api/admin/feature-flags', adminFeatureFlagsRoutes)
   http.use('/api/admin/assets', adminAssetsRoutes)
+  http.use('/api/admin/nft-collections', adminNftSupplyRoutes)
   http.use('/api/admin/vendors', adminVendorsRoutes)
 }
 

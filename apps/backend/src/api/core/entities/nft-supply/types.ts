@@ -5,6 +5,7 @@ import { NftSupply as NftSupplyModel } from 'api/core/entities/nft-supply/model'
 export type NftSupply = NftSupplyModel
 
 export type NftSupplyRepositoryType = {
+  getNftSupplyList(): Promise<NftSupply[]>
   getNftSupplyById(nftSupplyId: string): Promise<NftSupply | null>
   getNftSupplyByContractAddress(contractAddress: string): Promise<NftSupply | null>
   getNftSupplyBySessionId(session_id: string): Promise<NftSupply | null>
