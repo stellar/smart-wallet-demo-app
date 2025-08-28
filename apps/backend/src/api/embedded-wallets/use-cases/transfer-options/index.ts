@@ -1,4 +1,4 @@
-import { xdr } from '@stellar/stellar-sdk'
+import { xdr, nativeToScVal } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
@@ -193,7 +193,8 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
         args = [
           ScConvert.accountIdToScVal(user.contractAddress as string),
           ScConvert.accountIdToScVal(validatedData.to as string),
-          ScConvert.stringToScVal(validatedData.id),
+          // ScConvert.stringToTokenId(validatedData.id),
+          nativeToScVal(validatedData.id as string, { type: 'u32' }),
         ]
       }
     }
