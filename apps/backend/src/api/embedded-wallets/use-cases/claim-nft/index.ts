@@ -124,11 +124,17 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       },
     }
 
+    // Convert to XDR ScVec (struct) for contract call - matches TokenData struct
+    const metadataMap = xdr.ScVal.scvVec([
+      xdr.ScVal.scvString(nftSupply.sessionId), // session_id first
+      xdr.ScVal.scvString(nftSupply.resource), // resource second
+    ])
+
     // Simulate 'mint' transaction
     const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
       contractId: nftSupply.contractAddress,
-      method: 'mint',
-      args: [ScConvert.accountIdToScVal(user.contractAddress as string)],
+      method: 'mint_with_data',
+      args: [ScConvert.accountIdToScVal(user.contractAddress as string), metadataMap],
       signers: [transactionSigner],
     })
 
