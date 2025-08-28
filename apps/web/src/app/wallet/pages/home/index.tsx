@@ -6,8 +6,9 @@ import { WalletPagesPath } from 'src/app/wallet/routes/types'
 import { ImageCard } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
-import { HomeTemplate } from './template'
+import { BannerOptions, HomeTemplate } from './template'
 import { useHandleAirdrop } from '../../hooks/use-handle-airdrop'
+import { useHandleTransferLeftAssets } from '../../hooks/use-handle-transfer-left-assets'
 import { useInitTransfer } from '../../hooks/use-init-transfer'
 import { useGetWallet } from '../../queries/use-get-wallet'
 import { homeRoute } from '../../routes'
@@ -17,7 +18,7 @@ export const Home = () => {
   const loaderDeps = homeRoute.useLoaderDeps()
   const navigate = useNavigate()
 
-  const [isAirdropActive] = featureFlagsState(['airdrop'])
+  const [isAirdropActive, isTransferLeftAssetsActive] = featureFlagsState(['airdrop', 'transfer-left-assets'])
 
   // Wallet information
   const getWallet = useGetWallet({
@@ -29,6 +30,11 @@ export const Home = () => {
   // Handle airdrop
   const { banner: airdropBanner } = useHandleAirdrop({
     enabled: isAirdropActive && isUserAirdropAvailable,
+  })
+
+  // Handle left transfer assets
+  const { banner: transferLeftAssetsBanner } = useHandleTransferLeftAssets({
+    enabled: isTransferLeftAssetsActive,
   })
 
   // Init transfer when search params are present (handles both transfer and NFT)
@@ -81,12 +87,19 @@ export const Home = () => {
     return getWallet.isLoading || getWallet.isError
   }, [getWallet.isError, getWallet.isLoading, loaderDeps.shouldInitTransfer, walletData?.balance])
 
+  const banners = useMemo(() => {
+    const bannersArray: BannerOptions[] = []
+    if (airdropBanner) bannersArray.push(airdropBanner)
+    if (transferLeftAssetsBanner) bannersArray.push(transferLeftAssetsBanner)
+    return bannersArray
+  }, [airdropBanner, transferLeftAssetsBanner])
+
   return (
     <HomeTemplate
       isLoadingBalance={isLoadingBalance}
       isLoadingSwags={isLoadingSwags}
       balanceAmount={walletData?.balance || 0}
-      banner={airdropBanner}
+      banners={banners}
       products={swags}
       isProductActionButtonDisabled={isSwagActionButtonDisabled}
       onNavbarButtonClick={handleNavbarButtonClick}

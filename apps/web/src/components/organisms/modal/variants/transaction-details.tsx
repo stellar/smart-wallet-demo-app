@@ -78,7 +78,7 @@ export const ModalTransactionDetails = ({
   )
 
   const Description = ({ descriptionItems }: { descriptionItems: string[] }) =>
-    descriptionItems.length && (
+    descriptionItems.length !== 0 && (
       <div className="flex flex-col items-center">
         {descriptionItems.length === 1 ? (
           <Text as="span" size="sm" weight="semi-bold" addlClassName="text-center break-words whitespace-normal">

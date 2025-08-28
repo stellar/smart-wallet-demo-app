@@ -1,7 +1,7 @@
 import { Icon, Text } from '@stellar/design-system'
 import { useMemo } from 'react'
 
-import { useWalletStatusStore } from 'src/app/wallet/store/wallet-status'
+import { useWalletStatusStore } from 'src/app/wallet/store'
 import { c } from 'src/interfaces/cms/useContent'
 
 export const WalletRouteError = () => {

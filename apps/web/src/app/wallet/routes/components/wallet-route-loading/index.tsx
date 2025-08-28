@@ -1,7 +1,7 @@
 import { Text } from '@stellar/design-system'
 import { useEffect, useMemo, useState } from 'react'
 
-import { useWalletStatusStore } from 'src/app/wallet/store/wallet-status'
+import { useWalletStatusStore } from 'src/app/wallet/store'
 import { Loading } from 'src/components/atoms'
 import { c } from 'src/interfaces/cms/useContent'
 
