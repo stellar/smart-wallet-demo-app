@@ -7,8 +7,8 @@ describe('ModalTransferSuccess', () => {
     variant: 'transfer-success',
     title: 'Transfer Complete!',
     message: 'Your NFTs have been sent!',
+    buttonText: 'Go to Home',
     button: {
-      children: 'Go to Home',
       onClick: vi.fn(),
       variant: 'secondary',
       size: 'xl',
@@ -42,7 +42,7 @@ describe('ModalTransferSuccess', () => {
   })
 
   it('does not render action button when not provided', () => {
-    const { ...propsWithoutButton } = defaultProps
+    const { button: _button, ...propsWithoutButton } = defaultProps
     render(<ModalTransferSuccess {...propsWithoutButton} />)
     expect(screen.queryByRole('button', { name: /go to home/i })).not.toBeInTheDocument()
   })

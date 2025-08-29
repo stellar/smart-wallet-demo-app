@@ -69,8 +69,8 @@ export const TransferNfts = () => {
           variant: 'transfer-success',
           title: c('transferSuccessModalTitle'),
           message: c('transferSuccessModalMessage'),
+          buttonText: c('transferSuccessModalButtonText'),
           button: {
-            children: c('transferSuccessModalButtonText'),
             variant: 'secondary',
             size: 'xl',
             isRounded: true,
@@ -125,7 +125,25 @@ export const TransferNfts = () => {
     }
   }
 
-  const handleReview = () => {
+  const handleReview = (values: WalletAddressFormValues) => {
+    const walletAddressValue = values.walletAddress
+
+    if (!walletAddressValue.trim()) {
+      toast.notify({
+        message: c('transferNftsEnterWalletAddressError'),
+        type: Toast.toastType.ERROR,
+      })
+      return
+    }
+
+    if (selectedNfts.size === 0) {
+      toast.notify({
+        message: c('transferNftsSelectNftError'),
+        type: Toast.toastType.ERROR,
+      })
+      return
+    }
+
     const selectedNftsList = Array.from(selectedNfts).map(id => {
       const nft = nfts.find(n => n.id === id)
       return {
@@ -142,7 +160,7 @@ export const TransferNfts = () => {
         nfts: selectedNftsList,
         destinationAddress: walletAddress,
         button: {
-          children: isTransferring ? 'Transferring...' : 'Confirm Transfer',
+          children: isTransferring ? c('transferNftsTransferringButton') : c('transferNftsConfirmTransferButton'),
           variant: 'secondary',
           size: 'xl',
           isRounded: true,

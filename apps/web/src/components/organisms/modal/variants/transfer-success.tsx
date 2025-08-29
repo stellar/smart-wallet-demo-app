@@ -7,12 +7,14 @@ export type ModalTransferSuccessProps = {
   variant: Extract<ModalVariants, 'transfer-success'>
   title: string
   message: string
+  buttonText?: string
   button?: React.ComponentProps<typeof Button>
 }
 
 export const ModalTransferSuccess = ({
   title,
   message,
+  buttonText,
   button,
   internalState,
   onClose,
@@ -54,7 +56,7 @@ export const ModalTransferSuccess = ({
             isRounded
             isFullWidth
           >
-            Go to Home
+            {buttonText}
           </Button>
         </div>
       )}

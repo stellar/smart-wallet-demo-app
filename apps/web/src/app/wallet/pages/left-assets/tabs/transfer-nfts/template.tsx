@@ -45,13 +45,13 @@ export const TransferNftsTemplate = ({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <Text as="span" size="sm" className="text-textSecondary text-sm ">
-          {nfts.length} NFTs
+        <Text as="span" size="sm" className="text-textSecondary text-sm">
+          {nfts.length} {c('transferNftsNftsCount')}
         </Text>
         <button onClick={onSelectAll} className="flex items-center gap-2 px-3 py-2 rounded-lg">
           <CustomCheckbox checked={isAllSelected} size="md" onClick={onSelectAll} />
           <Text as="span" size="sm" className="font-medium text-sm text-textSecondary">
-            Select all
+            {c('transferNftsSelectAllButton')}
           </Text>
         </button>
       </div>
