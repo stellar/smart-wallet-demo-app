@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useToast } from 'src/app/core/hooks/use-toast'
@@ -28,6 +28,23 @@ export const TransferNfts = () => {
     resolver: yupResolver(walletAddressFormSchema),
     mode: 'onSubmit',
   })
+
+  const nfts = useMemo((): Nft[] => {
+    if (!nftsData?.data?.nfts) return []
+
+    return nftsData.data.nfts.map((nft, index) => ({
+      ...nft,
+      id: `nft-${index}`,
+      code: nft.name,
+      issuer: 'API',
+    }))
+  }, [nftsData])
+
+  useEffect(() => {
+    if (nfts.length > 0) {
+      setSelectedNfts(new Set(nfts.map(nft => nft.id || '')))
+    }
+  }, [nfts])
 
   const getTransferOptions = useGetTransferOptions({
     onSuccess: result => {
@@ -95,17 +112,6 @@ export const TransferNfts = () => {
       setIsTransferring(false)
     },
   })
-
-  const nfts = useMemo((): Nft[] => {
-    if (!nftsData?.data?.nfts) return []
-
-    return nftsData.data.nfts.map((nft, index) => ({
-      ...nft,
-      id: `nft-${index}`,
-      code: nft.name,
-      issuer: 'API',
-    }))
-  }, [nftsData])
 
   const handleNftToggle = (nftId: string) => {
     const newSelected = new Set(selectedNfts)
