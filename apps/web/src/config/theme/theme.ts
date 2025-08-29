@@ -25,6 +25,7 @@ export const THEME_STYLES = {
         whitish: 'var(--color-whitish)',
         blackish: 'var(--color-blackish)',
         muted: 'var(--color-muted)',
+        error: 'var(--color-error)',
         success: 'var(--color-success)',
         danger: 'var(--color-danger)',
         warning: 'var(--color-warning)',
@@ -75,9 +76,14 @@ export const THEME_STYLES = {
           '0%': { backgroundPosition: '0% 0%' },
           '100%': { backgroundPosition: '100% 0%' },
         },
+        blink: {
+          '0%, 49%': { opacity: 1 },
+          '50%, 100%': { opacity: 0 },
+        },
       },
       animation: {
         'background-move': 'background-move 60s linear infinite alternate',
+        blink: 'blink 1s step-end infinite',
       },
     },
   },
