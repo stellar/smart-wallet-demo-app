@@ -30,6 +30,7 @@ describe('Form', () => {
   })
 
   it('attaches field components as static properties', () => {
+    expect(Form.AssetAmountInput).toBeDefined()
     expect(Form.Input).toBeDefined()
     expect(Form.Checkbox).toBeDefined()
     expect(Form.Radio).toBeDefined()
