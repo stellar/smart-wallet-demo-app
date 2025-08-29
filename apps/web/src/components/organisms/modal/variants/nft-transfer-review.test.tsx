@@ -10,6 +10,10 @@ describe('ModalNftTransferReview', () => {
       { id: '2', name: 'Test NFT 2', imageUri: 'test2.jpg' },
     ],
     destinationAddress: 'GBN6N2N...7ZS3L507',
+    title: 'Review Transfer',
+    toLabel: 'To',
+    copyAddressTitle: 'Copy Address',
+    disclaimer: 'Please review the transfer details before confirming.',
     button: {
       children: 'Confirm Transfer',
       onClick: vi.fn(),

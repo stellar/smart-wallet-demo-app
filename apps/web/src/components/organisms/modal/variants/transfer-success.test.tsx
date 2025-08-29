@@ -68,7 +68,7 @@ describe('ModalTransferSuccess', () => {
 
   it('displays success icon', () => {
     render(<ModalTransferSuccess {...defaultProps} />)
-    const successIcon = document.querySelector('.w-16.h-16.bg-green-500')
+    const successIcon = document.querySelector('.text-success.w-14.h-14')
     expect(successIcon).toBeInTheDocument()
   })
 })
