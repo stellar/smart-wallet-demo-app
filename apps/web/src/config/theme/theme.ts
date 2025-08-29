@@ -27,6 +27,7 @@ export const THEME_STYLES = {
         muted: 'var(--color-muted)',
         success: 'var(--color-success)',
         danger: 'var(--color-danger)',
+        warning: 'var(--color-warning)',
         brandPrimary: 'var(--color-brand-primary)',
       },
       fontFamily: {

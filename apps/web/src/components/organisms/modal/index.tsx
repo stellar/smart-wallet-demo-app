@@ -77,8 +77,8 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+      transition={{ duration: 0.3 }}
+      className={clsx('absolute inset-0 z-50 flex items-center justify-center bg-black/70 transition-opacity')}
       onClick={handleBackdropClick}
     >
       <motion.div
@@ -88,7 +88,7 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.25 }}
         className={clsx(
-          'relative w-full mx-4 max-w-md p-6 rounded-2xl shadow-xl',
+          'relative w-full mx-4 max-w-lg p-6 rounded-2xl shadow-xl',
           !backgroundImageUri && 'bg-backgroundSecondary'
         )}
         style={

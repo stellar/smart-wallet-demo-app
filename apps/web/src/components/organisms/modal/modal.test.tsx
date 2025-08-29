@@ -94,7 +94,7 @@ describe('Modal', () => {
     const backgroundUri = 'https://example.com/background.jpg'
     renderModal({ backgroundImageUri: backgroundUri })
 
-    const modalContainer = screen.getByTestId('modal-backdrop').querySelector('.max-w-md')
+    const modalContainer = screen.getByTestId('modal-backdrop').querySelector('.max-w-lg')
     expect(modalContainer).toHaveStyle({
       backgroundImage: `url(${backgroundUri})`,
       backgroundSize: 'cover',

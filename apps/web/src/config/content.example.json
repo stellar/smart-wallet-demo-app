@@ -127,5 +127,9 @@
   "transferAssetsOrganizationListDescription": "Transfer XLM to trusted organizations on Stellar. Any XLM can be transferred to another Stellar wallet.",
   "transferAssetsStandardTransferTitle": "Transfer XLM",
   "transferAssetsStandardTransferDescription": "Transfer any XLM to a personal Stellar wallet.",
-  "transferAssetsStandardTransferDisclaimer": "Do not transfer to accounts that require a Stellar memo, including exchanges like Coinbase. You could lose funds."
+  "transferAssetsStandardTransferDisclaimer": "Do not transfer to accounts that require a Stellar memo, including exchanges like Coinbase. You could lose funds.",
+  "confirmTransferDrawerTitle": "Before you transfer",
+  "confirmTransferDrawerDescription1": "Please note that do not transfer to accounts that",
+  "confirmTransferDrawerDescription2": "require a Stellar memo, including exchanges",
+  "confirmTransferDrawerDescription3": "like Coinbase. You could lose funds."
 }
