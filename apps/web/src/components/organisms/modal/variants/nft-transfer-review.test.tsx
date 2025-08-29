@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from 'src/helpers/tests'
+import { render, screen } from 'src/helpers/tests'
 
 import { ModalNftTransferReview, ModalNftTransferReviewProps } from './nft-transfer-review'
 
