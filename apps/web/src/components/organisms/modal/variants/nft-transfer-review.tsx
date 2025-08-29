@@ -15,12 +15,20 @@ export type ModalNftTransferReviewProps = {
     imageUri: string
   }[]
   destinationAddress: string
+  title: string
+  toLabel: string
+  copyAddressTitle: string
+  disclaimer: string
   button: React.ComponentProps<typeof Button>
 }
 
 export const ModalNftTransferReview = ({
   nfts,
   destinationAddress,
+  title,
+  toLabel,
+  copyAddressTitle,
+  disclaimer,
   button,
   internalState,
   onClose,
@@ -48,7 +56,7 @@ export const ModalNftTransferReview = ({
 
       <div className="text-center">
         <Text as="h2" size="lg" className="text-xl font-semibold">
-          Review Transfer
+          {title}
         </Text>
       </div>
 
@@ -94,7 +102,7 @@ export const ModalNftTransferReview = ({
 
       <div className="flex flex-col p-3 bg-backgroundSecondary  rounded-lg ">
         <Text as="h4" size="md" weight="medium" className="text-center text-textSecondary">
-          To
+          {toLabel}
         </Text>
         <div className="flex items-center gap-2 p-2 justify-center">
           <div className="w-6 h-6 bg-cyan-50 rounded-full flex items-center justify-center">
@@ -103,7 +111,7 @@ export const ModalNftTransferReview = ({
           <Text as="span" size="md" className="flex-1 font-semibold text-center">
             {formatAddress(destinationAddress)}
           </Text>
-          <CopyText textToCopy={destinationAddress} title="Copy address">
+          <CopyText textToCopy={destinationAddress} title={copyAddressTitle}>
             <div className="bg-backgroundPrimary w-6 h-6 rounded-full flex items-center justify-center border border-borderPrimary">
               <Icon.Copy01 size={12} className="text-gray-600 text-sm" />
             </div>
@@ -116,7 +124,7 @@ export const ModalNftTransferReview = ({
 
         <div className="text-center text-textSecondary">
           <Text as="p" size="sm">
-            For the best experience, use a wallet that offers NFT compatibility
+            {disclaimer}
           </Text>
         </div>
       </div>

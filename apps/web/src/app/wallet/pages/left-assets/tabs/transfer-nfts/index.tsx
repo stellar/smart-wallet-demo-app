@@ -158,7 +158,11 @@ export const TransferNfts = () => {
       variantOptions: {
         variant: 'nft-transfer-review',
         nfts: selectedNftsList,
-        destinationAddress: walletAddress,
+        destinationAddress: walletAddressValue,
+        title: c('transferNftsReviewModalTitle'),
+        toLabel: c('transferNftsReviewModalToLabel'),
+        copyAddressTitle: c('transferNftsReviewModalCopyAddressTitle'),
+        disclaimer: c('transferNftsReviewModalDisclaimer'),
         button: {
           children: isTransferring ? c('transferNftsTransferringButton') : c('transferNftsConfirmTransferButton'),
           variant: 'secondary',
