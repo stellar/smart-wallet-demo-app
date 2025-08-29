@@ -164,6 +164,7 @@ export type GetNftClaimOptionsResult = IHTTPResponse<{
     sessionId: string
     resource: string
     transaction_hash: string
+    token_id: string
   }
 }>
 
