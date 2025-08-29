@@ -70,6 +70,7 @@ export const TransferNftsTemplate = ({
                 imageUri={nft.url}
                 onClick={() => onNftToggle(nftId)}
                 isClickable={true}
+                isSelectable={true}
                 isSelected={isSelected}
               />
             )

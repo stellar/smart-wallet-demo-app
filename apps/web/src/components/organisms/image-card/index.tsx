@@ -21,6 +21,7 @@ type Props = {
     variant: 'success' | 'disabled'
   }
   isSelected?: boolean
+  isSelectable?: boolean
   isClickable?: boolean
   onClick?: () => void
 }
@@ -34,6 +35,7 @@ export const ImageCard = ({
   leftBadge,
   rightBadge,
   isSelected = false,
+  isSelectable = false,
   isClickable = true,
   onClick,
 }: Props): React.ReactNode => {
@@ -131,7 +133,7 @@ export const ImageCard = ({
 
       <RightBadgeComponent />
 
-      <SelectionIndicator />
+      {isSelectable && <SelectionIndicator />}
 
       {name && (
         <div className="flex flex-col items-center gap-3">
