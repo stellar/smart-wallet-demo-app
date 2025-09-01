@@ -1,4 +1,5 @@
 import { Icon } from '@stellar/design-system'
+import { useRouter } from '@tanstack/react-router'
 import { useEffect, useMemo } from 'react'
 
 import { modalService } from 'src/components/organisms/modal/provider'
@@ -6,6 +7,7 @@ import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { BannerOptions } from '../pages/home/template'
+import { WalletPagesPath } from '../routes/types'
 import { useTransferLeftAssetsStore } from '../store'
 
 type HandleTransferLeftAssetsProps = {
@@ -19,6 +21,7 @@ type HandleTransferLeftAssetsReturn = {
 export const useHandleTransferLeftAssets = ({
   enabled,
 }: HandleTransferLeftAssetsProps): HandleTransferLeftAssetsReturn => {
+  const router = useRouter()
   const { isFirstOpen: isTransferLeftAssetsFirstOpen, setIsFirstOpen: setIsTransferLeftAssetsFirstOpen } =
     useTransferLeftAssetsStore()
 
@@ -36,11 +39,13 @@ export const useHandleTransferLeftAssets = ({
         title: c('transferLeftAssetsBannerButtonTitle'),
         icon: Icon.ArrowRight({ className: 'text-whitish' }),
         onClick: () => {
-          // TODO: navigate to left-assets page
+          router.navigate({
+            to: WalletPagesPath.LEFT_ASSETS,
+          })
         },
       },
     }),
-    []
+    [router]
   )
 
   const shouldOpenTransferLeftAssetsModal = useMemo(
@@ -73,7 +78,10 @@ export const useHandleTransferLeftAssets = ({
             isRounded: true,
             icon: Icon.ArrowRight({ className: 'text-whitish' }),
             onClick: () => {
-              // TODO: navigate to left-assets page
+              router.navigate({
+                to: WalletPagesPath.LEFT_ASSETS,
+              })
+              modalService.close()
             },
           },
         },
@@ -81,7 +89,7 @@ export const useHandleTransferLeftAssets = ({
         onClose: () => setIsTransferLeftAssetsFirstOpen(false),
       })
     }
-  }, [setIsTransferLeftAssetsFirstOpen, shouldOpenTransferLeftAssetsModal])
+  }, [router, setIsTransferLeftAssetsFirstOpen, shouldOpenTransferLeftAssetsModal])
 
   return {
     banner: shouldReturnBanner ? banner : undefined,

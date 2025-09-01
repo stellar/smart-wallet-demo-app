@@ -2,7 +2,11 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { ConfirmTransferDrawer } from 'src/app/wallet/components'
+import { ConfirmTransferDrawer, SelectAmountTransferDrawer } from 'src/app/wallet/components'
+import {
+  transferAmountFormSchema,
+  TransferAmountFormValues,
+} from 'src/app/wallet/components/select-amount-transfer-drawer/schema'
 import { walletAddressFormSchema, WalletAddressFormValues } from 'src/app/wallet/components/wallet-address-form/schema'
 import { TransferInput } from 'src/app/wallet/domain/use-cases/transfer/types'
 import { getWallet as getWalletQueryOptions, useGetWallet } from 'src/app/wallet/queries/use-get-wallet'
@@ -17,7 +21,12 @@ export const TransferAssets = () => {
   const getWallet = useGetWallet()
   const walletData = getWallet.data
   const [reviewStandardTransferInfo, setReviewStandardTransferInfo] = useState<WalletAddressFormValues | null>(null)
+  const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null)
 
+  const organizationTransferForm = useForm<TransferAmountFormValues>({
+    resolver: yupResolver(transferAmountFormSchema),
+    mode: 'onSubmit',
+  })
   const standardTransferForm = useForm<WalletAddressFormValues>({
     resolver: yupResolver(walletAddressFormSchema),
     mode: 'onSubmit',
@@ -27,7 +36,9 @@ export const TransferAssets = () => {
     onSuccess: () => {
       // TODO: show success modal
       queryClient.forceRefetch(getWalletQueryOptions())
+      organizationTransferForm.reset()
       standardTransferForm.reset()
+      setSelectedOrganization(null)
       setReviewStandardTransferInfo(null)
     },
   })
@@ -41,13 +52,29 @@ export const TransferAssets = () => {
     },
   ]
 
-  const handleOrganizationClick = (_organization: Organization) => {
-    // TODO: open transfer drawer function
-    alert('Organization clicked')
+  const handleOrganizationClick = (organization: Organization) => {
+    setSelectedOrganization(organization)
   }
 
   const handleStandardTransferSubmit = async (values: WalletAddressFormValues) => {
     setReviewStandardTransferInfo(values)
+  }
+
+  const handleOrganizationTransferConfirm = (values: TransferAmountFormValues) => {
+    try {
+      if (!selectedOrganization) throw new BaseError('Unknown error. Try again later.')
+      if (!walletData?.balance) throw new BaseError('Your current balance is undefined. Try again later.')
+
+      const payload: TransferInput = {
+        type: 'transfer',
+        to: selectedOrganization.walletAddress,
+        amount: values.amount,
+        asset: 'XLM',
+      }
+      transfer.mutate(payload)
+    } catch (error) {
+      ErrorHandling.handleError({ error })
+    }
   }
 
   const handleStandardTransferConfirm = () => {
@@ -75,11 +102,21 @@ export const TransferAssets = () => {
 
   return (
     <>
+      <SelectAmountTransferDrawer
+        isOpen={!!selectedOrganization}
+        isTransferring={transfer.isPending}
+        form={organizationTransferForm}
+        target={selectedOrganization?.title || ''}
+        balance={walletData?.balance || 0}
+        onClose={() => setSelectedOrganization(null)}
+        onConfirm={handleOrganizationTransferConfirm}
+      />
+
       <ConfirmTransferDrawer
         isOpen={!!reviewStandardTransferInfo}
         isTransferring={transfer.isPending}
         onClose={() => setReviewStandardTransferInfo(null)}
-        onConfirm={() => handleStandardTransferConfirm()}
+        onConfirm={handleStandardTransferConfirm}
       />
 
       <TransferAssetsTemplate

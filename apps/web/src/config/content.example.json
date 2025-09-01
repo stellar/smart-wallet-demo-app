@@ -131,5 +131,8 @@
   "confirmTransferDrawerTitle": "Before you transfer",
   "confirmTransferDrawerDescription1": "Please note that do not transfer to accounts that",
   "confirmTransferDrawerDescription2": "require a Stellar memo, including exchanges",
-  "confirmTransferDrawerDescription3": "like Coinbase. You could lose funds."
+  "confirmTransferDrawerDescription3": "like Coinbase. You could lose funds.",
+  "selectAmountTransferDrawerTitle": "Send to",
+  "selectAmountTransferDrawerInputDescription": "Balance:",
+  "selectAmountTransferDrawerSubmitText": "Transfer"
 }
