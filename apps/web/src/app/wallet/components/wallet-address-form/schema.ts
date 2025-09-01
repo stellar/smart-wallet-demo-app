@@ -1,6 +1,6 @@
 import * as yup from 'yup'
 
-import { isValidStellarContractAddress } from 'src/app/core/utils'
+import { isValidStellarClassicAddress } from 'src/app/core/utils'
 
 // TODO: Add restricted addresses
 const restrictedAddresses: string[] = []
@@ -11,9 +11,9 @@ export const walletAddressFormSchema = yup.object({
     .string()
     .required('Wallet address is required')
     .test(
-      'is-valid-contract',
+      'is-valid-classic-address',
       'Use a wallet address starting with G',
-      value => !value || isValidStellarContractAddress(value)
+      value => !value || isValidStellarClassicAddress(value)
     )
     .test(
       'is-restricted',

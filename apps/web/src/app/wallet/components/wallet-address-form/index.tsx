@@ -58,7 +58,6 @@ export const WalletAddressForm = ({
                   </Text>
                 </button>
               }
-              disabled
             />
 
             <div className="text-center">

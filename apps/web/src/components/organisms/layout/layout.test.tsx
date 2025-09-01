@@ -17,7 +17,7 @@ describe('Layout', () => {
       expect(screen.getByTestId('outlet')).toBeInTheDocument()
       // Check for mobile-specific classes
       const wrapper = screen.getByTestId('sds-content').closest('div')
-      expect(wrapper).toHaveClass('relative', 'w-full', 'h-[100svh]')
+      expect(wrapper).toHaveClass('relative', 'w-full', 'h-[100svh]', 'scrollbar-hide')
     })
   })
 
@@ -35,7 +35,7 @@ describe('Layout', () => {
       expect(screen.getByTestId('outlet')).toBeInTheDocument()
       // Check for mobile-specific classes
       const wrapper = screen.getByTestId('sds-content').closest('div')
-      expect(wrapper).toHaveClass('relative', 'h-[100svh]', 'w-[768px]', 'mx-auto')
+      expect(wrapper).toHaveClass('relative', 'h-[100svh]', 'w-[768px]', 'mx-auto', 'scrollbar-hide')
     })
   })
 })

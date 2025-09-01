@@ -6,12 +6,20 @@ import { GhostButton } from '../ghost-button'
 type Props = {
   type?: 'next' | 'previous' | 'close'
   variant?: ButtonProps['variant'] | 'ghost'
+  invertColor?: boolean
   size?: 'sm' | 'md'
   className?: string
   onClick?: () => void
 }
 
-export const NavigateButton = ({ type = 'previous', variant = 'tertiary', size = 'sm', className, onClick }: Props) => {
+export const NavigateButton = ({
+  type = 'previous',
+  variant = 'tertiary',
+  invertColor = true,
+  size = 'sm',
+  className,
+  onClick,
+}: Props) => {
   const label = useMemo(() => {
     const width = size === 'sm' ? 12 : 14
     const height = size === 'sm' ? 12 : 14
@@ -53,19 +61,21 @@ export const NavigateButton = ({ type = 'previous', variant = 'tertiary', size =
     <div className={className}>
       {variant === 'ghost' ? (
         <GhostButton
+          data-testid="navigate-button"
           size={'lg'}
           style={{
             borderRadius: '50%',
             ...style,
           }}
           isBordered
-          invertColor
+          invertColor={invertColor}
           onClick={onClick}
         >
           {label}
         </GhostButton>
       ) : (
         <Button
+          data-testid="navigate-button"
           variant={variant}
           size={'lg'}
           style={{

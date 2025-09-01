@@ -42,3 +42,16 @@ export const isValidStellarContractAddress = (text: string): boolean => {
     return false
   }
 }
+
+/**
+ * Checks if the given string is a valid Stellar Classic address
+ * @param text - The string to check
+ * @returns True if the string is a valid Stellar Classic address, false otherwise
+ */
+export const isValidStellarClassicAddress = (text: string): boolean => {
+  try {
+    return StrKey.isValidEd25519PublicKey(text)
+  } catch {
+    return false
+  }
+}
