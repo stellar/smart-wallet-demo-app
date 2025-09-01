@@ -6,7 +6,7 @@ import { ImageCard, SafeAreaView } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { EmptyList } from '../../components'
-import { Nft } from '../../services/wallet/types'
+import { Nft } from '../../domain/models/nft'
 
 interface NftsTemplateProps {
   isLoadingNftsList: boolean

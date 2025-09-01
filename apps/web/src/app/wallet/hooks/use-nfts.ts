@@ -8,11 +8,11 @@ import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 import { queryClient } from 'src/interfaces/query-client'
 
+import { Nft } from '../domain/models/nft'
 import { WalletQueryKeys } from '../queries/query-keys'
 import { useClaimNft } from '../queries/use-claim-nft'
 import { getWallet } from '../queries/use-get-wallet'
 import { WalletPagesPath } from '../routes/types'
-import { Nft } from '../services/wallet/types'
 
 export const useNfts = () => {
   const router = useRouter()

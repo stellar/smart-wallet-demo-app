@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { Drawer, ImageCard } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
-import { Nft } from '../../services/wallet/types'
+import { Nft } from '../../domain/models/nft'
 import { openExplorer } from '../../utils/explorer'
 type Props = {
   nft: Nft | undefined

@@ -2,7 +2,7 @@ import { Button, Text, Icon, CopyText } from '@stellar/design-system'
 import { useMemo } from 'react'
 
 import { createShortStellarAddress } from 'src/app/core/utils'
-import { Nft } from 'src/app/wallet/services/wallet/types'
+import { Nft } from 'src/app/wallet/domain/models/nft'
 
 import { BaseModalProps, ModalVariants } from '..'
 import { NavigateButton } from '../../../molecules'

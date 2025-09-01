@@ -6,10 +6,24 @@ describe('ModalNftTransferReview', () => {
   const defaultProps: ModalNftTransferReviewProps = {
     variant: 'nft-transfer-review',
     nfts: [
-      { id: '1', name: 'Test NFT 1', imageUri: 'test1.jpg' },
-      { id: '2', name: 'Test NFT 2', imageUri: 'test2.jpg' },
+      {
+        id: '1',
+        name: 'Test NFT 1',
+        url: 'test1.jpg',
+        token_id: '',
+        description: '',
+        transaction_hash: '',
+      },
+      {
+        id: '2',
+        name: 'Test NFT 2',
+        url: 'test2.jpg',
+        token_id: '',
+        description: '',
+        transaction_hash: '',
+      },
     ],
-    destinationAddress: 'GBN6N2N...7ZS3L507',
+    destinationAddress: 'GBN6N2NC...7ZS3L507',
     title: 'Review Transfer',
     toLabel: 'To',
     copyAddressTitle: 'Copy Address',
@@ -35,7 +49,7 @@ describe('ModalNftTransferReview', () => {
 
   it('renders destination address', () => {
     render(<ModalNftTransferReview {...defaultProps} />)
-    expect(screen.getByText('GBN6N2N...7ZS3L507')).toBeInTheDocument()
+    expect(screen.getByText('GBN6N2NC...7ZS3L507')).toBeInTheDocument()
   })
 
   it('renders confirm button', () => {

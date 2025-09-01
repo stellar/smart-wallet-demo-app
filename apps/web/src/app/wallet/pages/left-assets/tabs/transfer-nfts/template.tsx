@@ -4,7 +4,7 @@ import Skeleton from 'react-loading-skeleton'
 
 import { WalletAddressForm } from 'src/app/wallet/components'
 import { WalletAddressFormValues } from 'src/app/wallet/components/wallet-address-form/schema'
-import { Nft } from 'src/app/wallet/services/wallet/types'
+import { Nft } from 'src/app/wallet/domain/models/nft'
 import { CustomCheckbox } from 'src/components/atoms'
 import { ImageCard } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'

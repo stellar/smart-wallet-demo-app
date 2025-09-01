@@ -1,6 +1,7 @@
 import { WalletStatus } from 'src/app/auth/domain/models/user'
 import { IHTTPResponse } from 'src/interfaces/http/types'
 
+import { Nft } from '../../domain/models/nft'
 import { Transaction } from '../../domain/models/transaction'
 
 export interface IWalletService {
@@ -127,19 +128,6 @@ export type PostAirdropInput = {
 export type PostAirdropResult = IHTTPResponse<{
   hash: string
 }>
-
-export interface Nft {
-  id?: string
-  token_id: string
-  name: string
-  description: string
-  url: string
-  code?: string
-  issuer?: string
-  resource?: string
-  transaction_hash: string
-  contract_address?: string
-}
 
 export type GetNftsResult = IHTTPResponse<{
   nfts: Nft[]
