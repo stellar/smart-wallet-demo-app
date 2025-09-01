@@ -139,10 +139,7 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
       contractId: nftSupply.contractAddress,
       method: 'mint_with_data',
-      args: [
-        ScConvert.accountIdToScVal(user.contractAddress as string), 
-        metadataMap,
-      ],
+      args: [ScConvert.accountIdToScVal(user.contractAddress as string), metadataMap],
       signers: [transactionSigner],
     })
 
