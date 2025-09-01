@@ -124,10 +124,17 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       },
     }
 
-    // Convert to XDR ScVec (struct) for contract call - matches TokenData struct
-    const metadataMap = xdr.ScVal.scvVec([
-      xdr.ScVal.scvString(nftSupply.sessionId), // session_id first
-      xdr.ScVal.scvString(nftSupply.resource), // resource second
+    // DONT CHANGE THE ORDER OF THE METADATA MAP ENTRIES
+    // The smart contract relies on this order to parse the metadata correctly
+    const metadataMap = xdr.ScVal.scvMap([
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol('resource'),
+        val: xdr.ScVal.scvString(nftSupply.resource),
+      }),
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol('session_id'),
+        val: xdr.ScVal.scvString(nftSupply.sessionId),
+      }),
     ])
 
     // Simulate 'mint' transaction
