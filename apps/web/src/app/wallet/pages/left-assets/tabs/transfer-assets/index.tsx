@@ -8,14 +8,16 @@ import {
   TransferAmountFormValues,
 } from 'src/app/wallet/components/select-amount-transfer-drawer/schema'
 import { walletAddressFormSchema, WalletAddressFormValues } from 'src/app/wallet/components/wallet-address-form/schema'
+import { Organization } from 'src/app/wallet/domain/models/organization'
 import { TransferInput } from 'src/app/wallet/domain/use-cases/transfer/types'
+import { useGetOrganizations } from 'src/app/wallet/queries/use-get-organizations'
 import { getWallet as getWalletQueryOptions, useGetWallet } from 'src/app/wallet/queries/use-get-wallet'
 import { useTransfer } from 'src/app/wallet/queries/use-transfer'
 import { ErrorHandling } from 'src/helpers/error-handling'
 import BaseError from 'src/helpers/error-handling/base-error'
 import { queryClient } from 'src/interfaces/query-client'
 
-import TransferAssetsTemplate, { Organization } from './template'
+import TransferAssetsTemplate from './template'
 
 export const TransferAssets = () => {
   const getWallet = useGetWallet()
@@ -32,6 +34,10 @@ export const TransferAssets = () => {
     mode: 'onSubmit',
   })
 
+  const { data: getOrganizationsData, isLoading: isLoadingOrganizations } = useGetOrganizations()
+
+  const organizations = getOrganizationsData?.data.ngos || []
+
   const transfer = useTransfer({
     onSuccess: () => {
       // TODO: show success modal
@@ -42,15 +48,6 @@ export const TransferAssets = () => {
       setReviewStandardTransferInfo(null)
     },
   })
-
-  const mockOrganizations = [
-    {
-      title: 'Stellar Foundation',
-      description: 'Stellar Foundation description',
-      imageUri: 'https://en.cryptonomist.ch/wp-content/uploads/2022/10/robinhood-stellar-xlm.jpg',
-      walletAddress: 'GDQGQYV6Q7D6VY7VY7VY7VY7VY7VY7VY7VY7VY7VY7VY7VY7VY7VY7VY7VY7VY7VY7VY7VY7',
-    },
-  ]
 
   const handleOrganizationClick = (organization: Organization) => {
     setSelectedOrganization(organization)
@@ -67,7 +64,7 @@ export const TransferAssets = () => {
 
       const payload: TransferInput = {
         type: 'transfer',
-        to: selectedOrganization.walletAddress,
+        to: selectedOrganization.wallet_address,
         amount: values.amount,
         asset: 'XLM',
       }
@@ -106,7 +103,7 @@ export const TransferAssets = () => {
         isOpen={!!selectedOrganization}
         isTransferring={transfer.isPending}
         form={organizationTransferForm}
-        target={selectedOrganization?.title || ''}
+        target={selectedOrganization?.name || ''}
         balance={walletData?.balance || 0}
         onClose={() => setSelectedOrganization(null)}
         onConfirm={handleOrganizationTransferConfirm}
@@ -121,8 +118,9 @@ export const TransferAssets = () => {
 
       <TransferAssetsTemplate
         isLoadingBalance={isLoadingBalance}
+        isLoadingOrganizations={isLoadingOrganizations}
         balanceAmount={walletData?.balance || 0}
-        organizations={mockOrganizations}
+        organizations={organizations}
         standardTransferForm={standardTransferForm}
         onOrganizationClick={handleOrganizationClick}
         onStandardTransferSubmit={handleStandardTransferSubmit}

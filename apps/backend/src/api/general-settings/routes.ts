@@ -1,6 +1,7 @@
 import { Router } from 'express'
 
 import { apiKeyAuthentication } from 'api/core/middlewares/api-key-authentication'
+import { authentication } from 'api/core/middlewares/authentication'
 
 import { CreateAsset, endpoint as CreateAssetEndpoint } from './use-cases/create-asset'
 import { CreateFeatureFlag, endpoint as CreateFeatureFlagEndpoint } from './use-cases/create-feature-flag'
@@ -67,6 +68,9 @@ adminVendorsRoutes.patch(`${UpdateVendorEndpoint}`, apiKeyAuthentication, async 
   UpdateVendor.init().executeHttp(req, res)
 )
 
+const ngosRoutes = Router()
+ngosRoutes.get(`${GetNgosEndpoint}`, authentication, async (req, res) => GetNgos.init().executeHttp(req, res))
+
 const adminNgosRoutes = Router()
 adminNgosRoutes.get(`${GetNgosEndpoint}`, apiKeyAuthentication, async (req, res) =>
   GetNgos.init().executeHttp(req, res)
@@ -83,6 +87,7 @@ export {
   adminFeatureFlagsRoutes,
   adminAssetsRoutes,
   adminVendorsRoutes,
+  ngosRoutes,
   adminNgosRoutes,
   adminNftSupplyRoutes,
 }

@@ -11,6 +11,7 @@ import {
   adminNftSupplyRoutes,
   adminVendorsRoutes,
   adminNgosRoutes,
+  ngosRoutes,
 } from '../general-settings/routes'
 
 function routes(http: express.Router): void {
@@ -20,6 +21,7 @@ function routes(http: express.Router): void {
 
   http.use('/api/embedded-wallets', embeddedWalletsRoutes)
   http.use('/api/feature-flags', featureFlagsRoutes)
+  http.use('/api/ngos', ngosRoutes)
 
   http.use('/api/admin/feature-flags', adminFeatureFlagsRoutes)
   http.use('/api/admin/assets', adminAssetsRoutes)

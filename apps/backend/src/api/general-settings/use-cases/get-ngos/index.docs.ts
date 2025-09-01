@@ -1,5 +1,4 @@
 import { unauthorized } from 'api/core/utils/docs/error.docs'
-import { Tags } from 'api/core/utils/docs/tags'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { zodToSchema } from 'api/core/utils/zod'
 
@@ -7,7 +6,6 @@ import { ResponseSchema } from './types'
 
 export default {
   get: {
-    tags: [Tags.ADMIN],
     summary: 'Get a list of NGOs',
     description: 'Retrieves all NGOs from the system.',
     responses: {

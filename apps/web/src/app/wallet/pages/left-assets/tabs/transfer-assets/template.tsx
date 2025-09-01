@@ -7,19 +7,14 @@ import Skeleton from 'react-loading-skeleton'
 import { formatNumber } from 'src/app/core/utils'
 import { WalletAddressForm } from 'src/app/wallet/components'
 import { WalletAddressFormValues } from 'src/app/wallet/components/wallet-address-form/schema'
+import { Organization } from 'src/app/wallet/domain/models/organization'
 import { AssetAmount } from 'src/components/molecules'
 import { Collapse, CollapseItem } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
-export type Organization = {
-  title: string
-  description: string
-  imageUri: string
-  walletAddress: string
-}
-
 type Props = {
   isLoadingBalance: boolean
+  isLoadingOrganizations: boolean
   balanceAmount: number
   organizations: Organization[]
   standardTransferForm: UseFormReturn<WalletAddressFormValues>
@@ -29,6 +24,7 @@ type Props = {
 
 export const TransferAssetsTemplate = ({
   isLoadingBalance,
+  isLoadingOrganizations,
   balanceAmount,
   organizations,
   standardTransferForm,
@@ -47,12 +43,12 @@ export const TransferAssetsTemplate = ({
         <div className="w-full flex items-center justify-between">
           <div className="text-text">
             <Text as="span" size={'sm'} weight={'medium'}>
-              {organization.title}
+              {organization.name}
             </Text>
           </div>
 
           <div>
-            <img src={organization.imageUri} alt={organization.title} className="max-h-[16px]" />
+            <img src={organization.profile_image} alt={organization.name} className="max-h-[16px]" />
           </div>
         </div>
 
@@ -66,10 +62,12 @@ export const TransferAssetsTemplate = ({
   )
 
   const OrganizationList = () => (
-    <div className="flex flex-col gap-6">
-      {organizations.map(organization => (
-        <OrganizationItem key={organization.title} organization={organization} />
-      ))}
+    <div className="flex flex-col gap-3">
+      {isLoadingOrganizations ? (
+        <Skeleton height={102} count={4} className="mb-[6px] rounded-xl" />
+      ) : (
+        organizations.map(organization => <OrganizationItem key={organization.name} organization={organization} />)
+      )}
     </div>
   )
 
