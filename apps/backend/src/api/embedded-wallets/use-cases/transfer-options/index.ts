@@ -184,7 +184,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
         args = [
           ScConvert.accountIdToScVal(user.contractAddress as string),
           ScConvert.accountIdToScVal(validatedData.to as string),
-          ...ids.map(tokenId => ScConvert.stringToScVal(tokenId)),
+          ScConvert.arrayToScvVec(ids),
         ]
       } else {
         method = 'transfer'
@@ -196,7 +196,10 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
       }
     }
 
-    const contractId = assetCodes.length > 1 ? this.multicallContract : assets[0]?.contractAddress
+    let contractId = assets[0]?.contractAddress
+    if (validatedData.type === TransferTypes.SWAG && assetCodes.length > 1) {
+      contractId = this.multicallContract
+    }
 
     // Simulate contract
     const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({

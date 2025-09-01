@@ -110,8 +110,20 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     // Validate if NFT belongs to user
     let userNft: Nft | null = null
     if (validatedData.type == TransferTypes.NFT) {
-      for (const asset of assets) {
-        userNft = await this.nftRepository.getNftByTokenIdAndContractAddress(validatedData.id, asset.contractAddress)
+      // IDs to transfer
+      const ids = validatedData.id
+        ?.replace(/\s+/g, '')
+        .split(',')
+        .filter(id => id.length)
+
+      if (ids.length !== assetCodes.length) {
+        throw new BadRequestException(messages.INVALID_INFORMATION)
+      }
+
+      for (let i = 0; i < assetCodes.length; i++) {
+        const contractAddress = assetCodes[i]
+        const id = ids[i]
+        userNft = await this.nftRepository.getNftByTokenIdAndContractAddress(id, contractAddress)
         if (!userNft) {
           throw new ResourceNotFoundException(messages.NFT_NOT_FOUND_FOR_THE_USER)
         }
@@ -148,7 +160,10 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       },
     }
 
-    const contractId = assetCodes.length > 1 ? this.multicallContract : assets[0]?.contractAddress
+    let contractId = assets[0]?.contractAddress
+    if (validatedData.type === TransferTypes.SWAG && assetCodes.length > 1) {
+      contractId = this.multicallContract
+    }
 
     // Sign auth entries
     const tx = await this.sorobanService.signAuthEntries({
