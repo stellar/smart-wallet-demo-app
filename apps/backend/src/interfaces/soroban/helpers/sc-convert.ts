@@ -16,9 +16,6 @@ export const ScConvert = {
   stringToScValUnsigned: (value: string): xdr.ScVal => {
     return new XdrLargeInt('u128', value).toScVal()
   },
-  stringToTokenId: (value: string): xdr.ScVal => {
-    return new ScInt(value, { type: 'u64' }).toScVal()
-  },
   numberToScVal: (value: number): xdr.ScVal => {
     return new XdrLargeInt('i128', ScConvert.numberToPaddedString(value)).toScVal()
   },
