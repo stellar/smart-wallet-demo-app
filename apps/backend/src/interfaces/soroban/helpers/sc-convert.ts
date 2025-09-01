@@ -1,4 +1,4 @@
-import { Address, nativeToScVal, scValToBigInt, StrKey, xdr, XdrLargeInt, ScInt } from '@stellar/stellar-sdk'
+import { Address, nativeToScVal, scValToBigInt, StrKey, xdr, XdrLargeInt } from '@stellar/stellar-sdk'
 import Big from 'big.js'
 
 import { SorobanEntryAddress } from '../types'
