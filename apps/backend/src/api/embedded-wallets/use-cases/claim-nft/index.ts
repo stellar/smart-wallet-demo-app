@@ -124,6 +124,8 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       },
     }
 
+    // DONT CHANGE THE ORDER OF THE METADATA MAP ENTRIES
+    // The smart contract relies on this order to parse the metadata correctly
     const metadataMap = xdr.ScVal.scvMap([
       new xdr.ScMapEntry({
         key: xdr.ScVal.scvSymbol('resource'),
