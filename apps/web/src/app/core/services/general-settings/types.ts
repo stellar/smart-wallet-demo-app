@@ -1,6 +1,6 @@
 import { IHTTPResponse } from 'src/interfaces/http/types'
 
-export type FeatureFlags = 'coming-soon' | 'airdrop' | 'transfer-left-assets'
+export type FeatureFlags = 'coming-soon' | 'airdrop' | 'transfer-left-assets' | 'behind-scenes'
 
 export interface IGeneralSettingsService {
   getFeatureFlags: () => Promise<GetFeatureFlagsResult>
