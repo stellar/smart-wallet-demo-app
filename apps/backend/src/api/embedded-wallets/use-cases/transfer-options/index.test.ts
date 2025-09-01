@@ -242,6 +242,7 @@ describe('TransferOptions', () => {
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedAssetRepository.getAssetsByCode.mockResolvedValue([])
+      mockedAssetRepository.getAssetsByContractAddress.mockResolvedValue([])
 
       await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
     })

@@ -128,7 +128,11 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
 
     // Check if user has enough balance
     for (const asset of assets) {
-      const balance = await getWalletBalance({ userContractAddress: user.contractAddress, assetCode: asset.code })
+      const balance = await getWalletBalance({
+        userContractAddress: user.contractAddress,
+        assetCode: asset.code,
+        isToken: asset?.type !== 'native',
+      })
 
       if (validatedData.type === TransferTypes.TRANSFER && balance < validatedData.amount) {
         throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_ENOUGH_BALANCE)
@@ -180,28 +184,15 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
         ]
       } else {
         method = 'transfer'
-
-        console.log(
-          'NFT TRANSFER >>>',
-          assets[0]?.contractAddress,
-          method,
-          user.contractAddress,
-          validatedData.to,
-          validatedData.id
-        )
-
         args = [
           ScConvert.accountIdToScVal(user.contractAddress as string),
           ScConvert.accountIdToScVal(validatedData.to as string),
-          // ScConvert.stringToScVal(validatedData.id),
           nativeToScVal(validatedData.id as string, { type: 'u32' }),
         ]
       }
     }
 
     const contractId = assetCodes.length > 1 ? this.multicallContract : assets[0]?.contractAddress
-
-    console.log('CONTRACT ID >>>', contractId)
 
     // Simulate contract
     const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
