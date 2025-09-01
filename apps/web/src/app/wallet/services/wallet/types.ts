@@ -49,24 +49,29 @@ export type TransferTypeParams = {
 }
 export const isTransferTypeParams = (params: { type: TransferTypes }): params is TransferTypeParams =>
   params.type === 'transfer'
+
 export type NftClaimTypeParams = {
   type: Extract<TransferTypes, 'nft'>
   session_id: string
   resource: string
 }
+export const isNftClaimTypeParams = (params: { type: TransferTypes }): params is NftClaimTypeParams =>
+  params.type === 'nft' && 'session_id' in params && 'resource' in params
 
 export type NftTransferTypeParams = {
   type: Extract<TransferTypes, 'nft'>
   to: string
   asset: string
-  id: string | string[]
+  id: string
 }
+export const isNftTransferTypeParams = (params: { type: TransferTypes }): params is NftTransferTypeParams =>
+  params.type === 'nft' && 'to' in params && 'asset' in params && 'id' in params
 
 export type SwagTypeParams = {
   type: Extract<TransferTypes, 'swag'>
   to: string
   amount: number
-  asset: string | string[]
+  asset: string
 }
 export const isSwagTypeParams = (params: { type: TransferTypes }): params is SwagTypeParams => params.type === 'swag'
 
@@ -75,12 +80,8 @@ export const transferOptionsInputKeys: (
   | keyof TransferTypeParams
   | keyof NftClaimTypeParams
   | keyof NftTransferTypeParams
+  | keyof SwagTypeParams
 )[] = ['type', 'to', 'amount', 'asset', 'session_id', 'resource', 'product', 'id']
-export const isNftClaimTypeParams = (params: { type: TransferTypes }): params is NftClaimTypeParams =>
-  params.type === 'nft' && 'session_id' in params && 'resource' in params
-
-export const isNftTransferTypeParams = (params: { type: TransferTypes }): params is NftTransferTypeParams =>
-  params.type === 'nft' && 'to' in params && 'asset' in params && 'id' in params
 
 export type GetTransferOptionsResult = IHTTPResponse<{
   options_json: string

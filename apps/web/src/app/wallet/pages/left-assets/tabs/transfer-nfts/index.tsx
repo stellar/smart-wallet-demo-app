@@ -1,27 +1,29 @@
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useNavigate } from '@tanstack/react-router'
 import { useState, useMemo, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useToast } from 'src/app/core/hooks/use-toast'
 import { Toast } from 'src/app/core/services/toast'
 import { walletAddressFormSchema, WalletAddressFormValues } from 'src/app/wallet/components/wallet-address-form/schema'
-import { Loading } from 'src/components/atoms'
+import { getNfts, useGetNfts } from 'src/app/wallet/queries/use-get-nfts'
+import { getWallet } from 'src/app/wallet/queries/use-get-wallet'
+import { useTransfer } from 'src/app/wallet/queries/use-transfer'
+import { WalletPagesPath } from 'src/app/wallet/routes/types'
+import { Nft } from 'src/app/wallet/services/wallet/types'
 import { modalService } from 'src/components/organisms/modal/provider'
-import { ErrorHandling } from 'src/helpers/error-handling'
 import { c } from 'src/interfaces/cms/useContent'
+import { queryClient } from 'src/interfaces/query-client'
 
 import TransferNftsTemplate from './template'
-import { useGetNfts } from '../../../../queries/use-get-nfts'
-import { useGetTransferOptions } from '../../../../queries/use-get-transfer-options'
-import { useTransfer } from '../../../../queries/use-transfer'
-import { Nft } from '../../../../services/wallet/types'
 
 export const TransferNfts = () => {
-  const [selectedNfts, setSelectedNfts] = useState<Set<string>>(new Set())
-  const [walletAddress, setWalletAddress] = useState('')
-  const [isTransferring, setIsTransferring] = useState(false)
-
+  const navigate = useNavigate()
   const toast = useToast()
+  const [selectedNfts, setSelectedNfts] = useState<Set<string>>(new Set())
+
+  const nftTransferReviewModalKey = 'nft-transfer-review'
+
   const { data: nftsData, isLoading: isLoadingNfts } = useGetNfts()
 
   const nftsReviewForm = useForm<WalletAddressFormValues>({
@@ -46,70 +48,34 @@ export const TransferNfts = () => {
     }
   }, [nfts])
 
-  const getTransferOptions = useGetTransferOptions({
-    onSuccess: result => {
-      // Execute the transfer with the options
-      transfer.mutate({
-        type: 'nft',
-        to: walletAddress,
-        asset: 'NFT', // This will be the asset code for NFTs
-        id: Array.from(selectedNfts)
-          .map(id => {
-            const nft = nfts.find(n => n.id === id)
-            return nft?.token_id || ''
-          })
-          .filter(Boolean)
-          .join(','),
-        optionsJSON: result.data.options_json,
-      })
-    },
-    onError: error => {
-      ErrorHandling.handleError({ error })
-      setIsTransferring(false)
-    },
-  })
-
   const transfer = useTransfer({
     onSuccess: () => {
-      toast.notify({
-        message: c('transferSuccess'),
-        type: Toast.toastType.SUCCESS,
-      })
-      setIsTransferring(false)
       modalService.close()
+      queryClient.forceRefetch(getWallet())
+      queryClient.forceRefetch(getNfts())
+      nftsReviewForm.reset()
+      setSelectedNfts(new Set())
 
       // Show success modal
       modalService.open({
         key: 'transfer-success',
-        width: 'w-80',
         variantOptions: {
           variant: 'transfer-success',
           title: c('transferSuccessModalTitle'),
-          message: c('transferSuccessModalMessage'),
+          message: c('transferNftSuccessModalMessage'),
           buttonText: c('transferSuccessModalButtonText'),
           button: {
             variant: 'secondary',
-            size: 'xl',
+            size: 'lg',
             isRounded: true,
             isFullWidth: true,
             onClick: () => {
               modalService.close()
-              // Reset form
-              setSelectedNfts(new Set())
-              nftsReviewForm.reset()
+              navigate({ to: WalletPagesPath.HOME })
             },
           },
         },
-        onClose: () => {
-          // Reset form
-          setSelectedNfts(new Set())
-          nftsReviewForm.reset()
-        },
       })
-    },
-    onError: error => {
-      ErrorHandling.handleError({ error })
-      setIsTransferring(false)
     },
   })
 
@@ -132,16 +98,6 @@ export const TransferNfts = () => {
   }
 
   const handleReview = (values: WalletAddressFormValues) => {
-    const walletAddressValue = values.walletAddress
-
-    if (!walletAddressValue.trim()) {
-      toast.notify({
-        message: c('transferNftsEnterWalletAddressError'),
-        type: Toast.toastType.ERROR,
-      })
-      return
-    }
-
     if (selectedNfts.size === 0) {
       toast.notify({
         message: c('transferNftsSelectNftError'),
@@ -150,78 +106,51 @@ export const TransferNfts = () => {
       return
     }
 
-    const selectedNftsList = Array.from(selectedNfts).map(id => {
-      const nft = nfts.find(n => n.id === id)
-      return {
-        id: nft?.id || '',
-        name: nft?.name || '',
-        imageUri: nft?.url || '',
-      }
-    })
+    const selectedNftsList = Array.from(selectedNfts)
+      .map(id => nfts.find(n => n.id === id))
+      .filter((nft): nft is NonNullable<typeof nft> => Boolean(nft))
 
     modalService.open({
-      key: 'nft-transfer-review',
+      key: nftTransferReviewModalKey,
       variantOptions: {
         variant: 'nft-transfer-review',
         nfts: selectedNftsList,
-        destinationAddress: walletAddressValue,
+        destinationAddress: values.walletAddress,
         title: c('transferNftsReviewModalTitle'),
         toLabel: c('transferNftsReviewModalToLabel'),
         copyAddressTitle: c('transferNftsReviewModalCopyAddressTitle'),
         disclaimer: c('transferNftsReviewModalDisclaimer'),
         button: {
-          children: isTransferring ? c('transferNftsTransferringButton') : c('transferNftsConfirmTransferButton'),
+          children: c('transferNftsConfirmTransferButton'),
           variant: 'secondary',
-          size: 'xl',
+          size: 'lg',
           isRounded: true,
-          disabled: isTransferring,
-          onClick: async () => {
-            setIsTransferring(true)
-            modalService.close()
-
-            try {
-              // Get transfer options first
-              await getTransferOptions.mutateAsync({
-                type: 'nft',
-                to: walletAddress,
-                asset: Array.from(selectedNfts)
-                  .map(id => {
-                    const nft = nfts.find(n => n.id === id)
-                    return nft?.contract_address || ''
-                  })
-                  .filter(Boolean)
-                  .join(','),
-                id: Array.from(selectedNfts)
-                  .map(id => {
-                    const nft = nfts.find(n => n.id === id)
-                    return nft?.token_id || ''
-                  })
-                  .filter(Boolean)
-                  .join(','),
-              })
-            } catch (error) {
-              setIsTransferring(false)
-              ErrorHandling.handleError({ error })
-            }
+          onClick: () => {
+            transfer.mutate({
+              type: 'nft',
+              to: values.walletAddress,
+              asset: selectedNftsList
+                .map(nft => nft.contract_address)
+                .filter(Boolean)
+                .join(','),
+              id: selectedNftsList
+                .map(nft => nft.token_id)
+                .filter(Boolean)
+                .join(','),
+            })
           },
         },
-      },
-      onClose: () => {
-        // Handle modal close if needed
       },
     })
   }
 
-  if (isLoadingNfts) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <Loading />
-      </div>
-    )
-  }
+  useEffect(() => {
+    modalService.setState(nftTransferReviewModalKey, { isLoading: transfer.isPending })
+  }, [transfer.isPending])
 
   return (
     <TransferNftsTemplate
+      isLoadingNfts={isLoadingNfts}
       nfts={nfts}
       selectedNfts={selectedNfts}
       nftsReviewForm={nftsReviewForm}

@@ -23,7 +23,6 @@ export type BaseModalProps = {
   backgroundImageUri?: string | 'default'
   internalState?: ModalInternalState
   onClose?: () => void
-  width?: string
 }
 
 export type ModalProps = {
@@ -35,13 +34,7 @@ export type ModalProps = {
     | ModalTransferSuccessProps
 } & BaseModalProps
 
-export const Modal: React.FC<ModalProps> = ({
-  variantOptions,
-  backgroundImageUri,
-  internalState,
-  onClose,
-  width = 'max-w-lg',
-}) => {
+export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri, internalState, onClose }) => {
   const modalRef = useRef<HTMLDivElement>(null)
   const isLocked = useRef(variantOptions.variant === 'loading' && variantOptions.isLocked)
 
@@ -108,8 +101,7 @@ export const Modal: React.FC<ModalProps> = ({
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.25 }}
         className={clsx(
-          'relative w-full mx-4 p-6 rounded-2xl shadow-xl',
-          width,
+          'relative w-full mx-4 max-w-lg p-6 rounded-2xl shadow-xl',
           !backgroundImageUri && 'bg-backgroundPrimary'
         )}
         style={

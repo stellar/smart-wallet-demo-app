@@ -96,7 +96,11 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       ?.replace(/\s+/g, '')
       .split(',')
       .filter(code => code.length)
-    const assets = await this.assetRepository.getAssetsByCode(assetCodes)
+    let assets = await this.assetRepository.getAssetsByCode(assetCodes)
+
+    if (!assets.length || !assets[0]?.contractAddress) {
+      assets = await this.assetRepository.getAssetsByContractAddress(assetCodes)
+    }
 
     if (!assets.length || !assets[0]?.contractAddress) {
       // TODO: get asset data from network as fallback?

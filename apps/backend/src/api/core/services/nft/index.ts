@@ -22,7 +22,7 @@ export default class NftRepository extends SingletonBase implements NftRepositor
   async getNftByTokenIdAndContractAddress(tokenId: string, contractAddress: string): Promise<Nft | null> {
     return NftModel.createQueryBuilder('nft')
       .where('nft.tokenId = :tokenId', { tokenId })
-      .andWhere('nft.contractAddress = ILIKE :contractAddress', { contractAddress })
+      .andWhere('nft.contractAddress ILIKE :contractAddress', { contractAddress })
       .getOne()
   }
 

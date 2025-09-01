@@ -30,6 +30,7 @@ export const THEME_STYLES = {
         danger: 'var(--color-danger)',
         warning: 'var(--color-warning)',
         brandPrimary: 'var(--color-brand-primary)',
+        pink: 'var(--color-pink)',
       },
       fontFamily: {
         sans: ['var(--font-family)', ...defaultTheme.fontFamily.sans],

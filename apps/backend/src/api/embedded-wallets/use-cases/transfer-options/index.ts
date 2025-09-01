@@ -175,19 +175,23 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
         ]
       }
     } else if (validatedData.type === TransferTypes.NFT) {
-      if (Array.isArray(validatedData.id)) {
+      const ids = validatedData.id
+        ?.replace(/\s+/g, '')
+        .split(',')
+        .filter(id => id.length)
+      if (ids.length > 1) {
         method = 'bulk_transfer'
         args = [
           ScConvert.accountIdToScVal(user.contractAddress as string),
           ScConvert.accountIdToScVal(validatedData.to as string),
-          ...validatedData.id.map(tokenId => ScConvert.stringToScVal(tokenId)),
+          ...ids.map(tokenId => ScConvert.stringToScVal(tokenId)),
         ]
       } else {
         method = 'transfer'
         args = [
           ScConvert.accountIdToScVal(user.contractAddress as string),
           ScConvert.accountIdToScVal(validatedData.to as string),
-          nativeToScVal(validatedData.id as string, { type: 'u32' }),
+          nativeToScVal(ids[0], { type: 'u32' }),
         ]
       }
     }

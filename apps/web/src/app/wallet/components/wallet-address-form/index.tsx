@@ -73,7 +73,7 @@ export const WalletAddressForm = ({
           <Form.Submit
             variant="secondary"
             size="xl"
-            disabled={isSubmitDisabled || walletAddressValue === ''}
+            disabled={isSubmitDisabled || !walletAddressValue}
             isRounded
             isFullWidth
           >

@@ -30,7 +30,12 @@ export const NftsTemplate = ({ isLoadingNftsList, nfts, onGoBack, onNftClick }: 
           {c('nftsListTitle')}
         </Text>
 
-        {isLoadingNftsList && <Skeleton height={56} count={8} className="mb-2" />}
+        {isLoadingNftsList && (
+          <div className="grid grid-cols-2 gap-3 w-full">
+            <Skeleton count={3} className="mb-2 rounded-xl w-full aspect-square" />
+            <Skeleton count={3} className="mb-2 rounded-xl w-full aspect-square" />
+          </div>
+        )}
 
         {isEmpty && <EmptyList title={c('noNftsListTitle')} description={c('noNftsListDescription')} />}
 
