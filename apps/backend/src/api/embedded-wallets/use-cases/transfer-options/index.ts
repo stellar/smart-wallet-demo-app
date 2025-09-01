@@ -1,4 +1,4 @@
-import { xdr } from '@stellar/stellar-sdk'
+import { xdr, nativeToScVal } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
@@ -100,7 +100,11 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
       ?.replace(/\s+/g, '')
       .split(',')
       .filter(code => code.length)
-    const assets = await this.assetRepository.getAssetsByCode(assetCodes)
+    let assets = await this.assetRepository.getAssetsByCode(assetCodes)
+
+    if (!assets.length || !assets[0]?.contractAddress) {
+      assets = await this.assetRepository.getAssetsByContractAddress(assetCodes)
+    }
 
     if (!assets.length || !assets[0]?.contractAddress) {
       // TODO: get asset data from network as fallback?
@@ -124,7 +128,11 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
 
     // Check if user has enough balance
     for (const asset of assets) {
-      const balance = await getWalletBalance({ userContractAddress: user.contractAddress, assetCode: asset.code })
+      const balance = await getWalletBalance({
+        userContractAddress: user.contractAddress,
+        assetCode: asset.code,
+        isToken: asset?.type !== 'native',
+      })
 
       if (validatedData.type === TransferTypes.TRANSFER && balance < validatedData.amount) {
         throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_ENOUGH_BALANCE)
@@ -179,7 +187,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
         args = [
           ScConvert.accountIdToScVal(user.contractAddress as string),
           ScConvert.accountIdToScVal(validatedData.to as string),
-          ScConvert.stringToScVal(validatedData.id),
+          nativeToScVal(validatedData.id as string, { type: 'u32' }),
         ]
       }
     }
