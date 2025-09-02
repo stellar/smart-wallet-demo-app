@@ -17,7 +17,7 @@ const isPinataInstalled = () => {
 
 const _getGatewayUrl = (cid) => {
   try {
-    return execSync(`pinata gateways link ${cid}`, { stdio: 'pipe' });
+    return execSync(`pinata gateways link ${cid}`, { encoding: 'utf-8' }).trim();
   } catch (error) {
     logError('failed to get gateway url');
 
@@ -121,7 +121,7 @@ const _createMetadataFiles = (imageUrl) => {
       ]
     };
 
-    const tokenMetadataPath = join(DIRECTORIES.METADATA_DIR, `${contractSymbol}-${i}.json`);
+    const tokenMetadataPath = join(DIRECTORIES.METADATA_DIR, `${i}`);
 
     writeFileSync(tokenMetadataPath, JSON.stringify(tokenMetadata, null, 2));
     logSuccess(`token ${i} metadata created: ${tokenMetadataPath}`);

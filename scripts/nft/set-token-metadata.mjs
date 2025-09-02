@@ -39,7 +39,7 @@ const main = async () => {
       alias: 'b',
       type: 'string',
       demandOption: true,
-      description: 'Base URI for metadata. (e.g. https://gold-changing-centipede-63.mypinata.cloud/ipfs/bafybeib4siupqswp54fxahajktzj3o676ja53v75t25dnp35clys7ymnb4/TEST-1.json)',
+      description: 'Base URI for metadata. (e.g. https://gold-changing-centipede-63.mypinata.cloud/ipfs/bafybeib4siupqswp54fxahajktzj3o676ja53v75t25dnp35clys7ymnb4/)',
       default: process.env.STELLAR_NFT_CONTRACT_BASE_URI
     })
     .help()
@@ -50,6 +50,10 @@ const main = async () => {
   log(`Contract ID: ${argv.contractId}`, 'blue');
   log(`Token ID: ${argv.tokenId}`, 'blue');
   log(`Base URI: ${argv.baseUri}`, 'blue');
+
+  process.env.STELLAR_NFT_CONTRACT_ID = argv.contractId;
+  process.env.STELLAR_NETWORK = argv.network;
+  process.env.STELLAR_SOURCE_ACCOUNT = argv.sourceAccount;
 
   try {
     runMakeCommand(
