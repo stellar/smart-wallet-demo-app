@@ -5,9 +5,9 @@ import { featureFlagsState } from 'src/app/core/helpers'
 
 import NftsTemplate from './template'
 import { ViewNftDrawer } from '../../components'
+import { Nft } from '../../domain/models/nft'
 import { useGetNfts } from '../../queries/use-get-nfts'
 import { WalletPagesPath } from '../../routes/types'
-import { Nft } from '../../services/wallet/types'
 
 export const Nfts = () => {
   const navigate = useNavigate()
@@ -38,7 +38,9 @@ export const Nfts = () => {
   }
 
   const handleTransferClick = () => {
-    // TODO: navigate to left-assets page (NFT tab)
+    navigate({
+      to: WalletPagesPath.LEFT_ASSETS,
+    })
   }
 
   const handleClickNft = (nft: Nft) => {

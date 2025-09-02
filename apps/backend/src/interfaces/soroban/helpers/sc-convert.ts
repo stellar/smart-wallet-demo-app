@@ -22,6 +22,9 @@ export const ScConvert = {
   arrayToScVal: (value: unknown[]): xdr.ScVal => {
     return nativeToScVal(value, { type: 'array' })
   },
+  arrayToScvVec: (value: string[]): xdr.ScVal => {
+    return xdr.ScVal.scvVec(value.map(v => xdr.ScVal.scvU32(Number(v))))
+  },
   scValToBigInt: (scVal: xdr.ScVal): bigint => {
     return scValToBigInt(scVal)
   },

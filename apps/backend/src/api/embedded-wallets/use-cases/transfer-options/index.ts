@@ -175,19 +175,37 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
         ]
       }
     } else if (validatedData.type === TransferTypes.NFT) {
-      if (Array.isArray(validatedData.id)) {
-        method = 'bulk_transfer'
+      const ids = validatedData.id
+        ?.replace(/\s+/g, '')
+        .split(',')
+        .filter(id => id.length)
+
+      if (ids.length !== assetCodes.length) {
+        throw new BadRequestException(messages.INVALID_INFORMATION)
+      }
+
+      if (ids.length > 1) {
+        method = 'exec'
         args = [
-          ScConvert.accountIdToScVal(user.contractAddress as string),
-          ScConvert.accountIdToScVal(validatedData.to as string),
-          ...validatedData.id.map(tokenId => ScConvert.stringToScVal(tokenId)),
+          ScConvert.accountIdToScVal(user.contractAddress as string), // caller
+          ScConvert.arrayToScVal(
+            ids.map((id, index) => [
+              ScConvert.accountIdToScVal(assetCodes[index]), // NFT contract
+              ScConvert.symbolToScVal('transfer'),
+              [
+                ScConvert.accountIdToScVal(user.contractAddress as string),
+                ScConvert.accountIdToScVal(validatedData.to as string),
+                nativeToScVal(id, { type: 'u32' }),
+              ],
+            ])
+          ),
         ]
       } else {
         method = 'transfer'
         args = [
           ScConvert.accountIdToScVal(user.contractAddress as string),
           ScConvert.accountIdToScVal(validatedData.to as string),
-          nativeToScVal(validatedData.id as string, { type: 'u32' }),
+          nativeToScVal(ids[0], { type: 'u32' }),
         ]
       }
     }

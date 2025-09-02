@@ -4,7 +4,8 @@ import { useMemo } from 'react'
 import { Drawer, ImageCard } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
-import { Nft } from '../../services/wallet/types'
+import { Nft } from '../../domain/models/nft'
+import { isTreasureNft } from '../../utils'
 import { openExplorer } from '../../utils/explorer'
 type Props = {
   nft: Nft | undefined
@@ -44,7 +45,22 @@ export const ViewNftDrawer = ({ nft, isTransferDisabled, onClose, onTransferClic
 
         {/* NFT Image */}
         <div className="flex justify-center">
-          {nft?.url && <ImageCard size="lg" radius="min" imageUri={nft?.url} isClickable={false} />}
+          {nft?.url && (
+            <ImageCard
+              size="lg"
+              radius="min"
+              imageUri={nft?.url}
+              rightBadge={
+                isTreasureNft(nft)
+                  ? {
+                      label: c('treasureBadge'),
+                      variant: 'success',
+                    }
+                  : undefined
+              }
+              isClickable={false}
+            />
+          )}
         </div>
 
         {/* Transfer Button */}

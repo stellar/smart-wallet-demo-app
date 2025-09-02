@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router'
+import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
 import { useState, useMemo } from 'react'
 
 import { HorizontalNavbar, NavigateButton } from 'src/components/molecules'
@@ -10,7 +10,10 @@ import TransferNfts from './tabs/transfer-nfts'
 import { WalletPagesPath } from '../../routes/types'
 
 export const LeftAssets = () => {
+  const router = useRouter()
   const navigate = useNavigate()
+  const canGoBack = useCanGoBack()
+
   const [activeTab, setActiveTab] = useState('transfer-assets')
 
   const transferOptions = useMemo(
@@ -41,11 +44,9 @@ export const LeftAssets = () => {
   }, [activeTab])
 
   const handleGoBack = () => {
-    navigate({
-      to: WalletPagesPath.HOME,
-      search: undefined,
-      replace: true,
-    })
+    if (canGoBack) router.history.back()
+
+    navigate({ to: WalletPagesPath.HOME })
   }
 
   return (

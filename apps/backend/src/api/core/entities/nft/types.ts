@@ -19,6 +19,6 @@ export type NftRepositoryType = {
     save?: boolean
   ): Promise<Nft>
   updateNft(nftId: string, data: Partial<Nft>): Promise<Nft>
-  deleteNft(nftId: string): Promise<DeleteResult>
-  saveNft(nft: Nft): Promise<Nft>
+  deleteNfts(nftIds: string[]): Promise<DeleteResult>
+  saveNfts(nfts: Nft[]): Promise<Nft[]>
 }
