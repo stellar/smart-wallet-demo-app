@@ -5,6 +5,7 @@ import Skeleton from 'react-loading-skeleton'
 import { WalletAddressForm } from 'src/app/wallet/components'
 import { WalletAddressFormValues } from 'src/app/wallet/components/wallet-address-form/schema'
 import { Nft } from 'src/app/wallet/domain/models/nft'
+import { isTreasureNft } from 'src/app/wallet/utils'
 import { CustomCheckbox } from 'src/components/atoms'
 import { ImageCard } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
@@ -74,6 +75,14 @@ export const TransferNftsTemplate = ({
                   radius="min"
                   imageUri={nft.url}
                   onClick={() => onNftToggle(nftId)}
+                  rightBadge={
+                    isTreasureNft(nft)
+                      ? {
+                          label: c('treasureBadge'),
+                          variant: 'success',
+                        }
+                      : undefined
+                  }
                   isClickable={true}
                   isSelectable={true}
                   isSelected={isSelected}

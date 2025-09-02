@@ -3,6 +3,8 @@ import { useMemo } from 'react'
 
 import { createShortStellarAddress } from 'src/app/core/utils'
 import { Nft } from 'src/app/wallet/domain/models/nft'
+import { isTreasureNft } from 'src/app/wallet/utils'
+import { c } from 'src/interfaces/cms/useContent'
 
 import { BaseModalProps, ModalVariants } from '..'
 import { NavigateButton } from '../../../molecules'
@@ -55,7 +57,20 @@ export const ModalNftTransferReview = ({
         {nfts.length === 1 ? (
           <div className="flex flex-col items-center gap-3 text-center">
             <div className="border border-borderPrimary rounded-3xl">
-              <ImageCard imageUri={nfts[0].url} size="lg" radius="max" isClickable={false} />
+              <ImageCard
+                imageUri={nfts[0].url}
+                size="lg"
+                radius="max"
+                rightBadge={
+                  isTreasureNft(nfts[0])
+                    ? {
+                        label: c('treasureBadge'),
+                        variant: 'success',
+                      }
+                    : undefined
+                }
+                isClickable={false}
+              />
             </div>
             <Text as="p" size="md" weight="medium">
               {nfts[0].name}
@@ -74,7 +89,20 @@ export const ModalNftTransferReview = ({
               {nfts.map((nft, _index) => (
                 <div key={nft.id} className="flex flex-col items-center gap-3 text-center">
                   <div className="border border-borderPrimary rounded-3xl">
-                    <ImageCard imageUri={nft.url} size="lg" radius="max" isClickable={false} />
+                    <ImageCard
+                      imageUri={nft.url}
+                      size="lg"
+                      radius="max"
+                      rightBadge={
+                        isTreasureNft(nft)
+                          ? {
+                              label: c('treasureBadge'),
+                              variant: 'success',
+                            }
+                          : undefined
+                      }
+                      isClickable={false}
+                    />
                   </div>
                   <Text as="p" size="md" weight="medium">
                     {nft.name}

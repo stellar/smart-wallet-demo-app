@@ -179,12 +179,26 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
         ?.replace(/\s+/g, '')
         .split(',')
         .filter(id => id.length)
+
+      if (ids.length !== assetCodes.length) {
+        throw new BadRequestException(messages.INVALID_INFORMATION)
+      }
+
       if (ids.length > 1) {
-        method = 'bulk_transfer'
+        method = 'exec'
         args = [
-          ScConvert.accountIdToScVal(user.contractAddress as string),
-          ScConvert.accountIdToScVal(validatedData.to as string),
-          ScConvert.arrayToScvVec(ids),
+          ScConvert.accountIdToScVal(user.contractAddress as string), // caller
+          ScConvert.arrayToScVal(
+            ids.map((id, index) => [
+              ScConvert.accountIdToScVal(assetCodes[index]), // NFT contract
+              ScConvert.symbolToScVal('transfer'),
+              [
+                ScConvert.accountIdToScVal(user.contractAddress as string),
+                ScConvert.accountIdToScVal(validatedData.to as string),
+                nativeToScVal(id, { type: 'u32' }),
+              ],
+            ])
+          ),
         ]
       } else {
         method = 'transfer'
@@ -196,10 +210,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
       }
     }
 
-    let contractId = assets[0]?.contractAddress
-    if (validatedData.type === TransferTypes.SWAG && assetCodes.length > 1) {
-      contractId = this.multicallContract
-    }
+    const contractId = assetCodes.length > 1 ? this.multicallContract : assets[0]?.contractAddress
 
     // Simulate contract
     const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({

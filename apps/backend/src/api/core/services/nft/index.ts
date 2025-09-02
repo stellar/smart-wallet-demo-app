@@ -51,7 +51,7 @@ export default class NftRepository extends SingletonBase implements NftRepositor
   ): Promise<Nft> {
     const newNft = NftModel.create({ ...nft })
     if (save) {
-      return this.saveNft(newNft)
+      return (await this.saveNfts([newNft]))[0]
     }
     return newNft
   }
@@ -61,11 +61,11 @@ export default class NftRepository extends SingletonBase implements NftRepositor
     return this.getNftById(nftId) as Promise<Nft>
   }
 
-  async deleteNft(id: string): Promise<DeleteResult> {
-    return NftModel.delete(id)
+  async deleteNfts(ids: string[]): Promise<DeleteResult> {
+    return NftModel.delete(ids)
   }
 
-  saveNft(nft: Nft): Promise<Nft> {
-    return NftModel.save(nft)
+  saveNfts(nfts: Nft[]): Promise<Nft[]> {
+    return NftModel.save(nfts)
   }
 }

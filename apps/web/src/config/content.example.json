@@ -148,5 +148,6 @@
   "selectAmountTransferDrawerSubmitText": "Transfer",
   "transferSuccessModalTitle": "Transfer Complete!",
   "transferNftSuccessModalMessage": "Your NFTs have been sent!",
-  "transferSuccessModalButtonText": "Go to Home"
+  "transferSuccessModalButtonText": "Go to Home",
+  "treasureBadge": "Treasure"
 }
