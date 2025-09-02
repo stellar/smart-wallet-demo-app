@@ -150,4 +150,9 @@
   "transferNftSuccessModalMessage": "Your NFTs have been sent!",
   "transferSuccessModalButtonText": "Go to Home",
   "treasureBadge": "Treasure"
+  "behindScenesBannerTitleA": "Want to explore how the Smart Wallet Demo works behind the scenes?",
+  "behindScenesBannerTitleB": "That's a wrap on!",
+  "behindScenesBannerDescriptionA": "Check out our open-source project and start building your own smart wallet on Stellar.",
+  "behindScenesBannerDescriptionB": "But builders keep on building. Peek behind the scenes of Smart Wallet Demo below and start building your own Stellar wallet today.",
+  "behindScenesBannerButtonTitle": "View project"
 }

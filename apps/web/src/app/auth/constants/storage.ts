@@ -8,3 +8,4 @@ export const WALLET_ADDRESS_STORAGE_KEY = `${APP_NAME}/wallet-address`
 export const WALLET_STATUS_STORAGE_KEY = `${APP_NAME}/wallet-status`
 export const AIRDROP_STORAGE_KEY = `${APP_NAME}/airdrop`
 export const TRANSFER_LEFT_ASSETS_STORAGE_KEY = `${APP_NAME}/transfer-left-assets`
+export const BEHIND_SCENES_STORAGE_KEY = `${APP_NAME}/behind-scenes`

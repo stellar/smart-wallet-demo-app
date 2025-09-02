@@ -8,6 +8,7 @@ import { c } from 'src/interfaces/cms/useContent'
 
 import { BannerOptions, HomeTemplate } from './template'
 import { useHandleAirdrop } from '../../hooks/use-handle-airdrop'
+import { useHandleBehindScenes } from '../../hooks/use-handle-behind-scenes'
 import { useHandleTransferLeftAssets } from '../../hooks/use-handle-transfer-left-assets'
 import { useInitTransfer } from '../../hooks/use-init-transfer'
 import { useGetWallet } from '../../queries/use-get-wallet'
@@ -18,7 +19,11 @@ export const Home = () => {
   const loaderDeps = homeRoute.useLoaderDeps()
   const navigate = useNavigate()
 
-  const [isAirdropActive, isTransferLeftAssetsActive] = featureFlagsState(['airdrop', 'transfer-left-assets'])
+  const [isAirdropActive, isTransferLeftAssetsActive, isBehindScenesActive] = featureFlagsState([
+    'airdrop',
+    'transfer-left-assets',
+    'behind-scenes',
+  ])
 
   // Wallet information
   const getWallet = useGetWallet({
@@ -35,6 +40,11 @@ export const Home = () => {
   // Handle left transfer assets
   const { banner: transferLeftAssetsBanner } = useHandleTransferLeftAssets({
     enabled: isTransferLeftAssetsActive,
+  })
+
+  // Handle behind the scenes
+  const { banner: behindScenesBanner } = useHandleBehindScenes({
+    enabled: isBehindScenesActive,
   })
 
   // Init transfer when search params are present (handles both transfer and NFT)
@@ -91,8 +101,9 @@ export const Home = () => {
     const bannersArray: BannerOptions[] = []
     if (airdropBanner) bannersArray.push(airdropBanner)
     if (transferLeftAssetsBanner) bannersArray.push(transferLeftAssetsBanner)
+    if (behindScenesBanner) bannersArray.push(behindScenesBanner)
     return bannersArray
-  }, [airdropBanner, transferLeftAssetsBanner])
+  }, [airdropBanner, behindScenesBanner, transferLeftAssetsBanner])
 
   return (
     <HomeTemplate
