@@ -44,8 +44,8 @@ jobs:
 
   deploy-prod-mainnet:
     name: Deploy to Heroku (Production Mainnet)
-    needs: [set-outputs, deploy-staging-testnet]
-    if: needs.deploy-staging-testnet.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment == 'Production-Mainnet'
+    needs: [set-outputs, build, code-quality]
+    if: needs.code-quality.result == 'success' && needs.build.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment == 'Production-Mainnet'
     uses: ./.github/workflows/backend.deploy-heroku.yaml
     with:
       environment: ${{ needs.set-outputs.outputs.environment }}

@@ -25,8 +25,8 @@ jobs:
     needs: [set-outputs]
     uses: ./.github/workflows/web.build.yaml
     secrets:
-      APP_ASSETS_URL: ${{ secrets.WEB_APP_ASSETS_URL }}
-      APP_CONTENT_URL: ${{ secrets.WEB_APP_CONTENT_URL }}
+      APP_ASSETS_URL: ${{ needs.set-outputs.outputs.environment == 'Production-Mainnet' && secrets.WEB_PROD_APP_ASSETS_URL || secrets.WEB_STAGING_APP_ASSETS_URL }}
+      APP_CONTENT_URL: ${{ needs.set-outputs.outputs.environment == 'Production-Mainnet' && secrets.WEB_PROD_APP_CONTENT_URL || secrets.WEB_STAGING_APP_CONTENT_URL }}
       SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
       SENTRY_PROJECT_WEB: ${{ secrets.SENTRY_PROJECT_WEB }}
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -50,8 +50,8 @@ jobs:
 
   deploy-prod-mainnet:
     name: Deploy to Heroku (Production Mainnet)
-    needs: [set-outputs, deploy-staging-testnet]
-    if: needs.deploy-staging-testnet.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment == 'Production-Mainnet'
+    needs: [set-outputs, build, code-quality]
+    if: needs.code-quality.result == 'success' && needs.build.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment == 'Production-Mainnet'
     uses: ./.github/workflows/web.deploy-heroku.yaml
     with:
       environment: ${{ needs.set-outputs.outputs.environment }}
