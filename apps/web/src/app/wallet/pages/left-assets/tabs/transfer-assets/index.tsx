@@ -1,7 +1,9 @@
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useNavigate } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { formatNumber } from 'src/app/core/utils'
 import { ConfirmTransferDrawer, SelectAmountTransferDrawer } from 'src/app/wallet/components'
 import {
   transferAmountFormSchema,
@@ -13,13 +15,18 @@ import { TransferInput } from 'src/app/wallet/domain/use-cases/transfer/types'
 import { useGetOrganizations } from 'src/app/wallet/queries/use-get-organizations'
 import { getWallet as getWalletQueryOptions, useGetWallet } from 'src/app/wallet/queries/use-get-wallet'
 import { useTransfer } from 'src/app/wallet/queries/use-transfer'
+import { WalletPagesPath } from 'src/app/wallet/routes/types'
+import { isTransferTypeParams } from 'src/app/wallet/services/wallet/types'
+import { modalService } from 'src/components/organisms/modal/provider'
 import { ErrorHandling } from 'src/helpers/error-handling'
 import BaseError from 'src/helpers/error-handling/base-error'
+import { c } from 'src/interfaces/cms/useContent'
 import { queryClient } from 'src/interfaces/query-client'
 
 import TransferAssetsTemplate from './template'
 
 export const TransferAssets = () => {
+  const navigate = useNavigate()
   const getWallet = useGetWallet()
   const walletData = getWallet.data
   const [reviewStandardTransferInfo, setReviewStandardTransferInfo] = useState<WalletAddressFormValues | null>(null)
@@ -39,13 +46,42 @@ export const TransferAssets = () => {
   const organizations = getOrganizationsData?.data.ngos || []
 
   const transfer = useTransfer({
-    onSuccess: () => {
-      // TODO: show success modal
+    onSuccess: (_, values) => {
       queryClient.forceRefetch(getWalletQueryOptions())
       organizationTransferForm.reset()
       standardTransferForm.reset()
       setSelectedOrganization(null)
       setReviewStandardTransferInfo(null)
+
+      if (!isTransferTypeParams(values)) return
+
+      const organization = organizations.find(organization => organization.wallet_address === values.to)
+
+      const message = organization
+        ? `${formatNumber(values.amount)} ${values.asset} ${c('transferOrganizationSuccessModalMessage')} ${organization.name}!`
+        : `${formatNumber(values.amount)} ${values.asset} ${c('transferAssetSuccessModalMessage')}`
+
+      // Show success modal
+      modalService.open({
+        key: 'transfer-success',
+        variantOptions: {
+          variant: 'transfer-success',
+          title: c('transferSuccessModalTitle'),
+          icon: organization ? 'heart' : 'check',
+          message: message.trim(),
+          buttonText: organization ? c('close') : c('transferNft'),
+          button: {
+            variant: 'secondary',
+            size: 'lg',
+            isRounded: true,
+            isFullWidth: true,
+            onClick: () => {
+              modalService.close()
+              if (!organization) navigate({ to: WalletPagesPath.LEFT_ASSETS, search: { tab: 'transfer-nfts' } })
+            },
+          },
+        },
+      })
     },
   })
 
