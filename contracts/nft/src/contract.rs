@@ -15,11 +15,11 @@ pub struct Contract;
 
 #[contractimpl]
 impl Contract {
-    pub fn __constructor(env: &Env, owner: Address, total_supply: u32, metadata: TokenMetadata) {
+    pub fn __constructor(env: &Env, owner: Address, max_supply: u32, metadata: TokenMetadata) {
         env.storage().instance().set(&DataKey::Owner, &owner);
         env.storage()
             .instance()
-            .set(&DataKey::MaxSupply, &total_supply);
+            .set(&DataKey::MaxSupply, &max_supply);
 
         Base::set_metadata(env, metadata.base_uri, metadata.name, metadata.symbol);
     }
