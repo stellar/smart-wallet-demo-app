@@ -9,6 +9,7 @@ import {
   adminFeatureFlagsRoutes,
   adminAssetsRoutes,
   adminVendorsRoutes,
+  adminProductsRoutes,
 } from '../general-settings/routes'
 
 function routes(http: express.Router): void {
@@ -22,6 +23,7 @@ function routes(http: express.Router): void {
   http.use('/api/admin/feature-flags', adminFeatureFlagsRoutes)
   http.use('/api/admin/assets', adminAssetsRoutes)
   http.use('/api/admin/vendors', adminVendorsRoutes)
+  http.use('/api/admin/products', adminProductsRoutes)
 }
 
 export { routes, Request, Response, Router, NextFunction }

@@ -1,12 +1,15 @@
 import { Tags } from 'api/core/utils/docs/tags'
 import CreateAssetDocs from 'api/general-settings/use-cases/create-asset/index.docs'
 import CreateFeatureFlagsDocs from 'api/general-settings/use-cases/create-feature-flag/index.docs'
+import CreateProductDocs from 'api/general-settings/use-cases/create-product/index.docs'
 import CreateVendorDocs from 'api/general-settings/use-cases/create-vendor/index.docs'
 import GetAssetsDocs from 'api/general-settings/use-cases/get-assets/index.docs'
 import GetFeatureFlagsDocs from 'api/general-settings/use-cases/get-feature-flags/index.docs'
+import GetProductsDocs from 'api/general-settings/use-cases/get-products/index.docs'
 import GetVendorsDocs from 'api/general-settings/use-cases/get-vendors/index.docs'
 import UpdateAssetDocs from 'api/general-settings/use-cases/update-asset/index.docs'
 import UpdateFeatureFlagDocs from 'api/general-settings/use-cases/update-feature-flag/index.docs'
+import UpdateProductDocs from 'api/general-settings/use-cases/update-product/index.docs'
 import UpdateVendorDocs from 'api/general-settings/use-cases/update-vendor/index.docs'
 
 export default {
@@ -39,5 +42,12 @@ export default {
   },
   '/api/admin/vendors/{id}': {
     ...UpdateVendorDocs,
+  },
+  '/api/admin/products': {
+    ...GetProductsDocs,
+    ...CreateProductDocs,
+  },
+  '/api/admin/products/{id}': {
+    ...UpdateProductDocs,
   },
 }

@@ -4,12 +4,15 @@ import { apiKeyAuthentication } from 'api/core/middlewares/api-key-authenticatio
 
 import { CreateAsset, endpoint as CreateAssetEndpoint } from './use-cases/create-asset'
 import { CreateFeatureFlag, endpoint as CreateFeatureFlagEndpoint } from './use-cases/create-feature-flag'
+import { CreateProduct, endpoint as CreateProductEndpoint } from './use-cases/create-product'
 import { CreateVendor, endpoint as CreateVendorEndpoint } from './use-cases/create-vendor'
 import { GetAssets, endpoint as GetAssetsEndpoint } from './use-cases/get-assets'
 import { GetFeatureFlags, endpoint as GetFeatureFlagsEndpoint } from './use-cases/get-feature-flags'
+import { GetProducts, endpoint as GetProductsEndpoint } from './use-cases/get-products'
 import { GetVendors, endpoint as GetVendorsEndpoint } from './use-cases/get-vendors'
 import { UpdateAsset, endpoint as UpdateAssetEndpoint } from './use-cases/update-asset'
 import { UpdateFeatureFlag, endpoint as UpdateFeatureFlagEndpoint } from './use-cases/update-feature-flag'
+import { UpdateProduct, endpoint as UpdateProductEndpoint } from './use-cases/update-product'
 import { UpdateVendor, endpoint as UpdateVendorEndpoint } from './use-cases/update-vendor'
 
 const featureFlagsRoutes = Router()
@@ -50,4 +53,15 @@ adminVendorsRoutes.patch(`${UpdateVendorEndpoint}`, apiKeyAuthentication, async 
   UpdateVendor.init().executeHttp(req, res)
 )
 
-export { featureFlagsRoutes, adminFeatureFlagsRoutes, adminAssetsRoutes, adminVendorsRoutes }
+const adminProductsRoutes = Router()
+adminProductsRoutes.get(`${GetProductsEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  GetProducts.init().executeHttp(req, res)
+)
+adminProductsRoutes.post(`${CreateProductEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  CreateProduct.init().executeHttp(req, res)
+)
+adminProductsRoutes.patch(`${UpdateProductEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  UpdateProduct.init().executeHttp(req, res)
+)
+
+export { featureFlagsRoutes, adminFeatureFlagsRoutes, adminAssetsRoutes, adminVendorsRoutes, adminProductsRoutes }

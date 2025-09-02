@@ -78,4 +78,23 @@ export const vendorSchema = z.object({
   profile_image: z.string().optional(),
 })
 
+export const productSchema = z.object({
+  id: z.string().optional(),
+  code: z.string().optional(),
+  name: z.string().optional(),
+  image_url: z.string().optional(),
+  description: z.string().optional(),
+  is_swag: z.boolean().optional(),
+  is_hidden: z.boolean().optional(),
+  asset: z
+    .object({
+      id: z.string().optional(),
+      name: z.string().optional(),
+      code: z.string().optional(),
+      type: z.string().optional(),
+      contract_address: z.string().optional(),
+    })
+    .optional(),
+})
+
 export type MerkleProofDataT = z.infer<typeof merkleProofDataSchema>
