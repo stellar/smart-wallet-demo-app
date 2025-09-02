@@ -31,6 +31,9 @@ export const Home = () => {
   })
   const walletData = getWallet.data
   const isUserAirdropAvailable = walletData ? walletData.is_airdrop_available : false
+  const pendingLeftAssets = walletData?.token_balances
+    ? walletData.token_balances.every(t => t.balance === 0) && walletData.balance === 0
+    : false
 
   // Handle airdrop
   const { banner: airdropBanner } = useHandleAirdrop({
@@ -39,7 +42,7 @@ export const Home = () => {
 
   // Handle left transfer assets
   const { banner: transferLeftAssetsBanner } = useHandleTransferLeftAssets({
-    enabled: isTransferLeftAssetsActive,
+    enabled: isTransferLeftAssetsActive && !getWallet.isLoading && !pendingLeftAssets,
   })
 
   // Handle behind the scenes

@@ -1,18 +1,3 @@
-import { WalletStatus } from 'src/app/auth/domain/models/user'
+import { GetWalletResult as ServiceGetWalletResult } from 'src/app/wallet/services/wallet/types'
 
-export type GetWalletResult = {
-  status: WalletStatus
-  address: string
-  email: string
-  balance: number
-  is_airdrop_available: boolean
-  is_gift_available: boolean
-  swags?: {
-    code: string
-    name?: string
-    description: string
-    imageUrl?: string
-    assetCode: string
-    status: 'unclaimed' | 'claimed'
-  }[]
-}
+export type GetWalletResult = ServiceGetWalletResult['data']
