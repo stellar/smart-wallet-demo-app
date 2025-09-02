@@ -61,16 +61,22 @@ const authenticate = () => {
 
     return result.success;
   } catch (error) {
-    logError('pinata authentication failed');
+    const result = runCommand('pinata auth');
 
-    return false;
+    if (!result.success) {
+      logError('failed to authenticate pinata cli');
+
+      return false;
+    }
+
+    return true;
   }
 };
 
 const uploadImagesFolderToIPFS = async (imagesDir) => {
   logStep('uploading images to ipfs', 'uploading images to ipfs via pinata...');
 
-  const result = runCommand(`pinata upload "${imagesDir}"`);
+  const result = runCommand(`pinata upload "${imagesDir}"`, { stdio: 'pipe' });
 
   if (!result.success) {
     logError('failed to upload images folder to ipfs');
@@ -131,7 +137,7 @@ const uploadMetadataFilesToIPFS = async (imageUrl) => {
 
   _createMetadataFiles(imageUrl);
 
-  const result = runCommand(`pinata upload ${DIRECTORIES.METADATA_DIR} --name "${process.env.STELLAR_NFT_CONTRACT_NAME}-metadata"`);
+  const result = runCommand(`pinata upload ${DIRECTORIES.METADATA_DIR} --name "${process.env.STELLAR_NFT_CONTRACT_NAME}-metadata"`, { stdio: 'pipe' });
 
   if (!result.success) {
     logError('failed to upload metadata files to ipfs');

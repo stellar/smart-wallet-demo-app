@@ -10,6 +10,8 @@ import { DIRECTORIES } from './config.mjs';
 
 dotenv.config();
 
+// For IPFS images upload, first add the images to be uploaded in the scripts/assets/images folder
+
 const main = async () => {
   const argv = await yargs(hideBin(process.argv))
     .option('network', {
@@ -77,6 +79,13 @@ const main = async () => {
   log(`Contract Name: ${argv.name}`, 'blue');
   log(`Contract Symbol: ${argv.symbol}`, 'blue');
   log(`Max Supply: ${argv.supply}`, 'blue');
+
+  process.env.STELLAR_NETWORK = argv.network;
+  process.env.STELLAR_SOURCE_ACCOUNT = argv.sourceAccount;
+  process.env.STELLAR_NFT_CONTRACT_NAME = argv.name;
+  process.env.STELLAR_NFT_CONTRACT_SYMBOL = argv.symbol;
+  process.env.STELLAR_NFT_CONTRACT_MAX_SUPPLY = argv.supply;
+  process.env.STELLAR_NFT_CONTRACT_URI = argv.contractUri;
 
   try {
     if (!argv.skipIpfs) {

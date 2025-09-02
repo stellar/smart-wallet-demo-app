@@ -13,7 +13,7 @@ const CONFIG = {
 };
 
 const runCommand = (command, options = {}) => {
-  const { cwd, silent = false } = options;
+  const { cwd, silent = false, stdio = 'inherit' } = options;
 
   if (!silent) {
     log(`Running: ${command}`, 'magenta');
@@ -22,7 +22,7 @@ const runCommand = (command, options = {}) => {
   try {
     const result = execSync(command, {
       cwd: cwd || CONFIG.SCRIPTS_DIR,
-      stdio: 'pipe',
+      stdio,
       encoding: 'utf8',
       env: process.env
     });
