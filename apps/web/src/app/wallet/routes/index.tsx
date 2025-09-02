@@ -97,10 +97,16 @@ const nftsRoute = createRoute({
   component: Nfts,
 })
 
-const leftAssetsRoute = createRoute({
+export const leftAssetsRoute = createRoute({
   getParentRoute: () => walletRootRoute,
   path: filterHomePath(WalletPagesPath.LEFT_ASSETS),
   component: LeftAssets,
+  validateSearch: search =>
+    yup
+      .object({
+        tab: yup.string(),
+      })
+      .validateSync(search),
   beforeLoad: () => {
     const [isTransferLeftAssetsActive] = featureFlagsState(['transfer-left-assets'])
 

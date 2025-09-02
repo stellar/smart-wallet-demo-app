@@ -38,9 +38,7 @@ export const Nfts = () => {
   }
 
   const handleTransferClick = () => {
-    navigate({
-      to: WalletPagesPath.LEFT_ASSETS,
-    })
+    navigate({ to: WalletPagesPath.LEFT_ASSETS, search: { tab: 'transfer-nfts' } })
   }
 
   const handleClickNft = (nft: Nft) => {
