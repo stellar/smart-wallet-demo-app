@@ -25,6 +25,11 @@ export default defineConfig({
             org: process.env.SENTRY_ORG,
             project: process.env.SENTRY_PROJECT_WEB,
             authToken: process.env.SENTRY_AUTH_TOKEN,
+            release: {
+              setCommits: {
+                auto: true,
+              },
+            },
           }),
         ]
       : []),

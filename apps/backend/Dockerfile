@@ -12,6 +12,8 @@ ENV DEPLOY_STAGE=local
 ENTRYPOINT [ "./apps/backend/entrypoint.sh" ]
 
 FROM base AS builder
+ARG SENTRY_RELEASE
+ENV SENTRY_RELEASE=${SENTRY_RELEASE:-}
 RUN make build APP=backend
 
 FROM node:22.14-bullseye-slim AS remote

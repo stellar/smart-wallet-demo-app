@@ -74,7 +74,6 @@ services:
         VITE_X_API_KEY: ${VITE_X_API_KEY:-"your-valid-api-keys,split-by-commas"}
         VITE_THEME_SWITCH_ENABLED: ${VITE_THEME_SWITCH_ENABLED:-false}
         VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
-        VITE_SENTRY_RELEASE: ${VITE_SENTRY_RELEASE:-}
     environment:
       DEPLOY_STAGE: ${DEPLOY_STAGE:-local}
       PORT: ${PORT:-3000}
@@ -83,7 +82,6 @@ services:
       VITE_X_API_KEY: ${VITE_X_API_KEY:-"your-valid-api-keys,split-by-commas"}
       VITE_THEME_SWITCH_ENABLED: ${VITE_THEME_SWITCH_ENABLED:-false}
       VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
-      VITE_SENTRY_RELEASE: ${VITE_SENTRY_RELEASE:-}
     volumes:
       - './:/app'
       - 'web-root-node-modules:/app/node_modules'
