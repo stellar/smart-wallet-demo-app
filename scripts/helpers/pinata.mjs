@@ -16,7 +16,13 @@ const isPinataInstalled = () => {
 };
 
 const _getGatewayUrl = (cid) => {
-  return `https://${process.env.PINATA_GATEWAY}/ipfs/${cid}`;
+  try {
+    return execSync(`pinata gateways link ${cid}`, { stdio: 'pipe' });
+  } catch (error) {
+    logError('failed to get gateway url');
+
+    return false;
+  }
 };
 
 const install = () => {
@@ -92,11 +98,17 @@ const _createMetadataFiles = (imageUrl) => {
   const contractSymbol = process.env.STELLAR_NFT_CONTRACT_SYMBOL;
 
   for (let i = 0; i < process.env.STELLAR_NFT_CONTRACT_MAX_SUPPLY; i++) {
+    if (!existsSync(`${DIRECTORIES.IMAGES_DIR}/${i}.png`)) {
+      logError(`image ${i} not found in ${DIRECTORIES.IMAGES_DIR}`);
+
+      return false;
+    }
+
     const tokenMetadata = {
       name: `${contractSymbol} #${i}`,
       description: `${contractName} NFT #${i}`,
-      image: imageUrl,
-      external_url: imageUrl,
+      image: `${imageUrl}/${i}.png`,
+      external_url: imageUrl, // ! todo: change to the actual url
       attributes: [
         {
           trait_type: "Token ID",
