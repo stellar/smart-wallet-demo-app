@@ -1,5 +1,5 @@
-import { useNavigate } from '@tanstack/react-router'
-import { useState, useMemo } from 'react'
+import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
+import { useState, useMemo, useEffect } from 'react'
 
 import { HorizontalNavbar, NavigateButton } from 'src/components/molecules'
 import { SafeAreaView } from 'src/components/organisms'
@@ -7,13 +7,20 @@ import { c } from 'src/interfaces/cms/useContent'
 
 import TransferAssets from './tabs/transfer-assets'
 import TransferNfts from './tabs/transfer-nfts'
+import { leftAssetsRoute } from '../../routes'
 import { WalletPagesPath } from '../../routes/types'
 
-export const LeftAssets = () => {
-  const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('transfer-assets')
+export type LeftAssetsTab = 'transfer-assets' | 'transfer-nfts'
 
-  const transferOptions = useMemo(
+export const LeftAssets = () => {
+  const router = useRouter()
+  const search = leftAssetsRoute.useSearch()
+  const navigate = useNavigate()
+  const canGoBack = useCanGoBack()
+
+  const [activeTab, setActiveTab] = useState<LeftAssetsTab>(search.tab || 'transfer-assets')
+
+  const transferOptions: { id: LeftAssetsTab; label: string; onClick: () => void }[] = useMemo(
     () => [
       {
         id: 'transfer-assets',
@@ -29,6 +36,12 @@ export const LeftAssets = () => {
     []
   )
 
+  const handleGoBack = () => {
+    if (canGoBack) router.history.back()
+
+    navigate({ to: WalletPagesPath.HOME })
+  }
+
   const ActiveTabContent = useMemo(() => {
     switch (activeTab) {
       case 'transfer-assets':
@@ -40,13 +53,9 @@ export const LeftAssets = () => {
     }
   }, [activeTab])
 
-  const handleGoBack = () => {
-    navigate({
-      to: WalletPagesPath.HOME,
-      search: undefined,
-      replace: true,
-    })
-  }
+  useEffect(() => {
+    setActiveTab(search.tab || 'transfer-assets')
+  }, [search.tab])
 
   return (
     <SafeAreaView>

@@ -96,7 +96,11 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       ?.replace(/\s+/g, '')
       .split(',')
       .filter(code => code.length)
-    const assets = await this.assetRepository.getAssetsByCode(assetCodes)
+    let assets = await this.assetRepository.getAssetsByCode(assetCodes)
+
+    if (!assets.length || !assets[0]?.contractAddress) {
+      assets = await this.assetRepository.getAssetsByContractAddress(assetCodes)
+    }
 
     if (!assets.length || !assets[0]?.contractAddress) {
       // TODO: get asset data from network as fallback?
@@ -104,13 +108,26 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     }
 
     // Validate if NFT belongs to user
-    let userNft: Nft | null = null
+    const userNfts: Nft[] = []
     if (validatedData.type == TransferTypes.NFT) {
-      for (const asset of assets) {
-        userNft = await this.nftRepository.getNftByTokenIdAndContractAddress(validatedData.id, asset.contractAddress)
+      // IDs to transfer
+      const ids = validatedData.id
+        ?.replace(/\s+/g, '')
+        .split(',')
+        .filter(id => id.length)
+
+      if (ids.length !== assetCodes.length) {
+        throw new BadRequestException(messages.INVALID_INFORMATION)
+      }
+
+      for (let i = 0; i < assetCodes.length; i++) {
+        const contractAddress = assetCodes[i]
+        const id = ids[i]
+        const userNft = await this.nftRepository.getNftByTokenIdAndContractAddress(id, contractAddress)
         if (!userNft) {
           throw new ResourceNotFoundException(messages.NFT_NOT_FOUND_FOR_THE_USER)
         }
+        userNfts.push(userNft)
       }
     }
 
@@ -187,23 +204,27 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       // If destination address is from an app user
       const newUser = await this.userRepository.getUserByContractAddress(validatedData.to)
       if (newUser) {
-        const newUserNft = await this.nftRepository.createNft(
-          {
+        const newUserNfts: Nft[] = []
+        for (const userNft of userNfts) {
+          const newUserNft = await this.nftRepository.createNft({
             tokenId: userNft?.tokenId as string,
             contractAddress: userNft?.contractAddress as string,
             nftSupply: userNft?.nftSupply as NftSupply,
             user: newUser,
-          },
-          true
-        )
+          })
 
-        if (!newUserNft) {
-          throw new BadRequestException(messages.UNABLE_TO_SAVE_NFT_TO_USER)
+          if (!newUserNft) {
+            throw new BadRequestException(messages.UNABLE_TO_SAVE_NFT_TO_USER)
+          }
+
+          newUserNfts.push(newUserNft)
         }
+
+        await this.nftRepository.saveNfts(newUserNfts)
       }
 
       // Delete NFT from previous user (who's transfering)
-      const deletedUserNft = await this.nftRepository.deleteNft(userNft?.nftId as string)
+      const deletedUserNft = await this.nftRepository.deleteNfts(userNfts.map(nft => nft.nftId))
 
       if (!deletedUserNft) {
         throw new BadRequestException(messages.UNABLE_TO_DELETE_USER_NFT)

@@ -24,7 +24,7 @@ type Props = {
   isLoadingBalance: boolean
   isLoadingSwags: boolean
   balanceAmount: number
-  banner?: BannerOptions
+  banners?: BannerOptions[]
   products?: React.ComponentProps<typeof ImageCard>[]
   isProductActionButtonDisabled?: boolean
   faq?: {
@@ -43,7 +43,7 @@ export const HomeTemplate = ({
   isLoadingBalance,
   isLoadingSwags,
   balanceAmount,
-  banner,
+  banners,
   products = [
     {
       imageUri: ProductMock01,
@@ -133,34 +133,39 @@ export const HomeTemplate = ({
       </div>
     )
 
-  const Banner = () =>
-    banner && (
-      <div
-        className="flex flex-col rounded-[10px] p-4 gap-4 bg-cover"
-        style={{ backgroundImage: `url(${banner.backgroundImageUri})` }}
-      >
-        <div className="flex flex-col">
-          <Text
-            addlClassName={clsx(banner.label.variant === 'secondary' && 'text-whitish')}
-            as={'h4'}
-            size={'md'}
-            weight="bold"
+  const Banners = () =>
+    banners?.length !== 0 && (
+      <div className="flex flex-col gap-4">
+        {banners?.map((banner, index) => (
+          <div
+            key={index}
+            className="flex flex-col rounded-[10px] p-4 gap-4 bg-cover"
+            style={{ backgroundImage: `url(${banner.backgroundImageUri})` }}
           >
-            {banner.label.title}
-          </Text>
-          <Text
-            addlClassName={clsx(banner.label.variant === 'secondary' && 'text-textTertiary')}
-            as={'span'}
-            size={'sm'}
-          >
-            {banner.label.description}
-          </Text>
-        </div>
-        <div className="flex">
-          <Button variant={'secondary'} size={'sm'} isRounded {...banner.button}>
-            {banner.button.title}
-          </Button>
-        </div>
+            <div className="flex flex-col">
+              <Text
+                addlClassName={clsx(banner.label.variant === 'secondary' && 'text-whitish')}
+                as={'h4'}
+                size={'md'}
+                weight="bold"
+              >
+                {banner.label.title}
+              </Text>
+              <Text
+                addlClassName={clsx(banner.label.variant === 'secondary' && 'text-textTertiary')}
+                as={'span'}
+                size={'sm'}
+              >
+                {banner.label.description}
+              </Text>
+            </div>
+            <div className="flex">
+              <Button variant={'secondary'} size={'sm'} isRounded {...banner.button}>
+                {banner.button.title}
+              </Button>
+            </div>
+          </div>
+        ))}
       </div>
     )
 
@@ -197,7 +202,7 @@ export const HomeTemplate = ({
   const Faq = () => (
     <Collapse title={faq.title}>
       {faq.items.map((item, index) => (
-        <CollapseItem key={index} title={item.title}>
+        <CollapseItem key={index} title={{ text: item.title }}>
           <Text as={'p'} size={'sm'}>
             {item.description}
           </Text>
@@ -211,7 +216,7 @@ export const HomeTemplate = ({
       <div className="flex flex-col gap-8 mb-7">
         <Navbar />
         <Balance />
-        <Banner />
+        <Banners />
         <HorizontalRule />
         <ProductList />
         <ProductActionButton />

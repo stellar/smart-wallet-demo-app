@@ -6,6 +6,7 @@ export type AssetRepositoryType = {
   getAssets(): Promise<Asset[]>
   getAssetById(assetId: string): Promise<Asset | null>
   getAssetByContractAddress(contractAddress: string): Promise<Asset | null>
+  getAssetsByContractAddress(contractAddresses: string[]): Promise<Asset[]>
   getAssetByType(type: string): Promise<Asset | null>
   getAssetByCode(code: string): Promise<Asset | null>
   getAssetsByCode(codes: string[]): Promise<Asset[]>

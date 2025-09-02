@@ -5,7 +5,7 @@ export const AuthRouteLoading = () => {
   return (
     <div>
       <OnboardingBackgroundImage />
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-full">
         <Loading />
       </div>
     </div>

@@ -11,7 +11,6 @@ if (dsn) {
     Sentry.init({
       dsn,
       environment,
-      release: import.meta.env.VITE_SENTRY_RELEASE || undefined,
 
       beforeSend(event) {
         if (event.request?.headers) {

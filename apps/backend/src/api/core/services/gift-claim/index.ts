@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm'
+import { ILike, Repository } from 'typeorm'
 
 import { SingletonBase } from 'api/core/framework/singleton/interface'
 import { sha256Hash } from 'api/core/utils/crypto'
@@ -20,7 +20,7 @@ export default class GiftReservationRepository extends SingletonBase implements 
   async reserveGift(giftId: string, walletAddress: string): Promise<GiftClaim | null> {
     const giftIdHash = sha256Hash(giftId)
 
-    const user = await this.userRepository.findOne({ where: { contractAddress: walletAddress } })
+    const user = await this.userRepository.findOne({ where: { contractAddress: ILike(walletAddress) } })
     if (!user) {
       logger.warn({ giftIdHash, walletAddress }, 'User not found for wallet address')
       return null

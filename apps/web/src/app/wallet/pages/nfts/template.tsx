@@ -6,7 +6,8 @@ import { ImageCard, SafeAreaView } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { EmptyList } from '../../components'
-import { Nft } from '../../services/wallet/types'
+import { Nft } from '../../domain/models/nft'
+import { isTreasureNft } from '../../utils'
 
 interface NftsTemplateProps {
   isLoadingNftsList: boolean
@@ -19,7 +20,22 @@ export const NftsTemplate = ({ isLoadingNftsList, nfts, onGoBack, onNftClick }: 
   const isEmpty = !isLoadingNftsList && nfts.length === 0
 
   const NftListItem = ({ nft }: { nft: Nft }) => {
-    return <ImageCard size="adapt" radius="min" imageUri={nft.url} onClick={() => onNftClick(nft)} />
+    return (
+      <ImageCard
+        size="adapt"
+        radius="min"
+        imageUri={nft.url}
+        onClick={() => onNftClick(nft)}
+        rightBadge={
+          isTreasureNft(nft)
+            ? {
+                label: c('treasureBadge'),
+                variant: 'success',
+              }
+            : undefined
+        }
+      />
+    )
   }
 
   return (
@@ -30,13 +46,18 @@ export const NftsTemplate = ({ isLoadingNftsList, nfts, onGoBack, onNftClick }: 
           {c('nftsListTitle')}
         </Text>
 
-        {isLoadingNftsList && <Skeleton height={56} count={8} className="mb-2" />}
+        {isLoadingNftsList && (
+          <div className="grid grid-cols-2 gap-3 w-full">
+            <Skeleton count={3} className="mb-2 rounded-xl w-full aspect-square" />
+            <Skeleton count={3} className="mb-2 rounded-xl w-full aspect-square" />
+          </div>
+        )}
 
         {isEmpty && <EmptyList title={c('noNftsListTitle')} description={c('noNftsListDescription')} />}
 
         {!isEmpty && (
           <div className="flex justify-center">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 w-full">
               {nfts.map(nft => (
                 <NftListItem key={nft.id} nft={nft} />
               ))}

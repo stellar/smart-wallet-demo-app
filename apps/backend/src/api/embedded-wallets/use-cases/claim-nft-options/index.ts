@@ -65,9 +65,15 @@ export class ClaimNftOptions extends UseCaseBase implements IUseCaseHttp<Respons
     }
 
     // Get NFT Supply data
-    let nftSupply = await this.nftSupplyRepository.getNftSupplyByResource(validatedData.resource)
+    let nftSupply = await this.nftSupplyRepository.getNftSupplyByResourceAndSessionId(
+      validatedData.resource,
+      validatedData.session_id
+    )
     if (!nftSupply) {
-      nftSupply = await this.nftSupplyRepository.getNftSupplyByContractAddress(validatedData.resource)
+      nftSupply = await this.nftSupplyRepository.getNftSupplyByContractAndSessionId(
+        validatedData.resource,
+        validatedData.session_id
+      )
     }
 
     if (!nftSupply) {

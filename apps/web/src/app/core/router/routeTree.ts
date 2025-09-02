@@ -10,11 +10,11 @@ import { walletRoutes } from 'src/app/wallet/routes'
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
 
 import { featureFlagsState } from '../helpers'
-import { Layout } from './components/layout'
+import { RouteLayout } from './components/route-layout'
 import { getFeatureFlags } from '../queries/use-get-feature-flags'
 
 export const rootRoute = createRootRouteWithContext<{ client: QueryClient }>()({
-  component: Layout,
+  component: RouteLayout,
   beforeLoad: ({ context }) => context.client.ensureQueryData(getFeatureFlags()),
 })
 

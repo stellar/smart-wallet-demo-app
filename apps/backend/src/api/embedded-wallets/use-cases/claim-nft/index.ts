@@ -15,7 +15,6 @@ import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { AppDataSource } from 'config/database'
 import { getValueFromEnv } from 'config/env-utils'
-import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import SorobanService from 'interfaces/soroban'
@@ -125,11 +124,24 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       },
     }
 
+    // DONT CHANGE THE ORDER OF THE METADATA MAP ENTRIES
+    // The smart contract relies on this order to parse the metadata correctly
+    const metadataMap = xdr.ScVal.scvMap([
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol('resource'),
+        val: xdr.ScVal.scvString(nftSupply.resource),
+      }),
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol('session_id'),
+        val: xdr.ScVal.scvString(nftSupply.sessionId),
+      }),
+    ])
+
     // Simulate 'mint' transaction
     const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
       contractId: nftSupply.contractAddress,
-      method: 'mint',
-      args: [ScConvert.accountIdToScVal(user.contractAddress as string)],
+      method: 'mint_with_data',
+      args: [ScConvert.accountIdToScVal(user.contractAddress as string), metadataMap],
       signers: [transactionSigner],
     })
 
@@ -164,30 +176,30 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
         throw new ResourceNotFoundException(messages.NFT_SUPPLY_NOT_ENOUGH)
       }
 
-      // Update user NFT data for the new minted token
+      // Re-check if user already owns NFT for this session (prevents race conditions)
+      const existingUserNft = await queryRunner.manager.findOne(NftModel, {
+        where: { user: { userId: user.userId }, nftSupply: { sessionId: foundNftSupply.sessionId } },
+      })
+      if (existingUserNft) {
+        throw new ResourceNotFoundException(messages.NFT_ALREADY_OWNED_BY_USER)
+      }
+
+      // Prepare new NFT entry
       newUserNft = queryRunner.manager.create(NftModel, {
-        sessionId: nftSupply.sessionId,
-        contractAddress: nftSupply.contractAddress,
+        sessionId: foundNftSupply.sessionId,
+        contractAddress: foundNftSupply.contractAddress,
         nftSupply: foundNftSupply,
         user,
       })
       await queryRunner.manager.save(newUserNft)
-      if (!newUserNft) {
-        throw new BadRequestException(messages.UNABLE_TO_SAVE_NFT_TO_USER)
-      }
 
       // Atomic increment of mintedAmount
-      const updatedNftSupply = await queryRunner.manager.increment(
+      await queryRunner.manager.increment(
         NftSupplyModel,
-        { nftSupplyId: nftSupply.nftSupplyId },
+        { nftSupplyId: foundNftSupply.nftSupplyId },
         'mintedAmount',
         1
       )
-
-      // Update NFT supply
-      if (!updatedNftSupply) {
-        throw new BadRequestException(messages.UNABLE_TO_UPDATE_NFT_SUPPLY)
-      }
 
       // Submit transaction at the end only if everything`s ok with prior database operations
       txResponse = await submitTx({

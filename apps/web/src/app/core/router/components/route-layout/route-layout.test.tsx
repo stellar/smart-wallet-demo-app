@@ -1,8 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-
 import { renderWithRouter, screen, waitFor } from 'src/helpers/tests'
 
-import { Layout } from './index'
+import { RouteLayout } from './index'
 
 // Mock Outlet
 vi.mock('@tanstack/react-router', async () => {
@@ -23,31 +21,17 @@ vi.mock('@stellar/design-system', async () => {
   }
 })
 
-describe('Layout', () => {
+describe('RouteLayout', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('renders mobile layout when useLayout returns "mobile"', () => {
-    window.innerWidth = 500 // mobile
-
-    renderWithRouter(<Layout />)
+  it('renders layout successfully', () => {
+    renderWithRouter(<RouteLayout />)
 
     waitFor(() => {
       expect(screen.getByTestId('sds-content')).toBeInTheDocument()
       expect(screen.getByTestId('outlet')).toBeInTheDocument()
-      // Check for mobile-specific classes
-      const wrapper = screen.getByTestId('sds-content').closest('div')
-      expect(wrapper).toHaveClass('flex', 'flex-col', 'h-screen', 'overflow-hidden')
     })
-  })
-
-  it('renders default layout when useLayout does not return "mobile"', async () => {
-    window.innerWidth = 1000 // desktop
-
-    renderWithRouter(<Layout />)
-
-    expect(await screen.findByTestId('outlet')).toBeInTheDocument()
-    expect(screen.queryByTestId('sds-content')).not.toBeInTheDocument()
   })
 })

@@ -263,6 +263,7 @@ describe('Transfer', () => {
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(mockAuthenticationResponse)
       mockedAssetRepository.getAssetsByCode.mockResolvedValue([])
+      mockedAssetRepository.getAssetsByContractAddress.mockResolvedValue([])
 
       await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
       await expect(useCase.handle(payload)).rejects.toThrow('The requested resource was not found')

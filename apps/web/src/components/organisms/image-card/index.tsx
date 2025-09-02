@@ -2,6 +2,8 @@ import { Badge, Icon, Text } from '@stellar/design-system'
 import clsx from 'clsx'
 import { useMemo } from 'react'
 
+import { CustomCheckbox } from 'src/components/atoms'
+
 import styles from './styles.module.css'
 
 type Props = {
@@ -19,6 +21,7 @@ type Props = {
     variant: 'success' | 'disabled'
   }
   isSelected?: boolean
+  isSelectable?: boolean
   isClickable?: boolean
   onClick?: () => void
 }
@@ -32,6 +35,7 @@ export const ImageCard = ({
   leftBadge,
   rightBadge,
   isSelected = false,
+  isSelectable = false,
   isClickable = true,
   onClick,
 }: Props): React.ReactNode => {
@@ -44,7 +48,7 @@ export const ImageCard = ({
       case 'lg':
         return clsx('w-[262px]', 'h-[266px]')
       case 'adapt':
-        return clsx('w-[45vw]', 'h-[45vw]')
+        return clsx('w-full', 'aspect-square')
     }
   }, [size])
 
@@ -93,7 +97,7 @@ export const ImageCard = ({
 
   const LeftBadgeComponent = () =>
     leftBadge && (
-      <div className="absolute top-3 left-3">
+      <div className={clsx('absolute', typeof isSelected === 'boolean' ? 'bottom-3 left-3' : 'top-3 left-3')}>
         {leftBadge.variant === 'disabled' ? (
           <Badge icon={<Icon.CheckCircle />} iconPosition="left" variant="tertiary">
             {leftBadge.label}
@@ -117,19 +121,19 @@ export const ImageCard = ({
       </div>
     )
 
+  const SelectionIndicator = () => {
+    if (typeof isSelected !== 'boolean') return null
+
+    return <CustomCheckbox checked={isSelected} size="md" onClick={onClick} className="absolute top-3 left-3 z-10" />
+  }
+
   return (
     <Wrapper>
       <LeftBadgeComponent />
 
       <RightBadgeComponent />
 
-      {isSelected && (
-        <div className="absolute top-3 left-3">
-          <div className="bg-brandPrimary rounded p-1">
-            <Icon.Check size={14} className="text-white" />
-          </div>
-        </div>
-      )}
+      {isSelectable && <SelectionIndicator />}
 
       {name && (
         <div className="flex flex-col items-center gap-3">

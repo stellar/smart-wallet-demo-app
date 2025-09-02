@@ -1,6 +1,7 @@
 import { FieldValues, FormProvider as RHFFormProvider, useForm } from 'react-hook-form'
 
 // Import fields
+import { AssetAmountInput } from './fields/asset-amount-input'
 import { Checkbox } from './fields/checkbox'
 import { Input } from './fields/input'
 import { Radio } from './fields/radio'
@@ -28,6 +29,7 @@ function BaseForm<T extends Record<string, unknown>>({ form, onSubmit, children 
 
 // Attach fields as static properties
 export const Form = Object.assign(BaseForm, {
+  AssetAmountInput,
   Input,
   Checkbox,
   Radio,

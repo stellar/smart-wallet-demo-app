@@ -11,6 +11,7 @@ export const NftSchema = z.object({
   contract_address: z.string().optional(),
   transaction_hash: z.string().optional(),
   issuer: z.string().optional(),
+  resource: z.string().optional(),
 })
 
 export type NftSchemaT = z.infer<typeof NftSchema>

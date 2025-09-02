@@ -46,7 +46,7 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
     this.fee = STELLAR.MAX_FEE
 
     if (sourceAccount?.publicKey) this.sourceAccountKeypair = Keypair.fromPublicKey(sourceAccount.publicKey)
-    if (sourceAccount?.secretKey) this.sourceAccountKeypair = Keypair.fromPublicKey(sourceAccount.secretKey)
+    if (sourceAccount?.secretKey) this.sourceAccountKeypair = Keypair.fromSecret(sourceAccount.secretKey)
     if (!sourceAccount) this.sourceAccountKeypair = Keypair.fromSecret(STELLAR.SOURCE_ACCOUNT.PRIVATE_KEY)
   }
 
@@ -301,6 +301,8 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
         .setTimeout(this.timeoutInSeconds)
         .setNetworkPassphrase(this.networkPassphrase)
         .build()
+
+      this.logInfo('result', 'transaction XDR', { tx: tx.toXDR() })
 
       let simulationResponse = await this.simulateTransaction(tx)
 

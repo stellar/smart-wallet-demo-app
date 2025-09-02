@@ -1,4 +1,4 @@
-import { DeleteResult } from 'typeorm'
+import { DeleteResult, ILike } from 'typeorm'
 
 import { Nft as NftModel } from 'api/core/entities/nft/model'
 import { Nft, NftRepositoryType } from 'api/core/entities/nft/types'
@@ -22,7 +22,7 @@ export default class NftRepository extends SingletonBase implements NftRepositor
   async getNftByTokenIdAndContractAddress(tokenId: string, contractAddress: string): Promise<Nft | null> {
     return NftModel.createQueryBuilder('nft')
       .where('nft.tokenId = :tokenId', { tokenId })
-      .andWhere('nft.contractAddress = :contractAddress', { contractAddress })
+      .andWhere('nft.contractAddress ILIKE :contractAddress', { contractAddress })
       .getOne()
   }
 
@@ -42,7 +42,7 @@ export default class NftRepository extends SingletonBase implements NftRepositor
   }
 
   async getNftByContractAddress(contractAddress: string): Promise<Nft | null> {
-    return NftModel.findOneBy({ contractAddress })
+    return NftModel.findOneBy({ contractAddress: ILike(contractAddress) })
   }
 
   async createNft(
@@ -51,7 +51,7 @@ export default class NftRepository extends SingletonBase implements NftRepositor
   ): Promise<Nft> {
     const newNft = NftModel.create({ ...nft })
     if (save) {
-      return this.saveNft(newNft)
+      return (await this.saveNfts([newNft]))[0]
     }
     return newNft
   }
@@ -61,11 +61,11 @@ export default class NftRepository extends SingletonBase implements NftRepositor
     return this.getNftById(nftId) as Promise<Nft>
   }
 
-  async deleteNft(id: string): Promise<DeleteResult> {
-    return NftModel.delete(id)
+  async deleteNfts(ids: string[]): Promise<DeleteResult> {
+    return NftModel.delete(ids)
   }
 
-  saveNft(nft: Nft): Promise<Nft> {
-    return NftModel.save(nft)
+  saveNfts(nfts: Nft[]): Promise<Nft[]> {
+    return NftModel.save(nfts)
   }
 }
