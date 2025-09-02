@@ -323,7 +323,9 @@ describe('ClaimNftOptions', () => {
       }
 
       await expect(claimNftOptions.handle(payload)).rejects.toThrow(ResourceNotFoundException)
-      expect(mockedNftRepository.getNftByUserAndSessionId).toHaveBeenCalledWith('user-123', 'session-123')
+      expect(mockedNftRepository.getNftByUserAndSessionId).toHaveBeenCalledWith('user-123', 'session-123', {
+        includeDeleted: true,
+      })
     })
 
     it('should return NFT options successfully when all conditions are met', async () => {
