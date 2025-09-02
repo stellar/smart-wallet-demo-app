@@ -1,15 +1,22 @@
 import { Router } from 'express'
 
 import { apiKeyAuthentication } from 'api/core/middlewares/api-key-authentication'
+import { authentication } from 'api/core/middlewares/authentication'
 
 import { CreateAsset, endpoint as CreateAssetEndpoint } from './use-cases/create-asset'
 import { CreateFeatureFlag, endpoint as CreateFeatureFlagEndpoint } from './use-cases/create-feature-flag'
+import { CreateNftSupply, endpoint as CreateNftSupplyEndpoint } from './use-cases/create-nft-supply'
+import { CreateNgo, endpoint as CreateNgoEndpoint } from './use-cases/create-ngo'
 import { CreateVendor, endpoint as CreateVendorEndpoint } from './use-cases/create-vendor'
 import { GetAssets, endpoint as GetAssetsEndpoint } from './use-cases/get-assets'
 import { GetFeatureFlags, endpoint as GetFeatureFlagsEndpoint } from './use-cases/get-feature-flags'
+import { GetNftSupply, endpoint as GetNftSupplyEndpoint } from './use-cases/get-nft-supply'
+import { GetNgos, endpoint as GetNgosEndpoint } from './use-cases/get-ngos'
 import { GetVendors, endpoint as GetVendorsEndpoint } from './use-cases/get-vendors'
 import { UpdateAsset, endpoint as UpdateAssetEndpoint } from './use-cases/update-asset'
 import { UpdateFeatureFlag, endpoint as UpdateFeatureFlagEndpoint } from './use-cases/update-feature-flag'
+import { UpdateNftSupply, endpoint as UpdateNftSupplyEndpoint } from './use-cases/update-nft-supply'
+import { UpdateNgo, endpoint as UpdateNgoEndpoint } from './use-cases/update-ngo'
 import { UpdateVendor, endpoint as UpdateVendorEndpoint } from './use-cases/update-vendor'
 
 const featureFlagsRoutes = Router()
@@ -39,6 +46,17 @@ adminAssetsRoutes.patch(`${UpdateAssetEndpoint}`, apiKeyAuthentication, async (r
   UpdateAsset.init().executeHttp(req, res)
 )
 
+const adminNftSupplyRoutes = Router()
+adminNftSupplyRoutes.get(`${GetNftSupplyEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  GetNftSupply.init().executeHttp(req, res)
+)
+adminNftSupplyRoutes.post(`${CreateNftSupplyEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  CreateNftSupply.init().executeHttp(req, res)
+)
+adminNftSupplyRoutes.patch(`${UpdateNftSupplyEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  UpdateNftSupply.init().executeHttp(req, res)
+)
+
 const adminVendorsRoutes = Router()
 adminVendorsRoutes.get(`${GetVendorsEndpoint}`, apiKeyAuthentication, async (req, res) =>
   GetVendors.init().executeHttp(req, res)
@@ -50,4 +68,26 @@ adminVendorsRoutes.patch(`${UpdateVendorEndpoint}`, apiKeyAuthentication, async 
   UpdateVendor.init().executeHttp(req, res)
 )
 
-export { featureFlagsRoutes, adminFeatureFlagsRoutes, adminAssetsRoutes, adminVendorsRoutes }
+const ngosRoutes = Router()
+ngosRoutes.get(`${GetNgosEndpoint}`, authentication, async (req, res) => GetNgos.init().executeHttp(req, res))
+
+const adminNgosRoutes = Router()
+adminNgosRoutes.get(`${GetNgosEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  GetNgos.init().executeHttp(req, res)
+)
+adminNgosRoutes.post(`${CreateNgoEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  CreateNgo.init().executeHttp(req, res)
+)
+adminNgosRoutes.patch(`${UpdateNgoEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  UpdateNgo.init().executeHttp(req, res)
+)
+
+export {
+  featureFlagsRoutes,
+  adminFeatureFlagsRoutes,
+  adminAssetsRoutes,
+  adminVendorsRoutes,
+  ngosRoutes,
+  adminNgosRoutes,
+  adminNftSupplyRoutes,
+}

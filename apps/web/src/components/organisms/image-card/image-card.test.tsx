@@ -65,4 +65,38 @@ describe('ImageCard', () => {
     const div = screen.getByText((_, element) => element?.id === 'image-card-wrapper')
     expect(div).toBeInTheDocument()
   })
+
+  it('does not render checkbox when isSelectable is false (default)', () => {
+    render(<ImageCard {...defaultProps} />)
+    const checkbox = screen.queryByRole('checkbox')
+    expect(checkbox).not.toBeInTheDocument()
+  })
+
+  it('does not render checkbox when isSelectable is false even with isSelected', () => {
+    render(<ImageCard {...defaultProps} isSelectable={false} isSelected={true} />)
+    const checkbox = screen.queryByRole('checkbox')
+    expect(checkbox).not.toBeInTheDocument()
+  })
+
+  it('renders unchecked checkbox when isSelectable is true and isSelected is false', () => {
+    render(<ImageCard {...defaultProps} isSelectable={true} isSelected={false} />)
+    const checkbox = screen.getByRole('checkbox')
+    expect(checkbox).toBeInTheDocument()
+    expect(checkbox).not.toBeChecked()
+  })
+
+  it('renders checked checkbox when isSelectable is true and isSelected is true', () => {
+    render(<ImageCard {...defaultProps} isSelectable={true} isSelected={true} />)
+    const checkbox = screen.getByRole('checkbox')
+    expect(checkbox).toBeInTheDocument()
+    expect(checkbox).toBeChecked()
+  })
+
+  it('calls onClick when checkbox is clicked', () => {
+    const handleClick = vi.fn()
+    render(<ImageCard {...defaultProps} isSelectable={true} isSelected={false} onClick={handleClick} />)
+    const checkbox = screen.getByRole('checkbox')
+    fireEvent.click(checkbox)
+    expect(handleClick).toHaveBeenCalled()
+  })
 })

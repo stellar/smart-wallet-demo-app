@@ -4,7 +4,6 @@ import { Request, Response } from 'express'
 import { Nft } from 'api/core/entities/nft/model'
 import { NftRepositoryType } from 'api/core/entities/nft/types'
 import { NftSupply } from 'api/core/entities/nft-supply/model'
-import { NftSupplyRepositoryType } from 'api/core/entities/nft-supply/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UserProductRepositoryType } from 'api/core/entities/user-product/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
@@ -14,12 +13,12 @@ import WebAuthnAuthentication from 'api/core/helpers/webauthn/authentication'
 import { IWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/types'
 import AssetRepository from 'api/core/services/asset'
 import NftRepository from 'api/core/services/nft'
-import NftSupplyRepository from 'api/core/services/nft-supply'
 import UserRepository from 'api/core/services/user'
 import UserProductRepository from 'api/core/services/user-product'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { TransferTypes } from 'api/embedded-wallets/use-cases/transfer-options/types'
+import { getValueFromEnv } from 'config/env-utils'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
@@ -35,27 +34,27 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
   private userRepository: UserRepositoryType
   private userProductRepository: UserProductRepositoryType
   private nftRepository: NftRepositoryType
-  private nftSupplyRepository: NftSupplyRepositoryType
   private webauthnAuthenticationHelper: IWebAuthnAuthentication
   private sorobanService: ISorobanService
+  private multicallContract: string
 
   constructor(
     userRepository?: UserRepositoryType,
     assetRepository?: AssetRepository,
     userProductRepository?: UserProductRepositoryType,
     nftRepository?: NftRepositoryType,
-    nftSupplyRepository?: NftSupplyRepositoryType,
     webauthnAuthenticationHelper?: IWebAuthnAuthentication,
-    sorobanService?: ISorobanService
+    sorobanService?: ISorobanService,
+    multicallContract?: string
   ) {
     super()
     this.assetRepository = assetRepository || AssetRepository.getInstance()
     this.userRepository = userRepository || UserRepository.getInstance()
     this.userProductRepository = userProductRepository || UserProductRepository.getInstance()
     this.nftRepository = nftRepository || NftRepository.getInstance()
-    this.nftSupplyRepository = nftSupplyRepository || NftSupplyRepository.getInstance()
     this.webauthnAuthenticationHelper = webauthnAuthenticationHelper || WebAuthnAuthentication.getInstance()
     this.sorobanService = sorobanService || SorobanService.getInstance()
+    this.multicallContract = multicallContract || getValueFromEnv('STELLAR_MULTICALL_CONTRACT')
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
@@ -93,21 +92,42 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     }
 
     // Get asset contract address from db
-    const asset = await this.assetRepository.getAssetByCode(validatedData.asset)
+    const assetCodes = validatedData.asset
+      ?.replace(/\s+/g, '')
+      .split(',')
+      .filter(code => code.length)
+    let assets = await this.assetRepository.getAssetsByCode(assetCodes)
 
-    if (!asset || !asset?.contractAddress) {
+    if (!assets.length || !assets[0]?.contractAddress) {
+      assets = await this.assetRepository.getAssetsByContractAddress(assetCodes)
+    }
+
+    if (!assets.length || !assets[0]?.contractAddress) {
       // TODO: get asset data from network as fallback?
       throw new ResourceNotFoundException(messages.UNABLE_TO_FIND_ASSET_OR_CONTRACT)
     }
 
-    const assetContractAddress = asset?.contractAddress
-
     // Validate if NFT belongs to user
-    let userNft: Nft | null = null
+    const userNfts: Nft[] = []
     if (validatedData.type == TransferTypes.NFT) {
-      userNft = await this.nftRepository.getNftByTokenIdAndContractAddress(validatedData.id, assetContractAddress)
-      if (!userNft) {
-        throw new ResourceNotFoundException(messages.NFT_NOT_FOUND_FOR_THE_USER)
+      // IDs to transfer
+      const ids = validatedData.id
+        ?.replace(/\s+/g, '')
+        .split(',')
+        .filter(id => id.length)
+
+      if (ids.length !== assetCodes.length) {
+        throw new BadRequestException(messages.INVALID_INFORMATION)
+      }
+
+      for (let i = 0; i < assetCodes.length; i++) {
+        const contractAddress = assetCodes[i]
+        const id = ids[i]
+        const userNft = await this.nftRepository.getNftByTokenIdAndContractAddress(id, contractAddress)
+        if (!userNft) {
+          throw new ResourceNotFoundException(messages.NFT_NOT_FOUND_FOR_THE_USER)
+        }
+        userNfts.push(userNft)
       }
     }
 
@@ -141,9 +161,11 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       },
     }
 
+    const contractId = assetCodes.length > 1 ? this.multicallContract : assets[0]?.contractAddress
+
     // Sign auth entries
     const tx = await this.sorobanService.signAuthEntries({
-      contractId: assetContractAddress,
+      contractId: contractId,
       tx: customMetadata.tx,
       simulationResponse: customMetadata.simulationResponse,
       signers: [passkeySigner],
@@ -160,19 +182,21 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     }
 
     if (validatedData.type === TransferTypes.SWAG) {
-      const unclaimedSwags = await this.userProductRepository.getUserProductsByUserContractAddressAndAssetCode(
-        user.contractAddress,
-        asset.code,
-        { where: { status: 'unclaimed' } }
-      )
+      for (const asset of assets) {
+        const unclaimedSwags = await this.userProductRepository.getUserProductsByUserContractAddressAndAssetCode(
+          user.contractAddress,
+          asset.code,
+          { where: { status: 'unclaimed' } }
+        )
 
-      if (!unclaimedSwags.length) throw new BadRequestException(messages.USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE)
+        if (!unclaimedSwags.length) throw new BadRequestException(messages.USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE)
 
-      const swagToClaim = unclaimedSwags[0]
+        const swagToClaim = unclaimedSwags[0]
 
-      swagToClaim.status = 'claimed'
-      swagToClaim.claimedAt = new Date()
-      await this.userProductRepository.saveUserProducts([swagToClaim])
+        swagToClaim.status = 'claimed'
+        swagToClaim.claimedAt = new Date()
+        await this.userProductRepository.saveUserProducts([swagToClaim])
+      }
     } else if (validatedData.type === TransferTypes.NFT) {
       // Update nft data in db:
       // delete from current user and update to new user if it's an app user (get user by account/contract address)
@@ -180,23 +204,27 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       // If destination address is from an app user
       const newUser = await this.userRepository.getUserByContractAddress(validatedData.to)
       if (newUser) {
-        const newUserNft = await this.nftRepository.createNft(
-          {
+        const newUserNfts: Nft[] = []
+        for (const userNft of userNfts) {
+          const newUserNft = await this.nftRepository.createNft({
             tokenId: userNft?.tokenId as string,
             contractAddress: userNft?.contractAddress as string,
             nftSupply: userNft?.nftSupply as NftSupply,
             user: newUser,
-          },
-          true
-        )
+          })
 
-        if (!newUserNft) {
-          throw new BadRequestException(messages.UNABLE_TO_SAVE_NFT_TO_USER)
+          if (!newUserNft) {
+            throw new BadRequestException(messages.UNABLE_TO_SAVE_NFT_TO_USER)
+          }
+
+          newUserNfts.push(newUserNft)
         }
+
+        await this.nftRepository.saveNfts(newUserNfts)
       }
 
       // Delete NFT from previous user (who's transfering)
-      const deletedUserNft = await this.nftRepository.deleteNft(userNft?.nftId as string)
+      const deletedUserNft = await this.nftRepository.deleteNfts(userNfts.map(nft => nft.nftId))
 
       if (!deletedUserNft) {
         throw new BadRequestException(messages.UNABLE_TO_DELETE_USER_NFT)

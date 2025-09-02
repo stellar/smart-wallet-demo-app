@@ -8,11 +8,12 @@ import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 import { queryClient } from 'src/interfaces/query-client'
 
+import { Nft } from '../domain/models/nft'
 import { WalletQueryKeys } from '../queries/query-keys'
 import { useClaimNft } from '../queries/use-claim-nft'
 import { getWallet } from '../queries/use-get-wallet'
 import { WalletPagesPath } from '../routes/types'
-import { Nft } from '../services/wallet/types'
+import { isTreasureNft } from '../utils'
 
 export const useNfts = () => {
   const router = useRouter()
@@ -52,14 +53,14 @@ export const useNfts = () => {
           variant: 'default',
           textColor: 'white',
           title: {
-            text: `${nft.name} ${nft.resource?.includes('treasure') ? c('claimNftTitle2') : c('claimNftTitle1')}`,
+            text: `${nft.name} ${isTreasureNft(nft) ? c('claimNftTitle2') : c('claimNftTitle1')}`,
             image: {
               source: nft.url,
               variant: 'lg',
               format: 'square',
             },
           },
-          description: nft.resource?.includes('treasure') ? c('claimNftDescription2') : c('claimNftDescription1'),
+          description: isTreasureNft(nft) ? c('claimNftDescription2') : c('claimNftDescription1'),
           button: {
             children: c('claimNftButton'),
             variant: 'secondary',
@@ -73,7 +74,7 @@ export const useNfts = () => {
             },
           },
         },
-        backgroundImageUri: a('nftModalBackground'),
+        backgroundImageUri: isTreasureNft(nft) ? a('customNftModalBackground') : a('nftModalBackground'),
         onClose: () => {
           router.navigate({
             search: undefined,

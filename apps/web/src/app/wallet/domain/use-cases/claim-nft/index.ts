@@ -1,5 +1,3 @@
-import { webauthnService } from 'src/app/auth/services'
-import { IWebAuthnService } from 'src/app/auth/services/webauthn/types'
 import { UseCaseBase } from 'src/app/core/framework/use-case/base'
 import { walletService } from 'src/app/wallet/services'
 import { IWalletService } from 'src/app/wallet/services/wallet/types'
@@ -8,12 +6,10 @@ import { ClaimNftInput } from './types'
 
 export class ClaimNftUseCase extends UseCaseBase<void> {
   private walletService: IWalletService
-  private webauthnService: IWebAuthnService
 
-  constructor(walletService: IWalletService, webauthnService: IWebAuthnService) {
+  constructor(walletService: IWalletService) {
     super()
     this.walletService = walletService
-    this.webauthnService = webauthnService
   }
 
   async handle(input: ClaimNftInput): Promise<void> {
@@ -24,6 +20,6 @@ export class ClaimNftUseCase extends UseCaseBase<void> {
   }
 }
 
-const claimNftUseCase = new ClaimNftUseCase(walletService, webauthnService)
+const claimNftUseCase = new ClaimNftUseCase(walletService)
 
 export { claimNftUseCase }

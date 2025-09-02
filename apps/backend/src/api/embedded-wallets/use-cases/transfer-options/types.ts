@@ -25,7 +25,7 @@ const transferTypeSchema = z.object({
 const nftTypeSchema = z.object({
   ...baseSchema,
   type: z.enum([TransferTypes.NFT]),
-  id: z.union([z.string(), z.array(z.string())]), // tokenID
+  id: z.string(),
 })
 
 const swagTypeSchema = z.object({
@@ -44,7 +44,12 @@ export const ResponseSchema = createResponseSchema(
     user: z.object({
       address: z.string(),
       email: z.string().email(),
-      balance: z.number().positive(),
+      balances: z.array(
+        z.object({
+          amount: z.number().positive(),
+          asset: z.string(),
+        })
+      ),
     }),
     vendor: z
       .object({

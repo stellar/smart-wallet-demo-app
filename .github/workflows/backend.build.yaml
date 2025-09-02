@@ -35,6 +35,8 @@ jobs:
           push: false
           tags: build-backend:${{ steps.get-version.outputs.version }}
           outputs: type=docker,dest=/tmp/docker_image_backend.tar
+          build-args: |
+            SENTRY_RELEASE=${{ github.sha }}
 
       - name: Upload image artifact
         uses: actions/upload-artifact@v4

@@ -11,6 +11,7 @@
   --color-text-tertiary: #DFE3E6;
   --color-foreground-primary: #8F8F8F;
   --color-background: #FFFFFF;
+  --color-background-primary: #FCFCFC;
   --color-background-secondary: #F2F2F7;
   --color-background-tertiary: #F3F3F3;
   --color-border-primary: #E2E2E2;
@@ -18,9 +19,12 @@
   --color-whitish: #FFFFFF;
   --color-blackish: #000000;
   --color-muted: #f6f6f6;
+  --color-error: #cd2b31;
   --color-success: #30A46C;
   --color-danger: #ff3636;
+  --color-warning: #FFB224;
   --color-brand-primary: #5746AF;
+  --color-pink: #D6409F;
 
   --font-size-xxxs: 0.5rem;
   /**  8px */

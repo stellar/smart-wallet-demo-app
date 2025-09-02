@@ -7,11 +7,15 @@ import {
   ModalDefaultProps,
   ModalLoading,
   ModalLoadingProps,
+  ModalNftTransferReview,
+  ModalNftTransferReviewProps,
   ModalTransactionDetails,
   ModalTransactionDetailsProps,
+  ModalTransferSuccess,
+  ModalTransferSuccessProps,
 } from './variants'
 
-export type ModalVariants = 'default' | 'transaction-details' | 'loading'
+export type ModalVariants = 'default' | 'transaction-details' | 'loading' | 'nft-transfer-review' | 'transfer-success'
 
 export type ModalInternalState = Record<string, unknown>
 
@@ -22,7 +26,12 @@ export type BaseModalProps = {
 }
 
 export type ModalProps = {
-  variantOptions: ModalDefaultProps | ModalTransactionDetailsProps | ModalLoadingProps
+  variantOptions:
+    | ModalDefaultProps
+    | ModalTransactionDetailsProps
+    | ModalLoadingProps
+    | ModalNftTransferReviewProps
+    | ModalTransferSuccessProps
 } & BaseModalProps
 
 export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri, internalState, onClose }) => {
@@ -68,6 +77,10 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
         return <ModalTransactionDetails {...variantOptions} internalState={internalState} onClose={onClose} />
       case 'loading':
         return <ModalLoading {...variantOptions} internalState={internalState} onClose={onClose} />
+      case 'nft-transfer-review':
+        return <ModalNftTransferReview {...variantOptions} internalState={internalState} onClose={onClose} />
+      case 'transfer-success':
+        return <ModalTransferSuccess {...variantOptions} internalState={internalState} onClose={onClose} />
     }
   }, [internalState, onClose, variantOptions])
 
@@ -77,8 +90,8 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+      transition={{ duration: 0.3 }}
+      className={clsx('absolute inset-0 z-50 flex items-center justify-center bg-black/70 transition-opacity')}
       onClick={handleBackdropClick}
     >
       <motion.div
@@ -88,15 +101,16 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.25 }}
         className={clsx(
-          'relative w-full mx-4 max-w-md p-6 rounded-2xl shadow-xl',
-          !backgroundImageUri && 'bg-backgroundSecondary'
+          'relative w-full mx-4 max-w-lg p-6 rounded-2xl shadow-xl',
+          !backgroundImageUri && 'bg-backgroundPrimary'
         )}
         style={
           backgroundImageUri
             ? {
                 backgroundImage: `url(${backgroundImageUri})`,
                 backgroundSize: 'cover',
-                backgroundPosition: 'top',
+                backgroundPositionY: 'top',
+                backgroundPositionX: 'center',
               }
             : undefined
         }

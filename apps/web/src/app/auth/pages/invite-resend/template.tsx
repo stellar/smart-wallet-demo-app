@@ -27,7 +27,7 @@ export const InviteResendTemplate = ({ form, isInviteLinkSent, onGoBack, onSendL
   return (
     <div>
       <OnboardingBackgroundImage className="bg-[95%]" />
-      <div className="mt-[calc(100vh-65vh)] flex flex-col justify-start px-8">
+      <div className="mt-[calc(100vh-70vh)] flex flex-col justify-start px-8">
         <NavigateButton className="mb-10" size="md" onClick={onGoBack} />
 
         <div className="flex flex-col gap-4">

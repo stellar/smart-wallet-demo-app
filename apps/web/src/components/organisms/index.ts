@@ -1,5 +1,6 @@
 export * from './carousel'
 export * from './collapse'
+export * from './drawer'
 export * from './form'
 export * from './image-card'
 export * from './safe-area-view'

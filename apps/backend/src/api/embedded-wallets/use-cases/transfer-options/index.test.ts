@@ -127,7 +127,7 @@ describe('TransferOptions', () => {
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([mockAsset])
       mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(mockVendor)
@@ -139,7 +139,7 @@ describe('TransferOptions', () => {
       expect(result.data.options_json).toBe(mockOptions)
       expect(result.data.user.email).toBe(mockUser.email)
       expect(result.data.user.address).toBe(mockUser.contractAddress)
-      expect(result.data.user.balance).toBe(10) // Converted from stroops
+      expect(result.data.user.balances[0].amount).toBe(10) // Converted from stroops
       expect(result.data.vendor).toEqual({
         name: mockVendor.name,
         wallet_address: mockVendor.walletAddress,
@@ -159,7 +159,7 @@ describe('TransferOptions', () => {
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([mockAsset])
       mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(mockVendor)
@@ -170,7 +170,7 @@ describe('TransferOptions', () => {
       expect(result.data.options_json).toBe(mockOptions)
       expect(result.data.user.email).toBe(mockUser.email)
       expect(result.data.user.address).toBe(mockUser.contractAddress)
-      expect(result.data.user.balance).toBe(10) // Converted from stroops
+      expect(result.data.user.balances[0].amount).toBe(10) // Converted from stroops
       expect(result.data.vendor).toEqual({
         name: mockVendor.name,
         wallet_address: mockVendor.walletAddress,
@@ -203,7 +203,7 @@ describe('TransferOptions', () => {
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([mockAsset])
       mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(null)
@@ -225,7 +225,7 @@ describe('TransferOptions', () => {
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockSwagAsset)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([mockSwagAsset])
       mockedUserProductRepository.getUserProductsByUserContractAddressAndAssetCode.mockResolvedValue([])
 
       await expect(useCase.handle(payload)).rejects.toBeInstanceOf(BadRequestException)
@@ -241,7 +241,8 @@ describe('TransferOptions', () => {
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(null)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([])
+      mockedAssetRepository.getAssetsByContractAddress.mockResolvedValue([])
 
       await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
     })
@@ -256,7 +257,7 @@ describe('TransferOptions', () => {
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([mockAsset])
 
       // Mock getWalletBalance to return 0
       vi.mocked(getWalletBalance).mockResolvedValueOnce(0)
@@ -303,7 +304,7 @@ describe('TransferOptions', () => {
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([mockAsset])
       mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(null)
 
@@ -341,7 +342,7 @@ describe('TransferOptions', () => {
       } as unknown as Response
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([mockAsset])
       mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(mockVendor)
@@ -357,7 +358,7 @@ describe('TransferOptions', () => {
           user: {
             email: mockUser.email,
             address: mockUser.contractAddress,
-            balance: 10,
+            balances: [{ amount: 10, asset: 'XLM' }],
           },
           vendor: {
             name: mockVendor.name,
@@ -405,7 +406,7 @@ describe('TransferOptions', () => {
       } as unknown as Response
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([mockAsset])
       mockedGenerateWebAuthnChallenge.mockResolvedValue(mockChallenge)
       mockedGenerateOptions.mockResolvedValue(mockOptions)
       mockedVendorRepository.getVendorByWalletAddress.mockResolvedValue(null)
