@@ -107,7 +107,9 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     }
 
     // Validate if user already own a NFT to that session
-    const userNft = await this.nftRepository.getNftByUserAndSessionId(user.userId, nftSupply.sessionId)
+    const userNft = await this.nftRepository.getNftByUserAndSessionId(user.userId, nftSupply.sessionId, {
+      includeDeleted: true,
+    })
 
     if (userNft) {
       throw new ResourceNotFoundException(messages.NFT_ALREADY_OWNED_BY_USER)

@@ -224,7 +224,10 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       }
 
       // Delete NFT from previous user (who's transfering)
-      const deletedUserNft = await this.nftRepository.deleteNfts(userNfts.map(nft => nft.nftId))
+      const deletedUserNft = await this.nftRepository.deleteNfts(
+        userNfts.map(nft => nft.nftId),
+        { soft: true }
+      )
 
       if (!deletedUserNft) {
         throw new BadRequestException(messages.UNABLE_TO_DELETE_USER_NFT)

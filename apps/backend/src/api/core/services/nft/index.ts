@@ -5,6 +5,7 @@ import { Nft, NftRepositoryType } from 'api/core/entities/nft/types'
 import { NftSupply } from 'api/core/entities/nft-supply/types'
 import { User } from 'api/core/entities/user/types'
 import { SingletonBase } from 'api/core/framework/singleton/interface'
+import { AppDataSource } from 'config/database'
 
 export default class NftRepository extends SingletonBase implements NftRepositoryType {
   constructor() {
@@ -33,12 +34,23 @@ export default class NftRepository extends SingletonBase implements NftRepositor
       .getOne()
   }
 
-  async getNftByUserAndSessionId(userId: string, sessionId: string): Promise<Nft | null> {
-    return NftModel.createQueryBuilder('nft')
+  async getNftByUserAndSessionId(
+    userId: string,
+    sessionId: string,
+    options?: { includeDeleted?: boolean }
+  ): Promise<Nft | null> {
+    const qb = NftModel.createQueryBuilder('nft')
       .leftJoinAndSelect('nft.nftSupply', 'nftSupply')
       .where('nftSupply.sessionId = :sessionId', { sessionId })
       .andWhere('nft.user = :userId', { userId })
-      .getOne()
+
+    if (options?.includeDeleted) {
+      qb.withDeleted()
+    } else {
+      qb.andWhere('nft.deletedAt IS NULL')
+    }
+
+    return qb.getOne()
   }
 
   async getNftByContractAddress(contractAddress: string): Promise<Nft | null> {
@@ -61,8 +73,12 @@ export default class NftRepository extends SingletonBase implements NftRepositor
     return this.getNftById(nftId) as Promise<Nft>
   }
 
-  async deleteNfts(ids: string[]): Promise<DeleteResult> {
-    return NftModel.delete(ids)
+  async deleteNfts(ids: string[], options?: { soft?: boolean }): Promise<DeleteResult> {
+    if (options?.soft) {
+      return AppDataSource.getRepository(NftModel).softDelete(ids)
+    } else {
+      return NftModel.delete(ids)
+    }
   }
 
   saveNfts(nfts: Nft[]): Promise<Nft[]> {
