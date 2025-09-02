@@ -8,7 +8,11 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 const isPinataInstalled = () => {
-  return execSync(`which pinata`, { stdio: 'pipe' });
+  try {
+    return execSync(`which pinata`, { stdio: 'pipe' });
+  } catch (error) {
+    return false;
+  }
 };
 
 const _getGatewayUrl = (cid) => {
@@ -41,12 +45,6 @@ const install = () => {
 
 const authenticate = () => {
   logStep('pinata authentication', 'setting up pinata cli authentication...');
-
-  if (!isPinataInstalled()) {
-    logError('pinata cli not available');
-
-    return false;
-  }
 
   try {
     const isAuthenticated = execSync(`pinata groups list`, { stdio: 'pipe' });
