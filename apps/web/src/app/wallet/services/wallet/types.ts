@@ -23,6 +23,7 @@ export type GetWalletResult = IHTTPResponse<{
   address: string
   email: string
   balance: number
+  token_balances?: { contract_address: string; balance: number; type: 'nft' | 'asset' }[]
   is_airdrop_available: boolean
   is_gift_available: boolean
   swags?: {
