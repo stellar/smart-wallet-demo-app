@@ -65,7 +65,9 @@ impl Contract {
         env.storage()
             .instance()
             .get(&DataKey::TokenData(token_id))
-            .unwrap_or_else(|| panic_with_error!(env, NonFungibleTokenContractError::UnsetTokenData))
+            .unwrap_or_else(|| {
+                panic_with_error!(env, NonFungibleTokenContractError::UnsetTokenData)
+            })
     }
 
     pub fn mint_with_data(env: &Env, to: Address, data: TokenData) -> u32 {
