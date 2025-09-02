@@ -7,6 +7,8 @@ import { getValueFromEnv } from 'config/env-utils'
 import { generateToken } from './auth/jwt'
 import {
   AccountRequest,
+  CreateSponsoredAccountRequest,
+  CreateSponsoredAccountResponse,
   GetTransactionsResponse,
   TransactionBuildRequest,
   TransactionBuildResponse,
@@ -161,5 +163,27 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
       },
     })
     return response.data as TransactionResponse
+  }
+
+  public async createSponsoredAccount(address: string): Promise<CreateSponsoredAccountResponse> {
+    const createAccountUrl = '/tx/create-sponsored-account'
+
+    const requestBody: CreateSponsoredAccountRequest = {
+      address,
+      skipSponsorship: true,
+    }
+
+    const authToken = await generateToken({
+      methodAndPath: `POST ${createAccountUrl}`,
+      bodyHash: JSON.stringify(requestBody),
+    })
+
+    const response = await this.connection.post(createAccountUrl, requestBody, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
+
+    return response.data as CreateSponsoredAccountResponse
   }
 }

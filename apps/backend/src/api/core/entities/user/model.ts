@@ -27,6 +27,12 @@ export class User extends ModelBase {
   })
   contractAddress?: string
 
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  createdAccountAddress?: string
+
   @OneToMany(() => Passkey, passkey => passkey.user)
   passkeys: Passkey[]
 

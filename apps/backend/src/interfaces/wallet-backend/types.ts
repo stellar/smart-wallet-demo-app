@@ -74,10 +74,21 @@ export interface GetTransactionsResponse {
   account: AccountWithTransactions
 }
 
+export type CreateSponsoredAccountRequest = {
+  address: string
+  skipSponsorship: boolean
+}
+
+export type CreateSponsoredAccountResponse = {
+  transaction: string
+  networkPassphrase: string
+}
+
 export type WalletBackendType = {
   registerAccount(account: AccountRequest): Promise<object>
   deregisterAccount(account: AccountRequest): Promise<object>
   getTransactions(account: AccountRequest): Promise<GetTransactionsResponse>
   buildTransaction(transactions: TransactionBuildRequest): Promise<TransactionBuildResponse>
   createFeeBumpTransaction(transaction: TransactionRequest): Promise<TransactionResponse>
+  createSponsoredAccount(address: string): Promise<CreateSponsoredAccountResponse>
 }

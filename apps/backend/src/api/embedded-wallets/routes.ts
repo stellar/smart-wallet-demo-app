@@ -6,6 +6,7 @@ import { AirdropComplete, endpoint as AirdropCompleteEndpoint } from './use-case
 import { AirdropOptions, endpoint as AirdropOptionsEndpoint } from './use-cases/airdrop-options'
 import { ClaimNft, endpoint as ClaimNftEndpoint } from './use-cases/claim-nft'
 import { ClaimNftOptions, endpoint as ClaimNftOptionsEndpoint } from './use-cases/claim-nft-options'
+import { CreateAccount, endpoint as CreateAccountEndpoint } from './use-cases/create-account'
 import { CreateWallet, endpoint as CreateWalletEndpoint } from './use-cases/create-wallet'
 import { CreateWalletOptions, endpoint as CreateWalletOptionsEndpoint } from './use-cases/create-wallet-options'
 import { GenerateRecoveryLink, endpoint as GenerateRecoveryLinkEndpoint } from './use-cases/generate-recovery-link'
@@ -29,6 +30,7 @@ const router = Router()
 router.get(`${GetInvitationInfoEndpoint}`, async (req, res) => GetInvitationInfo.init().executeHttp(req, res))
 router.get(`${CreateWalletOptionsEndpoint}`, async (req, res) => CreateWalletOptions.init().executeHttp(req, res))
 router.post(`${CreateWalletEndpoint}`, async (req, res) => CreateWallet.init().executeHttp(req, res))
+router.post(`${CreateAccountEndpoint}`, authentication, async (req, res) => CreateAccount.init().executeHttp(req, res))
 router.get(`${LogInOptionsEndpoint}`, async (req, res) => LogInOptions.init().executeHttp(req, res))
 router.post(`${LogInEndpoint}`, async (req, res) => LogIn.init().executeHttp(req, res))
 router.get(`${GetWalletEndpoint}`, authentication, async (req, res) => GetWallet.init().executeHttp(req, res))
