@@ -37,27 +37,35 @@ The NFT contract includes a comprehensive Makefile that simplifies common develo
 ### Available Make Targets
 
 #### `make` or `make default`
+
 Builds the contract (default action)
 
 #### `make build`
+
 Builds the contract using `stellar contract build`
 
 #### `make test`
+
 Runs the contract tests using `cargo test`
 
 #### `make fmt`
+
 Formats the code using `cargo fmt --all`
 
 #### `make clean`
+
 Cleans build artifacts using `cargo clean`
 
 #### `make upload`
+
 Uploads the contract to the specified network
 
 #### `make deploy`
+
 Deploys the contract with constructor arguments
 
 #### `make all`
+
 Runs tests (alias for `make test`)
 
 ### Makefile Variables
@@ -75,6 +83,7 @@ You can customize the behavior by setting these environment variables:
 ### Usage Examples
 
 #### Basic Build and Test
+
 ```bash
 # Build the contract
 make build
@@ -87,6 +96,7 @@ make fmt
 ```
 
 #### Upload Contract
+
 ```bash
 # Upload to testnet
 make upload NETWORK=testnet SOURCE=your_account_address
@@ -96,6 +106,7 @@ make upload NETWORK=mainnet SOURCE=your_account_address
 ```
 
 #### Deploy Contract
+
 ```bash
 # Deploy with default parameters
 make deploy NETWORK=testnet SOURCE=your_account_address
@@ -118,6 +129,7 @@ make deploy \
 ```
 
 #### Complete Workflow Example
+
 ```bash
 # 1. Clean previous builds
 make clean

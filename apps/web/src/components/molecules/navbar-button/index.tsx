@@ -30,13 +30,8 @@ export const NavbarButton = ({
     >
       <Button variant={isActive ? 'secondary' : 'tertiary'} className={clsx('navbar-button', className)} {...props}>
         {icon && <span className="navbar-button__icon">{icon}</span>}
-        {!iconOnly && (
-          <>
-            {showLabel && label && <span className="navbar-button__label">{label}</span>}
-            {!showLabel && props.children}
-            {showLabel && !label && props.children}
-          </>
-        )}
+        {showLabel && !iconOnly && label && <span className="navbar-button__label">{label}</span>}
+        {!showLabel && !iconOnly && props.children}
       </Button>
     </div>
   )

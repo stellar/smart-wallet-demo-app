@@ -6,6 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
   ModelBase,
+  DeleteDateColumn,
 } from 'api/core/framework/orm/base'
 
 import { NftSupply } from '../nft-supply/model'
@@ -43,4 +44,7 @@ export class Nft extends ModelBase {
   @ManyToOne(() => NftSupply, nftSupply => nftSupply.nftSupplyId, { nullable: false })
   @JoinColumn({ name: 'nft_supply_id' })
   nftSupply: NftSupply
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deletedAt: Date | null
 }

@@ -5,10 +5,13 @@ import { Collapse, CollapseItem } from '.'
 describe('CollapseItem', () => {
   it('renders title and children (collapsed by default)', () => {
     render(
-      <CollapseItem title="Item 1">
+      <CollapseItem title={{ text: 'Item 1' }}>
         <div>Content 1</div>
       </CollapseItem>
     )
+
+    const button = screen.getByRole('button', { name: /Item 1/i })
+    fireEvent.click(button)
 
     expect(screen.getByText('Item 1')).toBeInTheDocument()
     expect(screen.queryByText('Content 1')).toBeInTheDocument()
@@ -20,7 +23,7 @@ describe('CollapseItem', () => {
 
   it('expands on click', () => {
     render(
-      <CollapseItem title="Item 2">
+      <CollapseItem title={{ text: 'Item 2' }}>
         <div>Content 2</div>
       </CollapseItem>
     )
@@ -36,7 +39,7 @@ describe('CollapseItem', () => {
 
   it('starts expanded when defaultOpen is true', () => {
     render(
-      <CollapseItem title="Item 3" defaultOpen>
+      <CollapseItem title={{ text: 'Item 3' }} defaultOpen>
         <div>Content 3</div>
       </CollapseItem>
     )
@@ -52,11 +55,14 @@ describe('Collapse', () => {
   it('renders title and children items', () => {
     render(
       <Collapse title="FAQ">
-        <CollapseItem title="Q1">
+        <CollapseItem title={{ text: 'Q1' }}>
           <div>A1</div>
         </CollapseItem>
       </Collapse>
     )
+
+    const button = screen.getByRole('button', { name: /Q1/i })
+    fireEvent.click(button)
 
     expect(screen.getByText('FAQ')).toBeInTheDocument()
     expect(screen.getByText('Q1')).toBeInTheDocument()
@@ -66,10 +72,10 @@ describe('Collapse', () => {
   it('renders multiple CollapseItem children', () => {
     render(
       <Collapse title="FAQ">
-        <CollapseItem title="Q1">
+        <CollapseItem title={{ text: 'Q1' }}>
           <div>A1</div>
         </CollapseItem>
-        <CollapseItem title="Q2">
+        <CollapseItem title={{ text: 'Q2' }}>
           <div>A2</div>
         </CollapseItem>
       </Collapse>

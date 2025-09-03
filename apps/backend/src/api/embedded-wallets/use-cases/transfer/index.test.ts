@@ -112,7 +112,6 @@ describe('Transfer', () => {
       mockedAssetRepository,
       mockedUserProductRepository,
       undefined, // nftRepository
-      undefined, // nftSupplyRepository
       mockedWebauthnAuthenticationHelper,
       mockedSorobanService
     )
@@ -138,7 +137,7 @@ describe('Transfer', () => {
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(mockAuthenticationResponse)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([mockAsset])
       mockedSorobanService.signAuthEntries.mockResolvedValue(mockTransaction)
       mockedSorobanService.simulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue(mockTxResponse)
@@ -153,7 +152,7 @@ describe('Transfer', () => {
         user: mockUser,
         authenticationResponseJSON: payload.authentication_response_json,
       })
-      expect(mockedAssetRepository.getAssetByCode).toHaveBeenCalledWith('USDC')
+      expect(mockedAssetRepository.getAssetsByCode).toHaveBeenCalledWith(['USDC'])
       expect(mockedSorobanService.signAuthEntries).toHaveBeenCalledWith({
         contractId: mockAsset.contractAddress,
         tx: mockTransaction,
@@ -194,7 +193,7 @@ describe('Transfer', () => {
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(mockAuthenticationResponse)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockSwagAsset)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([mockSwagAsset])
       mockedSorobanService.signAuthEntries.mockResolvedValue(mockTransaction)
       mockedSorobanService.simulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue(mockTxResponse)
@@ -221,7 +220,7 @@ describe('Transfer', () => {
         user: mockUser,
         authenticationResponseJSON: payload.authentication_response_json,
       })
-      expect(mockedAssetRepository.getAssetByCode).toHaveBeenCalledWith('SWAG')
+      expect(mockedAssetRepository.getAssetsByCode).toHaveBeenCalledWith(['SWAG'])
       expect(mockedSorobanService.signAuthEntries).toHaveBeenCalledWith({
         contractId: mockSwagAsset.contractAddress,
         tx: mockTransaction,
@@ -263,11 +262,12 @@ describe('Transfer', () => {
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(mockAuthenticationResponse)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(null)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([])
+      mockedAssetRepository.getAssetsByContractAddress.mockResolvedValue([])
 
       await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
       await expect(useCase.handle(payload)).rejects.toThrow('The requested resource was not found')
-      expect(mockedAssetRepository.getAssetByCode).toHaveBeenCalledWith('XLM')
+      expect(mockedAssetRepository.getAssetsByCode).toHaveBeenCalledWith(['XLM'])
     })
 
     it('should throw ResourceNotFoundException when user does not exist', async () => {
@@ -344,7 +344,7 @@ describe('Transfer', () => {
 
       await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
       await expect(useCase.handle(payload)).rejects.toThrow('The requested resource was not found')
-      expect(mockedAssetRepository.getAssetByCode).toHaveBeenCalledWith('USDC')
+      expect(mockedAssetRepository.getAssetsByCode).toHaveBeenCalledWith(['USDC'])
     })
 
     it('should throw Error when transaction execution fails', async () => {
@@ -366,7 +366,7 @@ describe('Transfer', () => {
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(mockAuthenticationResponse)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([mockAsset])
       mockedSorobanService.signAuthEntries.mockResolvedValue(mockTransaction)
       mockedSorobanService.simulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue({
@@ -396,7 +396,7 @@ describe('Transfer', () => {
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(mockAuthenticationResponse)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([mockAsset])
       mockedSorobanService.signAuthEntries.mockResolvedValue(mockTransaction)
       mockedSorobanService.simulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue(null as unknown as rpc.Api.GetSuccessfulTransactionResponse)
@@ -425,7 +425,7 @@ describe('Transfer', () => {
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(mockAuthenticationResponse)
-      mockedAssetRepository.getAssetByCode.mockResolvedValue(mockAsset)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([mockAsset])
       mockedSorobanService.signAuthEntries.mockResolvedValue(mockTransaction)
       mockedSorobanService.simulateTransaction.mockResolvedValue(mockSimulationResponse)
       mockedSubmitTx.mockResolvedValue(mockTxResponse)

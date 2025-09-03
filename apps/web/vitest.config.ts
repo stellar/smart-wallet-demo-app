@@ -5,7 +5,24 @@ import svgrPlugin from 'vite-plugin-svgr'
 import viteTsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
-  plugins: [react(), viteTsconfigPaths(), svgrPlugin()],
+  plugins: [
+    react(),
+    viteTsconfigPaths(),
+    svgrPlugin(),
+    {
+      name: 'stellar-assets-resolver',
+      transform(code, id) {
+        if (id.includes('@stellar/design-system') && id.endsWith('.js')) {
+          code = code.replace(/import\s+['"]\.\/styles\.scss['"];?\s*/g, '')
+          if (id.includes('/components/')) {
+            code = code.replace(/import\s+\{[^}]*\}\s+from\s+['"]\.\/[^'"]*\.svg['"];?\s*/g, '')
+            code = code.replace(/import\s+[^'"]*from\s+['"]\.\/[^'"]*\.svg['"];?\s*/g, '')
+          }
+        }
+        return code
+      },
+    },
+  ],
   test: {
     environment: 'jsdom', // Use jsdom for DOM API support
     deps: {

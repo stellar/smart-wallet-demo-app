@@ -1,8 +1,9 @@
-import { createRoute, ErrorComponent } from '@tanstack/react-router'
+import { createRoute, ErrorComponent, redirect } from '@tanstack/react-router'
 import * as yup from 'yup'
 
+import { featureFlagsState } from 'src/app/core/helpers'
 import { privateRootRoute } from 'src/app/core/router/routeTree'
-import { Home, Scan, Profile, Transactions, Nfts, SpecialGift } from 'src/app/wallet/pages'
+import { Home, Scan, Profile, Transactions, Nfts, LeftAssets, SpecialGift } from 'src/app/wallet/pages'
 import { checkImageExists } from 'src/helpers/check-image-exists'
 import { sleepInSeconds } from 'src/helpers/sleep'
 import { c } from 'src/interfaces/cms/useContent'
@@ -13,7 +14,7 @@ import { WalletPagesPath } from './types'
 import { nftTypeSchema, swagTypeSchema, transferTypeSchema } from '../pages/home/schema'
 import { getWallet } from '../queries/use-get-wallet'
 import { TransferTypes } from '../services/wallet/types'
-import { useWalletStatusStore } from '../store/wallet-status'
+import { useWalletStatusStore } from '../store'
 
 const filterHomePath = (path: WalletPagesPath): string => path.split(WalletPagesPath.HOME)[1]
 
@@ -96,6 +97,28 @@ const nftsRoute = createRoute({
   component: Nfts,
 })
 
+export const leftAssetsRoute = createRoute({
+  getParentRoute: () => walletRootRoute,
+  path: filterHomePath(WalletPagesPath.LEFT_ASSETS),
+  component: LeftAssets,
+  validateSearch: search =>
+    yup
+      .object({
+        tab: yup.string(),
+      })
+      .validateSync(search),
+  beforeLoad: () => {
+    const [isTransferLeftAssetsActive] = featureFlagsState(['transfer-left-assets'])
+
+    // Redirect to home page if feature flag is disabled
+    if (!isTransferLeftAssetsActive) {
+      throw redirect({
+        to: WalletPagesPath.HOME,
+      })
+    }
+  },
+})
+
 export const specialGiftRoute = createRoute({
   getParentRoute: () => walletRootRoute,
   path: filterHomePath(WalletPagesPath.SPECIAL_GIFT),
@@ -126,6 +149,14 @@ export const specialGiftRoute = createRoute({
   },
 })
 
-walletRootRoute.addChildren([homeRoute, scanRoute, profileRoute, transactionsRoute, nftsRoute, specialGiftRoute])
+walletRootRoute.addChildren([
+  homeRoute,
+  scanRoute,
+  profileRoute,
+  transactionsRoute,
+  nftsRoute,
+  leftAssetsRoute,
+  specialGiftRoute,
+])
 
 export const walletRoutes = [walletRootRoute]

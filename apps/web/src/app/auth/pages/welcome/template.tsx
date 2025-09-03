@@ -16,7 +16,7 @@ export const WelcomeTemplate = ({ onCreateWallet, onLogIn, onForgotPassword }: P
   return (
     <div>
       <OnboardingBackgroundImage isAnimated />
-      <div className="mt-[calc(100vh-80vh)] flex flex-col justify-start px-8">
+      <div className="mt-[calc(100vh-85vh)] flex flex-col justify-start px-8">
         <img className="text-primary mb-6" src={a('yellowLogo')} width={ONBOARDING_LOGO_WIDTH} alt="Logo" />
 
         <div className="flex flex-col gap-4">

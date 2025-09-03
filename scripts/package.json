@@ -6,7 +6,10 @@
   "type": "module",
   "scripts": {
     "generate-proofs": "node generate-proofs.mjs",
-    "upload-proofs": "node upload-proofs-to-db.mjs"
+    "upload-proofs": "node upload-proofs-to-db.mjs",
+    "deploy-airdrop": "node deploy-airdrop.mjs",
+    "deploy-nft-ipfs": "node nft/deploy-nft-ipfs.mjs",
+    "set-token-metadata": "node nft/set-token-metadata.mjs"
   },
   "engines": {
     "node": ">=20"

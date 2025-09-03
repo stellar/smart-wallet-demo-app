@@ -125,7 +125,13 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       walletStatus = updatedStatus.status
       if (updatedStatus.contract_address) {
         // Update user with the new wallet address
-        user = await this.userRepository.updateUser(user.userId, { contractAddress: updatedStatus.contract_address })
+        user = await this.userRepository.updateUser(
+          user.userId,
+          { contractAddress: updatedStatus.contract_address },
+          {
+            relations: ['nfts', 'nfts.nftSupply'],
+          }
+        )
 
         // Register the account in the wallet backend
         await this.walletBackend.registerAccount({ address: updatedStatus.contract_address })

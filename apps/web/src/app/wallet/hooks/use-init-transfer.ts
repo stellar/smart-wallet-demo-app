@@ -84,7 +84,7 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
               value: params.amount,
               asset: params.asset,
             },
-            availableBalance: data.user.balance,
+            availableBalance: data.user.balances[0].amount,
             button: {
               children: c('confirmPayment'),
               variant: 'secondary',

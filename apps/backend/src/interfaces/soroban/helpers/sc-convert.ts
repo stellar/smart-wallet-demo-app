@@ -10,11 +10,20 @@ export const ScConvert = {
   stringToScVal: (value: string): xdr.ScVal => {
     return new XdrLargeInt('i128', value).toScVal()
   },
+  symbolToScVal: (symbol: string): xdr.ScVal => {
+    return xdr.ScVal.scvSymbol(symbol)
+  },
   stringToScValUnsigned: (value: string): xdr.ScVal => {
     return new XdrLargeInt('u128', value).toScVal()
   },
   numberToScVal: (value: number): xdr.ScVal => {
     return new XdrLargeInt('i128', ScConvert.numberToPaddedString(value)).toScVal()
+  },
+  arrayToScVal: (value: unknown[]): xdr.ScVal => {
+    return nativeToScVal(value, { type: 'array' })
+  },
+  arrayToScvVec: (value: string[]): xdr.ScVal => {
+    return xdr.ScVal.scvVec(value.map(v => xdr.ScVal.scvU32(Number(v))))
   },
   scValToBigInt: (scVal: xdr.ScVal): bigint => {
     return scValToBigInt(scVal)

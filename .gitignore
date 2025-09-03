@@ -51,3 +51,5 @@ ehthumbs.db
 
 # Other Git-related
 .gitignore.local
+
+scripts/assets/metadata

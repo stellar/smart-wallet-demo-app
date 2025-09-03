@@ -58,7 +58,6 @@ describe('NavbarButton', () => {
       </NavbarButton>
     )
     expect(screen.getByTestId('navbar-button')).toHaveTextContent('Home')
-    expect(screen.queryByText('Home')).toBeInTheDocument()
   })
 
   it('passes other props to the Button', async () => {

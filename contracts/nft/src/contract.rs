@@ -119,7 +119,7 @@ impl Contract {
     }
 
     pub fn bulk_transfer(env: &Env, from: Address, to: Address, token_ids: Vec<u32>) {
-        Self::only_owner(env);
+        from.require_auth();
 
         for token_id in token_ids {
             let token_owner = Base::owner_of(env, token_id);

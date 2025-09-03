@@ -22,6 +22,7 @@ import {
   Repository,
   Unique,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm'
 
 abstract class ModelBase extends BaseEntity {
@@ -56,4 +57,5 @@ export {
   Repository,
   Unique,
   UpdateDateColumn,
+  DeleteDateColumn,
 }

@@ -1,10 +1,11 @@
-import { DeleteResult } from 'typeorm'
+import { DeleteResult, ILike } from 'typeorm'
 
 import { Nft as NftModel } from 'api/core/entities/nft/model'
 import { Nft, NftRepositoryType } from 'api/core/entities/nft/types'
 import { NftSupply } from 'api/core/entities/nft-supply/types'
 import { User } from 'api/core/entities/user/types'
 import { SingletonBase } from 'api/core/framework/singleton/interface'
+import { AppDataSource } from 'config/database'
 
 export default class NftRepository extends SingletonBase implements NftRepositoryType {
   constructor() {
@@ -22,7 +23,7 @@ export default class NftRepository extends SingletonBase implements NftRepositor
   async getNftByTokenIdAndContractAddress(tokenId: string, contractAddress: string): Promise<Nft | null> {
     return NftModel.createQueryBuilder('nft')
       .where('nft.tokenId = :tokenId', { tokenId })
-      .andWhere('nft.contractAddress = :contractAddress', { contractAddress })
+      .andWhere('nft.contractAddress ILIKE :contractAddress', { contractAddress })
       .getOne()
   }
 
@@ -33,16 +34,27 @@ export default class NftRepository extends SingletonBase implements NftRepositor
       .getOne()
   }
 
-  async getNftByUserAndSessionId(userId: string, sessionId: string): Promise<Nft | null> {
-    return NftModel.createQueryBuilder('nft')
+  async getNftByUserAndSessionId(
+    userId: string,
+    sessionId: string,
+    options?: { includeDeleted?: boolean }
+  ): Promise<Nft | null> {
+    const qb = NftModel.createQueryBuilder('nft')
       .leftJoinAndSelect('nft.nftSupply', 'nftSupply')
       .where('nftSupply.sessionId = :sessionId', { sessionId })
       .andWhere('nft.user = :userId', { userId })
-      .getOne()
+
+    if (options?.includeDeleted) {
+      qb.withDeleted()
+    } else {
+      qb.andWhere('nft.deletedAt IS NULL')
+    }
+
+    return qb.getOne()
   }
 
   async getNftByContractAddress(contractAddress: string): Promise<Nft | null> {
-    return NftModel.findOneBy({ contractAddress })
+    return NftModel.findOneBy({ contractAddress: ILike(contractAddress) })
   }
 
   async createNft(
@@ -51,7 +63,7 @@ export default class NftRepository extends SingletonBase implements NftRepositor
   ): Promise<Nft> {
     const newNft = NftModel.create({ ...nft })
     if (save) {
-      return this.saveNft(newNft)
+      return (await this.saveNfts([newNft]))[0]
     }
     return newNft
   }
@@ -61,11 +73,15 @@ export default class NftRepository extends SingletonBase implements NftRepositor
     return this.getNftById(nftId) as Promise<Nft>
   }
 
-  async deleteNft(id: string): Promise<DeleteResult> {
-    return NftModel.delete(id)
+  async deleteNfts(ids: string[], options?: { soft?: boolean }): Promise<DeleteResult> {
+    if (options?.soft) {
+      return AppDataSource.getRepository(NftModel).softDelete(ids)
+    } else {
+      return NftModel.delete(ids)
+    }
   }
 
-  saveNft(nft: Nft): Promise<Nft> {
-    return NftModel.save(nft)
+  saveNfts(nfts: Nft[]): Promise<Nft[]> {
+    return NftModel.save(nfts)
   }
 }

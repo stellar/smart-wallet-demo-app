@@ -68,6 +68,7 @@ export class ListNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT
         description: userNft.nftSupply?.description || tokenData.description || '',
         url: userNft.nftSupply?.url || tokenData.url || '',
         contract_address: userNft.contractAddress || '',
+        resource: userNft.nftSupply?.resource || '',
       }
 
       nfts.push(nft)

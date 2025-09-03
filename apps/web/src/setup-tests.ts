@@ -15,6 +15,7 @@ vi.mock('@stellar/design-system', async () => {
   return {
     ...actual,
     Icon: mockedIcons,
+    CopyText: ({ children }: { children: React.ReactNode }) => children,
   }
 })
 

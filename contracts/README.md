@@ -7,6 +7,8 @@ Soroban smart contracts for the Smart Wallet Demo application.
 ```
 contracts/
 ├── airdrop/           # Merkle tree airdrop contract
+├── nft/               # SEP-50 NFT contract
+├── router/            # Router contract
 └── target/            # Build artifacts
 ```
 

@@ -78,4 +78,45 @@ export const vendorSchema = z.object({
   profile_image: z.string().optional(),
 })
 
+export const productSchema = z.object({
+  id: z.string().optional(),
+  code: z.string().optional(),
+  name: z.string().optional(),
+  image_url: z.string().optional(),
+  description: z.string().optional(),
+  is_swag: z.boolean().optional(),
+  is_hidden: z.boolean().optional(),
+  asset: z
+    .object({
+      id: z.string().optional(),
+      name: z.string().optional(),
+      code: z.string().optional(),
+      type: z.string().optional(),
+      contract_address: z.string().optional(),
+    })
+    .optional(),
+})
+
+export const ngoSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  wallet_address: z.string(),
+  profile_image: z.string().optional(),
+})
+
+export const nftSupplySchema = z.object({
+  id: z.string().optional(),
+  name: z.string(),
+  description: z.string(),
+  url: z.string(),
+  code: z.string(),
+  contract_address: z.string(),
+  session_id: z.string(),
+  resource: z.string(),
+  total_supply: z.number().int().min(1),
+  minted_amount: z.number().int().min(0).optional(),
+  issuer: z.string(),
+})
+
 export type MerkleProofDataT = z.infer<typeof merkleProofDataSchema>

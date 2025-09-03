@@ -8,9 +8,10 @@ import { UserProduct } from '../user-product/types'
 export type Product = ProductModel
 
 export type ProductRepositoryType = {
+  getProducts(): Promise<Product[]>
   getProductById(productId: string): Promise<Product | null>
   getProductByCode(code: string): Promise<Product | null>
-  getProductsByCode(code: string[]): Promise<Product[]>
+  getProductsByCode(codes: string[]): Promise<Product[]>
   getSwagProducts(options?: FindOneOptions<Product>): Promise<Product[]>
   createProduct(
     product: {
