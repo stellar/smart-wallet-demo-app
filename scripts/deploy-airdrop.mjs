@@ -30,6 +30,11 @@ const argv = await yargs(hideBin(process.argv))
         description: 'Stellar network to deploy to',
         demandOption: true
     })
+    .option('rpc-url', {
+        type: 'string',
+        description: 'RPC URL for the network',
+        demandOption: true
+    })
     .option('source', {
         type: 'string',
         description: 'Stellar identity/account to deploy from',
@@ -48,9 +53,14 @@ const {
     amount,
     token: tokenAddress,
     network,
+    'rpc-url': rpcUrl,
     source,
     'database-url': databaseUrl
 } = argv;
+
+const networkPassphrase = network === 'mainnet' 
+    ? 'Public Global Stellar Network ; September 2015'
+    : 'Test SDF Network ; September 2015';
 
 
 async function deployContract(rootHash, totalAmount) {
@@ -61,13 +71,15 @@ async function deployContract(rootHash, totalAmount) {
         'stellar contract deploy',
         `--wasm ${wasmPath}`,
         `--network ${network}`,
+        `--network-passphrase "${networkPassphrase}"`,
+        `--rpc-url ${rpcUrl}`,
         `--source ${source}`,
         '--',
         `--root_hash ${rootHash}`,
         `--token ${tokenAddress}`,
         `--funding_amount ${totalAmount}`,
         `--funding_source ${source}`
-    ].join(' ');
+    ].filter(Boolean).join(' ');
     
     
     const { stdout, stderr } = await execAsync(deployCmd, {
@@ -98,6 +110,8 @@ async function main() {
         console.log(`Amount per recipient: ${amount}`);
         console.log(`Token address: ${tokenAddress}`);
         console.log(`Network: ${network}`);
+        console.log(`Network passphrase: ${networkPassphrase}`);
+        console.log(`RPC URL: ${rpcUrl}`);
         console.log(`Source account: ${source}`);
         console.log(`Funding account: ${source}`);
         console.log('');
