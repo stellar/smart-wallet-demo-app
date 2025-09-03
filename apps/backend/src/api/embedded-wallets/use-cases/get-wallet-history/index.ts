@@ -2,20 +2,20 @@ import { xdr } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
+import { NftSupplyRepositoryType } from 'api/core/entities/nft-supply/types'
+import { NgoRepositoryType } from 'api/core/entities/ngo/types'
+import { ProductRepositoryType } from 'api/core/entities/product/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { VendorRepositoryType } from 'api/core/entities/vendor/types'
-import { ProductRepositoryType } from 'api/core/entities/product/types'
-import { NgoRepositoryType } from 'api/core/entities/ngo/types'
-import { NftSupplyRepositoryType } from 'api/core/entities/nft-supply/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import { extractOperationData } from 'api/core/helpers/xdr-extractor'
 import AssetRepository from 'api/core/services/asset'
+import NftSupplyRepository from 'api/core/services/nft-supply'
+import NgoRepository from 'api/core/services/ngo'
+import ProductRepository from 'api/core/services/product'
 import UserRepository from 'api/core/services/user'
 import VendorRepository from 'api/core/services/vendor'
-import ProductRepository from 'api/core/services/product'
-import NgoRepository from 'api/core/services/ngo'
-import NftSupplyRepository from 'api/core/services/nft-supply'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { STELLAR } from 'config/stellar'
@@ -44,7 +44,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
     walletBackend?: WalletBackend,
     productRepository?: ProductRepository,
     ngoRepository?: NgoRepository,
-    nftSupplyRepository?: NftSupplyRepository,
+    nftSupplyRepository?: NftSupplyRepository
   ) {
     super()
     this.userRepository = userRepository || UserRepository.getInstance()
@@ -113,10 +113,9 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       // extract transaction addresses from operation XDR
       const operationData = extractOperationData(xdr.Operation.fromXDR(tx.operations[0].operationXdr, 'base64'))
 
-      console.log('OPERATION DATA >>>', operationData)
-
       // Determine contract invoked function name, defaulting to 'transfer' if not found
-      const functionName = tx.operations[0].stateChanges[0]?.stateChangeCategory || operationData?.functionName || 'transfer'
+      const functionName =
+        tx.operations[0].stateChanges[0]?.stateChangeCategory || operationData?.functionName || 'transfer'
 
       // Fetch asset details using the tokenId from the transaction
       const contractId = tx.operations[0].stateChanges[0]?.tokenId || operationData?.contractId
@@ -125,14 +124,13 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       // Try to extract 'from' and 'to' addresses from function args
       let fromAddress, toAddress: string | undefined
       if (operationData.functionArgs) {
-
         if (functionName.includes('mint')) {
           toAddress = operationData?.functionArgs ? (operationData.functionArgs[0] as FunctionArg)?.value : undefined
         } else if (operationData.functionArgs[0] && operationData.functionArgs[1]) {
           fromAddress = operationData?.functionArgs ? (operationData.functionArgs[0] as FunctionArg)?.value : undefined
           toAddress = operationData?.functionArgs ? (operationData.functionArgs[1] as FunctionArg)?.value : undefined
         } else if (operationData.functionArgs[0] && !operationData.functionArgs[1]) {
-           // in the case of some function like 'mint', there is only one address (the destination)
+          // in the case of some function like 'mint', there is only one address (the destination)
           toAddress = operationData?.functionArgs ? (operationData.functionArgs[0] as FunctionArg)?.value : undefined
         }
       }
@@ -155,7 +153,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
           where: { asset: { assetId: asset?.assetId } },
         })
       }
-      
+
       // Check if the transaction destination is linked to any NGOs
       let ngo
       if (toAddress) {
@@ -169,15 +167,13 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       }
 
       let type = functionName.includes('mint') ? 'nft_claim' : functionName // default nft_claim if function name indicates minting
-      
+
       // Set the transaction type based on known criteria
       if (operationData.contractId === STELLAR.AIRDROP_CONTRACT_ADDRESS) {
         type = 'airdrop_claim'
-      }
-      else if (ngo) {
+      } else if (ngo) {
         type = 'donation'
-      }
-      else if (swagProducts && swagProducts.length > 0) { 
+      } else if (swagProducts && swagProducts.length > 0) {
         type = 'swag'
       } else if (nftSupply) {
         if (functionName === 'transfer') type = 'nft'
@@ -185,20 +181,22 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       }
 
       // TODO: get amount in NFT transactions (number of NFTs transferred). Fallback to 1 for now
-      const amount = tx.operations[0].stateChanges[0]?.amount ? Number(ScConvert.stringToFormatString(tx.operations[0].stateChanges[0]?.amount)) : 1
+      const amount = tx.operations[0].stateChanges[0]?.amount
+        ? Number(ScConvert.stringToFormatString(tx.operations[0].stateChanges[0]?.amount))
+        : 1
 
       const transaction: TransactionSchemaT = {
         hash: tx.hash,
         type: type,
         vendor: vendor?.name || vendorContractAddress || 'Unknown vendor',
         amount: amount,
-        asset: asset?.code || tx.operations[0].stateChanges[0]?.tokenId || contractId as string,
+        asset: asset?.code || tx.operations[0].stateChanges[0]?.tokenId || (contractId as string),
         date: tx.ledgerCreatedAt, // Assuming ledgerCreatedAt is in ISO format
       }
 
       if ((type === 'nft' || type === 'nft_claim') && nftSupply) {
         transaction.token = {
-          contract_address: nftSupply?.contractAddress || operationData.contractId as string,
+          contract_address: nftSupply?.contractAddress || (operationData.contractId as string),
           name: nftSupply?.name,
           description: nftSupply?.description,
           symbol: nftSupply?.code,
