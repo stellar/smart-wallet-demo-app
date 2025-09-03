@@ -41,12 +41,12 @@ fn make_args(
     e: &Env,
     hash_bytes: [u8; 32],
     token: Address,
-    funding_amount: i128,
-    funding_source: Address,
-) -> (BytesN<32>, Address, i128, Address) {
+    admin: Address,
+    funder: Address,
+) -> (BytesN<32>, Address, Address, Address) {
     let root_hash = BytesN::from_array(e, &hash_bytes);
 
-    (root_hash, token, funding_amount, funding_source)
+    (root_hash, token, admin, funder)
 }
 
 fn hex_to_bytes(e: &Env, hash_bytes: [u8; 32]) -> BytesN<32> {
@@ -65,12 +65,13 @@ fn test_valid_claim() {
         &e,
         hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
         token_client.address.clone(),
-        1000,
+        owner.clone(),
         owner.clone(),
     );
 
     let contract_id = e.register(AirdropContract, constructor_args);
     let client = AirdropContractClient::new(&e, &contract_id);
+    token_client.transfer(&owner, &contract_id, &1000);
 
     let receiver = Address::from_str(
         &e,
@@ -118,12 +119,13 @@ fn test_valid_claim_no_auth() {
         &e,
         hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
         token_client.address.clone(),
-        1000,
+        owner.clone(),
         owner.clone(),
     );
 
     let contract_id = e.register(AirdropContract, constructor_args);
     let client = AirdropContractClient::new(&e, &contract_id);
+    token_client.transfer(&owner, &contract_id, &1000);
 
     let receiver = Address::from_str(
         &e,
@@ -160,11 +162,12 @@ fn test_double_claim() {
         &e,
         hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
         token_client.address.clone(),
-        1000,
+        owner.clone(),
         owner.clone(),
     );
     let contract_id = e.register(AirdropContract, args);
     let client = AirdropContractClient::new(&e, &contract_id);
+    token_client.transfer(&owner, &contract_id, &1000);
 
     let receiver = Address::from_str(
         &e,
@@ -201,11 +204,12 @@ fn test_claimed_not_reset() {
         &e,
         hex!("9ecccb575ce934ab36a6db174e9f521137c942422b76332b047b49f5a1a58048"),
         token_client.address.clone(),
-        1000,
+        owner.clone(),
         owner.clone(),
     );
     let contract_id = e.register(AirdropContract, args);
     let client = AirdropContractClient::new(&e, &contract_id);
+    token_client.transfer(&owner, &contract_id, &1000);
 
     let receiver_1 = Address::from_str(
         &e,
@@ -268,11 +272,12 @@ fn test_bad_claim() {
         &e,
         hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
         token_client.address.clone(),
-        1000,
+        owner.clone(),
         owner.clone(),
     );
     let contract_id = e.register(AirdropContract, args);
     let client = AirdropContractClient::new(&e, &contract_id);
+    token_client.transfer(&owner, &contract_id, &1000);
 
     let receiver = Address::from_str(
         &e,
@@ -302,24 +307,28 @@ fn test_recover_unclaimed_to_funder() {
     let e = Env::default();
     e.mock_all_auths_allowing_non_root_auth();
 
-    let owner = Address::generate(&e);
-    let token_client = create_token_contract(&e, &owner);
+    let token_owner = Address::generate(&e);
+    let admin = Address::generate(&e);
+    let funder = Address::generate(&e);
+    let token_client = create_token_contract(&e, &token_owner);
 
     let args = make_args(
         &e,
         hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
         token_client.address.clone(),
-        1000,
-        owner.clone(),
+        admin.clone(),
+        funder.clone(),
     );
     let contract_id = e.register(AirdropContract, args);
     let client = AirdropContractClient::new(&e, &contract_id);
+
+    token_client.transfer(&token_owner, &contract_id, &1000);
 
     e.set_auths(&[]);
 
     client
         .mock_auths(&[MockAuth {
-            address: &owner,
+            address: &admin,
             invoke: &MockAuthInvoke {
                 contract: &contract_id,
                 fn_name: "recover_unclaimed",
@@ -329,7 +338,8 @@ fn test_recover_unclaimed_to_funder() {
         }])
         .recover_unclaimed();
 
-    assert_eq!(token_client.balance(&owner), 10000);
+    assert_eq!(token_client.balance(&funder), 1000);
+    assert_eq!(token_client.balance(&admin), 0);
     assert_eq!(token_client.balance(&contract_id), 0);
     assert!(client.is_ended());
 
@@ -356,37 +366,67 @@ fn test_recover_unclaimed_after_ended() {
         &e,
         hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
         token_client.address.clone(),
-        1000,
+        owner.clone(),
         owner.clone(),
     );
     let contract_id = e.register(AirdropContract, args);
     let client = AirdropContractClient::new(&e, &contract_id);
+    token_client.transfer(&owner, &contract_id, &1000);
 
     client.recover_unclaimed();
     client.recover_unclaimed();
 }
 
 #[test]
-fn test_recover_unclaimed_no_funder_auth() {
+fn test_recover_unclaimed_no_admin_auth() {
     let e = Env::default();
     e.mock_all_auths_allowing_non_root_auth();
 
-    let owner = Address::generate(&e);
-    let token_client = create_token_contract(&e, &owner);
+    let token_owner = Address::generate(&e);
+    let admin = Address::generate(&e);
+    let funder = Address::generate(&e);
+    let random_caller = Address::generate(&e);
+    let token_client = create_token_contract(&e, &token_owner);
 
     let args = make_args(
         &e,
         hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
         token_client.address.clone(),
-        1000,
-        owner.clone(),
+        admin.clone(),
+        funder.clone(),
     );
     let contract_id = e.register(AirdropContract, args);
     let client = AirdropContractClient::new(&e, &contract_id);
+    token_client.transfer(&token_owner, &contract_id, &1000);
 
     e.set_auths(&[]);
 
     let result = client.try_recover_unclaimed();
-
     assert!(result.is_err());
+
+    let result_with_funder = client
+        .mock_auths(&[MockAuth {
+            address: &funder,
+            invoke: &MockAuthInvoke {
+                contract: &contract_id,
+                fn_name: "recover_unclaimed",
+                args: ().into_val(&e),
+                sub_invokes: &[],
+            },
+        }])
+        .try_recover_unclaimed();
+    assert!(result_with_funder.is_err());
+
+    let result_with_random = client
+        .mock_auths(&[MockAuth {
+            address: &random_caller,
+            invoke: &MockAuthInvoke {
+                contract: &contract_id,
+                fn_name: "recover_unclaimed",
+                args: ().into_val(&e),
+                sub_invokes: &[],
+            },
+        }])
+        .try_recover_unclaimed();
+    assert!(result_with_random.is_err());
 }
