@@ -4,6 +4,7 @@ import { ProductRepositoryType } from 'api/core/entities/product/types'
 
 export function mockProductRepository(): Mocked<ProductRepositoryType> {
   return {
+    getProducts: vi.fn(),
     getProductById: vi.fn(),
     getProductByCode: vi.fn(),
     getProductsByCode: vi.fn(),

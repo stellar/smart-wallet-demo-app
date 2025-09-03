@@ -11,8 +11,12 @@ export default class ProductRepository extends SingletonBase implements ProductR
     super()
   }
 
+  async getProducts(): Promise<Product[]> {
+    return ProductModel.find({ relations: ['asset'] })
+  }
+
   async getProductById(productId: string): Promise<Product | null> {
-    return ProductModel.findOneBy({ productId })
+    return ProductModel.findOne({ where: { productId }, relations: ['asset'] })
   }
 
   async getProductByCode(code: string): Promise<Product | null> {
