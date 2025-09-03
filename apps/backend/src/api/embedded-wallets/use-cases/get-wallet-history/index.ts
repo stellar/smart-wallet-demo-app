@@ -2,18 +2,18 @@ import { xdr } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
+import { NgoRepositoryType } from 'api/core/entities/ngo/types'
+import { ProductRepositoryType } from 'api/core/entities/product/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { VendorRepositoryType } from 'api/core/entities/vendor/types'
-import { ProductRepositoryType } from 'api/core/entities/product/types'
-import { NgoRepositoryType } from 'api/core/entities/ngo/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import { extractOperationData } from 'api/core/helpers/xdr-extractor'
 import AssetRepository from 'api/core/services/asset'
+import NgoRepository from 'api/core/services/ngo'
+import ProductRepository from 'api/core/services/product'
 import UserRepository from 'api/core/services/user'
 import VendorRepository from 'api/core/services/vendor'
-import ProductRepository from 'api/core/services/product'
-import NgoRepository from 'api/core/services/ngo'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { STELLAR } from 'config/stellar'
@@ -40,7 +40,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
     vendorRepository?: VendorRepositoryType,
     walletBackend?: WalletBackend,
     productRepository?: ProductRepository,
-    ngoRepository?: NgoRepository,
+    ngoRepository?: NgoRepository
   ) {
     super()
     this.userRepository = userRepository || UserRepository.getInstance()
@@ -129,7 +129,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
           where: { asset: { assetId: asset?.assetId } },
         })
       }
-      
+
       // Check if the transaction destination is linked to any NGOs
       let ngo
       if (toAddress) {
@@ -137,15 +137,13 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       }
 
       let type = tx.operations[0].stateChanges[0].stateChangeCategory
-      
+
       // Set the transaction type based on known criteria
       if (operationData.contractId === STELLAR.AIRDROP_CONTRACT_ADDRESS) {
         type = 'airdrop_claim'
-      }
-      else if (ngo) {
+      } else if (ngo) {
         type = 'donation'
-      }
-      else if (swagProducts && swagProducts.length > 0) { 
+      } else if (swagProducts && swagProducts.length > 0) {
         type = 'swag'
       }
 
