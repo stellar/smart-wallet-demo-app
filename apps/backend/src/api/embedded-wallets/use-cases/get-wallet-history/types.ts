@@ -9,6 +9,16 @@ export interface FunctionArg {
   raw: string
 }
 
+export const TokenData = z.object({
+  name: z.string(),
+  description: z.string(),
+  symbol: z.string(),
+  contract_address: z.string(),
+  image_url: z.string(),
+  session_id: z.string(),
+  resource: z.string(),
+})
+
 export const TransactionSchema = z.object({
   hash: z.string(),
   type: z.string(),
@@ -16,6 +26,8 @@ export const TransactionSchema = z.object({
   date: z.string(),
   vendor: z.string(),
   asset: z.string(),
+  product: z.object({}).optional(),
+  token: TokenData.optional(),
   fromAddress: z.string().optional(),
   toAddress: z.string().optional(),
   sendOrReceive: z.enum(['send', 'receive']).optional(),
