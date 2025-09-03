@@ -29,7 +29,7 @@ impl Contract {
             .storage()
             .instance()
             .get(&DataKey::Owner)
-            .expect("owner should be set");
+            .unwrap_or_else(|| panic_with_error!(env, NonFungibleTokenContractError::UnsetOwner));
 
         owner.require_auth();
 
@@ -56,10 +56,6 @@ impl Contract {
     }
 
     pub fn set_token_data(env: &Env, token_id: u32, data: TokenData) {
-        let owner: Address = Base::owner_of(env, token_id);
-
-        owner.require_auth();
-
         env.storage()
             .instance()
             .set(&DataKey::TokenData(token_id), &data);
@@ -69,7 +65,9 @@ impl Contract {
         env.storage()
             .instance()
             .get(&DataKey::TokenData(token_id))
-            .unwrap()
+            .unwrap_or_else(|| {
+                panic_with_error!(env, NonFungibleTokenContractError::UnsetTokenData)
+            })
     }
 
     pub fn mint_with_data(env: &Env, to: Address, data: TokenData) -> u32 {
@@ -121,7 +119,7 @@ impl Contract {
     }
 
     pub fn bulk_transfer(env: &Env, from: Address, to: Address, token_ids: Vec<u32>) {
-        Self::only_owner(env);
+        from.require_auth();
 
         for token_id in token_ids {
             let token_owner = Base::owner_of(env, token_id);
