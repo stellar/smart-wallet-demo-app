@@ -16,6 +16,8 @@ export const TransactionSchema = z.object({
   date: z.string(),
   vendor: z.string(),
   asset: z.string(),
+  product: z.object({}).optional(),
+  token: z.object({}).optional(),
   fromAddress: z.string().optional(),
   toAddress: z.string().optional(),
   sendOrReceive: z.enum(['send', 'receive']).optional(),

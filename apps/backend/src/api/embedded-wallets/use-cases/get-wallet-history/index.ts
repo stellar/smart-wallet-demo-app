@@ -4,12 +4,16 @@ import { Request, Response } from 'express'
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { VendorRepositoryType } from 'api/core/entities/vendor/types'
+import { ProductRepositoryType } from 'api/core/entities/product/types'
+import { NgoRepositoryType } from 'api/core/entities/ngo/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import { extractOperationData } from 'api/core/helpers/xdr-extractor'
 import AssetRepository from 'api/core/services/asset'
 import UserRepository from 'api/core/services/user'
 import VendorRepository from 'api/core/services/vendor'
+import ProductRepository from 'api/core/services/product'
+import NgoRepository from 'api/core/services/ngo'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { STELLAR } from 'config/stellar'
@@ -27,17 +31,23 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
   private userRepository: UserRepositoryType
   private assetRepository: AssetRepositoryType
   private vendorRepository: VendorRepositoryType
+  private productRepository: ProductRepositoryType
+  private ngoRepository: NgoRepositoryType
 
   constructor(
     userRepository?: UserRepositoryType,
     assetRepository?: AssetRepositoryType,
     vendorRepository?: VendorRepositoryType,
-    walletBackend?: WalletBackend
+    walletBackend?: WalletBackend,
+    productRepository?: ProductRepository,
+    ngoRepository?: NgoRepository,
   ) {
     super()
     this.userRepository = userRepository || UserRepository.getInstance()
     this.assetRepository = assetRepository || AssetRepository.getInstance()
     this.vendorRepository = vendorRepository || VendorRepository.getInstance()
+    this.productRepository = productRepository || ProductRepository.getInstance()
+    this.ngoRepository = ngoRepository || NgoRepository.getInstance()
     this.walletBackend = walletBackend || WalletBackend.getInstance()
   }
 
@@ -112,18 +122,44 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
         ? await this.vendorRepository.getVendorByWalletAddress(vendorContractAddress)
         : undefined
 
+      // Check if the asset is linked to any swag products
+      let swagProducts
+      if (asset) {
+        swagProducts = await this.productRepository.getSwagProducts({
+          where: { asset: { assetId: asset?.assetId } },
+        })
+      }
+      
+      // Check if the transaction destination is linked to any NGOs
+      let ngo
+      if (toAddress) {
+        ngo = await this.ngoRepository.getNgoByWalletAddress(toAddress)
+      }
+
       let type = tx.operations[0].stateChanges[0].stateChangeCategory
-      // Check if the transaction is an airdrop claim
-      if (operationData.contractId === STELLAR.AIRDROP_CONTRACT_ADDRESS) type = 'airdrop_claim'
+      
+      // Set the transaction type based on known criteria
+      if (operationData.contractId === STELLAR.AIRDROP_CONTRACT_ADDRESS) {
+        type = 'airdrop_claim'
+      }
+      else if (ngo) {
+        type = 'donation'
+      }
+      else if (swagProducts && swagProducts.length > 0) { 
+        type = 'swag'
+      }
 
       const transaction: TransactionSchemaT = {
         hash: tx.hash,
         type: type,
         vendor: vendor?.name || vendorContractAddress || 'Unknown vendor',
+        // TODO: get amount in NFT transactions (number of NFTs transferred)
         amount: Number(ScConvert.stringToFormatString(tx.operations[0].stateChanges[0].amount)), // Assuming amount is in the smallest unit (like stroops for XLM)
         asset: asset?.code || tx.operations[0].stateChanges[0].tokenId,
         date: tx.ledgerCreatedAt, // Assuming ledgerCreatedAt is in ISO format
       }
+
+      // TODO: add product details to the transaction, in the case of sell product transactions
 
       if (fromAddress) {
         transaction.fromAddress = fromAddress
