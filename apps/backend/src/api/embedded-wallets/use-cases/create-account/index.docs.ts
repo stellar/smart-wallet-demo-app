@@ -9,7 +9,7 @@ export const CreateAccountDocs = {
   '/embedded-wallets/create-account': {
     post: {
       summary: 'Create Stellar Account',
-      description: 'Creates a new Stellar account. Each user can create only one account.',
+      description: 'Creates a new Stellar (G) account. Each user can create only one account.',
       tags: [Tags.EMBEDDED_WALLETS],
       security: [{ bearerAuth: [] }],
       requestBody: {

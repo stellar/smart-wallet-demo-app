@@ -8,6 +8,7 @@ import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
+import { logger } from 'config/logger'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
@@ -37,6 +38,8 @@ export class CreateAccount extends UseCaseBase implements IUseCaseHttp<ResponseS
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
+    this.setRequestId(request)
+
     const email = request.userData?.email
 
     if (!email) {
@@ -81,11 +84,27 @@ export class CreateAccount extends UseCaseBase implements IUseCaseHttp<ResponseS
     const txResponse = await this.sorobanService.sendTransaction(walletResponse.transaction)
 
     if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
+      logger.error(
+        {
+          requestId: this.requestId,
+          userId: user.userId,
+          status: txResponse?.status,
+        },
+        'Account creation transaction failed'
+      )
       throw new ResourceNotFoundException(messages.UNABLE_TO_SUBMIT_ACCOUNT_CREATION_TRANSACTION)
     }
 
     user.createdAccountAddress = validatedData.address
     await this.userRepository.saveUser(user)
+
+    logger.info(
+      {
+        requestId: this.requestId,
+        userId: user.userId,
+      },
+      'Account created successfully'
+    )
 
     return {
       data: {
