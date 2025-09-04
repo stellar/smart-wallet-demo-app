@@ -5,17 +5,29 @@
 ### Constructor
 
 ```rust
-__constructor(root_hash: BytesN<32>, token: Address, funding_amount: i128, funding_source: Address)
+__constructor(
+    root_hash: BytesN<32>,
+    token: Address,
+    admin: Address,
+    funder: Address
+)
 ```
 
-Initialize the airdrop with Merkle root and funding parameters.
+Initialize the airdrop with:
+
+- `root_hash`: Merkle tree root hash for proof verification
+- `token`: Token contract address to distribute
+- `admin`: Address that can manage the airdrop (end and send unclaimed funds back to the `funder`)
+- `funder`: Address that will provide and receive tokens
+
+**Important**: The admin must authorize the deployment transaction.
 
 ### Public Functions
 
 - `claim(index: u32, receiver: Address, amount: i128, proof: Vec<BytesN<32>>)` - Claim tokens using Merkle proof
 - `is_claimed(index: u32) -> bool` - Check if an index has been claimed
 - `is_ended() -> bool` - Check if the airdrop has ended
-- `recover_unclaimed()` - Recover unclaimed tokens back to funder (funder auth required)
+- `recover_unclaimed()` - Recover unclaimed tokens back to funder
 
 ## Deployment
 
@@ -29,7 +41,8 @@ npm run --workspace=scripts deploy-airdrop -- \
   --amount 1000000000 \
   --token CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC \
   --network testnet \
-  --source $IDENTITY \
+  --source ${ADMIN_IDENTITY} \
+  --funder ${FUNDER_IDENTITY} \
   --database-url postgresql://postgres:postgres@localhost:5432/smart_wallet_db
 ```
 
@@ -45,8 +58,11 @@ This will:
 - `--amount` - Amount per recipient
 - `--token` - Token contract address
 - `--network` - Stellar network (testnet/mainnet)
-- `--source` - Stellar identity for deployment and funding
+- `--source` - Stellar identity for admin role
+- `--funder` - Stellar identity for funder role
 - `--database-url` - Database URL for uploading proofs
+
+**After deployment**, the funder must transfer the total amount to the deployed contract address.
 
 ### Option 2: Step-by-Step Deployment
 
@@ -62,15 +78,15 @@ Deploy the contract with constructor arguments:
 stellar contract deploy \
   --wasm target/wasm32v1-none/release/airdrop.wasm \
   --network testnet \
-  --source $IDENTITY \
+  --source $ADMIN_IDENTITY \
   -- \
   --root_hash $MERKLE_ROOT_HASH \
   --token $TOKEN_CONTRACT_ADDRESS \
-  --funding_amount $AMOUNT \
-  --funding_source $IDENTITY
+  --admin $ADMIN_ADDRESS \
+  --funder $FUNDER_ADDRESS
 ```
 
-You must ensure that the `IDENTITY` account has enough of the token to fund the airdrop.
+After deployment, the funder must transfer tokens to the contract address.
 
 For manual deployment, follow these steps:
 
@@ -101,12 +117,12 @@ Use the Merkle root from the proofs output to deploy:
 stellar contract deploy \
   --wasm target/wasm32v1-none/release/airdrop.wasm \
   --network testnet \
-  --source $IDENTITY \
+  --source $ADMIN_IDENTITY \
   -- \
   --root_hash $MERKLE_ROOT_FROM_PROOFS \
   --token $TOKEN_CONTRACT_ADDRESS \
-  --funding_amount $TOTAL_AMOUNT \
-  --funding_source $IDENTITY
+  --admin $ADMIN_ADDRESS \
+  --funder $FUNDER_ADDRESS
 ```
 
 #### 3. Upload Proofs to Database
