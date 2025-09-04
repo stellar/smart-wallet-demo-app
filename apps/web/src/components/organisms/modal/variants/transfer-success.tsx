@@ -1,5 +1,5 @@
 import { Button, Text, Icon } from '@stellar/design-system'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { BaseModalProps, ModalVariants } from '..'
 import { NavigateButton } from '../../../molecules'
@@ -11,6 +11,7 @@ export type ModalTransferSuccessProps = {
   message?: string
   buttonText?: string
   button?: React.ComponentProps<typeof Button>
+  autoClose?: boolean
 }
 
 export const ModalTransferSuccess = ({
@@ -20,9 +21,20 @@ export const ModalTransferSuccess = ({
   buttonText,
   button,
   internalState,
+  autoClose = false,
   onClose,
 }: BaseModalProps & ModalTransferSuccessProps) => {
   const isLoading = internalState?.isLoading === true
+
+  useEffect(() => {
+    if (isLoading || !autoClose || !onClose) return
+
+    const timer = setTimeout(() => {
+      onClose()
+    }, 3000)
+
+    return () => clearTimeout(timer)
+  }, [autoClose, isLoading, onClose])
 
   const modalIcon = useMemo(() => {
     switch (icon) {
@@ -37,7 +49,9 @@ export const ModalTransferSuccess = ({
 
   return (
     <div className="flex flex-col gap-4 text-center">
-      <NavigateButton className="absolute top-4 right-4" type="close" onClick={isLoading ? undefined : onClose} />
+      {!autoClose && (
+        <NavigateButton className="absolute top-4 right-4" type="close" onClick={isLoading ? undefined : onClose} />
+      )}
 
       <div className="py-3 flex justify-center items-center">{modalIcon}</div>
 

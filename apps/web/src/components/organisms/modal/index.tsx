@@ -15,6 +15,8 @@ import {
   ModalTransferSuccessProps,
 } from './variants'
 
+import './styles.css'
+
 export type ModalVariants = 'default' | 'transaction-details' | 'loading' | 'nft-transfer-review' | 'transfer-success'
 
 export type ModalInternalState = Record<string, unknown>
@@ -72,17 +74,52 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
   const modalContent = useMemo(() => {
     switch (variantOptions.variant) {
       case 'default':
-        return <ModalDefault {...variantOptions} internalState={internalState} onClose={onClose} />
+        return (
+          <ModalDefault
+            {...variantOptions}
+            internalState={internalState}
+            backgroundImageUri={backgroundImageUri}
+            onClose={onClose}
+          />
+        )
       case 'transaction-details':
-        return <ModalTransactionDetails {...variantOptions} internalState={internalState} onClose={onClose} />
+        return (
+          <ModalTransactionDetails
+            {...variantOptions}
+            internalState={internalState}
+            backgroundImageUri={backgroundImageUri}
+            onClose={onClose}
+          />
+        )
       case 'loading':
-        return <ModalLoading {...variantOptions} internalState={internalState} onClose={onClose} />
+        return (
+          <ModalLoading
+            {...variantOptions}
+            internalState={internalState}
+            backgroundImageUri={backgroundImageUri}
+            onClose={onClose}
+          />
+        )
       case 'nft-transfer-review':
-        return <ModalNftTransferReview {...variantOptions} internalState={internalState} onClose={onClose} />
+        return (
+          <ModalNftTransferReview
+            {...variantOptions}
+            internalState={internalState}
+            backgroundImageUri={backgroundImageUri}
+            onClose={onClose}
+          />
+        )
       case 'transfer-success':
-        return <ModalTransferSuccess {...variantOptions} internalState={internalState} onClose={onClose} />
+        return (
+          <ModalTransferSuccess
+            {...variantOptions}
+            internalState={internalState}
+            backgroundImageUri={backgroundImageUri}
+            onClose={onClose}
+          />
+        )
     }
-  }, [internalState, onClose, variantOptions])
+  }, [backgroundImageUri, internalState, onClose, variantOptions])
 
   return (
     <motion.div
@@ -101,7 +138,7 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.25 }}
         className={clsx(
-          'relative w-full mx-4 max-w-lg p-6 rounded-2xl shadow-xl',
+          'relative w-full mx-10 max-w-lg p-6 rounded-2xl shadow-xl',
           !backgroundImageUri && 'bg-backgroundPrimary'
         )}
         style={

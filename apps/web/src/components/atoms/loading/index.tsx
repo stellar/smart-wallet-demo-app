@@ -1,12 +1,14 @@
 import * as React from 'react'
 
+import { THEME_COLORS } from 'src/constants/theme/colors'
+
 import styles from './styles.module.css'
 
 type LoadingProps = {
   size?: 'sm' | 'md' | 'lg'
-  color?: string
+  color?: keyof typeof THEME_COLORS
 }
-const Loading = ({ size = 'md', color = '#FFFFFF' }: LoadingProps) => {
+const Loading = ({ size = 'md', color = 'whitish' }: LoadingProps) => {
   // Define sizes
   const sizes = {
     sm: {
@@ -32,7 +34,7 @@ const Loading = ({ size = 'md', color = '#FFFFFF' }: LoadingProps) => {
   const spinnerStyle: React.CSSProperties = {
     ...sizes[size],
     '--spinner-size': `calc(2 * (${sizes[size]['--center-radius']} + ${sizes[size]['--bar-height']}))`,
-    '--bar-color': color,
+    '--bar-color': THEME_COLORS[color],
   } as unknown as React.CSSProperties
 
   return (

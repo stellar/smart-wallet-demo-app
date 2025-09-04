@@ -68,7 +68,7 @@ export const useHandleBehindScenes = ({ enabled }: HandleBehindScenesProps): Han
           button: {
             children: c('behindScenesBannerButtonTitle'),
             variant: 'tertiary',
-            size: 'lg',
+            size: 'xl',
             isRounded: true,
             icon: Icon.ArrowUpRight({ className: 'text-whitish' }),
             onClick: () => {

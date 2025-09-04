@@ -1,8 +1,8 @@
 import { useNavigate, useCanGoBack, useRouter } from '@tanstack/react-router'
 
 import { modalService } from 'src/components/organisms/modal/provider'
+import { ModalTransactionDetailsProps } from 'src/components/organisms/modal/variants'
 import { a } from 'src/interfaces/cms/useAssets'
-import { c } from 'src/interfaces/cms/useContent'
 
 import { TransactionsTemplate } from './template'
 import { Transaction } from '../../domain/models/transaction'
@@ -25,32 +25,35 @@ export const Transactions = () => {
   }
 
   const handleTransactionClick = (tx: Transaction) => {
+    const mapBadgeVariant = (tx: Transaction): ModalTransactionDetailsProps['badge'] => {
+      let badge: ModalTransactionDetailsProps['badge']
+
+      if (tx.sendOrReceive === 'send') {
+        badge = { variant: 'sent' }
+      } else if (tx.sendOrReceive === 'receive') {
+        badge = { variant: 'received' }
+      }
+
+      return badge
+    }
+
     modalService.open({
       key: `transaction-${tx.hash}`,
       variantOptions: {
         variant: 'transaction-details',
+        badge: mapBadgeVariant(tx),
         date: tx.date,
         vendor: {
           name: mapTxVendorName(tx),
         },
+        actionType: tx.sendOrReceive !== undefined ? (tx.sendOrReceive === 'send' ? 'send' : 'receive') : undefined,
         amount: {
           value: tx.amount,
           asset: tx.asset,
         },
         transactionHash: tx.hash,
-        button: {
-          children: c('close'),
-          variant: 'secondary',
-          size: 'lg',
-          isRounded: true,
-          isFullWidth: true,
-          onClick: () => {
-            modalService.close()
-          },
-        },
       },
-      backgroundImageUri:
-        tx.type === 'airdrop_claim' ? a('transactionsHistoryMintBackground') : a('customModalBackground'),
+      backgroundImageUri: tx.type === 'airdrop_claim' ? a('transactionsHistoryMintBackground') : undefined,
     })
   }
 

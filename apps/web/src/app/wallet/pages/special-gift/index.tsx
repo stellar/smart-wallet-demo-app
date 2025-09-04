@@ -30,6 +30,7 @@ export const SpecialGift = () => {
 
   const claimGift = useClaimGift({
     onSuccess: () => {
+      // Show success toast message
       toast.notify({
         message: c('specialGiftClaimSuccess'),
         type: Toast.toastType.SUCCESS,
@@ -45,9 +46,14 @@ export const SpecialGift = () => {
 
   const shareImage = useShareImage({
     onSuccess: () => {
-      toast.notify({
-        message: c('shareImageSuccess'),
-        type: Toast.toastType.SUCCESS,
+      // Show success modal
+      modalService.open({
+        key: 'share-image-success',
+        variantOptions: {
+          variant: 'transfer-success',
+          title: c('shareImageSuccess'),
+          autoClose: true,
+        },
       })
     },
   })
@@ -74,7 +80,7 @@ export const SpecialGift = () => {
         button: {
           children: c('claim'),
           variant: 'secondary',
-          size: 'lg',
+          size: 'xl',
           isRounded: true,
           isFullWidth: true,
           onClick: () => claimGift.mutate({ giftId: search.photo_id }),

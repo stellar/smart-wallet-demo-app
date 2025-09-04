@@ -1,3 +1,10 @@
+.loadingContainer {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .spinner {
   position: relative;
   width: var(--spinner-size);

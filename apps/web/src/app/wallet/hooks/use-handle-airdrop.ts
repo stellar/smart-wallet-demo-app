@@ -45,7 +45,7 @@ export const useHandleAirdrop = ({ enabled }: HandleAirdropProps): HandleAirdrop
     () => ({
       backgroundImageUri: a('airdropBannerBackground'),
       label: {
-        title: c('airdropBannerTitle'),
+        title: c('airdropBannerTitleA'),
         description: c('airdropBannerDescriptionA'),
         variant: 'primary',
       },
@@ -67,8 +67,9 @@ export const useHandleAirdrop = ({ enabled }: HandleAirdropProps): HandleAirdrop
         key: airdropModalKey,
         variantOptions: {
           variant: 'default',
+          badge: { variant: 'airdrop' },
           title: {
-            text: c('airdropBannerTitle'),
+            text: c('airdropBannerTitleB'),
             image: {
               source: 'blank-space',
             },
@@ -77,7 +78,7 @@ export const useHandleAirdrop = ({ enabled }: HandleAirdropProps): HandleAirdrop
           button: {
             children: c('airdropBannerButtonTitle'),
             variant: 'secondary',
-            size: 'lg',
+            size: 'xl',
             isRounded: true,
             onClick: () => claimAirdrop.mutate(),
           },

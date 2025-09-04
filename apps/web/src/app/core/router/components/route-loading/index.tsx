@@ -12,7 +12,7 @@ export const RouteLoading = () => {
 
   useEffect(() => {
     if (!isSuccessWallet) {
-      setThemeColor('#FDDA24')
+      setThemeColor('primary')
     }
   }, [isSuccessWallet])
 

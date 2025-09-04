@@ -7,6 +7,7 @@ type Props = {
   type?: 'next' | 'previous' | 'close'
   variant?: ButtonProps['variant'] | 'ghost'
   invertColor?: boolean
+  isBordered?: boolean
   size?: 'sm' | 'md'
   className?: string
   onClick?: () => void
@@ -16,6 +17,7 @@ export const NavigateButton = ({
   type = 'previous',
   variant = 'tertiary',
   invertColor = true,
+  isBordered = true,
   size = 'sm',
   className,
   onClick,
@@ -67,7 +69,7 @@ export const NavigateButton = ({
             borderRadius: '50%',
             ...style,
           }}
-          isBordered
+          isBordered={isBordered}
           invertColor={invertColor}
           onClick={onClick}
         >
