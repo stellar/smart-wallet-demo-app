@@ -1,3 +1,4 @@
+import scrollbarHide from 'tailwind-scrollbar-hide'
 import defaultTheme from 'tailwindcss/defaultTheme'
 
 export const THEME_STYLES = {
@@ -88,6 +89,5 @@ export const THEME_STYLES = {
       },
     },
   },
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  plugins: [require('tailwind-scrollbar-hide')],
+  plugins: [scrollbarHide],
 }

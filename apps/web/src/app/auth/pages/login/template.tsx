@@ -25,11 +25,11 @@ export const LogInTemplate = ({ isLoggingIn, form, onGoBack, onLogIn }: Props) =
 
   return (
     <div>
-      <OnboardingBackgroundImage className="bg-[95%]" />
-      <div className="mt-[calc(100vh-70vh)] flex flex-col justify-start px-8">
+      <OnboardingBackgroundImage className="bg-[60%]" />
+      <div className="mt-[calc(100svh-71svh)] flex flex-col justify-start px-8">
         <NavigateButton className="mb-10" size="md" onClick={onGoBack} />
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
           <Typography className="text-whitish" variant={TypographyVariant.h1} weight={TypographyWeight.bold}>
             {c('logInTitleLine1')}
             <br />
@@ -41,23 +41,23 @@ export const LogInTemplate = ({ isLoggingIn, form, onGoBack, onLogIn }: Props) =
           </Text>
 
           <Form form={form} onSubmit={onLogIn}>
-            <Form.Input
-              name="email"
-              variant="blurred"
-              fieldSize={'md'}
-              placeholder={c('recoverEmailInputPlaceholder')}
-            />
+            <div className="flex flex-col gap-6">
+              <Form.Input
+                name="email"
+                variant="blurred"
+                fieldSize={'lg'}
+                placeholder={c('recoverEmailInputPlaceholder')}
+              />
 
-            <div className="mt-3">
               <Form.Submit
                 disabled={isSendResetLinkDisabled}
                 isLoading={isLoggingIn}
-                size="lg"
+                size="xl"
                 variant="tertiary"
                 isRounded
                 isFullWidth
               >
-                {c('logIn')}
+                {c('sendLink')}
               </Form.Submit>
             </div>
           </Form>
