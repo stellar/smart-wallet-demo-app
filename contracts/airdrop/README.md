@@ -41,6 +41,7 @@ npm run --workspace=scripts deploy-airdrop -- \
   --amount 1000000000 \
   --token CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC \
   --network testnet \
+  --rpc-url https://soroban-testnet.stellar.org \
   --source ${ADMIN_IDENTITY} \
   --funder ${FUNDER_IDENTITY} \
   --database-url postgresql://postgres:postgres@localhost:5432/smart_wallet_db
@@ -58,6 +59,7 @@ This will:
 - `--amount` - Amount per recipient
 - `--token` - Token contract address
 - `--network` - Stellar network (testnet/mainnet)
+- `--rpc-url` - RPC URL for the network
 - `--source` - Stellar identity for admin role
 - `--funder` - Stellar identity for funder role
 - `--database-url` - Database URL for uploading proofs
