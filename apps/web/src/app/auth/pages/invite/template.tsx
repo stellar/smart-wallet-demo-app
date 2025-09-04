@@ -24,17 +24,12 @@ export const InviteTemplate = ({
   onLogIn,
   onForgotPassword,
 }: Props) => {
-  const config = isReturningUser
+  const config = !isReturningUser
     ? {
         titleLines: [c('inviteOptionBTitleLine1'), c('inviteOptionBTitleLine2')],
         subtitle: [
           {
             text: c('inviteSubtitle'),
-          },
-          {
-            text: c('inviteSubtitleLink'),
-            // TODO: add link
-            link: 'https://stellar.org/connect',
           },
         ],
         buttonText: c('logIn'),
@@ -55,8 +50,7 @@ export const InviteTemplate = ({
           },
           {
             text: c('inviteOptionADisclaimerText2'),
-            // TODO: add link
-            link: 'https://stellar.org/connect',
+            link: import.meta.env.VITE_TERMS_OF_SERVICE_URL,
             removeBlankSpace: true,
           },
           {
@@ -64,8 +58,7 @@ export const InviteTemplate = ({
           },
           {
             text: c('inviteOptionADisclaimerText4'),
-            // TODO: add link
-            link: 'https://stellar.org/connect',
+            link: import.meta.env.VITE_PRIVACY_POLICY_URL,
             removeBlankSpace: true,
           },
           {
@@ -73,8 +66,7 @@ export const InviteTemplate = ({
           },
           {
             text: c('inviteOptionADisclaimerText6'),
-            // TODO: add link
-            link: 'https://stellar.org/connect',
+            link: import.meta.env.VITE_ADDENDUM_URL,
           },
         ],
         buttonText: c('createAWallet'),

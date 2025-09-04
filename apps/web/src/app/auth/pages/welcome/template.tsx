@@ -28,11 +28,6 @@ export const WelcomeTemplate = ({ onCreateWallet, onLogIn, onForgotPassword }: P
               {
                 text: c('inviteSubtitle'),
               },
-              {
-                text: c('inviteSubtitleLink'),
-                // TODO: add link
-                link: 'https://stellar.org/connect',
-              },
             ])}
           </Text>
 
