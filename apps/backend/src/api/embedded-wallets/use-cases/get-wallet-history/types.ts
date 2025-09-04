@@ -24,7 +24,7 @@ export const TransactionSchema = z.object({
   type: z.string(),
   amount: z.number(),
   date: z.string(),
-  vendor: z.string(),
+  vendor: z.string().optional(),
   asset: z.string(),
   product: z.object({}).optional(),
   token: TokenData.optional(),

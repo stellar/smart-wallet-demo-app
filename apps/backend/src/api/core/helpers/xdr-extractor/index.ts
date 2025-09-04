@@ -1,6 +1,6 @@
 import { xdr, StrKey } from '@stellar/stellar-sdk'
 
-import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
+import { ScConvert } from '../../../../interfaces/soroban/helpers/sc-convert'
 
 /**
  * Comprehensive guide on how to extract data from operation XDR with Stellar SDK
@@ -530,6 +530,317 @@ export const xdrExamples = {
     const operation = xdr.Operation.fromXDR(operationXdrBase64, 'base64')
     return operation.body().switch().name
   },
+
+  /**
+   * Extract contract invocation data from ScVal XDR
+   */
+  extractContractInvocations: (scValXdrBase64: string) => {
+    const scVal = xdr.ScVal.fromXDR(scValXdrBase64, 'base64')
+    return extractContractInvocationData(scVal)
+  },
+
+  /**
+   * Extract only contract addresses from ScVal XDR
+   */
+  extractContractAddresses: (scValXdrBase64: string) => {
+    const scVal = xdr.ScVal.fromXDR(scValXdrBase64, 'base64')
+    const data = extractContractInvocationData(scVal)
+
+    if (data.type === 'contract_invocations_vector' && data.invocations) {
+      return data.invocations
+        .filter((inv): inv is ContractInvocation => inv.type === 'contract_invocation')
+        .map(inv => ({
+          index: inv.index,
+          contractAddress: inv.contractAddress,
+          functionName: inv.functionName,
+        }))
+    }
+    return []
+  },
+
+  /**
+   * Extract function names from ScVal XDR
+   */
+  extractFunctionNames: (scValXdrBase64: string) => {
+    const scVal = xdr.ScVal.fromXDR(scValXdrBase64, 'base64')
+    const data = extractContractInvocationData(scVal)
+
+    if (data.type === 'contract_invocations_vector' && data.invocations) {
+      return data.invocations
+        .filter((inv): inv is ContractInvocation => inv.type === 'contract_invocation')
+        .map(inv => ({
+          index: inv.index,
+          functionName: inv.functionName,
+          contractAddress: inv.contractAddress,
+        }))
+    }
+    return []
+  },
+
+  /**
+   * Extract all arguments from ScVal XDR
+   */
+  extractAllArguments: (scValXdrBase64: string) => {
+    const scVal = xdr.ScVal.fromXDR(scValXdrBase64, 'base64')
+    const data = extractContractInvocationData(scVal)
+
+    if (data.type === 'contract_invocations_vector' && data.invocations) {
+      return data.invocations
+        .filter((inv): inv is ContractInvocation => inv.type === 'contract_invocation')
+        .map(inv => ({
+          index: inv.index,
+          contractAddress: inv.contractAddress,
+          functionName: inv.functionName,
+          arguments: inv.arguments,
+        }))
+    }
+    return []
+  },
+}
+
+/**
+ * Extract contract address from ScVal
+ * @param scVal - The ScVal containing the contract address
+ * @returns Human readable contract address or null if not a contract address
+ */
+const extractContractAddress = (scVal: xdr.ScVal): string | null => {
+  if (scVal.switch().value === xdr.ScValType.scvAddress().value) {
+    const address = scVal.address()
+    if (address.switch().value === xdr.ScAddressType.scAddressTypeContract().value) {
+      const contractId = address.contractId()
+      // Necessary rule disabled due to Stellar release candidate package version
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return StrKey.encodeContract(contractId)
+    }
+  }
+  return null
+}
+
+/**
+ * Extract symbol/string from ScVal
+ * @param scVal - The ScVal containing the symbol
+ * @returns String value or null if not a symbol/string
+ */
+const extractSymbol = (scVal: xdr.ScVal): string | null => {
+  switch (scVal.switch().value) {
+    case xdr.ScValType.scvSymbol().value:
+      return scVal.sym().toString()
+    case xdr.ScValType.scvString().value:
+      return scVal.str().toString()
+    default:
+      return null
+  }
+}
+
+/**
+ * Extract and format ScVal arguments for better readability
+ * @param args - Array of ScVals
+ * @returns Formatted arguments with human-readable values
+ */
+const formatScValArgs = (args: xdr.ScVal[]): object[] => {
+  return args.map((arg, index) => {
+    const contractAddress = extractContractAddress(arg)
+    const stellarAddress = extractStellarAddress(arg)
+    const symbol = extractSymbol(arg)
+
+    if (contractAddress) {
+      return {
+        index,
+        type: 'contract_address',
+        value: contractAddress,
+        raw: arg.toXDR('base64'),
+      }
+    }
+
+    if (stellarAddress) {
+      return {
+        index,
+        type: 'stellar_address',
+        value: stellarAddress,
+        raw: arg.toXDR('base64'),
+      }
+    }
+
+    if (symbol) {
+      return {
+        index,
+        type: 'symbol',
+        value: symbol,
+        raw: arg.toXDR('base64'),
+      }
+    }
+
+    // Handle other common types
+    switch (arg.switch().value) {
+      case xdr.ScValType.scvU32().value:
+        return {
+          index,
+          type: 'u32',
+          value: arg.u32().toString(),
+          raw: arg.toXDR('base64'),
+        }
+      case xdr.ScValType.scvI32().value:
+        return {
+          index,
+          type: 'i32',
+          value: arg.i32().toString(),
+          raw: arg.toXDR('base64'),
+        }
+      case xdr.ScValType.scvU64().value:
+        return {
+          index,
+          type: 'u64',
+          value: arg.u64().toString(),
+          raw: arg.toXDR('base64'),
+        }
+      case xdr.ScValType.scvI64().value:
+        return {
+          index,
+          type: 'i64',
+          value: arg.i64().toString(),
+          raw: arg.toXDR('base64'),
+        }
+      case xdr.ScValType.scvBytes().value:
+        return {
+          index,
+          type: 'bytes',
+          value: arg.bytes().toString(),
+          raw: arg.toXDR('base64'),
+        }
+      case xdr.ScValType.scvVec().value: {
+        const vec = arg.vec()
+        return {
+          index,
+          type: 'vector',
+          value: vec ? formatScValArgs(vec) : [],
+          raw: arg.toXDR('base64'),
+        }
+      }
+      default:
+        return {
+          index,
+          type: arg.switch().name,
+          value: 'Unknown type',
+          raw: arg.toXDR('base64'),
+        }
+    }
+  })
+}
+
+/**
+ * Types for contract invocation data
+ */
+type ContractInvocation = {
+  index: number
+  type: 'contract_invocation'
+  contractAddress: string
+  functionName: string
+  arguments: object[]
+  raw: string
+}
+
+type InvalidInvocation = {
+  index: number
+  type: 'invalid_invocation'
+  error: string
+  raw: string
+}
+
+type InvocationItem = ContractInvocation | InvalidInvocation
+
+/**
+ * Extract contract invocation data from ScVal vector
+ * @param scVal - The ScVal containing contract invocation data
+ * @returns Object containing extracted contract invocation data
+ */
+export const extractContractInvocationData = (scVal: xdr.ScVal) => {
+  if (scVal.switch().value !== xdr.ScValType.scvVec().value) {
+    return {
+      type: 'not_a_vector',
+      error: 'Expected ScVal to be a vector type',
+      raw: scVal.toXDR('base64'),
+    }
+  }
+
+  const vector = scVal.vec()
+  if (!vector) {
+    return {
+      type: 'invalid_vector',
+      error: 'Vector is null or undefined',
+      raw: scVal.toXDR('base64'),
+    }
+  }
+
+  const invocations: InvocationItem[] = []
+
+  for (let i = 0; i < vector.length; i++) {
+    const invocation = vector[i]
+
+    if (invocation.switch().value !== xdr.ScValType.scvVec().value) {
+      invocations.push({
+        index: i,
+        type: 'invalid_invocation',
+        error: 'Expected invocation to be a vector',
+        raw: invocation.toXDR('base64'),
+      })
+      continue
+    }
+
+    const invocationVector = invocation.vec()
+    if (!invocationVector) {
+      invocations.push({
+        index: i,
+        type: 'invalid_invocation',
+        error: 'Invocation vector is null or undefined',
+        raw: invocation.toXDR('base64'),
+      })
+      continue
+    }
+
+    if (invocationVector.length < 3) {
+      invocations.push({
+        index: i,
+        type: 'invalid_invocation',
+        error: 'Expected at least 3 elements in invocation vector (contract, function, args)',
+        raw: invocation.toXDR('base64'),
+      })
+      continue
+    }
+
+    // Extract contract address
+    const contractAddress = extractContractAddress(invocationVector[0])
+
+    // Extract function name
+    const functionName = extractSymbol(invocationVector[1])
+
+    // Extract arguments
+    let args: object[] = []
+    if (invocationVector[2].switch().value === xdr.ScValType.scvVec().value) {
+      const vec = invocationVector[2].vec()
+      if (vec) {
+        args = formatScValArgs(vec)
+      }
+    } else {
+      args = [formatScValArgs([invocationVector[2]])[0]]
+    }
+
+    invocations.push({
+      index: i,
+      type: 'contract_invocation',
+      contractAddress: contractAddress || 'Unknown contract',
+      functionName: functionName || 'Unknown function',
+      arguments: args,
+      raw: invocation.toXDR('base64'),
+    })
+  }
+
+  return {
+    type: 'contract_invocations_vector',
+    totalInvocations: invocations.length,
+    invocations,
+    raw: scVal.toXDR('base64'),
+  }
 }
 
 /**
@@ -544,4 +855,7 @@ export const xdrExamples = {
  * 7. Contract IDs: contractId.toString('hex')
  * 8. Balance IDs: balanceId.toString('hex')
  * 9. Liquidity pool IDs: poolId.toString('hex')
+ * 10. ScVal vectors: scVal.vec() to access vector elements
+ * 11. Contract addresses: extractContractAddress(scVal) for human-readable format
+ * 12. Symbols: extractSymbol(scVal) for function names and strings
  */
