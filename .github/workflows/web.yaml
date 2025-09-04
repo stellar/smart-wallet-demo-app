@@ -31,8 +31,8 @@ jobs:
     needs: [set-outputs]
     uses: ./.github/workflows/web.build.yaml
     secrets:
-      APP_ASSETS_URL: ${{ secrets.WEB_APP_ASSETS_URL }}
-      APP_CONTENT_URL: ${{ secrets.WEB_APP_CONTENT_URL }}
+      APP_ASSETS_URL: ${{ secrets.WEB_STAGING_APP_ASSETS_URL }}
+      APP_CONTENT_URL: ${{ secrets.WEB_STAGING_APP_CONTENT_URL }}
 
   code-quality:
     name: Code quality

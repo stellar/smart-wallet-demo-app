@@ -18,16 +18,18 @@ export const WalletRouteError = () => {
 
   return (
     <div className="flex justify-center items-center h-full">
-      <div className="flex flex-col items-center gap-6 px-11">
-        {/* Error Indicator */}
-        <div className="text-danger">
-          <Icon.XCircle width={'10vh'} height={'10vh'} />
-        </div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <div className="flex flex-col items-center gap-6">
+          {/* Error Indicator */}
+          <div className="text-danger">
+            <Icon.XCircle width={'5vh'} height={'5vh'} />
+          </div>
 
-        {/* Description */}
-        <Text as="span" size="md" weight="medium" addlClassName="text-center">
-          {description}
-        </Text>
+          {/* Description */}
+          <Text as="span" size="md" weight="medium" addlClassName="text-center">
+            {description}
+          </Text>
+        </div>
       </div>
     </div>
   )

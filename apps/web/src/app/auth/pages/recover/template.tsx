@@ -26,11 +26,11 @@ export const RecoverTemplate = ({ form, isResetLinkSent, onGoBack, onSendResetLi
 
   return (
     <div>
-      <OnboardingBackgroundImage className="bg-[95%]" />
-      <div className="mt-[calc(100vh-70vh)] flex flex-col justify-start px-8">
+      <OnboardingBackgroundImage className="bg-[60%]" />
+      <div className="mt-[calc(100svh-71svh)] flex flex-col justify-start px-8">
         <NavigateButton className="mb-10" size="md" onClick={onGoBack} />
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
           <Typography className="text-whitish" variant={TypographyVariant.h1} weight={TypographyWeight.bold}>
             {c('recoverTitle')}
           </Typography>
@@ -40,18 +40,18 @@ export const RecoverTemplate = ({ form, isResetLinkSent, onGoBack, onSendResetLi
           </Text>
 
           <Form form={form} onSubmit={onSendResetLink}>
-            <Form.Input
-              name="email"
-              variant="blurred"
-              fieldSize={'md'}
-              placeholder={c('recoverEmailInputPlaceholder')}
-            />
+            <div className="flex flex-col gap-6">
+              <Form.Input
+                name="email"
+                variant="blurred"
+                fieldSize={'lg'}
+                placeholder={c('recoverEmailInputPlaceholder')}
+              />
 
-            <div className="mt-3">
               {isResetLinkSent ? (
                 <EmailSent />
               ) : (
-                <Form.Submit disabled={isSendResetLinkDisabled} size="lg" variant="tertiary" isRounded isFullWidth>
+                <Form.Submit disabled={isSendResetLinkDisabled} size="xl" variant="tertiary" isRounded isFullWidth>
                   {c('sendResetLink')}
                 </Form.Submit>
               )}
