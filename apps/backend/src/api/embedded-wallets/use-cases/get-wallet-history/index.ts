@@ -5,6 +5,7 @@ import { AssetRepositoryType } from 'api/core/entities/asset/types'
 import { NftSupplyRepositoryType } from 'api/core/entities/nft-supply/types'
 import { NgoRepositoryType } from 'api/core/entities/ngo/types'
 import { ProductRepositoryType } from 'api/core/entities/product/types'
+import { ProductTransactionRepositoryType } from 'api/core/entities/product-transaction/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { VendorRepositoryType } from 'api/core/entities/vendor/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
@@ -14,6 +15,7 @@ import AssetRepository from 'api/core/services/asset'
 import NftSupplyRepository from 'api/core/services/nft-supply'
 import NgoRepository from 'api/core/services/ngo'
 import ProductRepository from 'api/core/services/product'
+import ProductTransactionRepository from 'api/core/services/product-transaction'
 import UserRepository from 'api/core/services/user'
 import VendorRepository from 'api/core/services/vendor'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
@@ -34,6 +36,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
   private assetRepository: AssetRepositoryType
   private vendorRepository: VendorRepositoryType
   private productRepository: ProductRepositoryType
+  private productTransactionRepository: ProductTransactionRepositoryType
   private ngoRepository: NgoRepositoryType
   private nftSupplyRepository: NftSupplyRepositoryType
 
@@ -44,13 +47,15 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
     walletBackend?: WalletBackend,
     productRepository?: ProductRepository,
     ngoRepository?: NgoRepository,
-    nftSupplyRepository?: NftSupplyRepository
+    nftSupplyRepository?: NftSupplyRepository,
+    productTransactionRepository?: ProductTransactionRepository
   ) {
     super()
     this.userRepository = userRepository || UserRepository.getInstance()
     this.assetRepository = assetRepository || AssetRepository.getInstance()
     this.vendorRepository = vendorRepository || VendorRepository.getInstance()
     this.productRepository = productRepository || ProductRepository.getInstance()
+    this.productTransactionRepository = productTransactionRepository || ProductTransactionRepository.getInstance()
     this.ngoRepository = ngoRepository || NgoRepository.getInstance()
     this.nftSupplyRepository = nftSupplyRepository || NftSupplyRepository.getInstance()
     this.walletBackend = walletBackend || WalletBackend.getInstance()
@@ -154,6 +159,12 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
         })
       }
 
+      // Check if the transaction is linked to any product transactions
+      let productsTransactions
+      if (tx.hash) {
+        productsTransactions = await this.productTransactionRepository.getProductsTransactionsByHash(tx.hash)
+      }
+
       // Check if the transaction destination is linked to any NGOs
       let ngo
       if (toAddress) {
@@ -178,6 +189,8 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       } else if (nftSupply) {
         if (functionName === 'transfer') type = 'nft'
         else if (functionName === 'mint' || functionName === 'mint_with_data') type = 'nft_claim'
+      } else if (productsTransactions && productsTransactions.length > 0) {
+        type = 'buy_product'
       }
 
       // TODO: get amount in NFT transactions (number of NFTs transferred). Fallback to 1 for now
@@ -204,9 +217,17 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
           session_id: nftSupply?.sessionId,
           resource: nftSupply?.resource,
         }
+      } else if (type === 'buy_product' && productsTransactions) {
+        transaction.product = productsTransactions.length
+          ? productsTransactions.map(productTransaction => ({
+              code: productTransaction.product.code,
+              name: productTransaction.product.name,
+              description: productTransaction.product.description,
+              imageUrl: productTransaction.product.imageUrl,
+              isSwag: productTransaction.product.isSwag,
+            }))
+          : undefined
       }
-
-      // TODO: add product details to the transaction, in the case of sell product transactions
 
       if (fromAddress) {
         transaction.fromAddress = fromAddress

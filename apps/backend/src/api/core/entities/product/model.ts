@@ -9,6 +9,7 @@ import {
 } from 'api/core/framework/orm/base'
 
 import { Asset } from '../asset/model'
+import { ProductTransaction } from '../product-transaction/model'
 import { UserProduct } from '../user-product/model'
 
 @Entity()
@@ -18,7 +19,6 @@ export class Product extends ModelBase {
 
   @Column({
     unique: true,
-
     type: 'varchar',
   })
   code: string
@@ -58,4 +58,7 @@ export class Product extends ModelBase {
 
   @OneToMany(() => UserProduct, userProduct => userProduct.product)
   userProducts: UserProduct[]
+
+  @OneToMany(() => ProductTransaction, productTransactions => productTransactions.product)
+  productTransactions: ProductTransaction[]
 }
