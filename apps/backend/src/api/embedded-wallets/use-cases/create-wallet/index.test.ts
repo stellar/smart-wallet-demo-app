@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import { userFactory } from 'api/core/entities/user/factory'
 import { User } from 'api/core/entities/user/types'
@@ -8,11 +9,14 @@ import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
-import { generateToken } from 'interfaces/jwt'
 import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
 import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 
 import { CreateWallet, endpoint } from './index'
+
+vi.mock('interfaces/jwt', () => ({
+  generateToken: vi.fn(() => 'mocked-jwt-token'),
+}))
 
 const mockedUserRepository = mockUserRepository()
 const mockedWebauthnRegistrationHelper = mockWebAuthnRegistration()
@@ -26,112 +30,118 @@ const sdpCreateWalletResponse = {
   status: WalletStatus.PROCESSING,
 }
 const user = userFactory({
-  email: email,
+  email,
 })
+
+const basePayload = {
+  email,
+  registration_response_json: '{"id":"TestPayload123"}',
+}
 
 let useCase: CreateWallet
 
-describe('CreateWallet UseCase', () => {
+describe('CreateWallet', () => {
+  it('should export endpoint', () => {
+    expect(endpoint).toBe('/register/complete')
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
     useCase = new CreateWallet(mockedUserRepository, mockedWebauthnRegistrationHelper, mockedSDPEmbeddedWallets)
   })
 
-  it('should create a wallet using SDP', async () => {
-    const payload = {
-      email,
-      registration_response_json: '{"id":"TestPayload123"}',
-    }
-    mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
-    mockedSDPEmbeddedWallets.createWallet.mockResolvedValue(sdpCreateWalletResponse)
-    mockedCompleteRegistration.mockResolvedValueOnce({
-      passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
+  describe('handle', () => {
+    it('should create a wallet using SDP', async () => {
+      mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
+      mockedSDPEmbeddedWallets.createWallet.mockResolvedValue(sdpCreateWalletResponse)
+      mockedCompleteRegistration.mockResolvedValueOnce({
+        passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
+      })
+
+      const result = await useCase.handle(basePayload)
+
+      expect(result.data.status).toBe(WalletStatus.PROCESSING)
+      expect(result.data.token).toBe('mocked-jwt-token')
+      expect(result.message).toBe(useCase.parseResponseMessage(WalletStatus.PROCESSING))
     })
 
-    const result = await useCase.handle(payload)
+    it('should throw error if user not found', async () => {
+      mockedUserRepository.getUserByEmail.mockResolvedValue(null)
 
-    expect(result.data.status).toBe(WalletStatus.PROCESSING)
-    expect(result.data.token).toBe(generateToken(user.userId, user.email))
-    expect(result.message).toBe(useCase.parseResponseMessage(WalletStatus.PROCESSING))
-  })
-
-  it('should throw error if user not found', async () => {
-    mockedUserRepository.getUserByEmail.mockResolvedValue(null)
-
-    const payload = { email, registration_response_json: '{"id":"TestPayload123"}' }
-    await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
-    expect(mockedCompleteRegistration).not.toHaveBeenCalled()
-    expect(mockedSDPEmbeddedWallets.createWallet).not.toHaveBeenCalled()
-  })
-
-  it('should throw error if user already has a wallet', async () => {
-    mockedUserRepository.getUserByEmail.mockResolvedValue({
-      ...user,
-      contractAddress: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
-    } as User)
-
-    const payload = { email, registration_response_json: '{"id":"TestPayload123"}' }
-    await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceConflictedException)
-    expect(mockedCompleteRegistration).not.toHaveBeenCalled()
-    expect(mockedSDPEmbeddedWallets.createWallet).not.toHaveBeenCalled()
-  })
-
-  it('should throw error if authentication failed', async () => {
-    mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
-    mockedCompleteRegistration.mockResolvedValueOnce(false)
-
-    const payload = { email, registration_response_json: '{"id":"TestPayload123"}' }
-    await expect(useCase.handle(payload)).rejects.toBeInstanceOf(UnauthorizedException)
-    expect(mockedSDPEmbeddedWallets.createWallet).not.toHaveBeenCalled()
-  })
-
-  it('should handle wallet creation errors', async () => {
-    mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
-    mockedCompleteRegistration.mockResolvedValueOnce({
-      passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
+      await expect(useCase.handle(basePayload)).rejects.toBeInstanceOf(ResourceNotFoundException)
+      expect(mockedCompleteRegistration).not.toHaveBeenCalled()
+      expect(mockedSDPEmbeddedWallets.createWallet).not.toHaveBeenCalled()
     })
-    mockedSDPEmbeddedWallets.createWallet.mockRejectedValue('string-error')
 
-    const payload = { email, registration_response_json: '{"id":"TestPayload123"}' }
-    await expect(useCase.handle(payload)).rejects.toBe('string-error')
-  })
+    it('should throw error if user already has a wallet', async () => {
+      mockedUserRepository.getUserByEmail.mockResolvedValue({
+        ...user,
+        contractAddress: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
+      } as User)
 
-  it('should call response with correct status and json in executeHttp', async () => {
-    const req = {
-      body: { email, registration_response_json: '{"id":"TestPayload123"}' },
-    } as unknown as Request
-    const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    } as unknown as Response
-
-    mockedCompleteRegistration.mockResolvedValueOnce({
-      passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
+      await expect(useCase.handle(basePayload)).rejects.toBeInstanceOf(ResourceConflictedException)
+      expect(mockedCompleteRegistration).not.toHaveBeenCalled()
+      expect(mockedSDPEmbeddedWallets.createWallet).not.toHaveBeenCalled()
     })
-    mockedSDPEmbeddedWallets.createWallet.mockResolvedValue(sdpCreateWalletResponse)
 
-    await useCase.executeHttp(req, res)
+    it('should throw error if authentication failed', async () => {
+      mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
+      mockedCompleteRegistration.mockResolvedValueOnce(false)
 
-    expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.OK)
-    expect(res.json).toHaveBeenCalledWith({
-      data: {
-        status: WalletStatus.PROCESSING,
-        token: generateToken(user.userId, user.email),
-      },
-      message: useCase.parseResponseMessage(WalletStatus.PROCESSING),
+      await expect(useCase.handle(basePayload)).rejects.toBeInstanceOf(UnauthorizedException)
+      expect(mockedSDPEmbeddedWallets.createWallet).not.toHaveBeenCalled()
+    })
+
+    it('should handle wallet creation errors', async () => {
+      mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
+      mockedCompleteRegistration.mockResolvedValueOnce({
+        passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
+      })
+      mockedSDPEmbeddedWallets.createWallet.mockRejectedValue('string-error')
+
+      await expect(useCase.handle(basePayload)).rejects.toBe('string-error')
     })
   })
 
-  it('should validate payload and throw on invalid data', async () => {
-    const req = {
-      body: { email }, // Missing required fields
-    } as unknown as Request
-    const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    } as unknown as Response
+  describe('executeHttp', () => {
+    it('should call response with correct status and json', async () => {
+      const req = {
+        body: basePayload,
+      } as unknown as Request
+      const res = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      } as unknown as Response
 
-    await expect(useCase.executeHttp(req, res)).rejects.toThrow()
+      mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
+      mockedCompleteRegistration.mockResolvedValueOnce({
+        passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
+      })
+      mockedSDPEmbeddedWallets.createWallet.mockResolvedValue(sdpCreateWalletResponse)
+
+      await useCase.executeHttp(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(HttpStatusCodes.OK)
+      expect(res.json).toHaveBeenCalledWith({
+        data: {
+          status: WalletStatus.PROCESSING,
+          token: 'mocked-jwt-token',
+        },
+        message: useCase.parseResponseMessage(WalletStatus.PROCESSING),
+      })
+    })
+
+    it('should validate payload and throw on invalid data', async () => {
+      const req = {
+        body: { email },
+      } as unknown as Request
+      const res = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      } as unknown as Response
+
+      await expect(useCase.executeHttp(req, res)).rejects.toThrow()
+    })
   })
 
   it('should parse response message correctly', () => {
@@ -140,9 +150,5 @@ describe('CreateWallet UseCase', () => {
     expect(useCase.parseResponseMessage(WalletStatus.PENDING)).toBe('Wallet creation is in process')
     expect(useCase.parseResponseMessage(WalletStatus.FAILED)).toBe('Wallet creation failed')
     expect(useCase.parseResponseMessage('UNKNOWN' as WalletStatus)).toBe('Request processed, but status is unknown')
-  })
-
-  it('should export endpoint', () => {
-    expect(endpoint).toBe('/register/complete')
   })
 })

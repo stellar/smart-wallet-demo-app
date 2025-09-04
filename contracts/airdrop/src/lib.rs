@@ -22,6 +22,7 @@ type Distributor = MerkleDistributor<Sha256>;
 enum DataKey {
     Ended,
     TokenAddress,
+    Admin,
     Funder,
 }
 
@@ -55,27 +56,22 @@ impl AirdropContract {
     /// * `e` - The Soroban environment.
     /// * `root_hash` - The root hash of the Merkle tree.
     /// * `token` - The address of the token to be distributed.
-    /// * `funding_amount` - The amount of tokens to be distributed.
-    /// * `funding_source` - The address from which the funding amount will be transferred from.
+    /// * `admin` - The address of the admin who will manage the airdrop.
+    /// * `funder` - The address where the `recover_unclaimed` function deposits the remaining balance.
     pub fn __constructor(
         e: Env,
         root_hash: BytesN<32>,
         token: Address,
-        funding_amount: i128,
-        funding_source: Address,
+        admin: Address,
+        funder: Address,
     ) {
         Distributor::set_root(&e, root_hash);
         e.storage().instance().set(&DataKey::Ended, &false);
         e.storage().instance().set(&DataKey::TokenAddress, &token);
-        e.storage()
-            .instance()
-            .set(&DataKey::Funder, &funding_source);
-        let token_client = Self::token_client(&e);
-        token_client.transfer(
-            &funding_source,
-            &e.current_contract_address(),
-            &funding_amount,
-        );
+        e.storage().instance().set(&DataKey::Admin, &admin);
+        e.storage().instance().set(&DataKey::Funder, &funder);
+
+        admin.require_auth();
     }
 
     /// Returns whether the airdrop has ended.
@@ -137,12 +133,18 @@ impl AirdropContract {
             panic_with_error!(e, AirdropError::Ended);
         }
 
+        let admin = e
+            .storage()
+            .instance()
+            .get::<_, Address>(&DataKey::Admin)
+            .unwrap();
+        admin.require_auth();
+
         let funder = e
             .storage()
             .instance()
             .get::<_, Address>(&DataKey::Funder)
             .unwrap();
-        funder.require_auth();
         e.storage().instance().set(&DataKey::Ended, &true);
 
         let token_client = Self::token_client(e);
