@@ -42,4 +42,8 @@ export const messages = {
   USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE:
     'The swag you are trying to claim has already been claimed or is not available',
   UNABLE_TO_EXECUTE_ROTATE_SIGNER: 'Unable to execute rotate signer transaction',
+  USER_ALREADY_CREATED_ACCOUNT:
+    'You have already created an account. This wallet only sponsors the creation of one Stellar account per user',
+  ACCOUNT_ALREADY_EXISTS_ON_NETWORK: 'Account already exists on the Stellar network',
+  UNABLE_TO_SUBMIT_ACCOUNT_CREATION_TRANSACTION: 'Unable to submit account creation transaction',
 }
