@@ -57,7 +57,7 @@ impl AirdropContract {
     /// * `root_hash` - The root hash of the Merkle tree.
     /// * `token` - The address of the token to be distributed.
     /// * `admin` - The address of the admin who will manage the airdrop.
-    /// * `funder` - The address from which the funding amount will be transferred from.
+    /// * `funder` - The address where the `recover_unclaimed` function deposits the remaining balance.
     pub fn __constructor(
         e: Env,
         root_hash: BytesN<32>,
