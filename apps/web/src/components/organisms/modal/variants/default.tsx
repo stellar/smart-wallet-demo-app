@@ -1,6 +1,8 @@
-import { Button, Text } from '@stellar/design-system'
+import { Badge, Button, Text } from '@stellar/design-system'
 import clsx from 'clsx'
 import { useMemo } from 'react'
+
+import { c } from 'src/interfaces/cms/useContent'
 
 import { BaseModalProps, ModalVariants } from '..'
 import { NavigateButton } from '../../../molecules'
@@ -8,6 +10,9 @@ import { NavigateButton } from '../../../molecules'
 export type ModalDefaultProps = {
   variant: Extract<ModalVariants, 'default'>
   textColor?: 'black' | 'white'
+  badge?: {
+    variant: 'airdrop' | 'nft' | 'nft-treasure'
+  }
   title: {
     text: string
     image?: {
@@ -24,6 +29,7 @@ export type ModalDefaultProps = {
 export const ModalDefault = ({
   title,
   textColor = 'black',
+  badge,
   description,
   note,
   button,
@@ -32,7 +38,7 @@ export const ModalDefault = ({
 }: BaseModalProps & ModalDefaultProps) => {
   const imageSizeMap = {
     sm: 'h-[80px] w-[80px]',
-    md: 'h-[130px] w-[130px]',
+    md: 'h-[123px] w-[123px]',
     lg: 'h-[180px] w-[180px]',
   }
 
@@ -61,6 +67,37 @@ export const ModalDefault = ({
     return <div className={clsx(imageSizeMap[image.variant ?? 'md'])}>{image.source}</div>
   }
 
+  const ModalBadge = () => {
+    const Wrapper = ({ children }: { children: React.ReactNode }) => (
+      <div className="flex flex-col items-center">{children}</div>
+    )
+
+    switch (badge?.variant) {
+      case 'airdrop':
+        return (
+          <Wrapper>
+            <div className="yellow-badge">
+              <Badge variant="success">{c('airdropBadge')}</Badge>
+            </div>
+          </Wrapper>
+        )
+      case 'nft':
+        return (
+          <Wrapper>
+            <Badge variant="secondary">{c('nftBadge')}</Badge>
+          </Wrapper>
+        )
+      case 'nft-treasure':
+        return (
+          <Wrapper>
+            <Badge variant="secondary">{c('treasureBadge')}</Badge>
+          </Wrapper>
+        )
+      default:
+        return <></>
+    }
+  }
+
   const isLoading = useMemo(() => !!internalState?.isLoading, [internalState?.isLoading])
 
   return (
@@ -71,7 +108,12 @@ export const ModalDefault = ({
         type="close"
         variant="ghost"
         onClick={isLoading ? undefined : onClose}
+        invertColor={textColor === 'white'}
+        isBordered={false}
       />
+
+      <ModalBadge />
+
       {/* Image */}
       {title?.image && <div className="flex justify-center">{renderImage(title.image)}</div>}
 
@@ -79,7 +121,7 @@ export const ModalDefault = ({
         {/* Title */}
         {title && (
           <div className={clsx('text-center', textColor === 'white' && 'text-whitish')}>
-            <Text as="h2" size="lg" weight="bold" style={{ fontSize: '1.75rem' }}>
+            <Text as="h2" size="lg" weight="bold" style={{ fontSize: '1.5rem', lineHeight: '2rem' }}>
               {title.text}
             </Text>
           </div>

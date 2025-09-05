@@ -2,9 +2,11 @@ import { Heading, Text } from '@stellar/design-system'
 import { useMemo } from 'react'
 
 import { createShortStellarAddress, formatNumber } from 'src/app/core/utils'
+import { THEME_COLORS } from 'src/constants/theme/colors'
 
 type Props = {
   amount: number
+  amountColor?: keyof typeof THEME_COLORS
   amountVariant?: 'default' | 'max-decimal'
   size?: 'sm' | 'md' | 'lg'
   weight?: React.ComponentProps<typeof Text>['weight']
@@ -14,7 +16,14 @@ type Props = {
   }
 }
 
-export const AssetAmount = ({ amount, amountVariant = 'default', size = 'md', weight = 'semi-bold', asset }: Props) => {
+export const AssetAmount = ({
+  amount,
+  amountColor = 'text',
+  amountVariant = 'default',
+  size = 'md',
+  weight = 'semi-bold',
+  asset,
+}: Props) => {
   const formattedAmount = formatNumber(
     amount,
     'en-US',
@@ -28,24 +37,24 @@ export const AssetAmount = ({ amount, amountVariant = 'default', size = 'md', we
     switch (size) {
       case 'sm':
         return (
-          <Text addlClassName="text-text" as="span" size="sm" weight={weight}>
+          <Text addlClassName={`text-${amountColor}`} as="span" size="sm" weight={weight}>
             {formattedAmount}
           </Text>
         )
       case 'md':
         return (
-          <Heading addlClassName="text-text" as={'h2'} size={'xs'} weight={weight}>
+          <Heading addlClassName={`text-${amountColor}`} as={'h2'} size={'xs'} weight={weight}>
             {formattedAmount}
           </Heading>
         )
       case 'lg':
         return (
-          <Heading addlClassName="text-text" as={'h1'} size={'xs'} weight={weight}>
+          <Heading addlClassName={`text-${amountColor}`} as={'h1'} size={'xs'} weight={weight}>
             {formattedAmount}
           </Heading>
         )
     }
-  }, [formattedAmount, size, weight])
+  }, [amountColor, formattedAmount, size, weight])
 
   const lgAssetText = useMemo(() => {
     switch (size) {

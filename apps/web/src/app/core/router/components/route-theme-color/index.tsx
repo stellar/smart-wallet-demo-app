@@ -11,16 +11,16 @@ export const RouteThemeColor = () => {
     switch (location.pathname) {
       case AuthPagesPath.WELCOME:
       case AuthPagesPath.INVITE:
-        setThemeColor('#FDDA24')
+        setThemeColor('primary')
         break
       case AuthPagesPath.LOGIN:
       case AuthPagesPath.RECOVER:
       case AuthPagesPath.RECOVER_CONFIRM:
       case AuthPagesPath.INVITE_RESEND:
-        setThemeColor('#000000')
+        setThemeColor('blackish')
         break
       default:
-        setThemeColor('#F2F2F7')
+        setThemeColor('backgroundSecondary')
     }
   }, [location.pathname])
 

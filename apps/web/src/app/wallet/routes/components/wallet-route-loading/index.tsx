@@ -20,7 +20,7 @@ export const WalletRouteLoading = ({ overrideDescription }: Props) => {
 
   useEffect(() => {
     if (!isSuccessWallet) {
-      setThemeColor('#FDDA24')
+      setThemeColor('primary')
     }
   }, [isSuccessWallet])
 
@@ -52,7 +52,7 @@ export const WalletRouteLoading = ({ overrideDescription }: Props) => {
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <div className={clsx('flex flex-col items-center gap-6', !isSuccessWallet && 'text-textTertiary')}>
           {/* Loading Indicator */}
-          <Loading size="sm" color={isSuccessWallet ? '#171717' : undefined} />
+          <Loading size="sm" color={isSuccessWallet ? 'text' : undefined} />
 
           {/* Description */}
           <Text as="span" size="md" weight="medium" addlClassName="text-center">

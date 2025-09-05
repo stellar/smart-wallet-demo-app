@@ -1,4 +1,5 @@
 import { Button, Text, Icon, CopyText } from '@stellar/design-system'
+import clsx from 'clsx'
 import { useMemo } from 'react'
 
 import { createShortStellarAddress } from 'src/app/core/utils'
@@ -38,7 +39,12 @@ export const ModalNftTransferReview = ({
   const isLoading = useMemo(() => !!internalState?.isLoading, [internalState?.isLoading])
 
   return (
-    <div className="flex flex-col -mx-6 gap-6 pt-4 max-h-[75vh] overflow-y-auto scrollbar-hide">
+    <div
+      className={clsx(
+        'flex flex-col gap-6 pt-4 max-h-[75vh] overflow-y-auto scrollbar-hide',
+        nfts.length === 1 ? '-mx-4' : '-mx-6'
+      )}
+    >
       {/* Close Button - Positioned outside modal */}
       <NavigateButton
         className="absolute -top-10 right-0"

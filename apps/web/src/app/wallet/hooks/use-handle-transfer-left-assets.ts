@@ -74,7 +74,7 @@ export const useHandleTransferLeftAssets = ({
           button: {
             children: c('transferLeftAssetsBannerButtonTitle'),
             variant: 'secondary',
-            size: 'lg',
+            size: 'xl',
             isRounded: true,
             icon: Icon.ArrowRight({ className: 'text-whitish' }),
             onClick: () => {

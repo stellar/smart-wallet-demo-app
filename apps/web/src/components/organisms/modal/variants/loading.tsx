@@ -21,7 +21,7 @@ export const ModalLoading = ({
   onClose,
 }: BaseModalProps & ModalLoadingProps) => {
   return (
-    <div className="flex flex-col gap-6 py-10">
+    <div className="flex flex-col gap-4 text-center">
       {/* Close Button */}
       {!isLocked && (
         <NavigateButton
@@ -37,12 +37,16 @@ export const ModalLoading = ({
       )}
 
       {/* Loading Indicator */}
-      <Loading />
+      <div className="py-3 flex justify-center items-center">
+        <Loading color="foregroundPrimary" />
+      </div>
 
       {/* Description */}
-      <Text as="span" size="md" weight="medium" addlClassName="text-center">
-        {description || c('defaultLoadingDescription')}
-      </Text>
+      <div>
+        <Text as="span" size="xl" weight="bold">
+          {description || c('defaultLoadingDescription')}
+        </Text>
+      </div>
     </div>
   )
 }

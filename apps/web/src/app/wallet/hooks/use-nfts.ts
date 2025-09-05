@@ -52,19 +52,22 @@ export const useNfts = () => {
         variantOptions: {
           variant: 'default',
           textColor: 'white',
+          badge: {
+            variant: isTreasureNft(nft) ? 'nft-treasure' : 'nft',
+          },
           title: {
             text: `${nft.name} ${isTreasureNft(nft) ? c('claimNftTitle2') : c('claimNftTitle1')}`,
             image: {
               source: nft.url,
-              variant: 'lg',
+              variant: 'md',
               format: 'square',
             },
           },
           description: isTreasureNft(nft) ? c('claimNftDescription2') : c('claimNftDescription1'),
           button: {
-            children: c('claimNftButton'),
+            children: isTreasureNft(nft) ? c('claimNftButton') : c('claim'),
             variant: 'secondary',
-            size: 'lg',
+            size: 'xl',
             isRounded: true,
             onClick: () => {
               claimNft.mutate({

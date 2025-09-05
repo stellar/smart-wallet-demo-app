@@ -5,7 +5,6 @@ import { useToast } from 'src/app/core/hooks/use-toast'
 import { Toast } from 'src/app/core/services/toast'
 import { modalService } from 'src/components/organisms/modal/provider'
 import { ErrorHandling } from 'src/helpers/error-handling'
-import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 import { queryClient } from 'src/interfaces/query-client'
 
@@ -50,12 +49,23 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
 
   const transfer = useTransfer({
     onSuccess: (_, variables) => {
-      const message = variables.type === 'swag' ? c('claimSwagSuccess') : c('transferSuccess')
-      toast.notify({
-        message: message,
-        type: Toast.toastType.SUCCESS,
-      })
       exit({ closeModal: true })
+
+      if (variables.type === 'swag') {
+        modalService.open({
+          key: 'transfer-success',
+          variantOptions: {
+            variant: 'transfer-success',
+            title: c('claimSwagSuccess'),
+            autoClose: true,
+          },
+        })
+      } else {
+        toast.notify({
+          message: c('transferSuccess'),
+          type: Toast.toastType.SUCCESS,
+        })
+      }
     },
     onError: (error, variables) => {
       ErrorHandling.handleError({ error })
@@ -75,11 +85,15 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
           key: transactionDetailsModalKey,
           variantOptions: {
             variant: 'transaction-details',
+            badge: {
+              variant: 'pay',
+            },
             vendor: {
               name: data.vendor?.name || data.vendor?.wallet_address || 'Unknown Source',
               imageUri: data.vendor?.profile_image,
             },
             descriptionItems: result.data.products?.map(product => product.description),
+            actionType: 'send',
             amount: {
               value: params.amount,
               asset: params.asset,
@@ -94,7 +108,6 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
               onClick: () => transfer.mutate({ ...params, optionsJSON: data.options_json }),
             },
           },
-          backgroundImageUri: a('customModalBackground'),
           onClose: () => exit(),
         })
       }
@@ -124,6 +137,20 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
     },
   })
 
+  const mapLoadingMessage = (params: InitTransferProps['params']) => {
+    let loadingModalDescription: string | undefined
+
+    if (isTransferTypeParams(params)) {
+      loadingModalDescription = c('loadingTransfer')
+    } else if (isNftClaimTypeParams(params)) {
+      loadingModalDescription = c('loadingNftClaim')
+    } else if (isSwagTypeParams(params)) {
+      loadingModalDescription = c('loadingSwagTransfer')
+    }
+
+    return loadingModalDescription
+  }
+
   const handleTransferParams = useCallback(async () => {
     isHandlingTransfer.current = true
 
@@ -133,6 +160,7 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
       key: loadingParamsModalKey,
       variantOptions: {
         variant: 'loading',
+        description: mapLoadingMessage(params),
         isLocked: true,
       },
     })
