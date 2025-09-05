@@ -1,4 +1,5 @@
 CONTRACT_WASM_PATH = ../target/wasm32v1-none/release/nft.wasm
+OPTIMIZED_WASM_PATH = ../target/wasm32v1-none/release/nft.optimized.wasm
 
 # Default values for parameters
 TOKEN_ID ?= 0
@@ -30,6 +31,9 @@ test: build
 
 build:
 	stellar contract build
+
+optimize: build
+	stellar contract optimize --wasm $(CONTRACT_WASM_PATH) --wasm-out $(OPTIMIZED_WASM_PATH)
 
 fmt:
 	cargo fmt --all
