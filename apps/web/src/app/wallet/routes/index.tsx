@@ -3,9 +3,11 @@ import * as yup from 'yup'
 
 import { featureFlagsState } from 'src/app/core/helpers'
 import { privateRootRoute } from 'src/app/core/router/routeTree'
+import { preloadImages } from 'src/app/core/utils/preload'
 import { Home, Scan, Profile, Transactions, Nfts, LeftAssets, SpecialGift } from 'src/app/wallet/pages'
 import { checkImageExists } from 'src/helpers/check-image-exists'
 import { sleepInSeconds } from 'src/helpers/sleep'
+import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 import { qrScanner } from 'src/interfaces/qr-scanner'
 
@@ -68,6 +70,20 @@ export const homeRoute = createRoute({
   loaderDeps: ({ search }) => ({
     shouldInitTransfer: !!search.type,
   }),
+  beforeLoad: () => {
+    // Preload images
+    preloadImages([
+      a('airdropBannerBackground'),
+      a('airdropDefaultBackground'),
+      a('transferLeftAssetsBannerBackground'),
+      a('transferLeftAssetsDefaultBackground'),
+      a('behindScenesBannerBackground'),
+      a('behindScenesDefaultBackground'),
+      a('leftSwagsBannerBackground'),
+      a('nftModalBackground'),
+      a('customNftModalBackground'),
+    ])
+  },
 })
 
 const scanRoute = createRoute({
@@ -89,12 +105,20 @@ const transactionsRoute = createRoute({
   getParentRoute: () => walletRootRoute,
   path: filterHomePath(WalletPagesPath.TRANSACTIONS),
   component: Transactions,
+  beforeLoad: () => {
+    // Preload images
+    preloadImages([a('transactionsHistoryListMintBackground'), a('transactionsHistoryMintBackground'), a('emptyList')])
+  },
 })
 
 const nftsRoute = createRoute({
   getParentRoute: () => walletRootRoute,
   path: filterHomePath(WalletPagesPath.NFTS),
   component: Nfts,
+  beforeLoad: () => {
+    // Preload images
+    preloadImages([a('emptyList')])
+  },
 })
 
 export const leftAssetsRoute = createRoute({
@@ -134,6 +158,10 @@ export const specialGiftRoute = createRoute({
   loaderDeps: ({ search }) => ({
     photo_id: search.photo_id,
   }),
+  beforeLoad: () => {
+    // Preload images
+    preloadImages([a('specialGiftBox'), a('specialGiftModalBackground')])
+  },
   loader: async ({ deps }) => {
     const url = `${import.meta.env.VITE_GIFT_STORAGE_BASE_URL}/${deps.photo_id}.jpg`
     const maxRetries = 10

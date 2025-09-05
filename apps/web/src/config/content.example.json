@@ -168,6 +168,7 @@
   "sentBadge": "Sent",
   "receivedBadge": "Received",
   "organizationBadge": "Organization",
+  "specialGiftBadge": "Special gift",
   "behindScenesBannerTitleA": "Want to explore how the Smart Wallet Demo works behind the scenes?",
   "behindScenesBannerTitleB": "That's a wrap on!",
   "behindScenesBannerDescriptionA": "Check out our open-source project and start building your own smart wallet on Stellar.",
@@ -175,5 +176,7 @@
   "behindScenesBannerButtonTitle": "View project",
   "loadingTransfer": "Loading transfer details...",
   "loadingNftClaim": "Loading NFTs...",
-  "loadingSwagTransfer": "Claiming your swags..."
+  "loadingSwagTransfer": "Claiming your swags...",
+  "leftSwagsBannerTitle": "Left Swag Available!",
+  "leftSwagsBannerDescription": "Head to the booth to check the left swags!"
 }

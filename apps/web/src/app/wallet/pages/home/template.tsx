@@ -4,7 +4,7 @@ import Skeleton from 'react-loading-skeleton'
 
 import ProductMock02 from 'src/assets/images/mock/ecobag.png'
 import ProductMock01 from 'src/assets/images/mock/jacket.png'
-import { AssetAmount } from 'src/components/molecules'
+import { AssetAmount, NavigateButton } from 'src/components/molecules'
 import { Carousel, SafeAreaView, ImageCard, Collapse, CollapseItem } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
@@ -15,7 +15,8 @@ export type BannerOptions = {
     description: string
     variant: 'primary' | 'secondary'
   }
-  button: Omit<React.ComponentProps<typeof Button>, 'variant' | 'size' | 'isRounded'>
+  button?: Omit<React.ComponentProps<typeof Button>, 'variant' | 'size' | 'isRounded'>
+  onClose?: () => void
 }
 
 type NavbarItemType = 'nft' | 'history' | 'profile'
@@ -148,9 +149,19 @@ export const HomeTemplate = ({
         {bannersList?.map((banner, index) => (
           <div
             key={index}
-            className="flex flex-col rounded-[10px] p-4 gap-4 bg-cover"
+            className="relative flex flex-col rounded-[10px] p-4 gap-4 bg-cover"
             style={{ backgroundImage: `url(${banner.backgroundImageUri})` }}
           >
+            {banner.onClose && (
+              <NavigateButton
+                className="absolute top-2 right-2"
+                type="close"
+                variant="ghost"
+                onClick={banner.onClose}
+                isBordered={false}
+              />
+            )}
+
             <div className="flex flex-col">
               <Text
                 addlClassName={clsx(banner.label.variant === 'secondary' && 'text-whitish')}
@@ -168,11 +179,13 @@ export const HomeTemplate = ({
                 {banner.label.description}
               </Text>
             </div>
-            <div className="flex">
-              <Button variant={'secondary'} size={'sm'} isRounded {...banner.button}>
-                {banner.button.title}
-              </Button>
-            </div>
+            {banner.button && (
+              <div className="flex">
+                <Button variant={'secondary'} size={'sm'} isRounded {...banner.button}>
+                  {banner.button.title}
+                </Button>
+              </div>
+            )}
           </div>
         ))}
       </div>

@@ -68,6 +68,9 @@ const ModalInnerProvider = forwardRef<ModalServiceType, { children: ReactNode }>
     activeModal?.onClose?.()
   }
 
+  // Try to use #app, fallback to document.body
+  const portalRoot = (typeof document !== 'undefined' && document.getElementById('app')) || document.body
+
   return (
     <>
       {children}
@@ -83,7 +86,7 @@ const ModalInnerProvider = forwardRef<ModalServiceType, { children: ReactNode }>
               />
             )}
           </AnimatePresence>,
-          document.body
+          portalRoot
         )}
     </>
   )

@@ -55,11 +55,11 @@ export const useAccessTokenStore = create<AccessTokenStoreState>()(
        * If `broadcast` is false, the change is not broadcasted to other tabs.
        *
        * @param redirectTo - The path to redirect the user to after clearing the
-       * access token. Defaults to `AuthPagesPath.LOGIN`.
+       * access token. Defaults to `AuthPagesPath.WELCOME`.
        * @param broadcast - Whether to broadcast the change to other tabs.
        * Defaults to `true`.
        */
-      clearAccessToken: (redirectTo = AuthPagesPath.LOGIN, broadcast = true) => {
+      clearAccessToken: (redirectTo = AuthPagesPath.WELCOME, broadcast = true) => {
         queryClient.clearExcept([[CoreQueryKeys.GetFeatureFlags]])
 
         set({ accessToken: null })

@@ -8,14 +8,22 @@ import { homeRoutes } from 'src/app/home/routes'
 import { HomePagesPath } from 'src/app/home/routes/types'
 import { walletRoutes } from 'src/app/wallet/routes'
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
+import { a } from 'src/interfaces/cms/useAssets'
 
 import { featureFlagsState } from '../helpers'
 import { RouteLayout } from './components/route-layout'
 import { getFeatureFlags } from '../queries/use-get-feature-flags'
+import { preloadImages } from '../utils/preload'
 
 export const rootRoute = createRootRouteWithContext<{ client: QueryClient }>()({
   component: RouteLayout,
-  beforeLoad: ({ context }) => context.client.ensureQueryData(getFeatureFlags()),
+  beforeLoad: async ({ context }) => {
+    // Preload images
+    preloadImages([a('blackLogo'), a('yellowLogo')])
+
+    // Fetch feature flags
+    await context.client.ensureQueryData(getFeatureFlags())
+  },
 })
 
 // Public routes
@@ -23,6 +31,9 @@ export const publicRootRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: 'public',
   beforeLoad: ({ location }) => {
+    // Preload images
+    preloadImages([a('onboardingBackground')])
+
     const accessTokenStore = useAccessTokenStore.getState()
     const isAuthenticated = !!accessTokenStore.accessToken
 
