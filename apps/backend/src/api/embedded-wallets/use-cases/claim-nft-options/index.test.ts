@@ -432,7 +432,7 @@ describe('ClaimNftOptions', () => {
 
   describe('error messages', () => {
     it('should use correct error messages from constants', () => {
-      expect(messages.NOT_AUTHORIZED).toBe('You are not authorized to perform this action')
+      expect(messages.NOT_AUTHORIZED).toBe('Please log in to continue.')
       expect(messages.USER_NOT_FOUND_BY_EMAIL).toBe("We couldn't find an user with that email address")
       expect(messages.USER_DOES_NOT_HAVE_WALLET).toBe('You do not have a wallet linked to your account')
       expect(messages.USER_DOES_NOT_HAVE_PASSKEYS).toBe(
