@@ -1,4 +1,4 @@
-import { Button, Text, Icon, IconButton } from '@stellar/design-system'
+import { Button, Text } from '@stellar/design-system'
 import { useMemo } from 'react'
 
 import { Drawer, ImageCard } from 'src/components/organisms'
@@ -21,26 +21,10 @@ export const ViewNftDrawer = ({ nft, isTransferDisabled, onClose, onTransferClic
     <Drawer size="max-height" isOpen={!!nft} onClose={onClose} hasCloseButton>
       <div className="flex flex-col mt-[61px] gap-8 p-6">
         {/* Title & Subtitle */}
-        <div className="flex flex-col text-center gap-1">
-          <div className="flex items-center justify-center gap-2">
-            <Text as="h2" size="xl" weight="semi-bold">
-              {title}
-            </Text>
-            {nft?.transaction_hash && (
-              <IconButton
-                icon={<Icon.LinkExternal01 />}
-                altText="Stellar Explorer"
-                onClick={() => openExplorer(nft.transaction_hash)}
-                variant="default"
-                className="w-4 h-4"
-              />
-            )}
-          </div>
-          <div className="text-textSecondary">
-            <Text as="p" size="md" weight="medium">
-              {c('viewNftDrawerSubtitle')}
-            </Text>
-          </div>
+        <div className="flex flex-col text-center">
+          <Text as="h2" size="xl" weight="semi-bold">
+            {title}
+          </Text>
         </div>
 
         {/* NFT Image */}
@@ -58,15 +42,23 @@ export const ViewNftDrawer = ({ nft, isTransferDisabled, onClose, onTransferClic
                     }
                   : undefined
               }
-              isClickable={false}
+              onClick={() => openExplorer(nft?.transaction_hash)}
+              isClickable
+              showLinkButton
             />
           )}
+        </div>
+
+        <div className="text-center text-textSecondary">
+          <Text as="p" size="md" weight="medium">
+            {nft?.description}
+          </Text>
         </div>
 
         {/* Transfer Button */}
         <Button
           variant={'secondary'}
-          size={'lg'}
+          size={'xl'}
           disabled={isTransferDisabled}
           onClick={onTransferClick}
           isRounded

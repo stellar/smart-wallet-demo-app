@@ -1,5 +1,5 @@
 export const messages = {
-  NOT_AUTHORIZED: 'You are not authorized to perform this action',
+  NOT_AUTHORIZED: 'Please log in to continue.',
   USER_NOT_FOUND_BY_EMAIL: "We couldn't find an user with that email address",
   USER_NOT_FOUND_BY_ID: "We couldn't find an user with that id",
   USER_ALREADY_HAS_WALLET: 'You already have a wallet linked to your account',

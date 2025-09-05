@@ -24,6 +24,7 @@ type Props = {
   isLoadingBalance: boolean
   isLoadingSwags: boolean
   balanceAmount: number
+  topBanners?: BannerOptions[]
   banners?: BannerOptions[]
   products?: React.ComponentProps<typeof ImageCard>[]
   isProductActionButtonDisabled?: boolean
@@ -43,6 +44,7 @@ export const HomeTemplate = ({
   isLoadingBalance,
   isLoadingSwags,
   balanceAmount,
+  topBanners,
   banners,
   products = [
     {
@@ -127,16 +129,23 @@ export const HomeTemplate = ({
           <AssetAmount amount={balanceAmount} size="lg" asset={{ value: 'XLM', variant: 'sm' }} />
         </div>
 
-        <Button variant={'secondary'} size={'lg'} icon={<Icon.Scan />} iconPosition="left" onClick={onScanClick}>
-          {c('scan')}
+        <Button
+          disabled={balanceAmount === 0}
+          variant={'secondary'}
+          size={'lg'}
+          icon={<Icon.Scan />}
+          iconPosition="left"
+          onClick={onScanClick}
+        >
+          {c('pay')}
         </Button>
       </div>
     )
 
-  const Banners = () =>
-    banners?.length !== 0 && (
+  const Banners = ({ bannersList }: { bannersList: BannerOptions[] | undefined }) =>
+    bannersList?.length !== 0 && (
       <div className="flex flex-col gap-4">
-        {banners?.map((banner, index) => (
+        {bannersList?.map((banner, index) => (
           <div
             key={index}
             className="flex flex-col rounded-[10px] p-4 gap-4 bg-cover"
@@ -215,8 +224,9 @@ export const HomeTemplate = ({
     <SafeAreaView>
       <div className="flex flex-col gap-8 mb-7">
         <Navbar />
+        <Banners bannersList={topBanners} />
         <Balance />
-        <Banners />
+        <Banners bannersList={banners} />
         <HorizontalRule />
         <ProductList />
         <ProductActionButton />

@@ -2,7 +2,8 @@ import { Text, Button, CopyText, Icon } from '@stellar/design-system'
 import Skeleton from 'react-loading-skeleton'
 
 import { createShortStellarAddress } from 'src/app/core/utils'
-import { NavigateButton } from 'src/components/molecules'
+import { mapTextWithLinks } from 'src/app/core/utils/map-text-with-links'
+import { GhostButton, NavigateButton } from 'src/components/molecules'
 import { SafeAreaView } from 'src/components/organisms'
 import { isPubnet } from 'src/helpers/environment'
 import { c } from 'src/interfaces/cms/useContent'
@@ -52,7 +53,7 @@ export const ProfileTemplate = ({
   )
 
   const WalletAddressSection = ({ walletAddress }: WalletSectionProps) => {
-    const shortWalletAddress = createShortStellarAddress(walletAddress)
+    const shortWalletAddress = createShortStellarAddress(walletAddress, { sliceAmount: 5 })
 
     return (
       <div className="flex flex-col">
@@ -114,13 +115,44 @@ export const ProfileTemplate = ({
     <SafeAreaView>
       <div className="flex flex-col gap-8 mb-7">
         <NavigateButton variant="secondary" onClick={onGoBack} />
+
         <Text as="h1" size="xl" className="text-xl leading-8 font-semibold">
           {c('walletInfoTitle')}
         </Text>
+
         <ProfileCard email={email} walletAddress={walletAddress} />
-        <Button variant={'secondary'} size={'lg'} isRounded isFullWidth onClick={onSignOut}>
+
+        <GhostButton size={'lg'} isBordered isRounded isFullWidth onClick={onSignOut}>
           {c('signOut')}
-        </Button>
+        </GhostButton>
+
+        <Text addlClassName="text-textSecondary text-center" as="span" size="xs">
+          {mapTextWithLinks([
+            {
+              text: c('inviteOptionADisclaimerText1'),
+            },
+            {
+              text: c('inviteOptionADisclaimerText2'),
+              link: import.meta.env.VITE_TERMS_OF_SERVICE_URL,
+              removeBlankSpace: true,
+            },
+            {
+              text: c('inviteOptionADisclaimerText3'),
+            },
+            {
+              text: c('inviteOptionADisclaimerText4'),
+              link: import.meta.env.VITE_PRIVACY_POLICY_URL,
+              removeBlankSpace: true,
+            },
+            {
+              text: c('inviteOptionADisclaimerText5'),
+            },
+            {
+              text: c('inviteOptionADisclaimerText6'),
+              link: import.meta.env.VITE_ADDENDUM_URL,
+            },
+          ])}
+        </Text>
       </div>
     </SafeAreaView>
   )

@@ -109,7 +109,7 @@ export const InviteTemplate = ({
 
         {config.disclaimer && (
           <div className="mt-2 text-center">
-            <Text addlClassName="text-textSecondary " as="span" size="xs">
+            <Text addlClassName="text-textSecondary" as="span" size="xs">
               {mapTextWithLinks(config.disclaimer)}
             </Text>
           </div>
