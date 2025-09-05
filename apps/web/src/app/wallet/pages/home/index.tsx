@@ -40,14 +40,14 @@ export const Home = () => {
     enabled: isAirdropActive && isUserAirdropAvailable,
   })
 
-  // Handle left transfer assets
-  const { banner: transferLeftAssetsBanner } = useHandleTransferLeftAssets({
-    enabled: isTransferLeftAssetsActive && !getWallet.isLoading && !pendingLeftAssets,
-  })
-
   // Handle behind the scenes
   const { banner: behindScenesBanner } = useHandleBehindScenes({
     enabled: isBehindScenesActive,
+  })
+
+  // Handle left transfer assets
+  const { banner: transferLeftAssetsBanner } = useHandleTransferLeftAssets({
+    enabled: isTransferLeftAssetsActive && !getWallet.isLoading && !pendingLeftAssets,
   })
 
   // Init transfer when search params are present (handles both transfer and NFT)
@@ -103,16 +103,22 @@ export const Home = () => {
   const banners = useMemo(() => {
     const bannersArray: BannerOptions[] = []
     if (airdropBanner) bannersArray.push(airdropBanner)
-    if (transferLeftAssetsBanner) bannersArray.push(transferLeftAssetsBanner)
-    if (behindScenesBanner) bannersArray.push(behindScenesBanner)
     return bannersArray
-  }, [airdropBanner, behindScenesBanner, transferLeftAssetsBanner])
+  }, [airdropBanner])
+
+  const topBanners = useMemo(() => {
+    const bannersArray: BannerOptions[] = []
+    if (behindScenesBanner) bannersArray.push(behindScenesBanner)
+    if (transferLeftAssetsBanner) bannersArray.push(transferLeftAssetsBanner)
+    return bannersArray
+  }, [behindScenesBanner, transferLeftAssetsBanner])
 
   return (
     <HomeTemplate
       isLoadingBalance={isLoadingBalance}
       isLoadingSwags={isLoadingSwags}
       balanceAmount={walletData?.balance || 0}
+      topBanners={topBanners}
       banners={banners}
       products={swags}
       isProductActionButtonDisabled={isSwagActionButtonDisabled}

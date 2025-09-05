@@ -41,6 +41,8 @@ export const Nfts = () => {
     navigate({ to: WalletPagesPath.LEFT_ASSETS, search: { tab: 'transfer-nfts' } })
   }
 
+  const handleScanClick = () => navigate({ to: WalletPagesPath.SCAN })
+
   const handleClickNft = (nft: Nft) => {
     setSelectedNft(nft)
   }
@@ -58,7 +60,13 @@ export const Nfts = () => {
         onTransferClick={handleTransferClick}
       />
 
-      <NftsTemplate isLoadingNftsList={isLoadingNfts} nfts={nfts} onGoBack={handleGoBack} onNftClick={handleClickNft} />
+      <NftsTemplate
+        isLoadingNftsList={isLoadingNfts}
+        nfts={nfts}
+        onGoBack={handleGoBack}
+        onScanClick={handleScanClick}
+        onNftClick={handleClickNft}
+      />
     </>
   )
 }

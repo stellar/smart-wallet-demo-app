@@ -1,4 +1,4 @@
-import { Badge, Icon, Text } from '@stellar/design-system'
+import { Badge, Icon, IconButton, Text } from '@stellar/design-system'
 import clsx from 'clsx'
 import { useMemo } from 'react'
 
@@ -23,6 +23,7 @@ type Props = {
   isSelected?: boolean
   isSelectable?: boolean
   isClickable?: boolean
+  showLinkButton?: boolean
   onClick?: () => void
 }
 
@@ -37,6 +38,7 @@ export const ImageCard = ({
   isSelected = false,
   isSelectable = false,
   isClickable = true,
+  showLinkButton = false,
   onClick,
 }: Props): React.ReactNode => {
   const wrapperSizeClassNames = useMemo(() => {
@@ -97,7 +99,12 @@ export const ImageCard = ({
 
   const LeftBadgeComponent = () =>
     leftBadge && (
-      <div className={clsx('absolute', typeof isSelected === 'boolean' ? 'bottom-3 left-3' : 'top-3 left-3')}>
+      <div
+        className={clsx(
+          'absolute',
+          isSelectable && typeof isSelected === 'boolean' ? 'bottom-3 left-3' : 'top-3 left-3'
+        )}
+      >
         {leftBadge.variant === 'disabled' ? (
           <Badge icon={<Icon.CheckCircle />} iconPosition="left" variant="tertiary">
             {leftBadge.label}
@@ -146,6 +153,20 @@ export const ImageCard = ({
               {name}
             </Text>
           </div>
+        </div>
+      )}
+
+      {isClickable && showLinkButton && (
+        <div className="absolute bottom-4 right-2 rounded-lg">
+          <IconButton
+            altText={'External Link'}
+            onClick={onClick}
+            icon={
+              <div className="flex justify-center items-center rounded-full w-[35px] h-[35px] p-[0.6rem] bg-backgroundPrimary border border-borderPrimary">
+                <Icon.LinkExternal01 />
+              </div>
+            }
+          />
         </div>
       )}
     </Wrapper>
