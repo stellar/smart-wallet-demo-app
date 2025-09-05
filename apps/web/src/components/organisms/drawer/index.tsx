@@ -39,8 +39,11 @@ export const Drawer = ({
     }
   }, [isLocked, onClose])
 
+  // Try to use #app, fallback to document.body
+  const portalRoot = (typeof document !== 'undefined' && document.getElementById('app')) || document.body
+
   return createPortal(
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isOpen && (
         <motion.div
           data-testid="drawer-backdrop"
@@ -49,14 +52,14 @@ export const Drawer = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className={clsx('absolute inset-0 z-50 flex items-end justify-center bg-black/70 transition-opacity')}
+          className={clsx('absolute inset-0 z-50 flex items-end justify-center bg-black/70')}
           onClick={isLocked ? undefined : onClose}
         >
           <motion.div
             key="drawer"
-            initial={{ y: '100%' }}
+            initial={{ y: '100svh' }}
             animate={{ y: 0 }}
-            exit={{ y: '100%' }}
+            exit={{ y: '100svh' }}
             transition={{ duration: 0.1, ease: 'easeOut' }}
             className={clsx(
               'relative w-full max-w-[736px] flex flex-col bg-backgroundSecondary rounded-t-3xl max-h-[92.5%] shadow-lg transform transition-transform',
@@ -82,7 +85,7 @@ export const Drawer = ({
         </motion.div>
       )}
     </AnimatePresence>,
-    document.body
+    portalRoot
   )
 }
 
