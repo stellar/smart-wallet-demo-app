@@ -52,7 +52,7 @@ export const Drawer = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className={clsx('absolute inset-0 z-50 flex items-end justify-center bg-black/70')}
+          className={clsx('fixed inset-0 z-50 flex items-end justify-center bg-black/70')}
           onClick={isLocked ? undefined : onClose}
         >
           <motion.div
