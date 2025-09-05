@@ -24,7 +24,7 @@ export const InviteTemplate = ({
   onLogIn,
   onForgotPassword,
 }: Props) => {
-  const config = !isReturningUser
+  const config = isReturningUser
     ? {
         titleLines: [c('inviteOptionBTitleLine1'), c('inviteOptionBTitleLine2')],
         subtitle: [
