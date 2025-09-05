@@ -11,7 +11,7 @@ export type ModalDefaultProps = {
   variant: Extract<ModalVariants, 'default'>
   textColor?: 'black' | 'white'
   badge?: {
-    variant: 'airdrop' | 'nft' | 'nft-treasure'
+    variant: 'airdrop' | 'nft' | 'nft-treasure' | 'special-gift'
   }
   title: {
     text: string
@@ -93,6 +93,12 @@ export const ModalDefault = ({
             <Badge variant="secondary">{c('treasureBadge')}</Badge>
           </Wrapper>
         )
+      case 'special-gift':
+        return (
+          <Wrapper>
+            <Badge variant="secondary">{c('specialGiftBadge')}</Badge>
+          </Wrapper>
+        )
       default:
         return <></>
     }
@@ -142,7 +148,7 @@ export const ModalDefault = ({
         <div className="flex flex-col justify-center">
           <Button isLoading={isLoading} {...button} />
           {note && (
-            <div className="mt-2 text-center">
+            <div className="mt-2 text-center text-textSecondary">
               <Text as="p" size="sm">
                 {note}
               </Text>

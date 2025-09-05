@@ -69,6 +69,9 @@ export const SpecialGift = () => {
       key: giftModalKey,
       variantOptions: {
         variant: 'default',
+        badge: {
+          variant: 'special-gift',
+        },
         title: {
           text: c('specialGiftModalTitle'),
           image: {

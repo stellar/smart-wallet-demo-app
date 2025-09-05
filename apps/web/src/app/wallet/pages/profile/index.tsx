@@ -1,6 +1,5 @@
 import { useNavigate, useCanGoBack, useRouter } from '@tanstack/react-router'
 
-import { AuthPagesPath } from 'src/app/auth/routes/types'
 import { useAccessTokenStore } from 'src/app/auth/store'
 
 import { ProfileTemplate } from './template'
@@ -28,7 +27,7 @@ export const Profile = () => {
 
   const handleSignOut = () => {
     // Clear session data and redirect to welcome page
-    clearAccessToken(AuthPagesPath.WELCOME)
+    clearAccessToken()
   }
 
   return (

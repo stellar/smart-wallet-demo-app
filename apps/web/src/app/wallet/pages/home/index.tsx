@@ -9,6 +9,7 @@ import { c } from 'src/interfaces/cms/useContent'
 import { BannerOptions, HomeTemplate } from './template'
 import { useHandleAirdrop } from '../../hooks/use-handle-airdrop'
 import { useHandleBehindScenes } from '../../hooks/use-handle-behind-scenes'
+import { useHandleLeftSwags } from '../../hooks/use-handle-left-swags'
 import { useHandleTransferLeftAssets } from '../../hooks/use-handle-transfer-left-assets'
 import { useInitTransfer } from '../../hooks/use-init-transfer'
 import { useGetWallet } from '../../queries/use-get-wallet'
@@ -19,10 +20,11 @@ export const Home = () => {
   const loaderDeps = homeRoute.useLoaderDeps()
   const navigate = useNavigate()
 
-  const [isAirdropActive, isTransferLeftAssetsActive, isBehindScenesActive] = featureFlagsState([
+  const [isAirdropActive, isTransferLeftAssetsActive, isBehindScenesActive, isLeftSwagsActive] = featureFlagsState([
     'airdrop',
     'transfer-left-assets',
     'behind-scenes',
+    'left-swags',
   ])
 
   // Wallet information
@@ -48,6 +50,10 @@ export const Home = () => {
   // Handle left transfer assets
   const { banner: transferLeftAssetsBanner } = useHandleTransferLeftAssets({
     enabled: isTransferLeftAssetsActive && !getWallet.isLoading && !pendingLeftAssets,
+  })
+
+  const { banner: leftSwagsBanner } = useHandleLeftSwags({
+    enabled: isLeftSwagsActive,
   })
 
   // Init transfer when search params are present (handles both transfer and NFT)
@@ -103,8 +109,9 @@ export const Home = () => {
   const banners = useMemo(() => {
     const bannersArray: BannerOptions[] = []
     if (airdropBanner) bannersArray.push(airdropBanner)
+    if (leftSwagsBanner) bannersArray.push(leftSwagsBanner)
     return bannersArray
-  }, [airdropBanner])
+  }, [airdropBanner, leftSwagsBanner])
 
   const topBanners = useMemo(() => {
     const bannersArray: BannerOptions[] = []
