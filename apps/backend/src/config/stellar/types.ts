@@ -8,6 +8,8 @@ export type StellarConfig = {
   TOKEN_CONTRACT: TokenContractConfig
   AIRDROP_CONTRACT_ADDRESS: string
   GIFT_AIRDROP_CONTRACT_ADDRESS: string
+  SOROBAN_RPC_AUTH_HEADER_NAME?: string
+  SOROBAN_RPC_AUTH_HEADER_VALUE?: string
 }
 
 export type ProjectConfig = {

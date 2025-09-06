@@ -37,9 +37,17 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
 
   constructor(sourceAccount?: { publicKey?: string; secretKey?: string }) {
     super()
+
+    // Build RPC headers
+    const rpcHeaders: Record<string, string> = {}
+    if (STELLAR.SOROBAN_RPC_AUTH_HEADER_NAME && STELLAR.SOROBAN_RPC_AUTH_HEADER_VALUE) {
+      rpcHeaders[STELLAR.SOROBAN_RPC_AUTH_HEADER_NAME] = STELLAR.SOROBAN_RPC_AUTH_HEADER_VALUE
+    }
+
     this.rpcClient = new rpc.Server(STELLAR.SOROBAN_RPC_URL, {
       allowHttp: STELLAR.SOROBAN_RPC_URL.startsWith('http://'),
       timeout: 30000, // 30 seconds
+      headers: rpcHeaders,
     })
     this.networkPassphrase = STELLAR.NETWORK_PASSPHRASE
     this.timeoutInSeconds = 60
