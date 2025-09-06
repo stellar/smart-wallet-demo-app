@@ -40,8 +40,8 @@ export default class SorobanService extends SingletonBase implements ISorobanSer
 
     // Build RPC headers
     const rpcHeaders: Record<string, string> = {}
-    if (STELLAR.SOROBAN_RPC_AUTH_HEADER_NAME && STELLAR.SOROBAN_RPC_AUTH_HEADER_VALUE) {
-      rpcHeaders[STELLAR.SOROBAN_RPC_AUTH_HEADER_NAME] = STELLAR.SOROBAN_RPC_AUTH_HEADER_VALUE
+    if (STELLAR.STELLAR_RPC_AUTH_HEADER_NAME && STELLAR.STELLAR_RPC_AUTH_HEADER_VALUE) {
+      rpcHeaders[STELLAR.STELLAR_RPC_AUTH_HEADER_NAME] = STELLAR.STELLAR_RPC_AUTH_HEADER_VALUE
     }
 
     this.rpcClient = new rpc.Server(STELLAR.SOROBAN_RPC_URL, {
