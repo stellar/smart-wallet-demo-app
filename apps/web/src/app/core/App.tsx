@@ -6,10 +6,11 @@ import { Providers } from './providers'
 import { router } from './router'
 
 const App = (): JSX.Element => {
+  const envTitle = import.meta.env.VITE_APP_TITLE
+
   useEffect(() => {
-    const envTitle = import.meta.env.VITE_APP_TITLE || 'Smart Wallet | Secure & Easy Crypto Management'
-    document.title = envTitle
-  }, [])
+    document.title = envTitle || 'Smart Wallet'
+  }, [envTitle])
 
   return (
     <ErrorBoundary displayMessage="Ooooppss... An unexpected error occured">

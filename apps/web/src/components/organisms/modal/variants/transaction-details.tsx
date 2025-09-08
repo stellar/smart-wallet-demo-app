@@ -18,6 +18,7 @@ export type ModalTransactionDetailsProps = {
   vendor: {
     name: string
     imageUri?: string
+    imageRadius?: 'full' | 'sm'
   }
   descriptionItems?: string[]
   actionType?: 'receive' | 'send'
@@ -176,10 +177,12 @@ export const ModalTransactionDetails = ({
     name,
     descriptionItems,
     imageUri,
+    imageRadius,
   }: {
     name: string
     descriptionItems: string[]
     imageUri: string
+    imageRadius: 'full' | 'sm'
   }) => (
     <div
       className={clsx(
@@ -189,7 +192,14 @@ export const ModalTransactionDetails = ({
       )}
     >
       <div className="flex flex-col items-center">
-        <div className="rounded-full overflow-hidden w-[56px] h-[56px]">
+        <div
+          className={clsx(
+            'overflow-hidden w-[56px] h-[56px]',
+
+            imageRadius === 'full' && 'rounded-full',
+            imageRadius === 'sm' && 'rounded-[3.35px]'
+          )}
+        >
           <img src={imageUri} alt="Modal image" className="w-full h-full object-cover" />
         </div>
       </div>
@@ -255,6 +265,7 @@ export const ModalTransactionDetails = ({
           name={vendor.name}
           descriptionItems={descriptionItems ?? []}
           imageUri={vendor.imageUri}
+          imageRadius={vendor.imageRadius ?? 'full'}
         />
       ) : (
         <TopComponentWithoutImage name={vendor.name} descriptionItems={descriptionItems ?? []} />

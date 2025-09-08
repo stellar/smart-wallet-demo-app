@@ -128,7 +128,7 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className={clsx('fixed inset-0 z-50 flex items-center justify-center bg-black/70 transition-opacity')}
+      className={clsx('fixed inset-0 z-50 flex items-center justify-center bg-black/70')}
       onClick={handleBackdropClick}
     >
       <motion.div

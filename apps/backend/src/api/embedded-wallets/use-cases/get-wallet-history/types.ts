@@ -26,7 +26,17 @@ export const TransactionSchema = z.object({
   date: z.string(),
   vendor: z.string().optional(),
   asset: z.string(),
-  product: z.object({}).optional(),
+  product: z
+    .array(
+      z.object({
+        code: z.string(),
+        name: z.string().optional(),
+        description: z.string(),
+        imageUrl: z.string().optional(),
+        isSwag: z.boolean(),
+      })
+    )
+    .optional(),
   token: TokenData.optional(),
   fromAddress: z.string().optional(),
   toAddress: z.string().optional(),
