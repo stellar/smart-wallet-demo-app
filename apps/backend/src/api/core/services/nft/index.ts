@@ -57,6 +57,29 @@ export default class NftRepository extends SingletonBase implements NftRepositor
     return NftModel.findOneBy({ contractAddress: ILike(contractAddress) })
   }
 
+  async getLeaderboard(): Promise<{ user: User; nftCount: number }[]> {
+    return NftModel.createQueryBuilder('nft')
+      .select('user.userId', 'userId')
+      .addSelect('user.email', 'email')
+      .addSelect('user.contractAddress', 'contractAddress')
+      .addSelect('COUNT(nft.nftId)', 'nftCount')
+      .leftJoin('nft.user', 'user')
+      .where('nft.deletedAt IS NULL')
+      .groupBy('user.userId, user.email, user.contractAddress')
+      .orderBy('COUNT(nft.nftId)', 'DESC')
+      .getRawMany()
+      .then(results =>
+        results.map(result => ({
+          user: {
+            userId: result.userId,
+            email: result.email,
+            contractAddress: result.contractAddress,
+          } as User,
+          nftCount: parseInt(result.nftCount),
+        }))
+      )
+  }
+
   async createNft(
     nft: { tokenId?: string; contractAddress: string; nftSupply?: NftSupply; transactionHash?: string; user: User },
     save?: boolean

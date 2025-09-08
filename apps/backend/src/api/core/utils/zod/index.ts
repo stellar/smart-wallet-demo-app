@@ -119,4 +119,11 @@ export const nftSupplySchema = z.object({
   issuer: z.string(),
 })
 
+export const leaderboardSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  contract_address: z.string(),
+  token_count: z.number(),
+})
+
 export type MerkleProofDataT = z.infer<typeof merkleProofDataSchema>
