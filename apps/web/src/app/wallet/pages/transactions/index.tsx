@@ -60,7 +60,8 @@ export const Transactions = () => {
     const mapDescriptionItems = (tx: Transaction): ModalTransactionDetailsProps['descriptionItems'] => {
       switch (tx.type) {
         case CustomTxTypes.SWAG:
-          if (tx.sendOrReceive === 'send') return [c('transactionModalSendSwagLabel')]
+          if (tx.sendOrReceive === 'send')
+            return tx.amount > 1 ? [c('transactionModalSendMultipleSwagLabel')] : [c('transactionModalSendSwagLabel')]
           if (tx.sendOrReceive === 'receive') return [c('transactionModalReceivedSwagLabel')]
           break
         case CustomTxTypes.BUY_PRODUCT:
@@ -82,6 +83,7 @@ export const Transactions = () => {
         date: tx.date,
         vendor: {
           name: mapTxVendorName(tx),
+          isVendorNameHidden: tx.type === CustomTxTypes.NFT_CLAIM,
           imageUri: tx.type === CustomTxTypes.NFT_CLAIM ? tx.token?.image_url : undefined,
           imageRadius: tx.type === CustomTxTypes.NFT_CLAIM ? 'sm' : undefined,
         },

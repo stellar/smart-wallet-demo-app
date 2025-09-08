@@ -17,6 +17,7 @@ export type ModalTransactionDetailsProps = {
   date?: string
   vendor: {
     name: string
+    isVendorNameHidden?: boolean
     imageUri?: string
     imageRadius?: 'full' | 'sm'
   }
@@ -137,18 +138,19 @@ export const ModalTransactionDetails = ({
     </div>
   )
 
-  const Vendor = ({ name }: { name: string }) => (
-    <div className="flex flex-col items-center gap-1">
-      <Text
-        as="span"
-        size="lg"
-        weight="medium"
-        addlClassName="text-center text-textSecondary break-words whitespace-normal"
-      >
-        {createShortStellarAddress(name, { onlyValidAddress: true })}
-      </Text>
-    </div>
-  )
+  const Vendor = ({ name }: { name: string }) =>
+    !vendor.isVendorNameHidden && (
+      <div className="flex flex-col items-center gap-1">
+        <Text
+          as="span"
+          size="lg"
+          weight="medium"
+          addlClassName="text-center text-textSecondary break-words whitespace-normal"
+        >
+          {createShortStellarAddress(name, { onlyValidAddress: true })}
+        </Text>
+      </div>
+    )
 
   const Description = ({ descriptionItems }: { descriptionItems: string[] }) =>
     descriptionItems.length !== 0 && (

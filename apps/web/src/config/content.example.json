@@ -72,6 +72,7 @@
   "transactionModalAvailableBalanceLabel": "Available balance:",
   "transactionModalReceivedSwagLabel": "Claimable swag token",
   "transactionModalSendSwagLabel": "Claimed swag token",
+  "transactionModalSendMultipleSwagLabel": "Claimed swags tokens",
   "defaultLoadingDescription": "Hold on a second...",
   "confirmPayment": "Confirm Payment",
   "invalidQrCode": "This QR code isn't valid. Please try another one",
