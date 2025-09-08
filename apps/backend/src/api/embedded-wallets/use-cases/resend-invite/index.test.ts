@@ -6,7 +6,6 @@ import { userFactory } from 'api/core/entities/user/factory'
 import { User } from 'api/core/entities/user/types'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
-import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
 import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
 
 import { ResendInvite, endpoint } from './index'
@@ -52,7 +51,10 @@ describe('ResendInvite', () => {
     } as User)
 
     const payload = { email }
-    await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceConflictedException)
+    const result = await useCase.handle(payload)
+
+    expect(result.data.email_sent).toBe(true)
+    expect(result.message).toBe('Invite resent successfully')
     expect(mockedSDPEmbeddedWallets.resendInvite).not.toHaveBeenCalled()
   })
 
@@ -64,7 +66,10 @@ describe('ResendInvite', () => {
     )
 
     const payload = { email }
-    await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceConflictedException)
+    const result = await useCase.handle(payload)
+
+    expect(result.data.email_sent).toBe(true)
+    expect(result.message).toBe('Invite resent successfully')
   })
 
   it('should throw exceptions from resendInvite', async () => {

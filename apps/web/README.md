@@ -26,6 +26,35 @@ This project leverages the following libraries and tools:
   Learn how to manage and load external assets (images, videos) and content (texts) in this project.  
   This guide covers how to configure these files for local development and CI/CD pipelines, and how to use the provided helper hooks (`a()`, `c()`) in your components.
 
+- **FAQ:**
+  `VITE_FAQ` is an environment variable that expects a stringified JSON array of FAQ objects. Each FAQ object should have the following structure:
+
+  ```
+  {
+    "title": "string",
+    "description": "string"
+  }
+  ```
+
+  Example:
+
+  ```
+  {
+    items: [
+      {
+        title: string
+        description: string
+      },
+      {
+        title: string
+        description: string
+      }
+    ]
+  }
+  ```
+
+  Note: The value of `VITE_FAQ` should be a stringified version of the above JSON array.
+
 ## 📁 Project Structure
 
 ```

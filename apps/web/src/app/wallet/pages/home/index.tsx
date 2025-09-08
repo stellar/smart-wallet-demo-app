@@ -2,11 +2,12 @@ import { useNavigate } from '@tanstack/react-router'
 import { useMemo } from 'react'
 
 import { featureFlagsState } from 'src/app/core/helpers'
+import logger from 'src/app/core/services/logger'
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
 import { ImageCard } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
-import { BannerOptions, HomeTemplate } from './template'
+import { BannerOptions, FaqOptions, HomeTemplate } from './template'
 import { useHandleAirdrop } from '../../hooks/use-handle-airdrop'
 import { useHandleBehindScenes } from '../../hooks/use-handle-behind-scenes'
 import { useHandleLeftSwags } from '../../hooks/use-handle-left-swags'
@@ -76,6 +77,21 @@ export const Home = () => {
 
   const handleSwagClick = () => navigate({ to: WalletPagesPath.SCAN })
 
+  const faq: FaqOptions = useMemo(() => {
+    let faqItems: FaqOptions['items'] = []
+
+    try {
+      faqItems = JSON.parse(import.meta.env.VITE_FAQ).items
+    } catch (error) {
+      logger.error(`Failed to parse faq`, { error })
+    }
+
+    return {
+      title: c('frequentlyAskedQuestions'),
+      items: faqItems,
+    }
+  }, [])
+
   const swags: React.ComponentProps<typeof ImageCard>[] = useMemo(() => {
     return (walletData?.swags || []).map(swag => ({
       variant: swag.status === 'claimed' ? 'disabled' : 'enabled',
@@ -129,6 +145,7 @@ export const Home = () => {
       banners={banners}
       products={swags}
       isProductActionButtonDisabled={isSwagActionButtonDisabled}
+      faq={faq}
       onNavbarButtonClick={handleNavbarButtonClick}
       onScanClick={handleScanClick}
       onProductActionButtonClick={handleSwagClick}

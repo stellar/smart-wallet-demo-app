@@ -66,7 +66,7 @@ export const TransferAssets = () => {
         key: 'transfer-success',
         variantOptions: {
           variant: 'transfer-success',
-          title: c('transferSuccessModalTitle'),
+          title: organization ? c('transferOrganizationSuccessModalTitle') : c('transferSuccessModalTitle'),
           icon: organization ? 'heart' : 'check',
           message: message.trim(),
           buttonText: organization ? c('close') : c('transferNft'),

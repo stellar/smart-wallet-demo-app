@@ -57,7 +57,9 @@ describe('LogInOptions', () => {
     }
     mockedUserRepository.getUserByEmail.mockResolvedValue(null)
 
-    await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
+    const result = await useCase.handle(payload)
+
+    expect(result.data.options_json).toBe(null)
     expect(mockedGenerateAuthenticationOptions).not.toHaveBeenCalled()
   })
 

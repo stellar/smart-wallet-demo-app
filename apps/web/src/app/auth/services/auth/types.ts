@@ -42,7 +42,7 @@ export type GetLogInOptionsInput = {
   email: string
 }
 export type GetLogInOptionsResult = IHTTPResponse<{
-  options_json: string
+  options_json: string | null
 }>
 
 export type PostLogInInput = {

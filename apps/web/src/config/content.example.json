@@ -161,6 +161,7 @@
   "selectAmountTransferDrawerTitle": "Send to",
   "selectAmountTransferDrawerInputDescription": "Balance:",
   "selectAmountTransferDrawerSubmitText": "Transfer",
+  "transferOrganizationSuccessModalTitle": "Donation Complete!",
   "transferSuccessModalTitle": "Transfer Complete!",
   "transferOrganizationSuccessModalMessage": "has been send to",
   "transferAssetSuccessModalMessage": "has been sent!",

@@ -15,12 +15,16 @@ export const LogIn = () => {
   const router = useRouter()
   const navigate = useNavigate()
   const canGoBack = useCanGoBack()
+  const [isLoginLinkSent, setIsLoginLinkSent] = useState(false)
   const [isRedirecting, setIsRedirecting] = useState(false)
 
   const logIn = useLogIn({
-    onSuccess: () => {
-      setIsRedirecting(true)
-      navigate({ to: WalletPagesPath.HOME })
+    onSuccess: result => {
+      if (result.loginLinkSent) setIsLoginLinkSent(true)
+      else {
+        setIsRedirecting(true)
+        navigate({ to: WalletPagesPath.HOME })
+      }
     },
   })
 
@@ -52,6 +56,7 @@ export const LogIn = () => {
   return (
     <LogInTemplate
       isLoggingIn={logIn.isPending || isRedirecting}
+      isLoginLinkSent={isLoginLinkSent}
       form={form}
       onGoBack={handleGoBack}
       onLogIn={handleLogIn}
