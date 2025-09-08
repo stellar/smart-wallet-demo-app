@@ -13,6 +13,7 @@ import {
   adminProductsRoutes,
   adminNgosRoutes,
   ngosRoutes,
+  nftMetadataRoutes,
 } from '../general-settings/routes'
 
 function routes(http: express.Router): void {
@@ -30,6 +31,7 @@ function routes(http: express.Router): void {
   http.use('/api/admin/vendors', adminVendorsRoutes)
   http.use('/api/admin/products', adminProductsRoutes)
   http.use('/api/admin/ngos', adminNgosRoutes)
+  http.use('/nft-metadata', nftMetadataRoutes)
 }
 
 export { routes, Request, Response, Router, NextFunction }
