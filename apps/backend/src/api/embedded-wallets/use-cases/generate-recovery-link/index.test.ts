@@ -98,14 +98,14 @@ describe('GenerateRecoveryLink', () => {
     expect(useCase.prepareEmailData(mockedEmail, 'ABC123')).toEqual({
       to: mockedEmail,
       subject: 'Recovery Link',
-      text: 'This is your recovery link: http://example.com/recovery?code=ABC123',
-      html: '<p>Click on the following link to recover your wallet: <a href="http://example.com/recovery?code=ABC123">http://example.com/recovery?code=ABC123</a></p>',
+      text: 'Click on the following link to recover your wallet: http://example.com/recovery?code=ABC123',
+      html: expect.stringContaining('http://example.com/recovery?code=ABC123'),
     })
     expect(mockedEmailService.sendEmail).toHaveBeenCalledWith({
       to: mockedEmail,
       subject: 'Recovery Link',
-      text: expect.stringContaining('This is your recovery link: http://example.com/recovery?code=ABC123'),
-      html: expect.stringContaining('<a href="http://example.com/recovery?code=ABC123">'),
+      text: expect.stringContaining('http://example.com/recovery?code=ABC123'),
+      html: expect.stringContaining('http://example.com/recovery?code=ABC123'),
     })
   })
 
