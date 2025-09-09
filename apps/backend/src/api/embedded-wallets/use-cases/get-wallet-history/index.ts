@@ -1,4 +1,4 @@
-import { xdr } from '@stellar/stellar-sdk'
+import { StrKey, xdr } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
@@ -143,6 +143,8 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
         }
 
         amount = execOperationData?.invocations?.length
+        vendorContractAddress = operationData?.contractId
+        if (vendorContractAddress?.includes('Unknown')) vendorContractAddress = undefined
 
         if (execOperationData?.invocations) {
           for (const invocation of execOperationData.invocations) {
@@ -206,10 +208,10 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       // Fetch asset details using the tokenId from the transaction
       const asset = await this.assetRepository.getAssetByContractAddress(contractId as string)
 
-      let vendor
+      let vendorLabel: string | undefined
       if (vendorContractAddress) {
-        vendor = vendorContractAddress
-          ? await this.vendorRepository.getVendorByWalletAddress(vendorContractAddress)
+        vendorLabel = vendorContractAddress
+          ? (await this.vendorRepository.getVendorByWalletAddress(vendorContractAddress))?.name
           : undefined
       }
 
@@ -229,7 +231,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
 
       // Check if the transaction destination is linked to any NGOs
       let ngo
-      if (toAddress) {
+      if (toAddress && (StrKey.isValidEd25519PublicKey(toAddress) || StrKey.isValidContract(toAddress))) {
         ngo = await this.ngoRepository.getNgoByWalletAddress(toAddress)
       }
 
@@ -243,6 +245,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       if (contractId === STELLAR.AIRDROP_CONTRACT_ADDRESS) {
         type = 'airdrop_claim'
       } else if (ngo) {
+        vendorLabel = ngo.name
         type = 'donation'
       } else if (swagProducts && swagProducts.length > 0) {
         type = 'swag'
@@ -259,7 +262,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       const transaction: TransactionSchemaT = {
         hash: tx.hash,
         type: type as string,
-        vendor: vendor?.name || vendorContractAddress || undefined,
+        vendor: vendorLabel || vendorContractAddress || undefined,
         amount: amount as number,
         asset: asset?.code || tx.operations[0].stateChanges[0]?.tokenId || (contractId as string),
         date: tx.ledgerCreatedAt, // Assuming ledgerCreatedAt is in ISO format
