@@ -53,7 +53,7 @@ This project leverages the following libraries and tools:
   }
   ```
 
-  Note: The value of `VITE_FAQ` should be a stringified version of the above JSON array.
+  Note: The value of `VITE_FAQ` should be a base64 stringified version of the above JSON array. (E.g.: `btoa(JSON.stringify(json))`)
 
 ## 📁 Project Structure
 
