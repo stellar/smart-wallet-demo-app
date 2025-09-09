@@ -14,5 +14,6 @@ export function mockNftRepository(): Mocked<NftRepositoryType> {
     updateNft: vi.fn(),
     deleteNfts: vi.fn(),
     saveNfts: vi.fn(),
+    getLeaderboard: vi.fn(),
   }
 }

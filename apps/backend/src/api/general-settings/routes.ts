@@ -11,6 +11,7 @@ import { CreateProduct, endpoint as CreateProductEndpoint } from './use-cases/cr
 import { CreateVendor, endpoint as CreateVendorEndpoint } from './use-cases/create-vendor'
 import { GetAssets, endpoint as GetAssetsEndpoint } from './use-cases/get-assets'
 import { GetFeatureFlags, endpoint as GetFeatureFlagsEndpoint } from './use-cases/get-feature-flags'
+import { GetLeaderboard, endpoint as GetLeaderboardEndpoint } from './use-cases/get-leaderboard'
 import { GetNftMetadata, endpoint as GetNftMetadataEndpoint } from './use-cases/get-nft-metadata'
 import { GetNftSupply, endpoint as GetNftSupplyEndpoint } from './use-cases/get-nft-supply'
 import { GetNgos, endpoint as GetNgosEndpoint } from './use-cases/get-ngos'
@@ -97,6 +98,11 @@ adminNgosRoutes.patch(`${UpdateNgoEndpoint}`, apiKeyAuthentication, async (req, 
   UpdateNgo.init().executeHttp(req, res)
 )
 
+const adminLeaderboardRoutes = Router()
+adminLeaderboardRoutes.get(`${GetLeaderboardEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  GetLeaderboard.init().executeHttp(req, res)
+)
+
 const nftMetadataRoutes = Router()
 nftMetadataRoutes.get(`${GetNftMetadataEndpoint}`, async (req, res) => GetNftMetadata.init().executeHttp(req, res))
 
@@ -109,5 +115,6 @@ export {
   adminNgosRoutes,
   adminNftSupplyRoutes,
   adminProductsRoutes,
+  adminLeaderboardRoutes,
   nftMetadataRoutes,
 }
