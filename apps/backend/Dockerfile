@@ -1,6 +1,6 @@
 FROM node:22.14-bullseye-slim AS base
 WORKDIR /app
-RUN apt-get update && apt-get install -y make
+RUN apt-get update && apt-get install -y make rsync
 COPY package*.json Makefile ./
 COPY ./patches ./patches
 COPY . .
@@ -19,7 +19,7 @@ RUN make build APP=backend
 FROM node:22.14-bullseye-slim AS remote
 WORKDIR /app
 ENV DEPLOY_STAGE=remote
-RUN apt-get update && apt-get install -y make openssl
+RUN apt-get update && apt-get install -y make openssl rsync
 COPY package*.json Makefile ./
 COPY ./patches ./patches
 COPY .husky/install.mjs ./.husky/
