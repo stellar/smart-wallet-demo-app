@@ -1,8 +1,6 @@
 import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 
-import { WalletPagesPath } from 'src/app/wallet/routes/types'
-
 import { RecoverConfirmTemplate } from './template'
 import { useRecoverWallet } from '../../queries/use-recover-wallet'
 import { recoverConfirmRoute } from '../../routes'
@@ -19,7 +17,6 @@ export const RecoverConfirm = () => {
   const recoverWallet = useRecoverWallet({
     onSuccess: () => {
       setIsRedirecting(true)
-      navigate({ to: WalletPagesPath.HOME })
     },
   })
 

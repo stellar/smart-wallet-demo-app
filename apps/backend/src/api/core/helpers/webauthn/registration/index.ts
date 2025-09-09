@@ -105,6 +105,9 @@ export default class WebAuthnRegistration extends SingletonBase implements IWebA
     if (getChallenge.metadata.type !== 'passkey')
       throw Error(`${this.constructor.name} | complete | Invalid challenge type for ${userIdentifier}`)
 
+    // Delete existing passkeys
+    await this.passkeyRepository.deletePasskeys(user.passkeys.map(passkey => passkey.credentialId))
+    // Create new passkey
     const passkey = await this.passkeyRepository.createPasskey(
       {
         user,

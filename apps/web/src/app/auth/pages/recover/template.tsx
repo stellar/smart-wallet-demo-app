@@ -43,6 +43,7 @@ export const RecoverTemplate = ({ form, isResetLinkSent, onGoBack, onSendResetLi
             <div className="flex flex-col gap-6">
               <Form.Input
                 name="email"
+                type="email"
                 variant="blurred"
                 fieldSize={'lg'}
                 placeholder={c('recoverEmailInputPlaceholder')}

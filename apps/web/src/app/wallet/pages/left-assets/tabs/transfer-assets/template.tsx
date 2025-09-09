@@ -83,6 +83,7 @@ export const TransferAssetsTemplate = ({
         <WalletAddressForm
           form={standardTransferForm}
           submitButtonText={c('transfer')}
+          isSubmitDisabled={balanceAmount === 0}
           onSubmit={onStandardTransferSubmit}
         />
 

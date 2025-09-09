@@ -39,10 +39,16 @@ const inviteResendRoute = createRoute({
   component: InviteResend,
 })
 
-const logInRoute = createRoute({
+export const logInRoute = createRoute({
   getParentRoute: () => publicRootRoute,
   path: AuthPagesPath.LOGIN,
   component: LogIn,
+  validateSearch: search =>
+    yup
+      .object({
+        redirect: yup.string().optional(),
+      })
+      .validateSync(search),
 })
 
 const recoverRoute = createRoute({

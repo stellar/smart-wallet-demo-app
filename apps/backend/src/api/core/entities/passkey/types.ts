@@ -25,6 +25,6 @@ export type PasskeyRepositoryType = {
     save?: boolean
   ): Promise<Passkey>
   updatePasskey(id: string, data: Partial<Passkey>): Promise<Passkey>
-  deletePasskey(id: string): Promise<DeleteResult>
+  deletePasskeys(ids: string[]): Promise<DeleteResult>
   savePasskeys(passkeys: Passkey[]): Promise<Passkey[]>
 }
