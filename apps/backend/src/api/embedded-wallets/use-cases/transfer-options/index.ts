@@ -95,6 +95,15 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
       throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_PASSKEYS)
     }
 
+    // Validate if 'to' address is non-existent
+    if (validatedData.to) {
+      const validAddress = await fetch(`${getValueFromEnv('STELLAR_HORIZON_URL')}/accounts/${validatedData.to}`)
+
+      if (validAddress.status !== 200) {
+        throw new ResourceNotFoundException(messages.INVALID_DESTINATION_ADDRESS)
+      }
+    }
+
     // Get asset contract address from db
     const assetCodes = validatedData.asset
       ?.replace(/\s+/g, '')
