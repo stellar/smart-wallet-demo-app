@@ -81,7 +81,7 @@ export const Home = () => {
     let faqItems: FaqOptions['items'] = []
 
     try {
-      faqItems = JSON.parse(import.meta.env.VITE_FAQ).items
+      faqItems = JSON.parse(atob(import.meta.env.VITE_FAQ)).items
     } catch (error) {
       logger.error(`Failed to parse faq`, { error })
     }
