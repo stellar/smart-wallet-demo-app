@@ -24,7 +24,6 @@ class QrScanner {
   private minZoom: number = 1
   private maxZoom: number = 1
   private currentZoom: number = 1
-  private lastTouchDistance: number = 0
   private touchStartDistance: number = 0
   private initialZoom: number = 1
 
@@ -68,12 +67,11 @@ class QrScanner {
       await this.scanner.start(
         { facingMode: 'environment' },
         {
-          fps: 12,
+          fps: 10,
           qrbox: {
             width: window.innerWidth, 
             height: window.innerHeight 
           },
-          formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
         },
         onScan,
         (errorMessage: string, error: Html5QrcodeError) => {
@@ -84,6 +82,9 @@ class QrScanner {
           onError?.(errorMessage, error)
         }
       )
+
+      // Apply full-height styles after scanner starts
+      this.applyFullHeightStyles()
     } catch (error) {
       if (typeof error === 'string' && notTrackableErrors.some(value => error.includes(value))) return
 
@@ -167,6 +168,34 @@ class QrScanner {
     } catch (error) {
       logger.error(`${this.constructor.name}.applyZoom | Failed to apply zoom ${zoom}`, error)
     }
+  }
+
+  private applyFullHeightStyles(): void {
+    const scannerElement = document.getElementById(this.elementId)
+    if (!scannerElement) return
+
+    // Apply styles to the scanner container
+    scannerElement.style.width = '100%'
+    scannerElement.style.height = '100%'
+    scannerElement.style.position = 'relative'
+
+    // Find and style the video element
+    const videoElement = scannerElement.querySelector('video')
+    if (videoElement) {
+      videoElement.style.width = '100%'
+      videoElement.style.height = '100%'
+      videoElement.style.objectFit = 'cover'
+      videoElement.style.position = 'absolute'
+      videoElement.style.top = '0'
+      videoElement.style.left = '0'
+    }
+
+    // Style any child divs
+    const childDivs = scannerElement.querySelectorAll('div')
+    childDivs.forEach(div => {
+      div.style.width = '100%'
+      div.style.height = '100%'
+    })
   }
 
   async stop(): Promise<void> {
