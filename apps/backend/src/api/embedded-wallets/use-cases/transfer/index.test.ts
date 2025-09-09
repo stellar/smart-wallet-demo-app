@@ -33,6 +33,9 @@ vi.mock('interfaces/soroban/helpers/sc-convert', () => ({
   },
 }))
 
+// Mock the global fetch function for address validation
+global.fetch = vi.fn()
+
 const mockPasskeys = [
   passkeyFactory({
     credentialId: 'cred-1',
@@ -106,6 +109,12 @@ describe('Transfer', () => {
 
     // Mock the simulateContractOperation method
     mockedSorobanService.signAuthEntries.mockResolvedValue({ hash: 'test-tx-hash' } as unknown as Transaction)
+
+    // Mock fetch for address validation to return successful response
+    vi.mocked(global.fetch).mockResolvedValue({
+      status: 200,
+      ok: true,
+    } as unknown as globalThis.Response)
 
     useCase = new Transfer(
       mockedUserRepository,
@@ -340,6 +349,7 @@ describe('Transfer', () => {
       }
 
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
+      mockedAssetRepository.getAssetsByCode.mockResolvedValue([mockAsset])
       mockedWebauthnAuthenticationHelper.complete.mockResolvedValue(false)
 
       await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
