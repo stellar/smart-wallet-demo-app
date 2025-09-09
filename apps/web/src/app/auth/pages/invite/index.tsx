@@ -2,8 +2,6 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 
-import { WalletPagesPath } from 'src/app/wallet/routes/types'
-
 import { InviteTemplate } from './template'
 import { useCreateWallet } from '../../queries/use-create-wallet'
 import { getInvitationInfoOptions } from '../../queries/use-get-invitation-info'
@@ -19,13 +17,11 @@ export const Invite = () => {
   const createWallet = useCreateWallet({
     onSuccess: () => {
       setIsRedirecting(true)
-      navigate({ to: WalletPagesPath.HOME })
     },
   })
   const logIn = useLogIn({
     onSuccess: () => {
       setIsRedirecting(true)
-      navigate({ to: WalletPagesPath.HOME })
     },
   })
   const getInvitationInfo = useSuspenseQuery(getInvitationInfoOptions({ uniqueToken: search.token }))

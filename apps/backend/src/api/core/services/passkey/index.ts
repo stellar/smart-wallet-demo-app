@@ -42,8 +42,8 @@ export default class PasskeyRepository extends SingletonBase implements PasskeyR
     return this.getPasskeyById(id) as Promise<Passkey>
   }
 
-  async deletePasskey(id: string): Promise<DeleteResult> {
-    return PasskeyModel.delete(id)
+  async deletePasskeys(ids: string[]): Promise<DeleteResult> {
+    return PasskeyModel.delete(ids)
   }
 
   async savePasskeys(passkeys: Passkey[]): Promise<Passkey[]> {
