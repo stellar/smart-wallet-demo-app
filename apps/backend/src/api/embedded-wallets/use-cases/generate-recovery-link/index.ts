@@ -1,3 +1,5 @@
+import path from 'path'
+
 import { Request, Response } from 'express'
 
 import { OtpRepositoryType } from 'api/core/entities/otp/types'
@@ -6,6 +8,7 @@ import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import OtpRepository from 'api/core/services/otp'
 import UserRepository from 'api/core/services/user'
+import { tryReadFile } from 'api/core/utils/file'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { getValueFromEnv } from 'config/env-utils'
@@ -24,17 +27,27 @@ export class GenerateRecoveryLink extends UseCaseBase implements IUseCaseHttp<Re
   private otpRepository: OtpRepositoryType
   private emailService: IEmailService
   private recoveryLinkBaseUrl: string
+  private emailTemplate: string
 
   constructor(
     userRepository?: UserRepositoryType,
     otpRepository?: OtpRepositoryType,
     emailService?: IEmailService,
-    recoveryLinkBaseUrl?: string
+    recoveryLinkBaseUrl?: string,
+    emailTemplate?: string
   ) {
     super()
     this.userRepository = userRepository || UserRepository.getInstance()
     this.otpRepository = otpRepository || OtpRepository.getInstance()
     this.emailService = emailService || SendGridService.getInstance()
+
+    const templatePath = path.join(__dirname, 'template.html')
+    const fallbackPath = path.join(__dirname, 'template.example.html')
+    this.emailTemplate =
+      emailTemplate ||
+      tryReadFile(templatePath) ||
+      tryReadFile(fallbackPath) ||
+      '<p>Click on the following link to recover your wallet: <a href="{{RECOVERY_LINK}}">Recover access</a></p>'
 
     if (recoveryLinkBaseUrl) {
       this.recoveryLinkBaseUrl = recoveryLinkBaseUrl
@@ -46,11 +59,12 @@ export class GenerateRecoveryLink extends UseCaseBase implements IUseCaseHttp<Re
 
   prepareEmailData(email: string, otpCode: string): EmailData {
     const recoveryLink = `${this.recoveryLinkBaseUrl}?code=${otpCode}`
+
     return {
       to: email,
-      subject: 'Recovery Link',
-      text: `This is your recovery link: ${recoveryLink}`,
-      html: `<p>Click on the following link to recover your wallet: <a href="${recoveryLink}">${recoveryLink}</a></p>`,
+      subject: getValueFromEnv('RECOVERY_EMAIL_SUBJECT'),
+      text: getValueFromEnv('RECOVERY_EMAIL_TEXT').replace('{{RECOVERY_LINK}}', recoveryLink),
+      html: this.emailTemplate.replace('{{RECOVERY_LINK}}', recoveryLink),
     }
   }
 

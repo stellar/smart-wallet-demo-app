@@ -29,6 +29,8 @@ jobs:
     name: Build backend
     needs: [set-outputs]
     uses: ./.github/workflows/backend.build.yaml
+    secrets:
+      APP_RECOVERY_EMAIL_TEMPLATE: ${{ secrets.BACKEND_STAGING_APP_RECOVERY_EMAIL_TEMPLATE }}
 
   code-quality:
     name: Code quality
