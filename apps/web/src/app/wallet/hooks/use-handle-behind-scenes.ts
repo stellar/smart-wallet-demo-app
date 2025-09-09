@@ -72,8 +72,9 @@ export const useHandleBehindScenes = ({ enabled }: HandleBehindScenesProps): Han
             isRounded: true,
             icon: Icon.ArrowUpRight({ className: 'text-whitish' }),
             onClick: () => {
-              window.open(BEHIND_SCENES_URL, '_blank', 'noopener,noreferrer')
+              setIsBehindScenesFirstOpen(false)
               modalService.close()
+              window.open(BEHIND_SCENES_URL, '_blank', 'noopener,noreferrer')
             },
           },
         },

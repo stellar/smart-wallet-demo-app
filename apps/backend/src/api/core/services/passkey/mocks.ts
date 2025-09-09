@@ -7,7 +7,7 @@ export function mockPasskeyRepository(): Mocked<PasskeyRepositoryType> {
     getPasskeyById: vi.fn(),
     createPasskey: vi.fn(),
     updatePasskey: vi.fn(),
-    deletePasskey: vi.fn(),
+    deletePasskeys: vi.fn(),
     savePasskeys: vi.fn(),
   }
 }
