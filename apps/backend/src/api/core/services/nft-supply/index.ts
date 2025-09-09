@@ -47,6 +47,14 @@ export default class NftSupplyRepository extends SingletonBase implements NftSup
       .getOne()
   }
 
+  async getNftSupplyByTransactionHash(transactionHash: string): Promise<NftSupply | null> {
+    return NftSupplyModel.createQueryBuilder('nftSupply')
+      .withDeleted() // Include soft-deleted records from both main entity and relations
+      .leftJoinAndSelect('nftSupply.nfts', 'nfts')
+      .where('nfts.transactionHash = :transactionHash', { transactionHash })
+      .getOne()
+  }
+
   async createNftSupply(
     nftSupply: {
       name: string

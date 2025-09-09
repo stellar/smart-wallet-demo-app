@@ -12,6 +12,7 @@ export function mockNftSupplyRepository(): Mocked<NftSupplyRepositoryType> {
     getNftSupplyByResourceAndSessionId: vi.fn(),
     getNftSupplyByContractAndSessionId: vi.fn(),
     getNftSupplyByResourceAndTokenId: vi.fn(),
+    getNftSupplyByTransactionHash: vi.fn(),
     createNftSupply: vi.fn(),
     updateNftSupply: vi.fn(),
     deleteNftSupply: vi.fn(),
