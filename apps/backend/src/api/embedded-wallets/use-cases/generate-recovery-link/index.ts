@@ -11,7 +11,6 @@ import { messages } from 'api/embedded-wallets/constants/messages'
 import { getValueFromEnv } from 'config/env-utils'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
-import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { SendGridService } from 'interfaces/email-provider/sendgrid'
 import { EmailData, IEmailService } from 'interfaces/email-provider/types'
 
@@ -69,7 +68,13 @@ export class GenerateRecoveryLink extends UseCaseBase implements IUseCaseHttp<Re
     // Check if user exists
     const user = await this.userRepository.getUserByEmail(requestBody.email, { relations: ['otps'] })
     if (!user) {
-      throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
+      // Fake response to protect against attackers
+      return {
+        data: {
+          email_sent: true,
+        },
+        message: 'Recovery link sent successfully',
+      }
     }
 
     // Check if user has a wallet

@@ -438,9 +438,9 @@ describe('ClaimNftOptions', () => {
       expect(messages.USER_DOES_NOT_HAVE_PASSKEYS).toBe(
         'You do not have any passkeys registered. Try recovering your wallet'
       )
-      expect(messages.NFT_SUPPLY_NOT_FOUND).toBe("We couldn't find any NFT with that resource or collection")
+      expect(messages.NFT_SUPPLY_NOT_FOUND).toBe("We couldn't find any NFT with that path")
       expect(messages.NFT_SUPPLY_NOT_ENOUGH).toBe('Insufficient NFT supply with that resource or collection')
-      expect(messages.NFT_ALREADY_OWNED_BY_USER).toBe('You already have this NFT owned or minted to your account')
+      expect(messages.NFT_ALREADY_OWNED_BY_USER).toBe('You have already claimed this NFT.')
     })
   })
 })

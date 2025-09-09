@@ -36,7 +36,13 @@ export class LogInOptions extends UseCaseBase implements IUseCaseHttp<ResponseSc
 
     const user = await this.userRepository.getUserByEmail(email, { relations: ['passkeys'] })
     if (!user) {
-      throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
+      // Fake response to protect against attackers
+      return {
+        data: {
+          options_json: null,
+        },
+        message: 'Retrieved log in options successfully',
+      }
     }
 
     if (!user.passkeys.length) {

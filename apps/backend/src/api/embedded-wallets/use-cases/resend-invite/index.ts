@@ -6,8 +6,6 @@ import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
-import { messages } from 'api/embedded-wallets/constants/messages'
-import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
 import SDPEmbeddedWallets from 'interfaces/sdp-embedded-wallets'
 import { SDPEmbeddedWalletsType } from 'interfaces/sdp-embedded-wallets/types'
 
@@ -40,7 +38,13 @@ export class ResendInvite extends UseCaseBase implements IUseCaseHttp<ResponseSc
     // Check if user already has a wallet
     const user = await this.userRepository.getUserByEmail(requestBody.email)
     if (user?.contractAddress) {
-      throw new ResourceConflictedException(messages.USER_ALREADY_HAS_WALLET)
+      // Fake response to protect against attackers
+      return {
+        data: {
+          email_sent: true,
+        },
+        message: 'Invite resent successfully',
+      }
     }
 
     // Resend invite using SDP
@@ -48,7 +52,13 @@ export class ResendInvite extends UseCaseBase implements IUseCaseHttp<ResponseSc
       await this.sdpEmbeddedWallets.resendInvite(validatedData.email)
     } catch (error) {
       if (axios.isAxiosError(error) && error.status === HttpStatusCodes.BAD_REQUEST) {
-        throw new ResourceConflictedException(messages.RESEND_INVITE_CONFLICT)
+        // Fake response to protect against attackers
+        return {
+          data: {
+            email_sent: true,
+          },
+          message: 'Invite resent successfully',
+        }
       }
       throw error
     }

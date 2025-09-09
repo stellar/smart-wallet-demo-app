@@ -8,7 +8,6 @@ import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
-import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { mockEmailService } from 'interfaces/email-provider/mock'
 
 import { RequestSchemaT } from './types'
@@ -51,7 +50,9 @@ describe('GenerateRecoveryLink', () => {
   it('should throw an error if user is not found', async () => {
     mockedUserRepository.getUserByEmail.mockResolvedValue(null)
 
-    await expect(useCase.handle({ email: mockedEmail })).rejects.toThrow(ResourceNotFoundException)
+    const result = await useCase.handle({ email: mockedEmail })
+
+    expect(result.data.email_sent).toBeTruthy()
     expect(mockedOtpRepository.createOtp).not.toHaveBeenCalled()
     expect(mockedEmailService.sendEmail).not.toHaveBeenCalled()
   })

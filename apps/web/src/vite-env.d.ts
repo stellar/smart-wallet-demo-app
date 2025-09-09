@@ -11,6 +11,7 @@ interface ImportMetaEnv {
   readonly VITE_TERMS_OF_SERVICE_URL: string
   readonly VITE_PRIVACY_POLICE_URL: string
   readonly VITE_ADDENDUM_URL: string
+  readonly VITE_FAQ: string
 }
 
 interface ImportMeta {

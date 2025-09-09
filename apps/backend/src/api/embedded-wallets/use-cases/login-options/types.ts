@@ -11,7 +11,7 @@ export type RequestSchemaT = z.infer<typeof RequestSchema>
 
 export const ResponseSchema = createResponseSchema(
   z.object({
-    options_json: z.string().refine(refineJsonString),
+    options_json: z.string().refine(refineJsonString).nullable(),
   })
 )
 
