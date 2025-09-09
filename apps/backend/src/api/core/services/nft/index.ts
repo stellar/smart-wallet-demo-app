@@ -57,15 +57,17 @@ export default class NftRepository extends SingletonBase implements NftRepositor
     return NftModel.findOneBy({ contractAddress: ILike(contractAddress) })
   }
 
-  async getLeaderboard(): Promise<{ user: User; nftCount: number }[]> {
+  async getLeaderboard(): Promise<{ user: User; nftSupplycontractAddress: string; nftCount: number }[]> {
     return NftModel.createQueryBuilder('nft')
       .select('user.userId', 'userId')
       .addSelect('user.email', 'email')
       .addSelect('user.contractAddress', 'contractAddress')
+      .addSelect('nftSupply.contractAddress', 'nftSupplycontractAddress')
       .addSelect('COUNT(nft.nftId)', 'nftCount')
       .leftJoin('nft.user', 'user')
+      .leftJoin('nft.nftSupply', 'nftSupply')
       .where('nft.deletedAt IS NULL')
-      .groupBy('user.userId, user.email, user.contractAddress')
+      .groupBy('user.userId, user.email, user.contractAddress, nftSupply.contractAddress')
       .orderBy('COUNT(nft.nftId)', 'DESC')
       .getRawMany()
       .then(results =>
@@ -75,6 +77,7 @@ export default class NftRepository extends SingletonBase implements NftRepositor
             email: result.email,
             contractAddress: result.contractAddress,
           } as User,
+          nftSupplycontractAddress: result.nftSupplycontractAddress,
           nftCount: parseInt(result.nftCount),
         }))
       )

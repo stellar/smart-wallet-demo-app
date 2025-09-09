@@ -121,6 +121,8 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       const functionName =
         tx.operations[0].stateChanges[0]?.stateChangeCategory || operationData?.functionName || 'transfer'
 
+      if (functionName === 'rotate_signer') continue // skip rotate_signer operations
+
       let type: string | undefined
       let contractId: string | undefined
       let fromAddress, toAddress: string | undefined
@@ -223,10 +225,16 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
         })
       }
 
+      // Check if contract address is linked to any NFT collection
+      let nftSupply
+
       // Check if the transaction is linked to any product transactions
       let productsTransactions
       if (tx.hash) {
         productsTransactions = await this.productTransactionRepository.getProductsTransactionsByHash(tx.hash)
+        nftSupply = await this.nftSupplyRepository.getNftSupplyByTransactionHash(tx.hash)
+      } else if (contractId) {
+        nftSupply = await this.nftSupplyRepository.getNftSupplyByContractAddress(contractId as string)
       }
 
       // Check if the transaction destination is linked to any NGOs
@@ -235,14 +243,8 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
         ngo = await this.ngoRepository.getNgoByWalletAddress(toAddress)
       }
 
-      // Check if contract address is linked to any NFT collection
-      let nftSupply
-      if (contractId) {
-        nftSupply = await this.nftSupplyRepository.getNftSupplyByContractAddress(contractId as string)
-      }
-
       // Set the transaction type based on known criteria
-      if (contractId === STELLAR.AIRDROP_CONTRACT_ADDRESS) {
+      if (contractId === STELLAR.AIRDROP_CONTRACT_ADDRESS || functionName === 'claim') {
         type = 'airdrop_claim'
       } else if (ngo) {
         vendorLabel = ngo.name
