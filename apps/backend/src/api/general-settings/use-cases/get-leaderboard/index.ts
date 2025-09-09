@@ -17,10 +17,7 @@ export class GetLeaderboard extends UseCaseBase implements IUseCaseHttp<Response
   private nftRepository: NftRepositoryType
   private assetRepository: AssetRepositoryType
 
-  constructor(
-    nftRepository?: NftRepositoryType,
-    assetRepository?: AssetRepositoryType
-  ) {
+  constructor(nftRepository?: NftRepositoryType, assetRepository?: AssetRepositoryType) {
     super()
     this.nftRepository = nftRepository || NftRepository.getInstance()
     this.assetRepository = assetRepository || AssetRepository.getInstance()
