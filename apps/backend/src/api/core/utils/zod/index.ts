@@ -119,4 +119,19 @@ export const nftSupplySchema = z.object({
   issuer: z.string(),
 })
 
+export const nftMetadataSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  image: z.string(),
+  external_url: z.string(),
+  attributes: z
+    .array(
+      z.object({
+        trait_type: z.string(),
+        value: z.string().or(z.number()).or(z.boolean()),
+      })
+    )
+    .optional(),
+})
+
 export type MerkleProofDataT = z.infer<typeof merkleProofDataSchema>

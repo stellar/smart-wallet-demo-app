@@ -18,7 +18,7 @@ export class NftSupply extends ModelBase {
   })
   description: string
 
-  // NFT image URL: ipfs://QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco/I/m/SomeImage.png, https://some.site/img/SomeImage.jpg, etc
+  // NFT resource/dir URL: https://ipfs.io/ipfs/QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco
   @Column({
     type: 'varchar',
   })
