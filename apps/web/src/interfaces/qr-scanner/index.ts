@@ -39,32 +39,6 @@ class QrScanner {
     if (this.scanner?.isScanning) return
 
     try {
-      const videoConstraints = {
-        facingMode: 'environment',
-      }
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: videoConstraints,
-      })
-
-      this.videoTrack = stream.getVideoTracks()[0]
-      const capabilities = this.videoTrack.getCapabilities()
-
-      // Safely access zoom capabilities (not in standard TypeScript definitions yet)
-      const zoomCapabilities = (capabilities as any).zoom
-      this.minZoom = zoomCapabilities?.min || 1
-      this.maxZoom = zoomCapabilities?.max || 1
-      this.currentZoom = Math.max(this.minZoom, 1)
-
-      // Apply initial zoom if supported
-      if (zoomCapabilities) {
-        const constraints = {
-          advanced: [{ zoom: this.currentZoom }],
-        } as any
-        await this.videoTrack.applyConstraints(constraints)
-      }
-
-      this.addPinchToZoomListeners()
-
       await this.scanner.start(
         { facingMode: 'environment' },
         {
@@ -84,7 +58,9 @@ class QrScanner {
         }
       )
 
-      // Apply full-height styles after scanner starts
+      // Get video track from the scanner after it starts
+      this.setupZoomCapabilities()
+      this.addPinchToZoomListeners()
       this.applyFullHeightStyles()
     } catch (error) {
       if (typeof error === 'string' && notTrackableErrors.some(value => error.includes(value))) return
@@ -92,6 +68,25 @@ class QrScanner {
       logger.error(`${this.constructor.name}.start | Failed`, error)
       ErrorHandling.handleError({ error: new BaseError('Failed to start scanner') })
     }
+  }
+
+  private setupZoomCapabilities(): void {
+    // Get video track from the scanner's video element
+    const videoElement = document.querySelector('#qr-scanner video') as HTMLVideoElement
+    if (!videoElement || !videoElement.srcObject) return
+
+    const stream = videoElement.srcObject as MediaStream
+    this.videoTrack = stream.getVideoTracks()[0]
+    
+    if (!this.videoTrack) return
+
+    const capabilities = this.videoTrack.getCapabilities()
+    
+    // Safely access zoom capabilities (not in standard TypeScript definitions yet)
+    const zoomCapabilities = (capabilities as any).zoom
+    this.minZoom = zoomCapabilities?.min || 1
+    this.maxZoom = zoomCapabilities?.max || 1
+    this.currentZoom = Math.max(this.minZoom, 1)
   }
 
   private addPinchToZoomListeners(): void {
