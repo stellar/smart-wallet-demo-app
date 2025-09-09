@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Html5Qrcode } from 'html5-qrcode'
-import { Html5QrcodeError, Html5QrcodeResult, Html5QrcodeSupportedFormats } from 'html5-qrcode/esm/core'
+import { Html5QrcodeError, Html5QrcodeResult } from 'html5-qrcode/esm/core'
 
 import logger from 'src/app/core/services/logger'
 import { ErrorHandling } from 'src/helpers/error-handling'
@@ -39,38 +40,38 @@ class QrScanner {
 
     try {
       const videoConstraints = {
-        facingMode: "environment",
-      };
+        facingMode: 'environment',
+      }
       const stream = await navigator.mediaDevices.getUserMedia({
         video: videoConstraints,
-      });
+      })
 
-      this.videoTrack = stream.getVideoTracks()[0];
-      const capabilities = this.videoTrack.getCapabilities();
-      
+      this.videoTrack = stream.getVideoTracks()[0]
+      const capabilities = this.videoTrack.getCapabilities()
+
       // Safely access zoom capabilities (not in standard TypeScript definitions yet)
-      const zoomCapabilities = (capabilities as any).zoom;
-      this.minZoom = zoomCapabilities?.min || 1;
-      this.maxZoom = zoomCapabilities?.max || 1;
-      this.currentZoom = Math.max(this.minZoom, 1);
+      const zoomCapabilities = (capabilities as any).zoom
+      this.minZoom = zoomCapabilities?.min || 1
+      this.maxZoom = zoomCapabilities?.max || 1
+      this.currentZoom = Math.max(this.minZoom, 1)
 
       // Apply initial zoom if supported
       if (zoomCapabilities) {
         const constraints = {
           advanced: [{ zoom: this.currentZoom }],
-        } as any;
-        await this.videoTrack.applyConstraints(constraints);
+        } as any
+        await this.videoTrack.applyConstraints(constraints)
       }
-      
-      this.addPinchToZoomListeners();
-      
+
+      this.addPinchToZoomListeners()
+
       await this.scanner.start(
         { facingMode: 'environment' },
         {
           fps: 10,
           qrbox: {
-            width: window.innerWidth, 
-            height: window.innerHeight 
+            width: window.innerWidth,
+            height: window.innerHeight,
           },
         },
         onScan,
@@ -120,21 +121,21 @@ class QrScanner {
   private handleTouchMove(event: TouchEvent): void {
     if (event.touches.length === 2 && this.videoTrack) {
       event.preventDefault()
-      
+
       const currentDistance = this.getTouchDistance(event.touches[0], event.touches[1])
       const distanceChange = currentDistance - this.touchStartDistance
-      
+
       // Calculate zoom change based on distance change
       // Scale factor: adjust sensitivity (higher = more sensitive)
       const scaleFactor = 0.01
       const zoomChange = distanceChange * scaleFactor
-      
+
       // Calculate new zoom level
       let newZoom = this.initialZoom + zoomChange
-      
+
       // Clamp zoom to camera limits
       newZoom = Math.max(this.minZoom, Math.min(this.maxZoom, newZoom))
-      
+
       // Only apply zoom if it's significantly different to avoid excessive API calls
       if (Math.abs(newZoom - this.currentZoom) > 0.1) {
         this.currentZoom = newZoom
@@ -203,10 +204,10 @@ class QrScanner {
       try {
         // Remove pinch-to-zoom listeners
         this.removePinchToZoomListeners()
-        
+
         await this.scanner.stop()
         this.scanner.clear()
-        
+
         // Reset zoom state
         this.videoTrack = null
         this.currentZoom = 1
