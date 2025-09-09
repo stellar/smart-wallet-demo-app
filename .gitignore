@@ -53,3 +53,5 @@ ehthumbs.db
 .gitignore.local
 
 scripts/assets/metadata
+
+*.rej*

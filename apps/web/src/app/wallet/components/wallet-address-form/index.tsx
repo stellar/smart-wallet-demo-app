@@ -1,5 +1,6 @@
 import { Link, Text } from '@stellar/design-system'
 import clsx from 'clsx'
+import { useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 
 import { createShortStellarAddress } from 'src/app/core/utils'
@@ -23,8 +24,15 @@ export const WalletAddressForm = ({
   submitVariant = 'default',
   onSubmit,
 }: Props) => {
-  const { watch } = form
+  const { watch, setValue } = form
   const walletAddressValue = watch('walletAddress')
+
+  const [isFocused, setIsFocused] = useState(false)
+
+  const displayValue =
+    isFocused || !walletAddressValue
+      ? walletAddressValue || ''
+      : createShortStellarAddress(walletAddressValue, { sliceAmount: 9 })
 
   return (
     <Form form={form} onSubmit={onSubmit}>
@@ -33,17 +41,19 @@ export const WalletAddressForm = ({
           <div className="flex flex-col gap-2 justify-center">
             <Form.Input
               name="walletAddress"
-              value={walletAddressValue ? createShortStellarAddress(walletAddressValue, { sliceAmount: 9 }) : ''}
+              value={displayValue}
               fieldSize="lg"
               label={c('walletAddressFormLabel')}
               placeholder={c('walletAddressFormPlaceholder')}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
               rightElement={
                 <button
                   type="button"
                   onClick={e => {
                     e.preventDefault()
                     navigator.clipboard.readText().then(text => {
-                      form.setValue('walletAddress', text)
+                      setValue('walletAddress', text)
                     })
                   }}
                   className={clsx(

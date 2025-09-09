@@ -126,4 +126,19 @@ export const leaderboardSchema = z.object({
   token_count: z.number(),
 })
 
+export const nftMetadataSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  image: z.string(),
+  external_url: z.string(),
+  attributes: z
+    .array(
+      z.object({
+        trait_type: z.string(),
+        value: z.string().or(z.number()).or(z.boolean()),
+      })
+    )
+    .optional(),
+})
+
 export type MerkleProofDataT = z.infer<typeof merkleProofDataSchema>

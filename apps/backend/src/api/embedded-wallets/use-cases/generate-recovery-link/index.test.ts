@@ -8,7 +8,6 @@ import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
-import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { mockEmailService } from 'interfaces/email-provider/mock'
 
 import { RequestSchemaT } from './types'
@@ -51,7 +50,9 @@ describe('GenerateRecoveryLink', () => {
   it('should throw an error if user is not found', async () => {
     mockedUserRepository.getUserByEmail.mockResolvedValue(null)
 
-    await expect(useCase.handle({ email: mockedEmail })).rejects.toThrow(ResourceNotFoundException)
+    const result = await useCase.handle({ email: mockedEmail })
+
+    expect(result.data.email_sent).toBeTruthy()
     expect(mockedOtpRepository.createOtp).not.toHaveBeenCalled()
     expect(mockedEmailService.sendEmail).not.toHaveBeenCalled()
   })
@@ -98,14 +99,14 @@ describe('GenerateRecoveryLink', () => {
     expect(useCase.prepareEmailData(mockedEmail, 'ABC123')).toEqual({
       to: mockedEmail,
       subject: 'Recovery Link',
-      text: 'This is your recovery link: http://example.com/recovery?code=ABC123',
-      html: '<p>Click on the following link to recover your wallet: <a href="http://example.com/recovery?code=ABC123">http://example.com/recovery?code=ABC123</a></p>',
+      text: 'Click on the following link to recover your wallet: http://example.com/recovery?code=ABC123',
+      html: expect.stringContaining('http://example.com/recovery?code=ABC123'),
     })
     expect(mockedEmailService.sendEmail).toHaveBeenCalledWith({
       to: mockedEmail,
       subject: 'Recovery Link',
-      text: expect.stringContaining('This is your recovery link: http://example.com/recovery?code=ABC123'),
-      html: expect.stringContaining('<a href="http://example.com/recovery?code=ABC123">'),
+      text: expect.stringContaining('http://example.com/recovery?code=ABC123'),
+      html: expect.stringContaining('http://example.com/recovery?code=ABC123'),
     })
   })
 

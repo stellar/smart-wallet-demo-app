@@ -19,6 +19,14 @@ export type BannerOptions = {
   onClose?: () => void
 }
 
+export type FaqOptions = {
+  title: string
+  items: {
+    title: string
+    description: string
+  }[]
+}
+
 type NavbarItemType = 'nft' | 'history' | 'profile'
 
 type Props = {
@@ -29,13 +37,7 @@ type Props = {
   banners?: BannerOptions[]
   products?: React.ComponentProps<typeof ImageCard>[]
   isProductActionButtonDisabled?: boolean
-  faq?: {
-    title: string
-    items: {
-      title: string
-      description: string
-    }[]
-  }
+  faq?: FaqOptions
   onNavbarButtonClick: (item: NavbarItemType) => void
   onScanClick: () => void
   onProductActionButtonClick: () => void

@@ -4,6 +4,8 @@ import { Request, Response } from 'express'
 import { Nft } from 'api/core/entities/nft/model'
 import { NftRepositoryType } from 'api/core/entities/nft/types'
 import { NftSupply } from 'api/core/entities/nft-supply/model'
+import { Product, ProductRepositoryType } from 'api/core/entities/product/types'
+import { ProductTransactionRepositoryType } from 'api/core/entities/product-transaction/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UserProductRepositoryType } from 'api/core/entities/user-product/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
@@ -13,6 +15,8 @@ import WebAuthnAuthentication from 'api/core/helpers/webauthn/authentication'
 import { IWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/types'
 import AssetRepository from 'api/core/services/asset'
 import NftRepository from 'api/core/services/nft'
+import ProductRepository from 'api/core/services/product'
+import ProductTransactionRepository from 'api/core/services/product-transaction'
 import UserRepository from 'api/core/services/user'
 import UserProductRepository from 'api/core/services/user-product'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
@@ -34,6 +38,8 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
   private userRepository: UserRepositoryType
   private userProductRepository: UserProductRepositoryType
   private nftRepository: NftRepositoryType
+  private productRepository: ProductRepositoryType
+  private productTransactionRepository: ProductTransactionRepositoryType
   private webauthnAuthenticationHelper: IWebAuthnAuthentication
   private sorobanService: ISorobanService
   private multicallContract: string
@@ -45,13 +51,17 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     nftRepository?: NftRepositoryType,
     webauthnAuthenticationHelper?: IWebAuthnAuthentication,
     sorobanService?: ISorobanService,
-    multicallContract?: string
+    multicallContract?: string,
+    productRepository?: ProductRepositoryType,
+    productTransactionRepository?: ProductTransactionRepositoryType
   ) {
     super()
     this.assetRepository = assetRepository || AssetRepository.getInstance()
     this.userRepository = userRepository || UserRepository.getInstance()
     this.userProductRepository = userProductRepository || UserProductRepository.getInstance()
     this.nftRepository = nftRepository || NftRepository.getInstance()
+    this.productRepository = productRepository || ProductRepository.getInstance()
+    this.productTransactionRepository = productTransactionRepository || ProductTransactionRepository.getInstance()
     this.webauthnAuthenticationHelper = webauthnAuthenticationHelper || WebAuthnAuthentication.getInstance()
     this.sorobanService = sorobanService || SorobanService.getInstance()
     this.multicallContract = multicallContract || getValueFromEnv('STELLAR_MULTICALL_CONTRACT')
@@ -181,7 +191,30 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       throw new ResourceNotFoundException(messages.UNABLE_TO_EXECUTE_TRANSACTION)
     }
 
-    if (validatedData.type === TransferTypes.SWAG) {
+    if (validatedData.type === TransferTypes.TRANSFER) {
+      // Get products data (for 'transfer' type only)
+      let products: Product[] = []
+      const productCodes =
+        validatedData.type === TransferTypes.TRANSFER
+          ? validatedData.product
+              ?.replace(/\s+/g, '')
+              .split(',')
+              .filter(product => product.length)
+          : undefined
+      if (productCodes?.length) {
+        products = await this.productRepository.getProductsByCode(productCodes)
+      }
+
+      // Associate product with the transfer tx hash
+      if (products && products.length > 0) {
+        for (const productItem of products) {
+          await this.productTransactionRepository.createProductTransaction(
+            { transactionHash: txResponse.txHash, product: productItem },
+            true
+          )
+        }
+      }
+    } else if (validatedData.type === TransferTypes.SWAG) {
       for (const asset of assets) {
         const unclaimedSwags = await this.userProductRepository.getUserProductsByUserContractAddressAndAssetCode(
           user.contractAddress,

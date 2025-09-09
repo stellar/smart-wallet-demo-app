@@ -9,15 +9,17 @@ import { Form } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { FormValues } from './schema'
+import { EmailSent } from '../../components'
 
 type Props = {
   isLoggingIn: boolean
+  isLoginLinkSent: boolean
   form: UseFormReturn<FormValues>
   onGoBack: () => void
   onLogIn: (values: FormValues) => void
 }
 
-export const LogInTemplate = ({ isLoggingIn, form, onGoBack, onLogIn }: Props) => {
+export const LogInTemplate = ({ isLoggingIn, isLoginLinkSent, form, onGoBack, onLogIn }: Props) => {
   const { watch } = form
 
   const emailValue = watch('email')
@@ -49,16 +51,20 @@ export const LogInTemplate = ({ isLoggingIn, form, onGoBack, onLogIn }: Props) =
                 placeholder={c('recoverEmailInputPlaceholder')}
               />
 
-              <Form.Submit
-                disabled={isSendResetLinkDisabled}
-                isLoading={isLoggingIn}
-                size="xl"
-                variant="tertiary"
-                isRounded
-                isFullWidth
-              >
-                {c('sendLink')}
-              </Form.Submit>
+              {isLoginLinkSent ? (
+                <EmailSent />
+              ) : (
+                <Form.Submit
+                  disabled={isSendResetLinkDisabled}
+                  isLoading={isLoggingIn}
+                  size="xl"
+                  variant="tertiary"
+                  isRounded
+                  isFullWidth
+                >
+                  {c('sendLink')}
+                </Form.Submit>
+              )}
             </div>
           </Form>
         </div>

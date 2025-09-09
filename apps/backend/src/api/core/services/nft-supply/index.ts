@@ -38,6 +38,14 @@ export default class NftSupplyRepository extends SingletonBase implements NftSup
     return NftSupplyModel.findOneBy({ contractAddress: ILike(contractAddress), sessionId })
   }
 
+  async getNftSupplyByResourceAndTokenId(resource: string, tokenId: string): Promise<NftSupply | null> {
+    return NftSupplyModel.createQueryBuilder('nftSupply')
+      .leftJoinAndSelect('nftSupply.nfts', 'nfts')
+      .where('nftSupply.resource = :resource', { resource })
+      .andWhere('nfts.tokenId = :tokenId', { tokenId })
+      .getOne()
+  }
+
   async createNftSupply(
     nftSupply: {
       name: string
