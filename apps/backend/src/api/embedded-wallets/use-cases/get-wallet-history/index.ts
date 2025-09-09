@@ -121,6 +121,8 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       const functionName =
         tx.operations[0].stateChanges[0]?.stateChangeCategory || operationData?.functionName || 'transfer'
 
+      if (functionName === 'rotate_signer') continue // skip rotate_signer operations
+
       let type: string | undefined
       let contractId: string | undefined
       let fromAddress, toAddress: string | undefined
