@@ -6,3 +6,5 @@ api-docs/
 !src/public/**/*
 test/**/*.js
 coverage/
+template.html
+!template.example.html
