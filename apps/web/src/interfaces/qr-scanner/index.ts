@@ -1,5 +1,5 @@
 import { Html5Qrcode } from 'html5-qrcode'
-import { Html5QrcodeError, Html5QrcodeResult } from 'html5-qrcode/esm/core'
+import { Html5QrcodeError, Html5QrcodeResult, Html5QrcodeSupportedFormats } from 'html5-qrcode/esm/core'
 
 import logger from 'src/app/core/services/logger'
 import { ErrorHandling } from 'src/helpers/error-handling'
@@ -12,9 +12,21 @@ const notTrackableErrors = [
   'No MultiFormat Readers were able to detect the code',
 ]
 
+/**
+ * QR Scanner with pinch-to-zoom functionality
+ * Supports two-finger pinch gestures to control camera zoom levels
+ */
+
 class QrScanner {
   private scanner: Html5Qrcode | null = null
   private elementId: string = 'qr-scanner'
+  private videoTrack: MediaStreamTrack | null = null
+  private minZoom: number = 1
+  private maxZoom: number = 1
+  private currentZoom: number = 1
+  private lastTouchDistance: number = 0
+  private touchStartDistance: number = 0
+  private initialZoom: number = 1
 
   async start(
     onScan: (decodedText: string, result: Html5QrcodeResult) => void,
@@ -27,11 +39,44 @@ class QrScanner {
     if (this.scanner?.isScanning) return
 
     try {
+      const videoConstraints = {
+        facingMode: "environment",
+      };
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: videoConstraints,
+      });
+
+      this.videoTrack = stream.getVideoTracks()[0];
+      const capabilities = this.videoTrack.getCapabilities();
+      
+      // Safely access zoom capabilities (not in standard TypeScript definitions yet)
+      const zoomCapabilities = (capabilities as any).zoom;
+      this.minZoom = zoomCapabilities?.min || 1;
+      this.maxZoom = zoomCapabilities?.max || 1;
+      this.currentZoom = Math.max(this.minZoom, 1);
+
+      // Apply initial zoom if supported
+      if (zoomCapabilities) {
+        const constraints = {
+          advanced: [{ zoom: this.currentZoom }],
+        } as any;
+        await this.videoTrack.applyConstraints(constraints);
+      }
+      
+      this.addPinchToZoomListeners();
+      
       await this.scanner.start(
         { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: window.innerWidth, height: window.innerHeight } },
+        {
+          fps: 12,
+          qrbox: {
+            width: window.innerWidth, 
+            height: window.innerHeight 
+          },
+          formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
+        },
         onScan,
-        (errorMessage, error) => {
+        (errorMessage: string, error: Html5QrcodeError) => {
           if (notTrackableErrors.some(value => errorMessage.includes(value))) return
 
           logger.error(`${this.constructor.name} | ${errorMessage}`, error)
@@ -47,11 +92,97 @@ class QrScanner {
     }
   }
 
+  private addPinchToZoomListeners(): void {
+    if (!this.videoTrack) return
+
+    // Touch event handlers on window to ensure they work regardless of scanner DOM structure
+    window.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false })
+    window.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false })
+    window.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false })
+  }
+
+  private removePinchToZoomListeners(): void {
+    // Remove event handlers from window
+    window.removeEventListener('touchstart', this.handleTouchStart.bind(this))
+    window.removeEventListener('touchmove', this.handleTouchMove.bind(this))
+    window.removeEventListener('touchend', this.handleTouchEnd.bind(this))
+  }
+
+  private handleTouchStart(event: TouchEvent): void {
+    if (event.touches.length === 2) {
+      event.preventDefault()
+      this.touchStartDistance = this.getTouchDistance(event.touches[0], event.touches[1])
+      this.initialZoom = this.currentZoom
+    }
+  }
+
+  private handleTouchMove(event: TouchEvent): void {
+    if (event.touches.length === 2 && this.videoTrack) {
+      event.preventDefault()
+      
+      const currentDistance = this.getTouchDistance(event.touches[0], event.touches[1])
+      const distanceChange = currentDistance - this.touchStartDistance
+      
+      // Calculate zoom change based on distance change
+      // Scale factor: adjust sensitivity (higher = more sensitive)
+      const scaleFactor = 0.01
+      const zoomChange = distanceChange * scaleFactor
+      
+      // Calculate new zoom level
+      let newZoom = this.initialZoom + zoomChange
+      
+      // Clamp zoom to camera limits
+      newZoom = Math.max(this.minZoom, Math.min(this.maxZoom, newZoom))
+      
+      // Only apply zoom if it's significantly different to avoid excessive API calls
+      if (Math.abs(newZoom - this.currentZoom) > 0.1) {
+        this.currentZoom = newZoom
+        this.applyZoom(newZoom)
+      }
+    }
+  }
+
+  private handleTouchEnd(event: TouchEvent): void {
+    // Reset touch state when fingers are lifted
+    if (event.touches.length < 2) {
+      this.touchStartDistance = 0
+      this.initialZoom = this.currentZoom
+    }
+  }
+
+  private getTouchDistance(touch1: Touch, touch2: Touch): number {
+    const dx = touch1.clientX - touch2.clientX
+    const dy = touch1.clientY - touch2.clientY
+    return Math.sqrt(dx * dx + dy * dy)
+  }
+
+  private async applyZoom(zoom: number): Promise<void> {
+    if (!this.videoTrack) return
+
+    try {
+      const constraints = {
+        advanced: [{ zoom: zoom }],
+      } as any
+      await this.videoTrack.applyConstraints(constraints)
+    } catch (error) {
+      logger.error(`${this.constructor.name}.applyZoom | Failed to apply zoom ${zoom}`, error)
+    }
+  }
+
   async stop(): Promise<void> {
     if (this.scanner && this.scanner.isScanning) {
       try {
+        // Remove pinch-to-zoom listeners
+        this.removePinchToZoomListeners()
+        
         await this.scanner.stop()
         this.scanner.clear()
+        
+        // Reset zoom state
+        this.videoTrack = null
+        this.currentZoom = 1
+        this.minZoom = 1
+        this.maxZoom = 1
       } catch (error) {
         logger.error(`${this.constructor.name}.stop | Failed`, error)
         ErrorHandling.handleError({ error: new BaseError('Failed to stop scanner') })
