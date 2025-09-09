@@ -18,7 +18,7 @@ export type NftRepositoryType = {
   ): Promise<Nft | null>
   getNftByContractAddress(contractAddress: string): Promise<Nft | null>
   getNftByTokenIdAndContractAddress(tokenId: string, contractAddress: string): Promise<Nft | null>
-  getLeaderboard(): Promise<{ user: User; nftCount: number }[]>
+  getLeaderboard(): Promise<{ user: User; nftSupplycontractAddress: string; nftCount: number }[]>
   createNft(
     nft: { tokenId: string; contractAddress: string; user: User; nftSupply: NftSupply },
     save?: boolean
