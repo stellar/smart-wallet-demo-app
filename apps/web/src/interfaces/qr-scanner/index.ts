@@ -77,11 +77,10 @@ class QrScanner {
 
     const stream = videoElement.srcObject as MediaStream
     this.videoTrack = stream.getVideoTracks()[0]
-    
+
     if (!this.videoTrack) return
 
     const capabilities = this.videoTrack.getCapabilities()
-    
     // Safely access zoom capabilities (not in standard TypeScript definitions yet)
     const zoomCapabilities = (capabilities as any).zoom
     this.minZoom = zoomCapabilities?.min || 1
