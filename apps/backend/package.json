@@ -9,7 +9,7 @@
     "setup-dev": "npm install && npm run setup-dev-env-vars && npm run setup-test-env-vars",
     "clean-setup-dev": "npm ci && npm run setup-dev-env-vars && npm run setup-test-env-vars",
     "clean-setup": "npm ci --production",
-    "build": "tsc -p tsconfig-build.json",
+    "build": "tsc -p tsconfig-build.json && rsync -a src/ dist/ --include='*/' --include='*.html' --exclude='*'",
     "start": "NODE_PATH=./dist node dist/app.js",
     "start-dev": "DEPLOY_STAGE=local NODE_ENV=development NODE_PATH=./src npx ts-node-dev --trace-warnings --inspect --respawn --transpile-only --ignore-watch node_modules src/app.ts",
     "test": "DEPLOY_STAGE=local NODE_ENV=test vitest --config src/vitest.config.ts",

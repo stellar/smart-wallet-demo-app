@@ -28,6 +28,9 @@ vi.mock('api/core/helpers/get-balance', () => ({
   getWalletBalance: vi.fn(),
 }))
 
+// Mock the global fetch function for address validation
+global.fetch = vi.fn()
+
 const mockPasskeys = [
   passkeyFactory({
     credentialId: 'cred-1',
@@ -114,6 +117,12 @@ describe('TransferOptions', () => {
     })
     // Mock getWalletBalance to return 10
     vi.mocked(getWalletBalance).mockResolvedValue(10)
+
+    // Mock fetch for address validation to return successful response
+    vi.mocked(global.fetch).mockResolvedValue({
+      status: 200,
+      ok: true,
+    } as unknown as globalThis.Response)
   })
 
   describe('handle', () => {

@@ -6,6 +6,7 @@ import cors from 'cors'
 import express from 'express'
 import * as swaggerUI from 'swagger-ui-express'
 
+import { apiKeyAuthentication } from 'api/core/middlewares/api-key-authentication'
 import { isTestEnv } from 'config/env-utils'
 import { logger } from 'config/logger'
 import { swaggerDefinition } from 'interfaces/express/openapi'
@@ -30,7 +31,7 @@ const swaggerOptions = {
   },
 }
 
-application.get(`${docsUrl}/swagger.json`, (_req, res) => res.json(swaggerDefinition))
+application.get(`${docsUrl}/swagger.json`, apiKeyAuthentication, (_req, res) => res.json(swaggerDefinition))
 application.use(docsUrl, swaggerUI.serveFiles(undefined, swaggerOptions), swaggerUI.setup(undefined, swaggerOptions))
 
 if (!isTestEnv()) {
