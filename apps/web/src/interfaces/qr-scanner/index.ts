@@ -42,7 +42,7 @@ class QrScanner {
       await this.scanner.start(
         { facingMode: 'environment' },
         {
-          fps: 10,
+          fps: 20,
           qrbox: {
             width: window.innerWidth,
             height: window.innerHeight,
@@ -92,21 +92,43 @@ class QrScanner {
     if (!this.videoTrack) return
 
     // Touch event handlers on window to ensure they work regardless of scanner DOM structure
-    window.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false })
-    window.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false })
-    window.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false })
+    // Use capture phase and non-passive to ensure preventDefault works
+    window.addEventListener('touchstart', this.handleTouchStart.bind(this), {
+      passive: false,
+      capture: true,
+    } as AddEventListenerOptions)
+    window.addEventListener('touchmove', this.handleTouchMove.bind(this), {
+      passive: false,
+      capture: true,
+    } as AddEventListenerOptions)
+    window.addEventListener('touchend', this.handleTouchEnd.bind(this), {
+      passive: false,
+      capture: true,
+    } as AddEventListenerOptions)
   }
 
   private removePinchToZoomListeners(): void {
-    // Remove event handlers from window
-    window.removeEventListener('touchstart', this.handleTouchStart.bind(this))
-    window.removeEventListener('touchmove', this.handleTouchMove.bind(this))
-    window.removeEventListener('touchend', this.handleTouchEnd.bind(this))
+    // Remove event handlers from window with same options
+    window.removeEventListener('touchstart', this.handleTouchStart.bind(this), {
+      passive: false,
+      capture: true,
+    } as AddEventListenerOptions)
+    window.removeEventListener('touchmove', this.handleTouchMove.bind(this), {
+      passive: false,
+      capture: true,
+    } as AddEventListenerOptions)
+    window.removeEventListener('touchend', this.handleTouchEnd.bind(this), {
+      passive: false,
+      capture: true,
+    } as AddEventListenerOptions)
   }
 
   private handleTouchStart(event: TouchEvent): void {
     if (event.touches.length === 2) {
+      // Prevent default browser zoom behavior
       event.preventDefault()
+      event.stopPropagation()
+
       this.touchStartDistance = this.getTouchDistance(event.touches[0], event.touches[1])
       this.initialZoom = this.currentZoom
     }
@@ -114,7 +136,9 @@ class QrScanner {
 
   private handleTouchMove(event: TouchEvent): void {
     if (event.touches.length === 2 && this.videoTrack) {
+      // Prevent default browser zoom behavior
       event.preventDefault()
+      event.stopPropagation()
 
       const currentDistance = this.getTouchDistance(event.touches[0], event.touches[1])
       const distanceChange = currentDistance - this.touchStartDistance
@@ -174,6 +198,12 @@ class QrScanner {
     scannerElement.style.height = '100%'
     scannerElement.style.position = 'relative'
 
+    // Prevent zoom behavior on Safari/iOS
+    scannerElement.style.touchAction = 'none'
+    scannerElement.style.userSelect = 'none'
+    scannerElement.style.webkitUserSelect = 'none'
+    ;(scannerElement.style as any).webkitTouchCallout = 'none'
+
     // Find and style the video element
     const videoElement = scannerElement.querySelector('video')
     if (videoElement) {
@@ -183,6 +213,12 @@ class QrScanner {
       videoElement.style.position = 'absolute'
       videoElement.style.top = '0'
       videoElement.style.left = '0'
+
+      // Additional Safari/iOS zoom prevention
+      videoElement.style.touchAction = 'none'
+      videoElement.style.userSelect = 'none'
+      videoElement.style.webkitUserSelect = 'none'
+      ;(videoElement.style as any).webkitTouchCallout = 'none'
     }
 
     // Style any child divs
@@ -190,6 +226,10 @@ class QrScanner {
     childDivs.forEach(div => {
       div.style.width = '100%'
       div.style.height = '100%'
+      div.style.touchAction = 'none'
+      div.style.userSelect = 'none'
+      div.style.webkitUserSelect = 'none'
+      ;(div.style as any).webkitTouchCallout = 'none'
     })
   }
 

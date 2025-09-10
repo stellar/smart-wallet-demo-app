@@ -1,9 +1,10 @@
 .cutout {
   position: absolute;
-  top: calc(50% - 40vw);
-  left: calc(50% - 40vw);
-  width: 80vw;
-  height: 80vw;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(80vw, 90%);
+  height: min(80vw, 60vh);
   border-radius: 16px;
   box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.7);
 }
