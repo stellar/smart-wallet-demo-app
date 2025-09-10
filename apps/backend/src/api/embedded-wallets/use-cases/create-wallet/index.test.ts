@@ -1,9 +1,10 @@
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import { userFactory } from 'api/core/entities/user/factory'
 import { User } from 'api/core/entities/user/types'
 import { mockWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/mocks'
+import { TokenValidationRequest } from 'api/core/middlewares/token-validation'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
@@ -36,6 +37,7 @@ const user = userFactory({
 const basePayload = {
   email,
   registration_response_json: '{"id":"TestPayload123"}',
+  token: 'test-token',
 }
 
 let useCase: CreateWallet
@@ -52,7 +54,11 @@ describe('CreateWallet', () => {
 
   describe('handle', () => {
     it('should create a wallet using SDP', async () => {
-      mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
+      mockedUserRepository.getUserByEmail.mockResolvedValue({
+        ...user,
+        contractAddress: undefined,
+        uniqueToken: 'test-token',
+      } as User)
       mockedSDPEmbeddedWallets.createWallet.mockResolvedValue(sdpCreateWalletResponse)
       mockedCompleteRegistration.mockResolvedValueOnce({
         passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
@@ -77,6 +83,7 @@ describe('CreateWallet', () => {
       mockedUserRepository.getUserByEmail.mockResolvedValue({
         ...user,
         contractAddress: 'CBYBPCQDYO2CGHZ5TCRP3TCGAFKJ6RKA2E33A5JPHTCLKEXZMQUODMNV',
+        uniqueToken: 'test-token',
       } as User)
 
       await expect(useCase.handle(basePayload)).rejects.toBeInstanceOf(ResourceConflictedException)
@@ -85,7 +92,11 @@ describe('CreateWallet', () => {
     })
 
     it('should throw error if authentication failed', async () => {
-      mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
+      mockedUserRepository.getUserByEmail.mockResolvedValue({
+        ...user,
+        contractAddress: undefined,
+        uniqueToken: 'test-token',
+      } as User)
       mockedCompleteRegistration.mockResolvedValueOnce(false)
 
       await expect(useCase.handle(basePayload)).rejects.toBeInstanceOf(UnauthorizedException)
@@ -93,7 +104,11 @@ describe('CreateWallet', () => {
     })
 
     it('should handle wallet creation errors', async () => {
-      mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
+      mockedUserRepository.getUserByEmail.mockResolvedValue({
+        ...user,
+        contractAddress: undefined,
+        uniqueToken: 'test-token',
+      } as User)
       mockedCompleteRegistration.mockResolvedValueOnce({
         passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
       })
@@ -107,13 +122,22 @@ describe('CreateWallet', () => {
     it('should call response with correct status and json', async () => {
       const req = {
         body: basePayload,
-      } as unknown as Request
+        validatedInvitation: {
+          token: 'test-token',
+          email: email,
+          status: 'SUCCESS',
+        },
+      } as unknown as TokenValidationRequest
       const res = {
         status: vi.fn().mockReturnThis(),
         json: vi.fn(),
       } as unknown as Response
 
-      mockedUserRepository.getUserByEmail.mockResolvedValue({ ...user, contractAddress: undefined } as User)
+      mockedUserRepository.getUserByEmail.mockResolvedValue({
+        ...user,
+        contractAddress: undefined,
+        uniqueToken: 'test-token',
+      } as User)
       mockedCompleteRegistration.mockResolvedValueOnce({
         passkey: { credentialId: 'test-credential-id', credentialHexPublicKey: 'CBY...MNV' },
       })
@@ -134,7 +158,12 @@ describe('CreateWallet', () => {
     it('should validate payload and throw on invalid data', async () => {
       const req = {
         body: { email },
-      } as unknown as Request
+        validatedInvitation: {
+          token: 'test-token',
+          email: 'invalid-email',
+          status: 'SUCCESS',
+        },
+      } as unknown as TokenValidationRequest
       const res = {
         status: vi.fn().mockReturnThis(),
         json: vi.fn(),
@@ -142,6 +171,16 @@ describe('CreateWallet', () => {
 
       await expect(useCase.executeHttp(req, res)).rejects.toThrow()
     })
+  })
+
+  it('should throw UnauthorizedException when token does not match user token', async () => {
+    mockedUserRepository.getUserByEmail.mockResolvedValue({
+      ...user,
+      contractAddress: undefined,
+      uniqueToken: 'different-token-123',
+    } as User)
+
+    await expect(useCase.handle(basePayload)).rejects.toThrow(UnauthorizedException)
   })
 
   it('should parse response message correctly', () => {

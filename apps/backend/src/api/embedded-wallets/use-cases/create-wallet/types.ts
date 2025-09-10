@@ -7,6 +7,7 @@ import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 export const RequestSchema = z.object({
   email: z.string().email(),
   registration_response_json: z.string().refine(refineJsonString),
+  token: z.string(),
 })
 
 export type RequestSchemaT = z.infer<typeof RequestSchema>
