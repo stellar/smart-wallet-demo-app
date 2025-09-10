@@ -55,7 +55,7 @@ impl Contract {
         owner.require_auth();
     }
 
-    pub fn set_token_data(env: &Env, token_id: u32, data: TokenData) {
+    fn set_token_data(env: &Env, token_id: u32, data: TokenData) {
         env.storage()
             .instance()
             .set(&DataKey::TokenData(token_id), &data);
