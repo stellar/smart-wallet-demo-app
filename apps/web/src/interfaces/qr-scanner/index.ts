@@ -93,16 +93,34 @@ class QrScanner {
 
     // Touch event handlers on window to ensure they work regardless of scanner DOM structure
     // Use capture phase and non-passive to ensure preventDefault works
-    window.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false, capture: true } as AddEventListenerOptions)
-    window.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false, capture: true } as AddEventListenerOptions)
-    window.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false, capture: true } as AddEventListenerOptions)
+    window.addEventListener('touchstart', this.handleTouchStart.bind(this), {
+      passive: false,
+      capture: true,
+    } as AddEventListenerOptions)
+    window.addEventListener('touchmove', this.handleTouchMove.bind(this), {
+      passive: false,
+      capture: true,
+    } as AddEventListenerOptions)
+    window.addEventListener('touchend', this.handleTouchEnd.bind(this), {
+      passive: false,
+      capture: true,
+    } as AddEventListenerOptions)
   }
 
   private removePinchToZoomListeners(): void {
     // Remove event handlers from window with same options
-    window.removeEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false, capture: true } as AddEventListenerOptions)
-    window.removeEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false, capture: true } as AddEventListenerOptions)
-    window.removeEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false, capture: true } as AddEventListenerOptions)
+    window.removeEventListener('touchstart', this.handleTouchStart.bind(this), {
+      passive: false,
+      capture: true,
+    } as AddEventListenerOptions)
+    window.removeEventListener('touchmove', this.handleTouchMove.bind(this), {
+      passive: false,
+      capture: true,
+    } as AddEventListenerOptions)
+    window.removeEventListener('touchend', this.handleTouchEnd.bind(this), {
+      passive: false,
+      capture: true,
+    } as AddEventListenerOptions)
   }
 
   private handleTouchStart(event: TouchEvent): void {
@@ -110,7 +128,7 @@ class QrScanner {
       // Prevent default browser zoom behavior
       event.preventDefault()
       event.stopPropagation()
-      
+
       this.touchStartDistance = this.getTouchDistance(event.touches[0], event.touches[1])
       this.initialZoom = this.currentZoom
     }
@@ -179,7 +197,7 @@ class QrScanner {
     scannerElement.style.width = '100%'
     scannerElement.style.height = '100%'
     scannerElement.style.position = 'relative'
-    
+
     // Prevent zoom behavior on Safari/iOS
     scannerElement.style.touchAction = 'none'
     scannerElement.style.userSelect = 'none'
@@ -195,7 +213,7 @@ class QrScanner {
       videoElement.style.position = 'absolute'
       videoElement.style.top = '0'
       videoElement.style.left = '0'
-      
+
       // Additional Safari/iOS zoom prevention
       videoElement.style.touchAction = 'none'
       videoElement.style.userSelect = 'none'
