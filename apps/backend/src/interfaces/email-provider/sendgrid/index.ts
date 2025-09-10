@@ -31,6 +31,22 @@ export class SendGridService extends SingletonBase implements IEmailService {
         ...data,
         from: this.sender,
         replyTo: this.sender,
+        // Disable tracking to prevent spam flags
+        trackingSettings: {
+          clickTracking: {
+            enable: false,
+            enableText: false,
+          },
+          openTracking: {
+            enable: false,
+          },
+        },
+        // Add headers to improve deliverability
+        headers: {
+          'X-Mailer': 'Smart Wallet',
+          'X-Priority': '3',
+          'X-MSMail-Priority': 'Normal',
+        },
       }
 
       await this.sendgridMail.send(formattedData)
