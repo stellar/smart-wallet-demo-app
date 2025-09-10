@@ -15,6 +15,7 @@ import {
   ngosRoutes,
   adminLeaderboardRoutes,
   nftMetadataRoutes,
+  resolveRedirectUrlRoutes,
 } from '../general-settings/routes'
 
 function routes(http: express.Router): void {
@@ -34,6 +35,7 @@ function routes(http: express.Router): void {
   http.use('/api/admin/ngos', adminNgosRoutes)
   http.use('/api/admin/leaderboard', adminLeaderboardRoutes)
   http.use('/nft-metadata', nftMetadataRoutes)
+  http.use('/api/resolve-redirect-url', resolveRedirectUrlRoutes)
 }
 
 export { routes, Request, Response, Router, NextFunction }
