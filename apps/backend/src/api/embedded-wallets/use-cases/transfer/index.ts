@@ -1,4 +1,4 @@
-import { rpc } from '@stellar/stellar-sdk'
+import { rpc, StrKey } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { Nft } from 'api/core/entities/nft/model'
@@ -101,8 +101,8 @@ export class Transfer extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_PASSKEYS)
     }
 
-    // Validate if 'to' address is non-existent
-    if (validatedData.to) {
+    // Validate if 'to' address is non-existent (exclusive for not contract wallets)
+    if (!StrKey.isValidContract(validatedData.to) && validatedData.to) {
       const validAddress = await fetch(`${getValueFromEnv('STELLAR_HORIZON_URL')}/accounts/${validatedData.to}`)
 
       if (validAddress.status !== 200) {

@@ -1,4 +1,4 @@
-import { xdr, nativeToScVal } from '@stellar/stellar-sdk'
+import { xdr, nativeToScVal, StrKey } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
@@ -95,8 +95,8 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
       throw new ResourceNotFoundException(messages.USER_DOES_NOT_HAVE_PASSKEYS)
     }
 
-    // Validate if 'to' address is non-existent
-    if (validatedData.to) {
+    // Validate if 'to' address is non-existent (exclusive for not contract wallets)
+    if (!StrKey.isValidContract(validatedData.to) && validatedData.to) {
       const validAddress = await fetch(`${getValueFromEnv('STELLAR_HORIZON_URL')}/accounts/${validatedData.to}`)
 
       if (validAddress.status !== 200) {
