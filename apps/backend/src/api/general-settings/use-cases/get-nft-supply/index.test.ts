@@ -91,6 +91,7 @@ describe('GetNftSupply', () => {
               session_id: 'test-session-1',
               resource: 'test-resource-1',
               total_supply: 100,
+              minted_amount: 0,
               issuer: 'test-issuer-1',
             },
             {
@@ -103,6 +104,7 @@ describe('GetNftSupply', () => {
               session_id: 'test-session-2',
               resource: 'test-resource-2',
               total_supply: 200,
+              minted_amount: 0,
               issuer: 'test-issuer-2',
             },
           ],
@@ -166,6 +168,7 @@ describe('GetNftSupply', () => {
           session_id: 'test-session',
           resource: 'test-resource',
           total_supply: 100,
+          minted_amount: 0,
           issuer: 'test-issuer',
         },
       ])
@@ -210,6 +213,7 @@ describe('GetNftSupply', () => {
         session_id: 'session-1',
         resource: 'resource-1',
         total_supply: 50,
+        minted_amount: 0,
         issuer: 'issuer-1',
       })
       expect(result[1]).toEqual({
@@ -222,6 +226,7 @@ describe('GetNftSupply', () => {
         session_id: 'session-2',
         resource: 'resource-2',
         total_supply: 75,
+        minted_amount: 0,
         issuer: 'issuer-2',
       })
     })
@@ -250,6 +255,7 @@ describe('GetNftSupply', () => {
         session_id: 'minimal-session',
         resource: 'minimal-resource',
         total_supply: 1,
+        minted_amount: 0,
         issuer: undefined,
       })
     })
@@ -304,6 +310,7 @@ describe('GetNftSupply', () => {
               session_id: 'test-session-1',
               resource: 'test-resource-1',
               total_supply: 100,
+              minted_amount: 0,
               issuer: 'test-issuer-1',
             },
             {
@@ -316,6 +323,7 @@ describe('GetNftSupply', () => {
               session_id: 'test-session-2',
               resource: 'test-resource-2',
               total_supply: 200,
+              minted_amount: 0,
               issuer: 'test-issuer-2',
             },
           ],
@@ -372,6 +380,7 @@ describe('GetNftSupply', () => {
               session_id: 'single-session',
               resource: 'single-resource',
               total_supply: 25,
+              minted_amount: 0,
               issuer: 'single-issuer',
             },
           ],
