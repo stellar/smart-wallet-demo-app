@@ -34,6 +34,7 @@ export class GetNftSupply extends UseCaseBase implements IUseCaseHttp<ResponseSc
       session_id: nftSupply.sessionId,
       resource: nftSupply.resource,
       total_supply: nftSupply.totalSupply,
+      minted_amount: nftSupply.mintedAmount,
       issuer: nftSupply.issuer,
     }))
   }
