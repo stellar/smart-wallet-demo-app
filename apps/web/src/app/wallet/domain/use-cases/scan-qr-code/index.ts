@@ -18,12 +18,15 @@ export class ScanQrCodeUseCase extends UseCaseBase<ScanQrCodeResult> {
 
     const invalidQrCodeError = new BaseError(c('invalidQrCode'))
 
-    if (!this.isValidTransferUrl(decodedText)) {
-      throw invalidQrCodeError
-    }
-
     try {
-      const parsed = new URL(decodedText)
+      // Handle redirect URLs (like qrco.de) by following them to get the final destination
+      const finalUrl = await this.resolveRedirectUrl(decodedText)
+
+      if (!this.isValidTransferUrl(finalUrl)) {
+        throw invalidQrCodeError
+      }
+
+      const parsed = new URL(finalUrl)
       const searchParams = new URLSearchParams(parsed.search)
 
       const transferOptionsInput = Object.fromEntries(
@@ -45,6 +48,22 @@ export class ScanQrCodeUseCase extends UseCaseBase<ScanQrCodeResult> {
     } catch (error) {
       logger.error(`${this.constructor.name}.handle | Failed`, error)
       throw invalidQrCodeError
+    }
+  }
+
+  private async resolveRedirectUrl(url: string): Promise<string> {
+    try {
+      const parsed = new URL(url)
+      const redirectServices = ['qrco.de', 'bit.ly', 'tinyurl.com', 'short.link']
+      
+      if (redirectServices.some(service => parsed.hostname.includes(service))) {
+        const response = await fetch(url, { method: 'HEAD', redirect: 'follow' })
+        return response.url
+      }
+      
+      return url
+    } catch {
+      return url
     }
   }
 
