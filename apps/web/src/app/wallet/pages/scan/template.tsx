@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { NavigateButton } from 'src/components/molecules'
 import { SafeAreaView } from 'src/components/organisms'
@@ -13,8 +13,15 @@ type Props = {
 }
 
 export const ScanTemplate = ({ onGoBack, onScan }: Props) => {
+  const internalIsScanning = useRef(false)
+
   useEffect(() => {
-    qrScanner.start(decoded => onScan(decoded))
+    qrScanner.start(decoded => {
+      if (!internalIsScanning.current) {
+        onScan(decoded)
+        internalIsScanning.current = true
+      }
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

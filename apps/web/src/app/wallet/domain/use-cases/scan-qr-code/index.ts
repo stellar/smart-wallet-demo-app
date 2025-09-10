@@ -9,6 +9,7 @@ import {
 } from 'src/app/wallet/services/wallet/types'
 import BaseError from 'src/helpers/error-handling/base-error'
 import { c } from 'src/interfaces/cms/useContent'
+import { authHttp } from 'src/interfaces/http'
 
 import { ScanQrCodeInput, ScanQrCodeResult } from './types'
 
@@ -55,12 +56,16 @@ export class ScanQrCodeUseCase extends UseCaseBase<ScanQrCodeResult> {
     try {
       const parsed = new URL(url)
       const redirectServices = ['qrco.de', 'bit.ly', 'tinyurl.com', 'short.link']
-      
+
       if (redirectServices.some(service => parsed.hostname.includes(service))) {
-        const response = await fetch(url, { method: 'HEAD', redirect: 'follow' })
-        return response.url
+        // Use backend endpoint to avoid CORS issues
+        const response = await authHttp.post('/api/resolve-redirect-url/', {
+          url,
+        })
+
+        return response.data.data.final_url
       }
-      
+
       return url
     } catch {
       return url
