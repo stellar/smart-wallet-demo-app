@@ -6,10 +6,10 @@ import cors from 'cors'
 import express from 'express'
 import * as swaggerUI from 'swagger-ui-express'
 
+import { authentication } from 'api/core/middlewares/authentication'
 import { isTestEnv } from 'config/env-utils'
 import { logger } from 'config/logger'
 import { swaggerDefinition } from 'interfaces/express/openapi'
-import { authentication } from 'api/core/middlewares/authentication'
 
 const application: express.Application = express()
 
