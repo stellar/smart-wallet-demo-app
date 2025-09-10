@@ -244,7 +244,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       }
 
       // Set the transaction type based on known criteria
-      if (contractId === STELLAR.AIRDROP_CONTRACT_ADDRESS || functionName === 'claim') {
+      if (operationData?.contractId === STELLAR.AIRDROP_CONTRACT_ADDRESS) {
         type = 'airdrop_claim'
       } else if (ngo) {
         vendorLabel = ngo.name
