@@ -5,7 +5,7 @@ import { Slide, toast, ToastContainer, ToastOptions } from 'react-toastify'
 import './styles.css'
 
 export interface NotifyParams {
-  message: string
+  message: string | React.ReactNode
   type: string
   options?: ToastOptions
 }
