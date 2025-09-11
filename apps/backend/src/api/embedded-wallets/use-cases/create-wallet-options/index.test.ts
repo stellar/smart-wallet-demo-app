@@ -1,7 +1,8 @@
-import { Request, Response } from 'express'
+import { Response } from 'express'
 
 import { userFactory } from 'api/core/entities/user/factory'
 import { mockWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/mocks'
+import { TokenValidationRequest } from 'api/core/middlewares/token-validation'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
@@ -51,8 +52,12 @@ describe('CreateWalletOptions', () => {
 
   it('should call response with correct status and json in executeHttp', async () => {
     const req = {
-      params: { email: mockUser.email },
-    } as unknown as Request
+      validatedInvitation: {
+        token: 'test-token',
+        email: mockUser.email,
+        status: 'SUCCESS',
+      },
+    } as unknown as TokenValidationRequest
     const res = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn(),
@@ -75,8 +80,12 @@ describe('CreateWalletOptions', () => {
 
   it('should validate payload and throw on invalid data', async () => {
     const req = {
-      params: { email: 'invalid-email' }, // Missing required fields
-    } as unknown as Request
+      validatedInvitation: {
+        token: 'test-token',
+        email: 'invalid-email',
+        status: 'SUCCESS',
+      },
+    } as unknown as TokenValidationRequest
     const res = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn(),

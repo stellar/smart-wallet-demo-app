@@ -48,4 +48,9 @@ export const messages = {
   INVALID_DESTINATION_ADDRESS: 'The destination address is invalid. Please check and try again.',
   UNABLE_TO_SUBMIT_ACCOUNT_CREATION_TRANSACTION: 'Unable to submit account creation transaction',
   CANNOT_TRANSFER_P2P: 'P2P transfers are not allowed between wallets on this platform',
+  EMAIL_NOT_FOUND_IN_TOKEN_DATA: 'Email not found in token data',
+  EMAIL_OR_TOKEN_NOT_FOUND_IN_TOKEN_DATA: 'Email or token not found in token data',
+  CREATE_WALLET_OPTIONS_SUCCESS: 'Retrieved create wallet options successfully',
+  INVITATION_TOKEN_REQUIRED: 'Invitation token is required',
+  INVALID_INVITATION_TOKEN: 'Invalid invitation token',
 }
