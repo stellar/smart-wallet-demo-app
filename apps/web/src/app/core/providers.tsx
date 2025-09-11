@@ -6,7 +6,7 @@ import { Toast } from 'src/app/core/services/toast'
 import { Layout } from 'src/components/organisms/layout'
 import { ModalProvider } from 'src/components/organisms/modal/provider'
 import { ThemeProvider } from 'src/config/theme/provider'
-import { isWebView, isWebAuthnSupported, openInNativeBrowser } from 'src/helpers/browser-environment'
+import { isWebView, isWebAuthnSupported } from 'src/helpers/browser-environment'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { QueryClientProvider } from './queries/client'
@@ -65,12 +65,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
             <div className="flex flex-col gap-3">
               <div className="text-sm font-medium">{c('webviewWarningTitle')}</div>
               <div className="flex flex-col gap-2">
-                <button
-                  onClick={openInNativeBrowser}
-                  className="text-sm text-blue-600 underline hover:text-blue-800 font-medium text-left"
-                >
-                  {c('webviewWarningButtonText')}
-                </button>
+                {c('webviewWarningButtonText')}
                 <button
                   onClick={copyToClipboard}
                   className="text-sm text-gray-600 underline hover:text-gray-800 font-medium text-left"
