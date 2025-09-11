@@ -71,8 +71,7 @@ export const WalletAddressForm = ({
             />
 
             <div className="text-center">
-              {/* TODO: add link/action */}
-              <Link addlClassName="font-semibold" size="sm">
+              <Link addlClassName="font-semibold" size="sm" target="_blank" href="https://www.freighter.app">
                 {c('walletAddressFormNoWalletLink')}
               </Link>
             </div>
