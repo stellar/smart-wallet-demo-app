@@ -111,16 +111,14 @@ export function redirectToNativeBrowser(url: string): void {
   const userAgent = navigator.userAgent.toLowerCase()
 
   if (/iphone|ipad|ipod/.test(userAgent)) {
-    // iOS - try multiple methods to force Safari
+    // iOS - try methods that might work in some webviews
     try {
-      // Method 1: Try to use window.open with _blank (most reliable for iOS)
-      const newWindow = window.open(url, '_blank')
-      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-        throw new Error('Popup blocked')
-      }
+      const intentUrl = `x-safari-https://${url.replace(/^https?:\/\//, '')}`
+      window.open(intentUrl, '_blank')
     } catch (_error) {
       try {
-        // Method 2: Try to create a temporary link and click it
+        window.open(url, '_blank')
+      } catch (_error2) {
         const link = document.createElement('a')
         link.href = url
         link.target = '_blank'
@@ -128,32 +126,20 @@ export function redirectToNativeBrowser(url: string): void {
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
-      } catch (_error2) {
-        // Method 3: Last resort - try window.open with different parameters
-        try {
-          window.open(url, '_system')
-        } catch (_error3) {
-          // If all else fails, try direct redirect as last resort
-          window.location.href = url
-        }
       }
     }
   } else if (userAgent.includes('android')) {
-    // Android - try multiple methods
+    // Android - try Android Intent (only works in some webviews)
     try {
-      // Method 1: Try Android Intent for Chrome
       const intentUrl = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`
       window.location.href = intentUrl
     } catch (_error) {
       try {
-        // Method 2: Try window.open with _blank
-        const newWindow = window.open(url, '_blank')
-        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-          throw new Error('Popup blocked')
-        }
+        window.open(url, '_blank')
       } catch (_error2) {
         try {
-          // Method 3: Try to create a temporary link and click it
+          window.location.href = url
+        } catch (_error3) {
           const link = document.createElement('a')
           link.href = url
           link.target = '_blank'
@@ -161,21 +147,13 @@ export function redirectToNativeBrowser(url: string): void {
           document.body.appendChild(link)
           link.click()
           document.body.removeChild(link)
-        } catch (_error3) {
-          // If all else fails, try direct redirect as last resort
-          window.location.href = url
         }
       }
     }
   } else {
-    // Generic fallback - try to open in new tab
     try {
-      const newWindow = window.open(url, '_blank')
-      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-        throw new Error('Popup blocked')
-      }
+      window.open(url, '_blank')
     } catch (_error) {
-      // Fallback: direct redirect
       window.location.href = url
     }
   }
