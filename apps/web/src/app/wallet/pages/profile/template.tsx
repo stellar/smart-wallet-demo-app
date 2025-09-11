@@ -45,7 +45,7 @@ export const ProfileTemplate = ({
       {isLoadingProfile ? (
         <Skeleton height={26} />
       ) : (
-        <Text as="div" size="lg" className="text-lg text-text leading-[26px] mb-2 font-medium">
+        <Text as="div" size="lg" className="text-lg text-text leading-[26px] mb-2 font-medium break-all">
           {email}
         </Text>
       )}
