@@ -82,7 +82,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           ),
           type: Toast.toastType.WARNING,
           options: {
-            autoClose: 20000,
+            autoClose: false,
             closeOnClick: false,
             toastId: WEBVIEW_TOAST_ID,
           },
