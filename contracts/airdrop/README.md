@@ -27,9 +27,43 @@ Initialize the airdrop with:
 - `claim(index: u32, receiver: Address, amount: i128, proof: Vec<BytesN<32>>)` - Claim tokens using Merkle proof
 - `is_claimed(index: u32) -> bool` - Check if an index has been claimed
 - `is_ended() -> bool` - Check if the airdrop has ended
-- `recover_unclaimed()` - Recover unclaimed tokens back to funder
+- `recover_unclaimed()` - Recover unclaimed tokens back to `funder`
 
 ## Deployment
+
+### Prerequisites
+
+#### Tools
+
+You'll need the following tools installed in your machine in order to execute the deployment script:
+
+- [Stellar CLI](https://developers.stellar.org/docs/smart-contracts/getting-started/setup)
+- [Node.js](https://nodejs.org/en/download/)
+- [npm](https://www.npmjs.com/get-npm)
+
+#### Recipients File
+
+The recipients file (`recipients.txt`) is a text file with one Stellar address per line. Example:
+
+```txt
+GD5RUZEO3ZCW6UX6Y4FRHKC7ZWWKTKUOPCQKYKYPCF2K7M7AD7J2URPW
+GCJVXKQVGXSTRGAK7WDPUPH6LGRQFVMUJ6XJMTQZX7LGMVKVGVQF7QTJ
+CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE
+```
+
+#### Environment Variables
+
+Also, we're assuming these env variables are set:
+
+- `NODE_TLS_REJECT_UNAUTHORIZED=0`
+- `DATABASE_URL`: URL for this application's Backend database. This is used to upload the proofs to the database.
+- `RECIPIENTS_FILE`: Path to the recipients file. Example: `recipients.txt`.
+- `TOKEN_CONTRACT_ADDRESS`: The contract ID of the token you want to distribute. Example: `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` for Testnet XLM.
+- `ADMIN_IDENTITY`: Stellar identity for admin role. This is the name of the identity your stellar-cli will use to deploy the contract.
+- `FUNDER_IDENTITY`: Stellar address (public key) that will receive the funds when the function `recover_unclaimed` is called.
+- `NETWORK`: Stellar network. Options: [`testnet`, `mainnet`].
+- `AMOUNT`: Amount of stroops per recipient. 1 XLM = 10_000_000 stroops.\
+- `RPC_URL`: RPC URL for the network.
 
 ### Option 1: Unified Deployment Script
 
@@ -37,14 +71,14 @@ Deploy a airdrop in a single command and upload proofs to the database:
 
 ```bash
 npm run --workspace=scripts deploy-airdrop -- \
-  --addresses recipients.txt \
-  --amount 1000000000 \
-  --token CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC \
-  --network testnet \
-  --rpc-url https://soroban-testnet.stellar.org \
+  --addresses $RECIPIENTS_FILE \
+  --amount $AMOUNT \
+  --token $TOKEN_CONTRACT_ADDRESS \
+  --network $NETWORK \
+  --rpc-url $RPC_URL \
   --source ${ADMIN_IDENTITY} \
   --funder ${FUNDER_IDENTITY} \
-  --database-url postgresql://postgres:postgres@localhost:5432/smart_wallet_db
+  --database-url ${DATABASE_URL}
 ```
 
 This will:
@@ -55,70 +89,43 @@ This will:
 
 **Required arguments:**
 
-- `--addresses` - Recipients file path
-- `--amount` - Amount per recipient
+- `--addresses` - Recipients file (full path)
+- `--amount` - Amount of stroops per recipient. 1 XLM = 10_000_000 stroops
 - `--token` - Token contract address
-- `--network` - Stellar network (testnet/mainnet)
-- `--rpc-url` - RPC URL for the network
-- `--source` - Stellar identity for admin role
-- `--funder` - Stellar identity for funder role
+- `--network` - Stellar network. Options: [`testnet`, `mainnet`]
+- `--rpc-url` - RPC URL for the network. It's needed when using `--network=mainnet`.
+- `--source` - Stellar identity for admin role. This is the name of the identity your stellar-cli will use to deploy the contract
+- `--funder` - Stellar identity for funder role. This is the Stellar address (public key) that will receive the funds when the function `recover_unclaimed` is called
 - `--database-url` - Database URL for uploading proofs
 
 **After deployment**, the funder must transfer the total amount to the deployed contract address.
 
 ### Option 2: Step-by-Step Deployment
 
-Build the contract:
-
-```bash
-stellar contract build --package airdrop
-```
-
-Deploy the contract with constructor arguments:
-
-```bash
-stellar contract deploy \
-  --wasm target/wasm32v1-none/release/airdrop.wasm \
-  --network testnet \
-  --source $ADMIN_IDENTITY \
-  -- \
-  --root_hash $MERKLE_ROOT_HASH \
-  --token $TOKEN_CONTRACT_ADDRESS \
-  --admin $ADMIN_ADDRESS \
-  --funder $FUNDER_ADDRESS
-```
-
-After deployment, the funder must transfer tokens to the contract address.
-
 For manual deployment, follow these steps:
 
 #### 1. Generate Proofs
 
-Create a text file with recipient contract addresses (one per line):
-
-```
-GD5RUZEO3ZCW6UX6Y4FRHKC7ZWWKTKUOPCQKYKYPCF2K7M7AD7J2URPW
-GCJVXKQVGXSTRGAK7WDPUPH6LGRQFVMUJ6XJMTQZX7LGMVKVGVQF7QTJ
-CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE
-```
-
-Generate Merkle proofs:
+Generate Merkle proofs, which will output a `proofs.json` file and a `root` hash:
 
 ```bash
 npm run --workspace=scripts generate-proofs -- \
-  --addresses addresses.txt \
+  --addresses $RECIPIENTS_FILE \
   --proofs proofs.json \
-  --amount 1000000000
+  --amount $AMOUNT
 ```
 
 #### 2. Deploy Contract
 
-Use the Merkle root from the proofs output to deploy:
+You may want to build the contract from source by calling `stellar contract build --package airdrop`. This is useful if you want to make changes to the contract and deploy it again. But this project is accompanied by a pre-built contract in the `wasms` folder.
+
+Use the Merkle `root` hash from the proofs output to deploy the contract:
 
 ```bash
 stellar contract deploy \
-  --wasm target/wasm32v1-none/release/airdrop.wasm \
-  --network testnet \
+  --wasm ../../wasms/airdrop.optimized.wasm  \
+  --network $NETWORK \
+  --rpc-url $RPC_URL \
   --source $ADMIN_IDENTITY \
   -- \
   --root_hash $MERKLE_ROOT_FROM_PROOFS \
@@ -129,10 +136,13 @@ stellar contract deploy \
 
 #### 3. Upload Proofs to Database
 
+In order for the BE to know which proofs are available for a given airdrop, you need to upload the proofs to the database.
+
 ```bash
 npm run --workspace=scripts upload-proofs -- \
   --proofs proofs.json \
-  --contract $CONTRACT_ADDRESS_FROM_DEPLOYMENT
+  --contract $CONTRACT_ADDRESS_FROM_DEPLOYMENT \
+  --database-url $DATABASE_URL
 ```
 
 ## Integration with Backend

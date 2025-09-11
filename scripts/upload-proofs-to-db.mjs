@@ -13,32 +13,32 @@ export async function uploadProofsToDB(proofsData, contractAddress, databaseUrl 
     try {
         await client.connect();
         console.log('Database connected');
-        
+
         if (!Array.isArray(proofsData)) {
             throw new Error('Invalid proofs data: expected array');
         }
 
         const receiverAddresses = new Set();
         const hashRegex = /^[a-f0-9]{64}$/;
-        
+
         for (let i = 0; i < proofsData.length; i++) {
             const proof = proofsData[i];
-            if (typeof proof.index !== 'number' || 
-                !proof.receiver?.address || 
+            if (typeof proof.index !== 'number' ||
+                !proof.receiver?.address ||
                 typeof proof.receiver.amount !== 'number' ||
                 proof.receiver.amount <= 0 ||
                 !Number.isFinite(proof.receiver.amount) ||
                 !Array.isArray(proof.proofs)) {
                 throw new Error(`Invalid proof at index ${i}: ${JSON.stringify(proof)}`);
             }
-            
+
             for (let j = 0; j < proof.proofs.length; j++) {
                 const hash = proof.proofs[j];
                 if (typeof hash !== 'string' || !hashRegex.test(hash)) {
                     throw new Error(`Invalid proof hash at index ${i}, proof ${j}: "${hash}". Must be a 64-character hex string.`);
                 }
             }
-            
+
             if (receiverAddresses.has(proof.receiver.address)) {
                 throw new Error(`Duplicate receiver address found in proofs: ${proof.receiver.address}`);
             }
@@ -68,7 +68,7 @@ export async function uploadProofsToDB(proofsData, contractAddress, databaseUrl 
         const result = await client.query('SELECT COUNT(*) FROM proofs WHERE contract_address = $1', [contractAddress]);
         const count = parseInt(result.rows[0].count);
         console.log(`✅ Successfully uploaded ${count} proofs for contract ${contractAddress}`);
-        
+
         return count;
     } catch (error) {
         console.error('❌ Error uploading proofs:', error);
@@ -91,9 +91,14 @@ async function main() {
             description: 'Contract address for the airdrop',
             demandOption: true,
         })
+        .option('database-url', {
+            type: 'string',
+            description: 'Database URL for uploading proofs',
+            demandOption: false,
+        })
         .argv;
 
-    const { proofs: proofsPath, contract: contractAddress } = argv;
+    const { proofs: proofsPath, contract: contractAddress, databaseUrl } = argv;
 
     if (!fs.existsSync(proofsPath)) {
         console.error(`❌ Proofs file not found: ${proofsPath}`);
@@ -102,7 +107,7 @@ async function main() {
 
     try {
         const proofsData = JSON.parse(fs.readFileSync(proofsPath, 'utf8'));
-        await uploadProofsToDB(proofsData, contractAddress);
+        await uploadProofsToDB(proofsData, contractAddress, databaseUrl);
     } catch (error) {
         console.error('❌ Error:', error.message);
         process.exit(1);
