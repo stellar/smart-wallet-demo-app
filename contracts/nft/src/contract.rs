@@ -2,7 +2,7 @@ use crate::{
     errors::NonFungibleTokenContractError,
     types::{DataKey, TokenData, TokenMetadata},
 };
-use soroban_sdk::{contract, contractimpl, panic_with_error, Address, Env, String, Vec};
+use soroban_sdk::{contract, contractimpl, panic_with_error, Address, Env, String, Vec, Map};
 use stellar_default_impl_macro::default_impl;
 use stellar_non_fungible::{
     burnable::NonFungibleBurnable,
@@ -25,13 +25,7 @@ impl Contract {
     }
 
     pub fn set_metadata_uri(env: &Env, base_uri: String) {
-        let owner: Address = env
-            .storage()
-            .instance()
-            .get(&DataKey::Owner)
-            .unwrap_or_else(|| panic_with_error!(env, NonFungibleTokenContractError::UnsetOwner));
-
-        owner.require_auth();
+        Self::only_owner(env);
 
         let metadata = Base::get_metadata(env);
 
@@ -45,7 +39,7 @@ impl Contract {
             .unwrap_or(0u32)
     }
 
-    pub fn only_owner(env: &Env) {
+    fn only_owner(env: &Env) {
         let owner: Address = env
             .storage()
             .instance()
@@ -78,9 +72,7 @@ impl Contract {
         token_id
     }
 
-    pub fn mint(env: &Env, to: Address) -> u32 {
-        Self::only_owner(env);
-
+    fn mint(env: &Env, to: Address) -> u32 {
         let total_minted = Enumerable::total_supply(env);
         let total_supply = Self::get_max_supply(env);
 
@@ -105,31 +97,30 @@ impl Contract {
         }
     }
 
-    pub fn get_owner_tokens(env: &Env, owner: Address) -> Vec<u32> {
-        let mut ids = Vec::new(env);
-        let total_minted = Enumerable::total_supply(env);
+    pub fn bulk_mint_with_data(env: &Env, to: Vec<Address>, data: Vec<TokenData>) -> Map<Address, Vec<u32>> {
+        let owner: Address = env
+        .storage()
+        .instance()
+        .get(&DataKey::Owner)
+        .unwrap_or_else(|| panic_with_error!(env, NonFungibleTokenContractError::UnsetOwner));
 
-        for token_id in 0..total_minted {
-            if Base::owner_of(env, token_id) == owner {
-                ids.push_back(token_id);
-            }
-        }
+        owner.require_auth();
 
-        ids
-    }
+        let mut address_minted: Map<Address, Vec<u32>> = Map::new(env);
 
-    pub fn bulk_transfer(env: &Env, from: Address, to: Address, token_ids: Vec<u32>) {
-        from.require_auth();
+        for (index, to) in to.iter().enumerate() {
+            let token_id = Self::mint_with_data(env, to.clone(), data.get(index.try_into().unwrap()).unwrap().clone());
 
-        for token_id in token_ids {
-            let token_owner = Base::owner_of(env, token_id);
-
-            if token_owner != from {
-                panic_with_error!(env, NonFungibleTokenError::IncorrectOwner);
+            if !address_minted.contains_key(to.clone()) {
+                address_minted.set(to.clone(), Vec::new(env));
             }
 
-            Enumerable::transfer_from(env, &token_owner, &token_owner, &to, token_id);
+            let mut tokens = address_minted.get(to.clone()).unwrap();
+            tokens.push_back(token_id);
+            address_minted.set(to.clone(), tokens);
         }
+
+        address_minted
     }
 }
 
