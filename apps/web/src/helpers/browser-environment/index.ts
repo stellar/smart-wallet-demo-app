@@ -131,11 +131,11 @@ export function redirectToNativeBrowser(url: string): void {
   } else if (userAgent.includes('android')) {
     // Android - try Android Intent (only works in some webviews)
     try {
-      const intentUrl = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`
-      window.location.href = intentUrl
+      window.open(url, '_blank')
     } catch (_error) {
       try {
-        window.open(url, '_blank')
+        const intentUrl = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`
+        window.location.href = intentUrl
       } catch (_error2) {
         try {
           window.location.href = url

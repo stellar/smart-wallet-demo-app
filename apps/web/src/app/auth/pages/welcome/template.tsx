@@ -28,29 +28,6 @@ export const WelcomeTemplate = ({ onCreateWallet, onLogIn, onForgotPassword }: P
               {
                 text: c('inviteSubtitle'),
               },
-              {
-                text: c('inviteOptionADisclaimerText1'),
-              },
-              {
-                text: c('inviteOptionADisclaimerText2'),
-                link: import.meta.env.VITE_TERMS_OF_SERVICE_URL,
-                removeBlankSpace: true,
-              },
-              {
-                text: c('inviteOptionADisclaimerText3'),
-              },
-              {
-                text: c('inviteOptionADisclaimerText4'),
-                link: import.meta.env.VITE_PRIVACY_POLICY_URL,
-                removeBlankSpace: true,
-              },
-              {
-                text: c('inviteOptionADisclaimerText5'),
-              },
-              {
-                text: c('inviteOptionADisclaimerText6'),
-                link: import.meta.env.VITE_ADDENDUM_URL,
-              },
             ])}
           </Text>
 
