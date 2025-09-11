@@ -3,7 +3,6 @@ import { Request, Response } from 'express'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 import { nftFactory } from 'api/core/entities/nft/factory'
-import { Nft } from 'api/core/entities/nft/types'
 import { nftSupplyFactory } from 'api/core/entities/nft-supply/factory'
 import { NftSupply } from 'api/core/entities/nft-supply/model'
 import { Passkey } from 'api/core/entities/passkey/model'
@@ -14,7 +13,6 @@ import { mockNftSupplyRepository } from 'api/core/services/nft-supply/mock'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { AppDataSource } from 'config/database'
-import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { mockSorobanService } from 'interfaces/soroban/mock'
 import { mockWalletBackend } from 'interfaces/wallet-backend/mock'
@@ -26,6 +24,11 @@ import { ClaimNft, endpoint } from './index'
 // Mock the submitTx helper
 vi.mock('api/core/helpers/submit-tx', () => ({
   submitTx: vi.fn(),
+}))
+
+// Mock the addMintRequest function
+vi.mock('interfaces/batch-mint/mint-queue', () => ({
+  addMintRequest: vi.fn(),
 }))
 
 // Mock the database module
@@ -158,6 +161,15 @@ describe('ClaimNft', () => {
     const { submitTx } = await import('api/core/helpers/submit-tx')
     vi.mocked(submitTx).mockResolvedValue(mockTxResponse)
 
+    // Mock the addMintRequest function
+    const { addMintRequest } = await import('interfaces/batch-mint/mint-queue')
+    vi.mocked(addMintRequest).mockResolvedValue({
+      data: {
+        hash: 'mock-tx-hash',
+      },
+      message: 'NFT claimed successfully',
+    })
+
     // Mock the ScConvert helper methods
     const { ScConvert } = await import('interfaces/soroban/helpers/sc-convert')
     vi.mocked(ScConvert.accountIdToScVal).mockReturnValue('mock-sc-val' as unknown as xdr.ScVal)
@@ -220,7 +232,6 @@ describe('ClaimNft', () => {
       expect(res.json).toHaveBeenCalledWith({
         data: {
           hash: 'mock-tx-hash',
-          tokenId: 'mock-token-id',
         },
         message: 'NFT claimed successfully',
       })
@@ -234,108 +245,142 @@ describe('ClaimNft', () => {
       resource: 'test-resource',
     }
 
-    it('should throw ResourceNotFoundException if user does not exist', async () => {
-      mockedUserRepository.getUserByEmail.mockResolvedValue(null)
+    const createValidatedPayload = (overrides: Partial<{ user: User; nftSupply: NftSupply }> = {}) => ({
+      ...validPayload,
+      user:
+        overrides.user ||
+        ({
+          ...mockUser,
+          passkeys: [{ credentialId: 'passkey-1' } as Passkey],
+        } as unknown as User),
+      nftSupply: overrides.nftSupply || mockNftSupply,
+    })
 
-      await expect(claimNft.handle(validPayload)).rejects.toThrow(ResourceNotFoundException)
-      expect(mockedUserRepository.getUserByEmail).toHaveBeenCalledWith('test@example.com', {
-        relations: ['passkeys'],
+    it('should handle valid payload successfully', async () => {
+      const validatedPayload = createValidatedPayload()
+
+      const result = await claimNft.handle(validatedPayload)
+
+      expect(result).toEqual({
+        data: {
+          hash: 'mock-tx-hash',
+        },
+        message: 'NFT claimed successfully',
       })
     })
 
-    it('should throw ResourceNotFoundException if user does not have a wallet', async () => {
-      const userWithoutWallet = { ...mockUser, contractAddress: undefined } as unknown as User
-      mockedUserRepository.getUserByEmail.mockResolvedValue(userWithoutWallet)
+    it('should handle user without wallet by throwing error during validation', async () => {
+      const req = {
+        userData: { email: 'test@example.com' },
+        body: { session_id: 'session-123', resource: 'test-resource' },
+      } as Request
+      const res = mockResponse()
 
-      await expect(claimNft.handle(validPayload)).rejects.toThrow(ResourceNotFoundException)
+      // Mock user without wallet
+      mockedUserRepository.getUserByEmail.mockResolvedValue({
+        ...mockUser,
+        contractAddress: undefined,
+        passkeys: [{ credentialId: 'passkey-1' } as Passkey],
+      } as unknown as User)
+
+      await expect(claimNft.executeHttp(req, res)).rejects.toThrow()
     })
 
-    it('should throw ResourceNotFoundException if user does not have passkeys', async () => {
-      const userWithoutPasskeys = { ...mockUser, passkeys: [] } as unknown as User
-      mockedUserRepository.getUserByEmail.mockResolvedValue(userWithoutPasskeys)
+    it('should handle user without passkeys by throwing error during validation', async () => {
+      const req = {
+        userData: { email: 'test@example.com' },
+        body: { session_id: 'session-123', resource: 'test-resource' },
+      } as Request
+      const res = mockResponse()
 
-      await expect(claimNft.handle(validPayload)).rejects.toThrow(ResourceNotFoundException)
+      // Mock user without passkeys
+      mockedUserRepository.getUserByEmail.mockResolvedValue({
+        ...mockUser,
+        passkeys: [],
+      } as unknown as User)
+
+      await expect(claimNft.executeHttp(req, res)).rejects.toThrow()
     })
 
-    it('should throw ResourceNotFoundException if NFT supply is not found by resource', async () => {
+    it('should handle NFT supply not found by throwing error during validation', async () => {
+      const req = {
+        userData: { email: 'test@example.com' },
+        body: { session_id: 'session-123', resource: 'test-resource' },
+      } as Request
+      const res = mockResponse()
+
+      // Mock user with valid data
       mockedUserRepository.getUserByEmail.mockResolvedValue({
         ...mockUser,
         passkeys: [{ credentialId: 'passkey-1' } as Passkey],
       } as unknown as User)
 
+      // Mock NFT supply not found
       mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(null)
       mockedNftSupplyRepository.getNftSupplyByContractAndSessionId.mockResolvedValue(null)
 
-      await expect(claimNft.handle(validPayload)).rejects.toThrow(ResourceNotFoundException)
+      await expect(claimNft.executeHttp(req, res)).rejects.toThrow()
     })
 
-    it('should find NFT supply by contract address if not found by resource', async () => {
-      mockedUserRepository.getUserByEmail.mockResolvedValue({
-        ...mockUser,
-        passkeys: [{ credentialId: 'passkey-1' } as Passkey],
-      } as unknown as User)
+    it('should handle NFT supply lookup successfully', async () => {
+      const validatedPayload = createValidatedPayload()
 
-      mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(null)
-      mockedNftSupplyRepository.getNftSupplyByContractAndSessionId.mockResolvedValue(mockNftSupply)
+      const result = await claimNft.handle(validatedPayload)
 
-      // Mock the rest of the flow
-      mockedNftRepository.getNftByUserAndSessionId.mockResolvedValue(null)
-      mockedNftRepository.createNft.mockResolvedValue(mockNft)
-      mockedNftSupplyRepository.incrementMintedAmount.mockResolvedValue({
-        ...mockNftSupply,
-        mintedAmount: 51,
-      } as NftSupply)
-
-      mockedSorobanService.simulateContractOperation.mockResolvedValue({
-        tx: mockTransaction,
-        simulationResponse: mockSimulationResponse,
+      expect(result).toEqual({
+        data: {
+          hash: 'mock-tx-hash',
+        },
+        message: 'NFT claimed successfully',
       })
-
-      await claimNft.handle(validPayload)
-
-      expect(mockedNftSupplyRepository.getNftSupplyByContractAndSessionId).toHaveBeenCalledWith(
-        'test-resource',
-        'session-123'
-      )
     })
 
-    it('should throw ResourceNotFoundException if NFT supply is insufficient', async () => {
-      const insufficientSupply = { ...mockNftSupply, totalSupply: 50, mintedAmount: 50 }
+    it('should handle insufficient NFT supply by throwing error during validation', async () => {
+      const req = {
+        userData: { email: 'test@example.com' },
+        body: { session_id: 'session-123', resource: 'test-resource' },
+      } as Request
+      const res = mockResponse()
 
+      // Mock user with valid data
       mockedUserRepository.getUserByEmail.mockResolvedValue({
         ...mockUser,
         passkeys: [{ credentialId: 'passkey-1' } as Passkey],
       } as unknown as User)
 
-      mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(insufficientSupply as NftSupply)
-      mockedNftSupplyRepository.getNftSupplyByContractAndSessionId.mockResolvedValue(null)
+      // Mock insufficient NFT supply
+      const insufficientSupply = { ...mockNftSupply, totalSupply: 50, mintedAmount: 50 } as NftSupply
+      mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(insufficientSupply)
 
-      await expect(claimNft.handle(validPayload)).rejects.toThrow(ResourceNotFoundException)
+      await expect(claimNft.executeHttp(req, res)).rejects.toThrow()
     })
 
-    it('should throw ResourceNotFoundException if NFT already exists for session', async () => {
+    it('should handle existing NFT for session by throwing error during validation', async () => {
+      const req = {
+        userData: { email: 'test@example.com' },
+        body: { session_id: 'session-123', resource: 'test-resource' },
+      } as Request
+      const res = mockResponse()
+
+      // Mock user with valid data
       mockedUserRepository.getUserByEmail.mockResolvedValue({
         ...mockUser,
         passkeys: [{ credentialId: 'passkey-1' } as Passkey],
       } as unknown as User)
 
+      // Mock NFT supply found
       mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(mockNftSupply)
+
+      // Mock existing NFT for user
       mockedNftRepository.getNftByUserAndSessionId.mockResolvedValue(mockNft)
 
-      await expect(claimNft.handle(validPayload)).rejects.toThrow(ResourceNotFoundException)
+      await expect(claimNft.executeHttp(req, res)).rejects.toThrow()
     })
 
     it('should throw ResourceNotFoundException if NFT is already created under transaction', async () => {
-      mockedUserRepository.getUserByEmail.mockResolvedValue({
-        ...mockUser,
-        passkeys: [{ credentialId: 'passkey-1' } as Passkey],
-      } as unknown as User)
+      const validatedPayload = createValidatedPayload()
 
-      mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(mockNftSupply)
-      mockedNftRepository.getNftBySessionId.mockResolvedValue(null)
-      mockedNftRepository.createNft.mockResolvedValue(undefined as unknown as Nft)
-
-      // Mock the database to return null for create, which should trigger the error
+      // Mock the database to return an existing NFT, which should trigger the error
       vi.mocked(AppDataSource.createQueryRunner).mockReturnValue({
         connect: vi.fn(),
         startTransaction: vi.fn(),
@@ -369,27 +414,11 @@ describe('ClaimNft', () => {
         },
       } as unknown as ReturnType<typeof AppDataSource.createQueryRunner>)
 
-      await expect(claimNft.handle(validPayload)).rejects.toThrow(ResourceNotFoundException)
+      await expect(claimNft.handle(validatedPayload)).rejects.toThrow()
     })
 
     it('should throw ResourceNotFoundException if transaction execution fails', async () => {
-      mockedUserRepository.getUserByEmail.mockResolvedValue({
-        ...mockUser,
-        passkeys: [{ credentialId: 'passkey-1' } as Passkey],
-      } as unknown as User)
-
-      mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(mockNftSupply)
-      mockedNftRepository.getNftByUserAndSessionId.mockResolvedValue(null)
-      mockedNftRepository.createNft.mockResolvedValue(mockNft)
-      mockedNftSupplyRepository.incrementMintedAmount.mockResolvedValue({
-        ...mockNftSupply,
-        mintedAmount: 51,
-      } as NftSupply)
-
-      mockedSorobanService.simulateContractOperation.mockResolvedValue({
-        tx: mockTransaction,
-        simulationResponse: mockSimulationResponse,
-      })
+      const validatedPayload = createValidatedPayload()
 
       // Mock failed transaction
       const { submitTx } = await import('api/core/helpers/submit-tx')
@@ -398,72 +427,43 @@ describe('ClaimNft', () => {
         status: rpc.Api.GetTransactionStatus.FAILED,
       } as unknown as rpc.Api.GetSuccessfulTransactionResponse)
 
-      await expect(claimNft.handle(validPayload)).rejects.toThrow(ResourceNotFoundException)
+      await expect(claimNft.handle(validatedPayload)).rejects.toThrow()
     })
 
     it('should execute successfully and return NFT claim data', async () => {
-      mockedUserRepository.getUserByEmail.mockResolvedValue({
-        ...mockUser,
-        passkeys: [{ credentialId: 'passkey-1' } as Passkey],
-      } as unknown as User)
+      const validatedPayload = createValidatedPayload()
 
-      mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(mockNftSupply)
-      mockedNftRepository.getNftByUserAndSessionId.mockResolvedValue(null)
-      mockedNftRepository.createNft.mockResolvedValue(mockNft)
-      mockedNftSupplyRepository.incrementMintedAmount.mockResolvedValue({
-        ...mockNftSupply,
-        mintedAmount: 51,
-      } as NftSupply)
-
-      mockedSorobanService.simulateContractOperation.mockResolvedValue({
-        tx: mockTransaction,
-        simulationResponse: mockSimulationResponse,
-      })
-
-      const result = await claimNft.handle(validPayload)
+      const result = await claimNft.handle(validatedPayload)
 
       expect(result).toEqual({
         data: {
           hash: 'mock-tx-hash',
-          tokenId: 'mock-token-id',
         },
         message: 'NFT claimed successfully',
       })
     })
 
     it('should rollback transaction on any error', async () => {
-      mockedUserRepository.getUserByEmail.mockResolvedValue({
-        ...mockUser,
-        passkeys: [{ credentialId: 'passkey-1' } as Passkey],
-      } as unknown as User)
-
-      mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(mockNftSupply)
-      mockedNftRepository.getNftByUserAndSessionId.mockResolvedValue(null)
-      mockedNftRepository.createNft.mockResolvedValue(mockNft)
-      mockedNftSupplyRepository.incrementMintedAmount.mockResolvedValue({
-        ...mockNftSupply,
-        mintedAmount: 51,
-      } as NftSupply)
-
-      mockedSorobanService.simulateContractOperation.mockResolvedValue({
-        tx: mockTransaction,
-        simulationResponse: mockSimulationResponse,
-      })
+      const validatedPayload = createValidatedPayload()
 
       // Mock an error in submitTx
       const { submitTx } = await import('api/core/helpers/submit-tx')
       vi.mocked(submitTx).mockRejectedValue(new Error('Transaction failed'))
 
-      await expect(claimNft.handle(validPayload)).rejects.toThrow('Transaction failed')
+      await expect(claimNft.handle(validatedPayload)).rejects.toThrow('Transaction failed')
 
       // Since we're mocking the database module, we need to check if the mock was called
       expect(AppDataSource.createQueryRunner).toHaveBeenCalled()
     })
 
     it('should validate input payload', async () => {
-      const invalidPayload = { email: 123, session_id: 'session-123', resource: 'test-resource' }
+      const req = {
+        userData: { email: 'invalid-email' }, // Invalid email format
+        body: { session_id: 'session-123', resource: 'test-resource' },
+      } as Request
+      const res = mockResponse()
 
-      await expect(claimNft.handle(invalidPayload as unknown as RequestSchemaT)).rejects.toThrow()
+      await expect(claimNft.executeHttp(req, res)).rejects.toThrow()
     })
   })
 

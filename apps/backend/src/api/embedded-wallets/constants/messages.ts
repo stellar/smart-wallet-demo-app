@@ -28,7 +28,7 @@ export const messages = {
   NFT_SUPPLY_NOT_ENOUGH: 'Insufficient NFT supply with that resource or collection',
   NFT_ALREADY_OWNED_BY_USER: 'You have already claimed this NFT.',
   UNABLE_TO_MINT_NFT:
-    "We couldn't mint the NFT to your account. You may not have permission or the maximum supply has been claimed",
+    "We couldn't mint the NFT to your account. You may not have permission or the maximum supply has been claimed.",
   UNABLE_TO_SAVE_NFT_TO_USER: "We couldn't create or save the NFT to your account. Please try again later.",
   UNABLE_TO_DELETE_USER_NFT: "We couldn't delete the NFT from your account. Please try again.",
   UNABLE_TO_UPDATE_NFT_SUPPLY: "We couldn't update the NFT supply.",
@@ -43,10 +43,10 @@ export const messages = {
     'Unable to execute claim transaction. Check your available assets before trying to claim again.',
   UNABLE_TO_EXECUTE_ROTATE_SIGNER: 'Unknown error. Please try again.',
   USER_ALREADY_CREATED_ACCOUNT:
-    'You have already created an account. This wallet only sponsors the creation of one Stellar account per user',
-  ACCOUNT_ALREADY_EXISTS_ON_NETWORK: 'Account already exists on the Stellar network',
+    'You have already created an account. This wallet only sponsors the creation of one Stellar account per user.',
+  ACCOUNT_ALREADY_EXISTS_ON_NETWORK: 'Account already exists on the Stellar network.',
+  UNABLE_TO_SUBMIT_ACCOUNT_CREATION_TRANSACTION: 'Unable to execute account creation transaction.',
   INVALID_DESTINATION_ADDRESS: 'The destination address is invalid. Please check and try again.',
-  UNABLE_TO_SUBMIT_ACCOUNT_CREATION_TRANSACTION: 'Unable to submit account creation transaction',
   CANNOT_TRANSFER_P2P: 'P2P transfers are not allowed between wallets on this platform',
   EMAIL_NOT_FOUND_IN_TOKEN_DATA: 'Email not found in token data',
   EMAIL_OR_TOKEN_NOT_FOUND_IN_TOKEN_DATA: 'Email or token not found in token data',
