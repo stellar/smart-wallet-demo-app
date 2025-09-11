@@ -1,12 +1,14 @@
 NODE_TLS_REJECT_UNAUTHORIZED=0
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/smart_wallet_db
-RECIPIENTS_FILE=#/Users/.../recipients.txt
+RECIPIENTS_FILE=#full-path-to/recipients.txt
 TOKEN_CONTRACT_ADDRESS=CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
 ADMIN_IDENTITY=admin
 FUNDER_IDENTITY=#G...
 NETWORK=testnet
 AMOUNT=10000000
 RPC_URL=https://soroban-testnet.stellar.org
+MERKLE_ROOT_HASH=# obtained from the `generate-proofs` step
+CONTRACT_ADDRESS=# obtained from the `deploy` step
 
 
 deploy-airdrop:
@@ -23,9 +25,15 @@ deploy-airdrop:
 build:
 	stellar contract build --package airdrop
 
+generate-proofs:
+	npm run --workspace=scripts generate-proofs -- \
+		--addresses $(RECIPIENTS_FILE) \
+		--proofs proofs.json \
+		--amount $(AMOUNT)
+
 deploy:
 	stellar contract deploy \
-		--wasm target/wasm32v1-none/release/airdrop.wasm \
+		--wasm ../../wasms/airdrop.optimized.wasm \
 		--network $(NETWORK) \
 		--source $(ADMIN_IDENTITY) \
 		-- \
@@ -33,12 +41,6 @@ deploy:
 		--token $(TOKEN_CONTRACT_ADDRESS) \
 		--admin $(ADMIN_IDENTITY) \
 		--funder $(FUNDER_IDENTITY)
-
-generate-proofs:
-	npm run --workspace=scripts generate-proofs -- \
-		--addresses $(RECIPIENTS_FILE) \
-		--proofs proofs.json \
-		--amount $(AMOUNT)
 
 upload-proofs:
 	npm run --workspace=scripts upload-proofs -- \

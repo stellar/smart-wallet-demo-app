@@ -75,7 +75,7 @@ npm run --workspace=scripts deploy-airdrop -- \
   --amount $AMOUNT \
   --token $TOKEN_CONTRACT_ADDRESS \
   --network $NETWORK \
-  --rpc-url https://soroban-testnet.stellar.org \
+  --rpc-url $RPC_URL \
   --source ${ADMIN_IDENTITY} \
   --funder ${FUNDER_IDENTITY} \
   --database-url ${DATABASE_URL}
@@ -93,7 +93,7 @@ This will:
 - `--amount` - Amount of stroops per recipient. 1 XLM = 10_000_000 stroops
 - `--token` - Token contract address
 - `--network` - Stellar network. Options: [`testnet`, `mainnet`]
-- `--rpc-url` - RPC URL for the network
+- `--rpc-url` - RPC URL for the network. It's needed when using `--network=mainnet`.
 - `--source` - Stellar identity for admin role. This is the name of the identity your stellar-cli will use to deploy the contract
 - `--funder` - Stellar identity for funder role. This is the Stellar address (public key) that will receive the funds when the function `recover_unclaimed` is called
 - `--database-url` - Database URL for uploading proofs
@@ -102,33 +102,11 @@ This will:
 
 ### Option 2: Step-by-Step Deployment
 
-Build the contract:
-
-```bash
-stellar contract build --package airdrop
-```
-
-Deploy the contract with constructor arguments:
-
-```bash
-stellar contract deploy \
-  --wasm target/wasm32v1-none/release/airdrop.wasm \
-  --network $NETWORK \
-  --source $ADMIN_IDENTITY \
-  -- \
-  --root_hash $MERKLE_ROOT_HASH \
-  --token $TOKEN_CONTRACT_ADDRESS \
-  --admin $ADMIN_ADDRESS \
-  --funder $FUNDER_ADDRESS
-```
-
-After deployment, the funder must transfer tokens to the contract address.
-
 For manual deployment, follow these steps:
 
 #### 1. Generate Proofs
 
-Generate Merkle proofs:
+Generate Merkle proofs, which will output a `proofs.json` file and a `root` hash:
 
 ```bash
 npm run --workspace=scripts generate-proofs -- \
@@ -139,12 +117,15 @@ npm run --workspace=scripts generate-proofs -- \
 
 #### 2. Deploy Contract
 
-Use the Merkle root from the proofs output to deploy:
+You may want to build the contract from source by calling `stellar contract build --package airdrop`. This is useful if you want to make changes to the contract and deploy it again. But this project is accompanied by a pre-built contract in the `wasms` folder.
+
+Use the Merkle `root` hash from the proofs output to deploy the contract:
 
 ```bash
 stellar contract deploy \
-  --wasm target/wasm32v1-none/release/airdrop.wasm \
+  --wasm ../../wasms/airdrop.optimized.wasm  \
   --network $NETWORK \
+  --rpc-url $RPC_URL \
   --source $ADMIN_IDENTITY \
   -- \
   --root_hash $MERKLE_ROOT_FROM_PROOFS \
@@ -154,6 +135,8 @@ stellar contract deploy \
 ```
 
 #### 3. Upload Proofs to Database
+
+In order for the BE to know which proofs are available for a given airdrop, you need to upload the proofs to the database.
 
 ```bash
 npm run --workspace=scripts upload-proofs -- \
