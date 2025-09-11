@@ -11,8 +11,8 @@ type QueueItem<T, R> = {
 
 let mintQueue: QueueItem<ClaimNftRequestSchemaT, ClaimNftResponseSchemaT>[] = []
 
-export function addMintRequest<T, R>(payload: T): Promise<R> {
-  return new Promise((resolve, reject) => {
+export function addMintRequest(payload: ClaimNftRequestSchemaT): Promise<ClaimNftResponseSchemaT> {
+  return new Promise<ClaimNftResponseSchemaT>((resolve, reject) => {
     mintQueue.push({ payload, resolve, reject })
   })
 }

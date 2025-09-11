@@ -1,5 +1,3 @@
-import { parse } from 'path'
-
 import { xdr, rpc, Keypair } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
@@ -18,8 +16,6 @@ import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { AppDataSource } from 'config/database'
 import { getValueFromEnv } from 'config/env-utils'
-import { STELLAR } from 'config/stellar'
-import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { addMintRequest } from 'interfaces/batch-mint/mint-queue'
@@ -78,11 +74,11 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     }
 
     const validatedData = await this.validatePayload(payload)
-    const result = await addMintRequest<RequestSchemaT, ResponseSchemaT>(validatedData)
+    const result = await addMintRequest(validatedData)
     return response.status(HttpStatusCodes.OK).json(result)
   }
 
-  async handle(validatedPayload: ValidatedPayload | ValidatedPayload[]): Promise<ResponseSchemaT> {
+  async handle(validatedPayload: ValidatedPayload | ValidatedPayload[]): Promise<ResponseSchemaT | ResponseSchemaT[]> {
     const parsedPayload = Array.isArray(validatedPayload) ? validatedPayload : [validatedPayload]
 
     // Prepare tx signer
@@ -145,7 +141,7 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
 
     const contractId = parsedPayload.length > 1 ? this.multicallContract : parsedPayload[0].nftSupply.contractAddress
 
-    // Simulate 'mint' transaction
+    // Simulate mint transaction
     const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
       contractId,
       method,
@@ -160,7 +156,7 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     // Execute all critical operations within a database transaction for "all or nothing" behavior
     const queryRunner = AppDataSource.createQueryRunner()
     let txResponse: rpc.Api.GetSuccessfulTransactionResponse
-    let mintedTokenIds: string
+    let mintedTokenIds: string[] = []
     let newUserNft: Nft
 
     try {
@@ -226,20 +222,35 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       })
 
       if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
-        throw new ResourceNotFoundException(`${messages.UNABLE_TO_MINT_NFT} ${messages.UNABLE_TO_EXECUTE_TRANSACTION}`)
+        throw new ResourceNotFoundException(messages.UNABLE_TO_MINT_NFT)
       }
 
-      console.log(txResponse.returnValue)
+      // Get tokenId(s) from tx response
+      if (parsedPayload.length > 1) {
+        // Multicall transaction - extract array of tokenIds
+        const returnValues = txResponse.returnValue as xdr.ScVal
+        if (returnValues.switch().value === xdr.ScValType.scvVec().value) {
+          const vec = returnValues.vec()
+          if (vec) {
+            mintedTokenIds = vec.map(scVal => ScConvert.scValToString(scVal))
+          }
+        }
+      } else {
+        // Single mint transaction - extract single tokenId
+        mintedTokenIds = [ScConvert.scValToString(txResponse.returnValue as xdr.ScVal)]
+      }
 
-      // // Get tokenId from tx response
-      // mintedTokenId = ScConvert.scValToString(txResponse.returnValue as xdr.ScVal)
-
-      // // Update newUserNft with newly minted tokenId and mint tx hash
-      // await queryRunner.manager.update(
-      //   NftModel,
-      //   { nftId: newUserNft.nftId },
-      //   { tokenId: mintedTokenId, transactionHash: txResponse.txHash }
-      // )
+      // Update each NFT with its corresponding tokenId
+      for (let i = 0; i < createdNfts.length; i++) {
+        await queryRunner.manager.update(
+          NftModel,
+          { nftId: createdNfts[i].nftId },
+          {
+            tokenId: mintedTokenIds[i],
+            transactionHash: txResponse.txHash,
+          }
+        )
+      }
 
       // Commit transaction if all operations succeed
       await queryRunner.commitTransaction()
@@ -252,12 +263,14 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       await queryRunner.release()
     }
 
-    return {
+    const result = {
       data: {
-        hash: txResponse.txHash,
+        hash: txResponse?.txHash || '',
       },
       message: 'NFT claimed successfully',
     }
+
+    return Array.isArray(validatedPayload) ? Array(parsedPayload.length).fill(result) : result
   }
 
   private async validatePayload(payload: RequestSchemaT): Promise<ValidatedPayload> {
