@@ -43,9 +43,10 @@ class QrScanner {
         { facingMode: 'environment' },
         {
           fps: 20,
-          qrbox: {
-            width: window.innerWidth,
-            height: window.innerHeight,
+          videoConstraints: {
+            facingMode: 'environment',
+            width: window.innerHeight,
+            height: window.innerWidth,
           },
         },
         onScan,
@@ -61,7 +62,6 @@ class QrScanner {
       // Get video track from the scanner after it starts
       this.setupZoomCapabilities()
       this.addPinchToZoomListeners()
-      // this.applyFullHeightStyles()
     } catch (error) {
       if (typeof error === 'string' && notTrackableErrors.some(value => error.includes(value))) return
 
@@ -187,50 +187,6 @@ class QrScanner {
     } catch (error) {
       logger.error(`${this.constructor.name}.applyZoom | Failed to apply zoom ${zoom}`, error)
     }
-  }
-
-  private applyFullHeightStyles(): void {
-    const scannerElement = document.getElementById(this.elementId)
-    if (!scannerElement) return
-
-    // Apply styles to the scanner container
-    scannerElement.style.width = '100%'
-    scannerElement.style.height = '100%'
-    scannerElement.style.position = 'relative'
-
-    // Prevent zoom behavior on Safari/iOS
-    scannerElement.style.touchAction = 'none'
-    scannerElement.style.userSelect = 'none'
-    scannerElement.style.webkitUserSelect = 'none'
-    ;(scannerElement.style as any).webkitTouchCallout = 'none'
-
-    // Find and style the video element
-    const videoElement = scannerElement.querySelector('video')
-    if (videoElement) {
-      videoElement.style.width = '100%'
-      videoElement.style.height = '100%'
-      videoElement.style.objectFit = 'cover'
-      videoElement.style.position = 'absolute'
-      videoElement.style.top = '0'
-      videoElement.style.left = '0'
-
-      // Additional Safari/iOS zoom prevention
-      videoElement.style.touchAction = 'none'
-      videoElement.style.userSelect = 'none'
-      videoElement.style.webkitUserSelect = 'none'
-      ;(videoElement.style as any).webkitTouchCallout = 'none'
-    }
-
-    // Style any child divs
-    const childDivs = scannerElement.querySelectorAll('div')
-    childDivs.forEach(div => {
-      div.style.width = '100%'
-      div.style.height = '100%'
-      div.style.touchAction = 'none'
-      div.style.userSelect = 'none'
-      div.style.webkitUserSelect = 'none'
-      ;(div.style as any).webkitTouchCallout = 'none'
-    })
   }
 
   async stop(): Promise<void> {
