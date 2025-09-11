@@ -25,7 +25,7 @@ describe('CreateWalletUseCase', () => {
   })
 
   it('should call getRegisterOptions with email', async () => {
-    const email = 'test@example.com'
+    const invitationToken = 'test-invitation-token'
     const registerOptions = {
       data: { options_json: '{}' },
       message: 'Retrieved register options successfully',
@@ -37,14 +37,14 @@ describe('CreateWalletUseCase', () => {
     } as unknown as WebAuthnCreatePasskeyResult)
     mockedAuthService.postRegister.mockResolvedValue(mockPostRegisterResult)
 
-    await createWalletUseCase.handle({ email })
+    await createWalletUseCase.handle({ invitationToken })
 
     expect(mockedAuthService.getRegisterOptions).toHaveBeenCalledTimes(1)
-    expect(mockedAuthService.getRegisterOptions).toHaveBeenCalledWith({ email })
+    expect(mockedAuthService.getRegisterOptions).toHaveBeenCalledWith({ invitationToken })
   })
 
   it('should call createPasskey with parsed options', async () => {
-    const email = 'test@example.com'
+    const invitationToken = 'test-invitation-token'
     const registerOptions = {
       data: { options_json: '{"test":"option"}' },
       message: 'Retrieved register options successfully',
@@ -57,14 +57,14 @@ describe('CreateWalletUseCase', () => {
     } as unknown as WebAuthnCreatePasskeyResult)
     mockedAuthService.postRegister.mockResolvedValue(mockPostRegisterResult)
 
-    await createWalletUseCase.handle({ email })
+    await createWalletUseCase.handle({ invitationToken })
 
     expect(mockedWebauthnService.createPasskey).toHaveBeenCalledTimes(1)
     expect(mockedWebauthnService.createPasskey).toHaveBeenCalledWith({ optionsJSON: parsedOptions })
   })
 
-  it('should call postRegister with email and registration response', async () => {
-    const email = 'test@example.com'
+  it('should call postRegister with invitationToken and registration response', async () => {
+    const invitationToken = 'test-invitation-token'
     const registerOptions = {
       data: { options_json: '{}' },
       message: 'Retrieved register options successfully',
@@ -77,26 +77,26 @@ describe('CreateWalletUseCase', () => {
     mockedWebauthnService.createPasskey.mockResolvedValue(createPasskeyResponse)
     mockedAuthService.postRegister.mockResolvedValue(mockPostRegisterResult)
 
-    await createWalletUseCase.handle({ email })
+    await createWalletUseCase.handle({ invitationToken })
 
     expect(mockedAuthService.postRegister).toHaveBeenCalledTimes(1)
     expect(mockedAuthService.postRegister).toHaveBeenCalledWith({
-      email,
+      invitationToken,
       registrationResponseJSON: JSON.stringify(createPasskeyResponse.rawResponse),
     })
   })
 
   it('should throw error if getRegisterOptions fails', async () => {
-    const email = 'test@example.com'
+    const invitationToken = 'test-invitation-token'
     const error = new Error('Test error')
 
     mockedAuthService.getRegisterOptions.mockRejectedValue(error)
 
-    await expect(createWalletUseCase.handle({ email })).rejects.toThrow(error)
+    await expect(createWalletUseCase.handle({ invitationToken })).rejects.toThrow(error)
   })
 
   it('should throw error if createPasskey fails', async () => {
-    const email = 'test@example.com'
+    const invitationToken = 'test-invitation-token'
     const registerOptions = {
       data: { options_json: '{}' },
       message: 'Retrieved register options successfully',
@@ -106,6 +106,6 @@ describe('CreateWalletUseCase', () => {
     mockedAuthService.getRegisterOptions.mockResolvedValue(registerOptions)
     mockedWebauthnService.createPasskey.mockRejectedValue(error)
 
-    await expect(createWalletUseCase.handle({ email })).rejects.toThrow(error)
+    await expect(createWalletUseCase.handle({ invitationToken })).rejects.toThrow(error)
   })
 })

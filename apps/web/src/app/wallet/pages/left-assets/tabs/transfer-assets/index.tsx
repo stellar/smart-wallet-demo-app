@@ -120,6 +120,7 @@ export const TransferAssets = () => {
         to: reviewStandardTransferInfo.walletAddress,
         amount: walletData?.balance,
         asset: 'XLM',
+        shouldFundWallet: true,
       }
       transfer.mutate(payload)
     } catch (error) {

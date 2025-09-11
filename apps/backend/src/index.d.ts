@@ -1,4 +1,5 @@
 import 'express'
+import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 
 declare global {
   namespace Express {
@@ -7,6 +8,11 @@ declare global {
       userData?: {
         userId: string
         email: string
+      }
+      validatedInvitation?: {
+        token: string
+        email: string
+        status: WalletStatus
       }
     }
     interface Locals {

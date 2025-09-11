@@ -1,6 +1,7 @@
 import { Router } from 'express'
 
 import { authentication } from 'api/core/middlewares/authentication'
+import { tokenValidation } from 'api/core/middlewares/token-validation'
 
 import { AirdropComplete, endpoint as AirdropCompleteEndpoint } from './use-cases/airdrop-complete'
 import { AirdropOptions, endpoint as AirdropOptionsEndpoint } from './use-cases/airdrop-options'
@@ -28,8 +29,10 @@ import { ValidateRecoveryLink, endpoint as ValidateRecoveryLinkEndpoint } from '
 const router = Router()
 
 router.get(`${GetInvitationInfoEndpoint}`, async (req, res) => GetInvitationInfo.init().executeHttp(req, res))
-router.get(`${CreateWalletOptionsEndpoint}`, async (req, res) => CreateWalletOptions.init().executeHttp(req, res))
-router.post(`${CreateWalletEndpoint}`, async (req, res) => CreateWallet.init().executeHttp(req, res))
+router.get(`${CreateWalletOptionsEndpoint}`, tokenValidation(), async (req, res) =>
+  CreateWalletOptions.init().executeHttp(req, res)
+)
+router.post(`${CreateWalletEndpoint}`, tokenValidation(), async (req, res) => CreateWallet.init().executeHttp(req, res))
 router.post(`${CreateAccountEndpoint}`, authentication, async (req, res) => CreateAccount.init().executeHttp(req, res))
 router.get(`${LogInOptionsEndpoint}`, async (req, res) => LogInOptions.init().executeHttp(req, res))
 router.post(`${LogInEndpoint}`, async (req, res) => LogIn.init().executeHttp(req, res))

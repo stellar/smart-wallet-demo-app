@@ -16,6 +16,7 @@ export interface IWalletService {
   claimNft: (input: ClaimNftInput) => Promise<ClaimNftResult>
   getGiftOptions: (input: GetGiftOptionsInput) => Promise<GetGiftOptionsResult>
   postGift: (input: PostGiftInput) => Promise<PostAirdropResult>
+  postFundWallet: (input: PostFundWalletInput) => Promise<PostFundWalletResult>
 }
 
 export type GetWalletResult = IHTTPResponse<{
@@ -175,4 +176,13 @@ export type PostGiftInput = {
 }
 export type PostGiftResult = IHTTPResponse<{
   hash: string
+}>
+
+export type PostFundWalletInput = {
+  address: string
+}
+export type PostFundWalletResult = IHTTPResponse<{
+  address: string
+  transaction?: string
+  networkPassphrase?: string
 }>

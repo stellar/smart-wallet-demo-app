@@ -1,3 +1,3 @@
 export type CreateWalletInput = {
-  email: string
+  invitationToken: string
 }

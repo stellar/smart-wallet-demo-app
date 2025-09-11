@@ -96,12 +96,17 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     }
 
     // Validate if 'to' address is non-existent (exclusive for not contract wallets)
-    if (!StrKey.isValidContract(validatedData.to) && validatedData.to) {
+    if (validatedData.type !== TransferTypes.NFT && !StrKey.isValidContract(validatedData.to) && validatedData.to) {
       const validAddress = await fetch(`${getValueFromEnv('STELLAR_HORIZON_URL')}/accounts/${validatedData.to}`)
 
       if (validAddress.status !== 200) {
         throw new ResourceNotFoundException(messages.INVALID_DESTINATION_ADDRESS)
       }
+    }
+
+    const destinationUser = await this.userRepository.getUserByContractAddress(validatedData.to)
+    if (destinationUser) {
+      throw new UnauthorizedException(messages.CANNOT_TRANSFER_P2P)
     }
 
     // Get asset contract address from db

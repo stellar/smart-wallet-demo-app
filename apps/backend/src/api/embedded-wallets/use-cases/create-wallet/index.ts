@@ -50,7 +50,16 @@ export class CreateWallet extends UseCaseBase implements IUseCaseHttp<ResponseSc
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
-    const payload = request.body as RequestSchemaT
+    const email = request.validatedInvitation?.email
+    const token = request.validatedInvitation?.token
+    if (!email || !token) {
+      throw new ResourceNotFoundException(messages.EMAIL_OR_TOKEN_NOT_FOUND_IN_TOKEN_DATA)
+    }
+    const payload = {
+      ...request.body,
+      email,
+      token,
+    } as RequestSchemaT
     const result = await this.handle(payload)
     return response.status(HttpStatusCodes.OK).json(result)
   }
@@ -65,6 +74,11 @@ export class CreateWallet extends UseCaseBase implements IUseCaseHttp<ResponseSc
     const user = await this.userRepository.getUserByEmail(requestBody.email, { relations: ['passkeys'] })
     if (!user) {
       throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
+    }
+
+    // Check if the token matches the user's unique token stored in DB
+    if (user.uniqueToken !== requestBody.token) {
+      throw new UnauthorizedException(messages.INVALID_INVITATION_TOKEN)
     }
 
     // Check if user already has a wallet
@@ -84,7 +98,7 @@ export class CreateWallet extends UseCaseBase implements IUseCaseHttp<ResponseSc
 
     // Create wallet using SDP
     const newWallet = await this.sdpEmbeddedWallets.createWallet({
-      token: user.uniqueToken,
+      token: requestBody.token,
       credential_id: passkey.credentialId,
       public_key: passkey.credentialHexPublicKey,
     })

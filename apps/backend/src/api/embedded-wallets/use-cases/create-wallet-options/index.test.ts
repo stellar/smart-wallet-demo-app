@@ -51,7 +51,11 @@ describe('CreateWalletOptions', () => {
 
   it('should call response with correct status and json in executeHttp', async () => {
     const req = {
-      params: { email: mockUser.email },
+      validatedInvitation: {
+        token: 'test-token',
+        email: mockUser.email,
+        status: 'SUCCESS',
+      },
     } as unknown as Request
     const res = {
       status: vi.fn().mockReturnThis(),
@@ -75,7 +79,11 @@ describe('CreateWalletOptions', () => {
 
   it('should validate payload and throw on invalid data', async () => {
     const req = {
-      params: { email: 'invalid-email' }, // Missing required fields
+      validatedInvitation: {
+        token: 'test-token',
+        email: 'invalid-email',
+        status: 'SUCCESS',
+      },
     } as unknown as Request
     const res = {
       status: vi.fn().mockReturnThis(),

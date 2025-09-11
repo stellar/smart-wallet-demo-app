@@ -42,9 +42,15 @@ export const messages = {
   USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE:
     'Unable to execute claim transaction. Check your available assets before trying to claim again.',
   UNABLE_TO_EXECUTE_ROTATE_SIGNER: 'Unknown error. Please try again.',
-  USER_ALREADY_CREATED_ACCOUNT:
-    'You have already created an account. This wallet only sponsors the creation of one Stellar account per user.',
+  USER_ALREADY_CREATED_ACCOUNT: 'You have already created an account. This wallet only sponsors the creation of one Stellar account per user.',
   ACCOUNT_ALREADY_EXISTS_ON_NETWORK: 'Account already exists on the Stellar network.',
   UNABLE_TO_SUBMIT_ACCOUNT_CREATION_TRANSACTION: 'Unable to execute account creation transaction.',
   INVALID_DESTINATION_ADDRESS: 'The destination address is invalid. Please check and try again.',
+  UNABLE_TO_SUBMIT_ACCOUNT_CREATION_TRANSACTION: 'Unable to submit account creation transaction',
+  CANNOT_TRANSFER_P2P: 'P2P transfers are not allowed between wallets on this platform',
+  EMAIL_NOT_FOUND_IN_TOKEN_DATA: 'Email not found in token data',
+  EMAIL_OR_TOKEN_NOT_FOUND_IN_TOKEN_DATA: 'Email or token not found in token data',
+  CREATE_WALLET_OPTIONS_SUCCESS: 'Retrieved create wallet options successfully',
+  INVITATION_TOKEN_REQUIRED: 'Invitation token is required',
+  INVALID_INVITATION_TOKEN: 'Invalid invitation token',
 }

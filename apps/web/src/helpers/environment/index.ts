@@ -4,5 +4,5 @@ export enum EnvironmentName {
 }
 
 export const isPubnet = () => {
-  return import.meta.env.VITE_ENVIRONMENT_NAME === EnvironmentName.PROD
+  return import.meta.env.VITE_ENVIRONMENT_NAME != EnvironmentName.STAGING
 }

@@ -8,6 +8,7 @@ import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
+import { getValueFromEnv } from 'config/env-utils'
 import { logger } from 'config/logger'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
@@ -66,6 +67,16 @@ export class CreateAccount extends UseCaseBase implements IUseCaseHttp<ResponseS
     if (!user) {
       throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
     }
+
+    // Validate if address is non-existent
+    const validAddress = await fetch(`${getValueFromEnv('STELLAR_HORIZON_URL')}/accounts/${validatedData.address}`)
+    if (validAddress.status === 200)
+      return {
+        data: {
+          address: validatedData.address,
+        },
+        message: 'Account already exists',
+      }
 
     if (user.createdAccountAddress) {
       throw new ResourceConflictedException(messages.USER_ALREADY_CREATED_ACCOUNT)

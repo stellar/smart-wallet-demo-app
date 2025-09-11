@@ -34,20 +34,31 @@ export class AuthService implements IAuthService {
   }
 
   async getRegisterOptions(input: GetRegisterOptionsInput): Promise<GetRegisterOptionsResult> {
-    const { email } = input
+    const { invitationToken } = input
 
-    const response = await http.get(`/api/embedded-wallets/register/options/${email}`)
+    const response = await http.get(`/api/embedded-wallets/register/options`, {
+      headers: {
+        'x-invitation-token': invitationToken,
+      },
+    })
 
     return response.data
   }
 
   async postRegister(input: PostRegisterInput): Promise<PostRegisterResult> {
-    const { email, registrationResponseJSON } = input
+    const { invitationToken, registrationResponseJSON } = input
 
-    const response = await http.post(`/api/embedded-wallets/register/complete`, {
-      email,
-      registration_response_json: registrationResponseJSON,
-    })
+    const response = await http.post(
+      `/api/embedded-wallets/register/complete`,
+      {
+        registration_response_json: registrationResponseJSON,
+      },
+      {
+        headers: {
+          'x-invitation-token': invitationToken,
+        },
+      }
+    )
 
     return response.data
   }
