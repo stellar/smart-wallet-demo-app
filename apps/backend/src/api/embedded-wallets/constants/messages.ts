@@ -46,7 +46,6 @@ export const messages = {
   ACCOUNT_ALREADY_EXISTS_ON_NETWORK: 'Account already exists on the Stellar network.',
   UNABLE_TO_SUBMIT_ACCOUNT_CREATION_TRANSACTION: 'Unable to execute account creation transaction.',
   INVALID_DESTINATION_ADDRESS: 'The destination address is invalid. Please check and try again.',
-  UNABLE_TO_SUBMIT_ACCOUNT_CREATION_TRANSACTION: 'Unable to submit account creation transaction',
   CANNOT_TRANSFER_P2P: 'P2P transfers are not allowed between wallets on this platform',
   EMAIL_NOT_FOUND_IN_TOKEN_DATA: 'Email not found in token data',
   EMAIL_OR_TOKEN_NOT_FOUND_IN_TOKEN_DATA: 'Email or token not found in token data',
