@@ -21,8 +21,8 @@ export type RequestSchemaT = z.infer<typeof RequestSchema>
 export const ResponseSchema = createResponseSchema(
   z.object({
     address: z.string(),
-    transaction: z.string(),
-    networkPassphrase: z.string(),
+    transaction: z.string().optional(),
+    networkPassphrase: z.string().optional(),
   })
 )
 

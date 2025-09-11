@@ -96,7 +96,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     }
 
     // Validate if 'to' address is non-existent (exclusive for not contract wallets)
-    if (!StrKey.isValidContract(validatedData.to) && validatedData.to) {
+    if (validatedData.type !== TransferTypes.NFT && !StrKey.isValidContract(validatedData.to) && validatedData.to) {
       const validAddress = await fetch(`${getValueFromEnv('STELLAR_HORIZON_URL')}/accounts/${validatedData.to}`)
 
       if (validAddress.status !== 200) {

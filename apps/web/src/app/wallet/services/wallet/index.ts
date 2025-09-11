@@ -19,6 +19,8 @@ import {
   PostGiftInput,
   PostGiftResult,
   GetGiftOptionsInput,
+  PostFundWalletInput,
+  PostFundWalletResult,
 } from './types'
 
 export class WalletService implements IWalletService {
@@ -95,6 +97,14 @@ export class WalletService implements IWalletService {
     const response = await authHttp.post(`/api/embedded-wallets/gift/complete`, {
       giftId: input.giftId,
       authentication_response_json: input.authenticationResponseJSON,
+    })
+
+    return response.data
+  }
+
+  async postFundWallet(input: PostFundWalletInput): Promise<PostFundWalletResult> {
+    const response = await authHttp.post(`/api/embedded-wallets/create-account`, {
+      address: input.address,
     })
 
     return response.data
