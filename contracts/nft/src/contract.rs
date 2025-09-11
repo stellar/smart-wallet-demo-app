@@ -2,7 +2,7 @@ use crate::{
     errors::NonFungibleTokenContractError,
     types::{DataKey, TokenData, TokenMetadata},
 };
-use soroban_sdk::{contract, contractimpl, panic_with_error, Address, Env, String, Vec, Map};
+use soroban_sdk::{contract, contractimpl, panic_with_error, Address, Env, Map, String, Vec};
 use stellar_default_impl_macro::default_impl;
 use stellar_non_fungible::{
     burnable::NonFungibleBurnable,
@@ -97,19 +97,27 @@ impl Contract {
         }
     }
 
-    pub fn bulk_mint_with_data(env: &Env, to: Vec<Address>, data: Vec<TokenData>) -> Map<Address, Vec<u32>> {
+    pub fn bulk_mint_with_data(
+        env: &Env,
+        to: Vec<Address>,
+        data: Vec<TokenData>,
+    ) -> Map<Address, Vec<u32>> {
         let owner: Address = env
-        .storage()
-        .instance()
-        .get(&DataKey::Owner)
-        .unwrap_or_else(|| panic_with_error!(env, NonFungibleTokenContractError::UnsetOwner));
+            .storage()
+            .instance()
+            .get(&DataKey::Owner)
+            .unwrap_or_else(|| panic_with_error!(env, NonFungibleTokenContractError::UnsetOwner));
 
         owner.require_auth();
 
         let mut address_minted: Map<Address, Vec<u32>> = Map::new(env);
 
         for (index, to) in to.iter().enumerate() {
-            let token_id = Self::mint_with_data(env, to.clone(), data.get(index.try_into().unwrap()).unwrap().clone());
+            let token_id = Self::mint_with_data(
+                env,
+                to.clone(),
+                data.get(index.try_into().unwrap()).unwrap().clone(),
+            );
 
             if !address_minted.contains_key(to.clone()) {
                 address_minted.set(to.clone(), Vec::new(env));
