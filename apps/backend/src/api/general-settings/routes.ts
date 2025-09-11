@@ -17,6 +17,7 @@ import { GetNftSupply, endpoint as GetNftSupplyEndpoint } from './use-cases/get-
 import { GetNgos, endpoint as GetNgosEndpoint } from './use-cases/get-ngos'
 import { GetProducts, endpoint as GetProductsEndpoint } from './use-cases/get-products'
 import { GetVendors, endpoint as GetVendorsEndpoint } from './use-cases/get-vendors'
+import { ResolveRedirectUrl, endpoint as ResolveRedirectUrlEndpoint } from './use-cases/resolve-redirect-url'
 import { UpdateAsset, endpoint as UpdateAssetEndpoint } from './use-cases/update-asset'
 import { UpdateFeatureFlag, endpoint as UpdateFeatureFlagEndpoint } from './use-cases/update-feature-flag'
 import { UpdateNftSupply, endpoint as UpdateNftSupplyEndpoint } from './use-cases/update-nft-supply'
@@ -106,6 +107,11 @@ adminLeaderboardRoutes.get(`${GetLeaderboardEndpoint}`, apiKeyAuthentication, as
 const nftMetadataRoutes = Router()
 nftMetadataRoutes.get(`${GetNftMetadataEndpoint}`, async (req, res) => GetNftMetadata.init().executeHttp(req, res))
 
+const resolveRedirectUrlRoutes = Router()
+resolveRedirectUrlRoutes.post(`${ResolveRedirectUrlEndpoint}`, authentication, async (req, res) =>
+  ResolveRedirectUrl.init().executeHttp(req, res)
+)
+
 export {
   featureFlagsRoutes,
   adminFeatureFlagsRoutes,
@@ -117,4 +123,5 @@ export {
   adminProductsRoutes,
   adminLeaderboardRoutes,
   nftMetadataRoutes,
+  resolveRedirectUrlRoutes,
 }

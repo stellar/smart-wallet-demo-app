@@ -104,6 +104,11 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
       }
     }
 
+    const destinationUser = await this.userRepository.getUserByContractAddress(validatedData.to)
+    if (destinationUser) {
+      throw new UnauthorizedException(messages.CANNOT_TRANSFER_P2P)
+    }
+
     // Get asset contract address from db
     const assetCodes = validatedData.asset
       ?.replace(/\s+/g, '')
