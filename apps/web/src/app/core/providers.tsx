@@ -7,6 +7,7 @@ import { Layout } from 'src/components/organisms/layout'
 import { ModalProvider } from 'src/components/organisms/modal/provider'
 import { ThemeProvider } from 'src/config/theme/provider'
 import { isWebView, isWebAuthnSupported, openInNativeBrowser } from 'src/helpers/browser-environment'
+import { c } from 'src/interfaces/cms/useContent'
 
 import { QueryClientProvider } from './queries/client'
 import { LayoutProvider } from '../../interfaces/layout'
@@ -33,12 +34,12 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
         Toast.notify({
           message: (
             <div className="flex flex-col gap-2">
-              <div className="text-sm font-medium">WebAuthn/Passkey not supported in this environment</div>
+              <div className="text-sm font-medium">{c('webviewWarningTitle')}</div>
               <button
                 onClick={openInNativeBrowser}
-                className="text-sm text-blue-600 underline hover:text-blue-800 font-medium"
+                className="text-sm text-blue-600 underline hover:text-blue-800 font-medium text-left"
               >
-                Open in native browser for full functionality
+                {c('webviewWarningButtonText')}
               </button>
             </div>
           ),
