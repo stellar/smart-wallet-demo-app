@@ -1,8 +1,7 @@
-import { Response } from 'express'
+import { Request, Response } from 'express'
 
 import { userFactory } from 'api/core/entities/user/factory'
 import { mockWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/mocks'
-import { TokenValidationRequest } from 'api/core/middlewares/token-validation'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
@@ -57,7 +56,7 @@ describe('CreateWalletOptions', () => {
         email: mockUser.email,
         status: 'SUCCESS',
       },
-    } as unknown as TokenValidationRequest
+    } as unknown as Request
     const res = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn(),
@@ -85,7 +84,7 @@ describe('CreateWalletOptions', () => {
         email: 'invalid-email',
         status: 'SUCCESS',
       },
-    } as unknown as TokenValidationRequest
+    } as unknown as Request
     const res = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn(),

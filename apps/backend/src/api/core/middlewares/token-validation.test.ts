@@ -1,18 +1,18 @@
-import { NextFunction, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
 import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 
-import { TokenValidationRequest, tokenValidation } from './token-validation'
+import { tokenValidation } from './token-validation'
 
 const mockToken = 'test-token-uuid-1234'
 const mockEmail = 'test@example.com'
 
 const mockSdpService = mockSDPEmbeddedWallets()
 
-let mockReq: TokenValidationRequest
+let mockReq: Request
 let mockRes: Response
 let mockNext: NextFunction
 
@@ -24,7 +24,7 @@ describe('tokenValidation middleware', () => {
       query: {},
       headers: {},
       params: {},
-    } as TokenValidationRequest
+    } as Request
 
     mockRes = {} as Response
     mockNext = vi.fn()

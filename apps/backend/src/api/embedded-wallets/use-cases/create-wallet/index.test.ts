@@ -1,10 +1,9 @@
-import { Response } from 'express'
+import { Request, Response } from 'express'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import { userFactory } from 'api/core/entities/user/factory'
 import { User } from 'api/core/entities/user/types'
 import { mockWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/mocks'
-import { TokenValidationRequest } from 'api/core/middlewares/token-validation'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
@@ -127,7 +126,7 @@ describe('CreateWallet', () => {
           email: email,
           status: 'SUCCESS',
         },
-      } as unknown as TokenValidationRequest
+      } as unknown as Request
       const res = {
         status: vi.fn().mockReturnThis(),
         json: vi.fn(),
@@ -163,7 +162,7 @@ describe('CreateWallet', () => {
           email: 'invalid-email',
           status: 'SUCCESS',
         },
-      } as unknown as TokenValidationRequest
+      } as unknown as Request
       const res = {
         status: vi.fn().mockReturnThis(),
         json: vi.fn(),

@@ -30,9 +30,9 @@ export const Invite = () => {
   const email = useMemo(() => getInvitationInfo.data.email, [getInvitationInfo.data.email])
 
   const handleCreateWallet = () => {
-    if (!email) return navigate({ to: AuthPagesPath.INVITE_RESEND })
+    if (!search.token) return navigate({ to: AuthPagesPath.INVITE_RESEND })
 
-    createWallet.mutate({ email })
+    createWallet.mutate({ invitationToken: search.token })
   }
 
   const handleLogIn = () => {

@@ -24,14 +24,14 @@ export type GetInvitationInfoResult = IHTTPResponse<{
 }>
 
 export type GetRegisterOptionsInput = {
-  email: string
+  invitationToken: string
 }
 export type GetRegisterOptionsResult = IHTTPResponse<{
   options_json: string
 }>
 
 export type PostRegisterInput = {
-  email: string
+  invitationToken: string
   registrationResponseJSON: string
 }
 export type PostRegisterResult = IHTTPResponse<{

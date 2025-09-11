@@ -1,11 +1,10 @@
-import { Response } from 'express'
+import { Request, Response } from 'express'
 
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import WebAuthnRegistration from 'api/core/helpers/webauthn/registration'
 import { IWebAuthnRegistration } from 'api/core/helpers/webauthn/registration/types'
-import { TokenValidationRequest } from 'api/core/middlewares/token-validation'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
@@ -50,7 +49,7 @@ export class CreateWallet extends UseCaseBase implements IUseCaseHttp<ResponseSc
     }
   }
 
-  async executeHttp(request: TokenValidationRequest, response: Response<ResponseSchemaT>) {
+  async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
     const email = request.validatedInvitation?.email
     const token = request.validatedInvitation?.token
     if (!email || !token) {
