@@ -13,7 +13,6 @@ export type RequestSchemaT = z.infer<typeof RequestSchema>
 export const ResponseSchema = createResponseSchema(
   z.object({
     hash: z.string(),
-    tokenId: z.string(),
   })
 )
 

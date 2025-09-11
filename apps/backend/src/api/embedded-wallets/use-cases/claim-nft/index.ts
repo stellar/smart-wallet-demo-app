@@ -1,10 +1,13 @@
+import { parse } from 'path'
+
 import { xdr, rpc, Keypair } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
 import { Nft as NftModel } from 'api/core/entities/nft/model'
 import { Nft } from 'api/core/entities/nft/types'
 import { NftSupply as NftSupplyModel } from 'api/core/entities/nft-supply/model'
-import { UserRepositoryType } from 'api/core/entities/user/types'
+import { NftSupply } from 'api/core/entities/nft-supply/types'
+import { User, UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import { submitTx } from 'api/core/helpers/submit-tx'
@@ -15,8 +18,11 @@ import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
 import { AppDataSource } from 'config/database'
 import { getValueFromEnv } from 'config/env-utils'
+import { STELLAR } from 'config/stellar'
+import { BadRequestException } from 'errors/exceptions/bad-request'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
+import { addMintRequest } from 'interfaces/batch-mint/mint-queue'
 import SorobanService from 'interfaces/soroban'
 import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
 import { ISorobanService, ContractSigner } from 'interfaces/soroban/types'
@@ -27,6 +33,11 @@ import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
 const endpoint = '/nft/claim/complete'
 
+type ValidatedPayload = RequestSchemaT & {
+  user: User
+  nftSupply: NftSupply
+}
+
 export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT> {
   private nftRepository: NftRepository
   private nftSupplyRepository: NftSupplyRepository
@@ -34,6 +45,7 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
   private sorobanService: ISorobanService
   private walletBackend: WalletBackendType
   private transactionSigner: Keypair
+  private multicallContract: string
 
   constructor(
     userRepository?: UserRepositoryType,
@@ -41,7 +53,8 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     nftSupplyRepository?: NftSupplyRepository,
     sorobanService?: ISorobanService,
     walletBackend?: WalletBackendType,
-    transactionSigner?: Keypair
+    transactionSigner?: Keypair,
+    multicallContract?: string
   ) {
     super()
     this.nftRepository = nftRepository || NftRepository.getInstance()
@@ -51,6 +64,7 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     this.walletBackend = walletBackend || WalletBackend.getInstance()
     this.transactionSigner =
       transactionSigner || Keypair.fromSecret(getValueFromEnv('NFT_CONTRACT_DEPLOYER_PRIVATE_KEY'))
+    this.multicallContract = multicallContract || getValueFromEnv('STELLAR_MULTICALL_CONTRACT')
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
@@ -63,11 +77,190 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       throw new UnauthorizedException(messages.NOT_AUTHORIZED)
     }
 
-    const result = await this.handle(payload)
+    const validatedData = await this.validatePayload(payload)
+    const result = await addMintRequest<RequestSchemaT, ResponseSchemaT>(validatedData)
     return response.status(HttpStatusCodes.OK).json(result)
   }
 
-  async handle(payload: RequestSchemaT): Promise<ResponseSchemaT> {
+  async handle(validatedPayload: ValidatedPayload | ValidatedPayload[]): Promise<ResponseSchemaT> {
+    const parsedPayload = Array.isArray(validatedPayload) ? validatedPayload : [validatedPayload]
+
+    // Prepare tx signer
+    const transactionSigner: ContractSigner = {
+      addressId: this.transactionSigner.publicKey(),
+      methodOptions: {
+        method: 'keypair',
+        options: {
+          secret: this.transactionSigner.secret(),
+        },
+      },
+    }
+
+    // Set transaction params
+    let args: xdr.ScVal[] = []
+    let method: string = 'mint_with_data'
+
+    if (parsedPayload.length > 1) {
+      method = 'exec'
+      args = [
+        ScConvert.accountIdToScVal(this.transactionSigner.publicKey()), // caller
+        ScConvert.arrayToScVal(
+          parsedPayload.map(payload => [
+            ScConvert.accountIdToScVal(payload.nftSupply.contractAddress as string),
+            ScConvert.symbolToScVal('mint_with_data'),
+            [
+              ScConvert.accountIdToScVal(payload.user.contractAddress as string),
+              // metadata
+              xdr.ScVal.scvMap([
+                new xdr.ScMapEntry({
+                  key: xdr.ScVal.scvSymbol('resource'),
+                  val: xdr.ScVal.scvString(payload.nftSupply.resource),
+                }),
+                new xdr.ScMapEntry({
+                  key: xdr.ScVal.scvSymbol('session_id'),
+                  val: xdr.ScVal.scvString(payload.nftSupply.sessionId),
+                }),
+              ]),
+            ],
+          ])
+        ),
+      ]
+    } else {
+      method = 'mint_with_data'
+      args = [
+        ScConvert.accountIdToScVal(parsedPayload[0].user.contractAddress as string),
+        // metadata
+        xdr.ScVal.scvMap([
+          new xdr.ScMapEntry({
+            key: xdr.ScVal.scvSymbol('resource'),
+            val: xdr.ScVal.scvString(parsedPayload[0].nftSupply.resource),
+          }),
+          new xdr.ScMapEntry({
+            key: xdr.ScVal.scvSymbol('session_id'),
+            val: xdr.ScVal.scvString(parsedPayload[0].nftSupply.sessionId),
+          }),
+        ]),
+      ]
+    }
+
+    const contractId = parsedPayload.length > 1 ? this.multicallContract : parsedPayload[0].nftSupply.contractAddress
+
+    // Simulate 'mint' transaction
+    const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
+      contractId,
+      method,
+      args,
+      signers: [transactionSigner],
+    })
+
+    if (!tx || !simulationResponse) {
+      throw new ResourceNotFoundException(messages.UNABLE_TO_EXECUTE_TRANSACTION)
+    }
+
+    // Execute all critical operations within a database transaction for "all or nothing" behavior
+    const queryRunner = AppDataSource.createQueryRunner()
+    let txResponse: rpc.Api.GetSuccessfulTransactionResponse
+    let mintedTokenIds: string
+    let newUserNft: Nft
+
+    try {
+      // Start db transaction
+      await queryRunner.connect()
+      await queryRunner.startTransaction()
+
+      const createdNfts: NftModel[] = []
+      const suppliesToIncrement: NftSupplyModel[] = []
+
+      for (const payload of parsedPayload) {
+        const { user, resource, session_id: sessionId } = payload
+        // Lock the row for update to avoid race conditions
+        const foundNftSupply = await queryRunner.manager
+          .createQueryBuilder(NftSupplyModel, 'nftSupply')
+          .setLock('pessimistic_write')
+          .where('nftSupply.resource = :resource', { resource: resource })
+          .andWhere('nftSupply.sessionId = :sessionId', { sessionId: sessionId })
+          .getOne()
+
+        if (!foundNftSupply) {
+          throw new ResourceNotFoundException(messages.NFT_SUPPLY_NOT_FOUND)
+        }
+
+        if (foundNftSupply.totalSupply - foundNftSupply.mintedAmount <= 0) {
+          throw new ResourceNotFoundException(messages.NFT_SUPPLY_NOT_ENOUGH)
+        }
+
+        // Re-check if user already owns NFT for this session (prevents race conditions)
+        const existingUserNft = await queryRunner.manager.findOne(NftModel, {
+          where: { user: { userId: user.userId }, nftSupply: { sessionId: foundNftSupply.sessionId } },
+        })
+        if (existingUserNft) {
+          throw new ResourceNotFoundException(messages.NFT_ALREADY_OWNED_BY_USER)
+        }
+
+        // Prepare new NFT entry
+        newUserNft = queryRunner.manager.create(NftModel, {
+          sessionId: foundNftSupply.sessionId,
+          contractAddress: foundNftSupply.contractAddress,
+          nftSupply: foundNftSupply,
+          user,
+        })
+
+        createdNfts.push(newUserNft)
+        suppliesToIncrement.push(foundNftSupply)
+      }
+
+      // Save new NFT entries
+      await queryRunner.manager.save(createdNfts)
+
+      // Update NFT supply
+      for (const supply of suppliesToIncrement) {
+        await queryRunner.manager.increment(NftSupplyModel, { nftSupplyId: supply.nftSupplyId }, 'mintedAmount', 1)
+      }
+
+      // Submit transaction at the end only if everything`s ok with prior database operations
+      txResponse = await submitTx({
+        tx,
+        simulationResponse,
+        walletBackend: this.walletBackend,
+        sorobanService: this.sorobanService,
+      })
+
+      if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
+        throw new ResourceNotFoundException(`${messages.UNABLE_TO_MINT_NFT} ${messages.UNABLE_TO_EXECUTE_TRANSACTION}`)
+      }
+
+      console.log(txResponse.returnValue)
+
+      // // Get tokenId from tx response
+      // mintedTokenId = ScConvert.scValToString(txResponse.returnValue as xdr.ScVal)
+
+      // // Update newUserNft with newly minted tokenId and mint tx hash
+      // await queryRunner.manager.update(
+      //   NftModel,
+      //   { nftId: newUserNft.nftId },
+      //   { tokenId: mintedTokenId, transactionHash: txResponse.txHash }
+      // )
+
+      // Commit transaction if all operations succeed
+      await queryRunner.commitTransaction()
+    } catch (error) {
+      // Rollback transaction on any failure
+      await queryRunner.rollbackTransaction()
+      throw error
+    } finally {
+      // Release query runner
+      await queryRunner.release()
+    }
+
+    return {
+      data: {
+        hash: txResponse.txHash,
+      },
+      message: 'NFT claimed successfully',
+    }
+  }
+
+  private async validatePayload(payload: RequestSchemaT): Promise<ValidatedPayload> {
     const validatedData = this.validate(payload, RequestSchema)
 
     // Get user data
@@ -115,133 +308,10 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       throw new ResourceNotFoundException(messages.NFT_ALREADY_OWNED_BY_USER)
     }
 
-    // Prepare tx signer
-    const transactionSigner: ContractSigner = {
-      addressId: this.transactionSigner.publicKey(),
-      methodOptions: {
-        method: 'keypair',
-        options: {
-          secret: this.transactionSigner.secret(),
-        },
-      },
-    }
-
-    // DONT CHANGE THE ORDER OF THE METADATA MAP ENTRIES
-    // The smart contract relies on this order to parse the metadata correctly
-    const metadataMap = xdr.ScVal.scvMap([
-      new xdr.ScMapEntry({
-        key: xdr.ScVal.scvSymbol('resource'),
-        val: xdr.ScVal.scvString(nftSupply.resource),
-      }),
-      new xdr.ScMapEntry({
-        key: xdr.ScVal.scvSymbol('session_id'),
-        val: xdr.ScVal.scvString(nftSupply.sessionId),
-      }),
-    ])
-
-    // Simulate 'mint' transaction
-    const { tx, simulationResponse } = await this.sorobanService.simulateContractOperation({
-      contractId: nftSupply.contractAddress,
-      method: 'mint_with_data',
-      args: [ScConvert.accountIdToScVal(user.contractAddress as string), metadataMap],
-      signers: [transactionSigner],
-    })
-
-    if (!tx || !simulationResponse) {
-      throw new ResourceNotFoundException(messages.UNABLE_TO_EXECUTE_TRANSACTION)
-    }
-
-    // Execute all critical operations within a database transaction for "all or nothing" behavior
-    const queryRunner = AppDataSource.createQueryRunner()
-    let txResponse: rpc.Api.GetSuccessfulTransactionResponse
-    let mintedTokenId: string
-    let newUserNft: Nft
-
-    try {
-      // Start db transaction
-      await queryRunner.connect()
-      await queryRunner.startTransaction()
-
-      // Lock the row for update to avoid race conditions
-      const foundNftSupply = await queryRunner.manager
-        .createQueryBuilder(NftSupplyModel, 'nftSupply')
-        .setLock('pessimistic_write')
-        .where('nftSupply.resource = :resource', { resource: validatedData.resource })
-        .andWhere('nftSupply.sessionId = :sessionId', { sessionId: validatedData.session_id })
-        .getOne()
-
-      if (!foundNftSupply) {
-        throw new ResourceNotFoundException(messages.NFT_SUPPLY_NOT_FOUND)
-      }
-
-      if (foundNftSupply.totalSupply - foundNftSupply.mintedAmount <= 0) {
-        throw new ResourceNotFoundException(messages.NFT_SUPPLY_NOT_ENOUGH)
-      }
-
-      // Re-check if user already owns NFT for this session (prevents race conditions)
-      const existingUserNft = await queryRunner.manager.findOne(NftModel, {
-        where: { user: { userId: user.userId }, nftSupply: { sessionId: foundNftSupply.sessionId } },
-      })
-      if (existingUserNft) {
-        throw new ResourceNotFoundException(messages.NFT_ALREADY_OWNED_BY_USER)
-      }
-
-      // Prepare new NFT entry
-      newUserNft = queryRunner.manager.create(NftModel, {
-        sessionId: foundNftSupply.sessionId,
-        contractAddress: foundNftSupply.contractAddress,
-        nftSupply: foundNftSupply,
-        user,
-      })
-      await queryRunner.manager.save(newUserNft)
-
-      // Atomic increment of mintedAmount
-      await queryRunner.manager.increment(
-        NftSupplyModel,
-        { nftSupplyId: foundNftSupply.nftSupplyId },
-        'mintedAmount',
-        1
-      )
-
-      // Submit transaction at the end only if everything`s ok with prior database operations
-      txResponse = await submitTx({
-        tx,
-        simulationResponse,
-        walletBackend: this.walletBackend,
-        sorobanService: this.sorobanService,
-      })
-
-      if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
-        throw new ResourceNotFoundException(`${messages.UNABLE_TO_MINT_NFT} ${messages.UNABLE_TO_EXECUTE_TRANSACTION}`)
-      }
-
-      // Get tokenId from tx response
-      mintedTokenId = ScConvert.scValToString(txResponse.returnValue as xdr.ScVal)
-
-      // Update newUserNft with newly minted tokenId and mint tx hash
-      await queryRunner.manager.update(
-        NftModel,
-        { nftId: newUserNft.nftId },
-        { tokenId: mintedTokenId, transactionHash: txResponse.txHash }
-      )
-
-      // Commit transaction if all operations succeed
-      await queryRunner.commitTransaction()
-    } catch (error) {
-      // Rollback transaction on any failure
-      await queryRunner.rollbackTransaction()
-      throw error
-    } finally {
-      // Release query runner
-      await queryRunner.release()
-    }
-
     return {
-      data: {
-        hash: txResponse.txHash,
-        tokenId: mintedTokenId,
-      },
-      message: 'NFT claimed successfully',
+      ...validatedData,
+      user,
+      nftSupply,
     }
   }
 }
