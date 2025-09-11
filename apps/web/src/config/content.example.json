@@ -186,5 +186,7 @@
   "leftSwagsBannerTitle": "Left Swag Available!",
   "leftSwagsBannerDescription": "Head to the booth to check the left swags!",
   "webviewWarningTitle": "Passkey not supported in this environment",
-  "webviewWarningButtonText": "Open in a browser for full functionality"
+  "webviewWarningButtonText": "Open in a browser for full functionality",
+  "webviewCopyUrlButtonText": "Copy URL to clipboard",
+  "urlCopiedToClipboard": "URL copied to clipboard"
 }

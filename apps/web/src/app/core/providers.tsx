@@ -6,7 +6,7 @@ import { Toast } from 'src/app/core/services/toast'
 import { Layout } from 'src/components/organisms/layout'
 import { ModalProvider } from 'src/components/organisms/modal/provider'
 import { ThemeProvider } from 'src/config/theme/provider'
-import { isWebView, isWebAuthnSupported, openInNativeBrowser } from 'src/helpers/browser-environment'
+import { isWebView, isWebAuthnSupported } from 'src/helpers/browser-environment'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { QueryClientProvider } from './queries/client'
@@ -31,22 +31,54 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       const isWebViewEnvironment = isWebView()
 
       if (isWebViewEnvironment && !webAuthnSupported) {
+        const copyToClipboard = async () => {
+          try {
+            await navigator.clipboard.writeText(window.location.href)
+            Toast.notify({
+              message: c('urlCopiedToClipboard'),
+              type: Toast.toastType.SUCCESS,
+              options: {
+                autoClose: 2000,
+              },
+            })
+          } catch (_error) {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea')
+            textArea.value = window.location.href
+            document.body.appendChild(textArea)
+            textArea.select()
+            document.execCommand('copy')
+            document.body.removeChild(textArea)
+
+            Toast.notify({
+              message: c('urlCopiedToClipboard'),
+              type: Toast.toastType.SUCCESS,
+              options: {
+                autoClose: 2000,
+              },
+            })
+          }
+        }
+
         Toast.notify({
           message: (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               <div className="text-sm font-medium">{c('webviewWarningTitle')}</div>
-              <button
-                onClick={openInNativeBrowser}
-                className="text-sm text-blue-600 underline hover:text-blue-800 font-medium text-left"
-              >
+              <div className="flex flex-col gap-2">
                 {c('webviewWarningButtonText')}
-              </button>
+                <button
+                  onClick={copyToClipboard}
+                  className="text-sm text-gray-600 underline hover:text-gray-800 font-medium text-left"
+                >
+                  {c('webviewCopyUrlButtonText')}
+                </button>
+              </div>
             </div>
           ),
           type: Toast.toastType.WARNING,
           options: {
-            autoClose: 8000,
-            closeOnClick: true,
+            autoClose: false,
+            closeOnClick: false,
             toastId: WEBVIEW_TOAST_ID,
           },
         })
