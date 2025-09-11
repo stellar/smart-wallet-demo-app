@@ -61,7 +61,7 @@ class QrScanner {
       // Get video track from the scanner after it starts
       this.setupZoomCapabilities()
       this.addPinchToZoomListeners()
-      this.applyFullHeightStyles()
+      // this.applyFullHeightStyles()
     } catch (error) {
       if (typeof error === 'string' && notTrackableErrors.some(value => error.includes(value))) return
 

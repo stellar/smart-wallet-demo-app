@@ -113,11 +113,11 @@ export function redirectToNativeBrowser(url: string): void {
   if (/iphone|ipad|ipod/.test(userAgent)) {
     // iOS - try methods that might work in some webviews
     try {
-      const intentUrl = `x-safari-https://${url.replace(/^https?:\/\//, '')}`
-      window.open(intentUrl, '_blank')
+      window.open(url, '_blank')
     } catch (_error) {
       try {
-        window.open(url, '_blank')
+        const intentUrl = `x-safari-https://${url.replace(/^https?:\/\//, '')}`
+        window.open(intentUrl, '_blank')
       } catch (_error2) {
         const link = document.createElement('a')
         link.href = url
