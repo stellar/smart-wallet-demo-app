@@ -42,7 +42,8 @@ export const messages = {
   USER_SWAG_ALREADY_CLAIMED_OR_NOT_AVAILABLE:
     'Unable to execute claim transaction. Check your available assets before trying to claim again.',
   UNABLE_TO_EXECUTE_ROTATE_SIGNER: 'Unknown error. Please try again.',
-  USER_ALREADY_CREATED_ACCOUNT: 'You have already created an account. This wallet only sponsors the creation of one Stellar account per user.',
+  USER_ALREADY_CREATED_ACCOUNT:
+    'You have already created an account. This wallet only sponsors the creation of one Stellar account per user.',
   ACCOUNT_ALREADY_EXISTS_ON_NETWORK: 'Account already exists on the Stellar network.',
   UNABLE_TO_SUBMIT_ACCOUNT_CREATION_TRANSACTION: 'Unable to execute account creation transaction.',
   INVALID_DESTINATION_ADDRESS: 'The destination address is invalid. Please check and try again.',
