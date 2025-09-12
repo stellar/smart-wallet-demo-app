@@ -16,5 +16,6 @@
   "customNftModalBackground": "src/assets/images/custom-nft-modal-background.png",
   "emptyList": "src/assets/images/empty-list.png",
   "specialGiftBox": "src/assets/images/special-gift-box.png",
-  "specialGiftModalBackground": "src/assets/images/special-gift-modal-background.png"
+  "specialGiftModalBackground": "src/assets/images/special-gift-modal-background.png",
+  "walletComingSoonBannerBackground": "src/assets/images/wallet-coming-soon-banner-background.png"
 }

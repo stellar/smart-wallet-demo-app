@@ -10,7 +10,7 @@ export interface NotifyParams {
   options?: ToastOptions
 }
 
-const AUTO_CLOSE_TIME = 3000
+const AUTO_CLOSE_TIME = 5000
 
 const toastOptions: ToastOptions = {
   hideProgressBar: true,
