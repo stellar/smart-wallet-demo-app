@@ -78,17 +78,12 @@ impl Contract {
         ids
     }
 
-    pub fn mint_with_data(env: &Env, tokens: Vec<Map<Address, TokenData>>) -> Vec<Map<Address, TokenData>> {
-        for token in tokens.iter() {
-            let mut iter = token.iter();
+    pub fn mint_with_data(env: &Env, to: Address, token_id: u32, data: TokenData) -> u32 {
+        let token_id = Self::mint(env, to.clone(), token_id);
+        
+        Self::set_token_data(env, token_id, data);
 
-            if let Some((to, token_data)) = iter.next() {
-                let token_id = Self::mint(env, to.clone(), token_data.token_id);
-                Self::set_token_data(env, token_id, token_data);
-            }
-        }
-
-        tokens
+        token_id
     }
 
     pub fn mint(env: &Env, to: Address, token_id: u32) -> u32 {
@@ -118,22 +113,22 @@ impl Contract {
         }
     }
 
-    pub fn bulk_mint_with_data(
-        env: &Env,
-        tokens: Vec<Map<Address, TokenData>>,
-    ) -> Vec<Map<Address, TokenData>> {
-        let owner: Address = env
-            .storage()
-            .instance()
-            .get(&DataKey::Owner)
-            .unwrap_or_else(|| panic_with_error!(env, NonFungibleTokenContractError::UnsetOwner));
+    // pub fn bulk_mint_with_data(
+    //     env: &Env,
+    //     tokens: Vec<Map<Address, TokenData>>,
+    // ) -> Vec<Map<Address, TokenData>> {
+    //     let owner: Address = env
+    //         .storage()
+    //         .instance()
+    //         .get(&DataKey::Owner)
+    //         .unwrap_or_else(|| panic_with_error!(env, NonFungibleTokenContractError::UnsetOwner));
 
-        owner.require_auth();
+    //     owner.require_auth();
 
-        Self::mint_with_data(env, tokens.clone());
+    //     Self::mint_with_data(env, tokens.clone());
 
-        tokens
-    }
+    //     tokens
+    // }
 }
 
 #[default_impl]
