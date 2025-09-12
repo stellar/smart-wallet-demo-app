@@ -1,12 +1,16 @@
 #![cfg(test)]
-
+extern crate std;
 use crate::{
     contract::{Contract, ContractClient},
     types::{TokenData, TokenMetadata},
 };
 use soroban_sdk::{
-    testutils::{Address as _, EnvTestConfig, Ledger as _, MockAuth, MockAuthInvoke},
-    vec, Address, Env, IntoVal, Map, String, Vec,
+    symbol_short,
+    testutils::{
+        Address as _, AuthorizedFunction, AuthorizedInvocation, EnvTestConfig, Ledger as _,
+        MockAuth, MockAuthInvoke,
+    },
+    vec, Address, Env, IntoVal, Map, String, Symbol, Vec,
 };
 
 const INITIAL_SEQUENCE_NUMBER: u32 = 10;
@@ -72,22 +76,71 @@ fn test_mint_success() {
     let contract = get_contract(&env, &owner, 100u32);
     let contract_address = contract.address.clone();
 
-    env.mock_auths(&[MockAuth {
-        address: &owner,
-        invoke: &MockAuthInvoke {
-            contract: &contract_address,
-            fn_name: "mint",
-            args: (&recipient,).into_val(&env),
-            sub_invokes: &[],
-        },
-    }]);
-
-    let token_id = contract.mint(&recipient, &0);
-
-    assert_eq!(token_id, 0);
-    // assert_eq!(contract.total_supply(), 1);
+    let token_id = contract.mint(&recipient, &123456);
+    assert_eq!(
+        env.auths(),
+        std::vec![(
+            owner.clone(),
+            AuthorizedInvocation {
+                function: AuthorizedFunction::Contract((
+                    contract_address.clone(),
+                    symbol_short!("mint"),
+                    ((recipient.clone(), token_id)).into_val(&env),
+                )),
+                sub_invocations: std::vec![]
+            }
+        )]
+    );
+    assert_eq!(token_id, 123456);
+    assert_eq!(contract.total_supply(), 1);
     assert_eq!(contract.owner_of(&token_id), recipient);
     assert_eq!(contract.get_owner_tokens(&recipient), vec![&env, token_id]);
+}
+
+#[test]
+fn test_bulk_mint_success() {
+    let env = setup_test_env();
+    let owner = Address::generate(&env);
+    let recipient = Address::generate(&env);
+    let contract = get_contract(&env, &owner, 100u32);
+    let contract_address = contract.address.clone();
+
+    let token_data1 = TokenData {
+        session_id: String::from_str(&env, "session_1"),
+        resource: String::from_str(&env, "resource_1"),
+    };
+    let token_data2 = TokenData {
+        session_id: String::from_str(&env, "session_2"),
+        resource: String::from_str(&env, "resource_2"),
+    };
+    let mint_args = vec![
+        &env,
+        (recipient.clone(), 123456, token_data1),
+        (recipient.clone(), 789012, token_data2),
+    ];
+    contract.bulk_mint_with_data(&mint_args);
+
+    assert_eq!(
+        env.auths(),
+        std::vec![(
+            owner.clone(),
+            AuthorizedInvocation {
+                function: AuthorizedFunction::Contract((
+                    contract_address.clone(),
+                    Symbol::new(&env, "bulk_mint_with_data"),
+                    (mint_args,).into_val(&env),
+                )),
+                sub_invocations: std::vec![]
+            }
+        )]
+    );
+    assert_eq!(contract.total_supply(), 2);
+    assert_eq!(contract.owner_of(&123456), recipient);
+    assert_eq!(contract.owner_of(&789012), recipient);
+    assert_eq!(
+        contract.get_owner_tokens(&recipient),
+        vec![&env, 123456, 789012]
+    );
 }
 
 // #[test]

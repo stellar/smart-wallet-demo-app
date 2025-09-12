@@ -19,6 +19,7 @@ impl Contract {
         env.storage()
             .instance()
             .set(&DataKey::MaxSupply, &max_supply);
+        env.storage().instance().set(&DataKey::TotalMinted, &0u32);
 
         Base::set_metadata(env, metadata.base_uri, metadata.name, metadata.symbol);
     }
@@ -31,11 +32,12 @@ impl Contract {
         Base::set_metadata(env, base_uri, metadata.name, metadata.symbol);
     }
 
+    pub fn total_supply(env: &Env) -> u32 {
+        env.storage().instance().get(&DataKey::TotalMinted).unwrap()
+    }
+
     pub fn get_max_supply(env: &Env) -> u32 {
-        env.storage()
-            .instance()
-            .get(&DataKey::MaxSupply)
-            .unwrap_or(0u32)
+        env.storage().instance().get(&DataKey::MaxSupply).unwrap()
     }
 
     fn only_owner(env: &Env) {
@@ -72,17 +74,22 @@ impl Contract {
 
     pub fn mint_with_data(env: &Env, to: Address, token_id: u32, data: TokenData) -> u32 {
         let token_id = Self::mint(env, to.clone(), token_id);
-
         Self::set_token_data(env, token_id, data);
-
         token_id
     }
 
     pub fn mint(env: &Env, to: Address, token_id: u32) -> u32 {
-        let total_supply = Self::get_max_supply(env);
+        Self::only_owner(env);
+        Self::do_mint(env, &to, token_id);
+        token_id
+    }
 
-        if token_id >= total_supply {
-            panic_with_error!(env, NonFungibleTokenContractError::TokenIdOutOfBounds);
+    fn do_mint(env: &Env, to: &Address, token_id: u32) {
+        let current_supply = Self::total_supply(env);
+        let max_supply = Self::get_max_supply(env);
+
+        if current_supply >= max_supply {
+            panic_with_error!(env, NonFungibleTokenContractError::SupplyExhausted);
         }
         if env
             .storage()
@@ -91,10 +98,9 @@ impl Contract {
         {
             panic_with_error!(env, NonFungibleTokenContractError::AlreadyMinted);
         }
+        increase_total_minted(env);
         add_token_to_owner_list(env, &to, token_id);
         Base::mint(env, &to, token_id);
-
-        token_id
     }
 
     pub fn get_token_metadata(env: &Env) -> TokenMetadata {
@@ -111,22 +117,14 @@ impl Contract {
         }
     }
 
-    // pub fn bulk_mint_with_data(
-    //     env: &Env,
-    //     tokens: Vec<Map<Address, TokenData>>,
-    // ) -> Vec<Map<Address, TokenData>> {
-    //     let owner: Address = env
-    //         .storage()
-    //         .instance()
-    //         .get(&DataKey::Owner)
-    //         .unwrap_or_else(|| panic_with_error!(env, NonFungibleTokenContractError::UnsetOwner));
+    pub fn bulk_mint_with_data(env: &Env, tokens: Vec<(Address, u32, TokenData)>) -> () {
+        Self::only_owner(env);
 
-    //     owner.require_auth();
-
-    //     Self::mint_with_data(env, tokens.clone());
-
-    //     tokens
-    // }
+        for (to, token_id, data) in tokens.iter() {
+            Self::do_mint(env, &to, token_id);
+            Self::set_token_data(env, token_id, data);
+        }
+    }
 }
 
 #[contractimpl]
@@ -226,4 +224,13 @@ fn remove_token_from_owner_list(env: &Env, owner: &Address, token_id: u32) {
             .persistent()
             .set(&DataKey::OwnerTokens(owner.clone()), &tokens);
     }
+}
+
+fn increase_total_minted(env: &Env) {
+    // Unwrap is safe because TotalMinted is set in constructor
+    let mut current_minted: u32 = env.storage().instance().get(&DataKey::TotalMinted).unwrap();
+    current_minted += 1;
+    env.storage()
+        .instance()
+        .set(&DataKey::TotalMinted, &current_minted);
 }
