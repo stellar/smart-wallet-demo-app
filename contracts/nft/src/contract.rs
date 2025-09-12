@@ -65,10 +65,23 @@ impl Contract {
             })
     }
 
+    pub fn get_owner_tokens(env: &Env, owner: Address) -> Vec<u32> {
+        let mut ids = Vec::new(env);
+        let total_minted = Enumerable::total_supply(env);
+
+        for token_id in 0..total_minted {
+            if Base::owner_of(env, token_id) == owner {
+                ids.push_back(token_id);
+            }
+        }
+
+        ids
+    }
+
     pub fn mint_with_data(env: &Env, tokens: Vec<Map<Address, TokenData>>) -> Vec<Map<Address, TokenData>> {
         for token in tokens.iter() {
             let mut iter = token.iter();
-            
+
             if let Some((to, token_data)) = iter.next() {
                 let token_id = Self::mint(env, to.clone(), token_data.token_id);
                 Self::set_token_data(env, token_id, token_data);
