@@ -65,17 +65,20 @@ impl Contract {
             })
     }
 
-    pub fn mint_with_data(env: &Env, to: Address, data: Vec<TokenData>) -> u32 {
-        let token_id = Self::mint(env, to);
-
-        for (_, token_data) in data.iter().enumerate() {
-            Self::set_token_data(env, token_id as u32, token_data);
+    pub fn mint_with_data(env: &Env, tokens: Vec<Map<Address, TokenData>>) -> Vec<Map<Address, TokenData>> {
+        for token in tokens.iter() {
+            let mut iter = token.iter();
+            
+            if let Some((to, token_data)) = iter.next() {
+                let token_id = Self::mint(env, to.clone(), token_data.token_id);
+                Self::set_token_data(env, token_id, token_data);
+            }
         }
 
-        token_id
+        tokens
     }
 
-    fn mint(env: &Env, to: Address) -> u32 {
+    pub fn mint(env: &Env, to: Address, token_id: u32) -> u32 {
         let total_minted = Enumerable::total_supply(env);
         let total_supply = Self::get_max_supply(env);
 
@@ -83,7 +86,9 @@ impl Contract {
             panic_with_error!(env, NonFungibleTokenContractError::MaxSupplyReached);
         }
 
-        Base::sequential_mint(env, &to)
+        Enumerable::non_sequential_mint(env, &to, token_id);
+
+        token_id
     }
 
     pub fn get_token_metadata(env: &Env) -> TokenMetadata {
@@ -102,9 +107,8 @@ impl Contract {
 
     pub fn bulk_mint_with_data(
         env: &Env,
-        to: Vec<Address>,
-        data: Vec<TokenData>,
-    ) -> Map<Address, Vec<u32>> {
+        tokens: Vec<Map<Address, TokenData>>,
+    ) -> Vec<Map<Address, TokenData>> {
         let owner: Address = env
             .storage()
             .instance()
@@ -113,25 +117,9 @@ impl Contract {
 
         owner.require_auth();
 
-        let mut address_minted: Map<Address, Vec<u32>> = Map::new(env);
+        Self::mint_with_data(env, tokens.clone());
 
-        for (_, to) in to.iter().enumerate() {
-            let token_id = Self::mint_with_data(
-                env,
-                to.clone(),
-                data.clone(),
-            );
-
-            if !address_minted.contains_key(to.clone()) {
-                address_minted.set(to.clone(), Vec::new(env));
-            }
-
-            let mut tokens = address_minted.get(to.clone()).unwrap();
-            tokens.push_back(token_id);
-            address_minted.set(to.clone(), tokens);
-        }
-
-        address_minted
+        tokens
     }
 }
 

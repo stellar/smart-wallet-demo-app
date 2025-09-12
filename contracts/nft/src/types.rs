@@ -13,6 +13,7 @@ pub enum DataKey {
 pub struct TokenData {
     pub session_id: String,
     pub resource: String,
+    pub token_id: u32,
 }
 
 #[contracttype]
