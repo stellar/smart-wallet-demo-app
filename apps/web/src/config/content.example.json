@@ -193,5 +193,7 @@
   "routeNotFoundDescription": "The page you're looking for doesn't exist.",
   "routeErrorTitle": "Something went wrong",
   "routeErrorDescription": "Please try again.",
-  "goHome": "Go Home"
+  "goHome": "Go Home",
+  "walletComingSoonBannerTitle": "Wallet coming soon",
+  "walletComingSoonBannerDescription": "We're working hard to launch the wallet. Check back soon!"
 }

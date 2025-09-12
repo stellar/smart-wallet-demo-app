@@ -18,6 +18,7 @@ import { useHandleAirdrop } from '../../hooks/use-handle-airdrop'
 import { useHandleBehindScenes } from '../../hooks/use-handle-behind-scenes'
 import { useHandleLeftSwags } from '../../hooks/use-handle-left-swags'
 import { useHandleTransferLeftAssets } from '../../hooks/use-handle-transfer-left-assets'
+import { useHandleWalletComingSoon } from '../../hooks/use-handle-wallet-coming-soon'
 import { useInitTransfer } from '../../hooks/use-init-transfer'
 import { getWallet, useGetWallet } from '../../queries/use-get-wallet'
 import { homeRoute } from '../../routes'
@@ -27,12 +28,13 @@ export const Home = () => {
   const loaderDeps = homeRoute.useLoaderDeps()
   const navigate = useNavigate()
 
-  const [isAirdropActive, isTransferLeftAssetsActive, isBehindScenesActive, isLeftSwagsActive] = useFeatureFlagsState([
-    'airdrop',
-    'transfer-left-assets',
-    'behind-scenes',
-    'left-swags',
-  ])
+  const [
+    isAirdropActive,
+    isTransferLeftAssetsActive,
+    isBehindScenesActive,
+    isLeftSwagsActive,
+    isWalletComingSoonActive,
+  ] = useFeatureFlagsState(['airdrop', 'transfer-left-assets', 'behind-scenes', 'left-swags', 'wallet-coming-soon'])
 
   // Wallet information
   const getWalletQuery = useGetWallet({
@@ -59,8 +61,13 @@ export const Home = () => {
     enabled: isTransferLeftAssetsActive && !getWalletQuery.isLoading && !pendingLeftAssets,
   })
 
+  // Handle left swags
   const { banner: leftSwagsBanner } = useHandleLeftSwags({
     enabled: isLeftSwagsActive,
+  })
+
+  const { banner: walletComingSoonBanner } = useHandleWalletComingSoon({
+    enabled: isWalletComingSoonActive,
   })
 
   // Init transfer when search params are present (handles both transfer and NFT)
@@ -147,10 +154,11 @@ export const Home = () => {
 
   const topBanners = useMemo(() => {
     const bannersArray: BannerOptions[] = []
+    if (walletComingSoonBanner) bannersArray.push(walletComingSoonBanner)
     if (behindScenesBanner) bannersArray.push(behindScenesBanner)
     if (transferLeftAssetsBanner) bannersArray.push(transferLeftAssetsBanner)
     return bannersArray
-  }, [behindScenesBanner, transferLeftAssetsBanner])
+  }, [walletComingSoonBanner, behindScenesBanner, transferLeftAssetsBanner])
 
   return (
     <PullToRefresh
