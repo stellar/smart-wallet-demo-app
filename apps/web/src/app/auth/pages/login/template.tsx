@@ -63,7 +63,7 @@ export const LogInTemplate = ({ isLoggingIn, isLoginLinkSent, form, onGoBack, on
                   isRounded
                   isFullWidth
                 >
-                  {c('sendLink')}
+                  {c('logIn')}
                 </Form.Submit>
               )}
             </div>

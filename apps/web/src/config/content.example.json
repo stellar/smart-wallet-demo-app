@@ -178,7 +178,7 @@
   "behindScenesBannerTitleA": "Want to explore how the Smart Wallet Demo works behind the scenes?",
   "behindScenesBannerTitleB": "That's a wrap on!",
   "behindScenesBannerDescriptionA": "Check out our open-source project and start building your own smart wallet on Stellar.",
-  "behindScenesBannerDescriptionB": "But builders keep on building. Peek behind the scenes of Smart Wallet Demo below and start building your own Stellar wallet today.",
+  "behindScenesBannerDescriptionB": "But builders keep on building. Peek behind the scenes of Smart Wallet Demo and start building your own Stellar wallet today.",
   "behindScenesBannerButtonTitle": "View project",
   "loadingTransfer": "Loading transfer details...",
   "loadingNftClaim": "Loading NFTs...",
@@ -188,5 +188,10 @@
   "webviewWarningTitle": "Passkey not supported in this environment",
   "webviewWarningButtonText": "Open in a browser for full functionality",
   "webviewCopyUrlButtonText": "Copy URL to clipboard",
-  "urlCopiedToClipboard": "URL copied to clipboard"
+  "urlCopiedToClipboard": "URL copied to clipboard",
+  "routeNotFoundTitle": "Page not found",
+  "routeNotFoundDescription": "The page you're looking for doesn't exist.",
+  "routeErrorTitle": "Something went wrong",
+  "routeErrorDescription": "Please try again.",
+  "goHome": "Go Home"
 }
