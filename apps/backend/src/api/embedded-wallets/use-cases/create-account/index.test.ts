@@ -26,6 +26,17 @@ const walletBackendResponse = {
   networkPassphrase: 'Test SDF Network ; September 2015',
 }
 
+const feeBumpResponse = {
+  transaction:
+    'AAAABQAAAABz0HEh6FBFytJtXlRaOYPu/mZmtR5jgxw2rwoFDUgFXAAAAAAL68IAAAAAAgAAAAAuSqBGjfA/7LAYylzmDmG71S7+osSfehew6Q0UwqW4MgX14QAAAAwSAAAAIwAAAAEAAAAAAAAAAAAAAABot0i8AAAAAAAAAAEAAAABAAAAAIij+uaAFU+LDP4Q/cWyBTvZoWdaz1ctuzgQmdkf1UT6AAAAAAAAAAAUL/P6LZCom2KvC5uhnZqTK21PvwmVHsNLh0Fg/q16TgAAAAAAmJaAAAAAAAAAAALCpbgyAAAAQI93XilptmWHkWVjzlDbL4B64KSt/vNaNtvH5z3IlJ6kdw8ApzARK2QLJJSI+ZZV6Xz5J9R73wkUJpm/3xw6YgYf1UT6AAAAQKoKe/BfTHQk01aWD8EvNoHSdm3U2MSuhnh9tPfxSKwpqZ6dgGQWVOkLrAQ9Ykf5YqT5oZxKucKYc83uXRYtMQwAAAAAAAAAAA==',
+  networkPassphrase: 'Test SDF Network ; September 2015',
+}
+
+const mockTxResponse = {
+  status: rpc.Api.GetTransactionStatus.SUCCESS,
+  hash: 'test-transaction-hash',
+} as unknown as rpc.Api.GetSuccessfulTransactionResponse
+
 const basePayload = {
   email,
   address: testAddress,
@@ -52,10 +63,8 @@ describe('CreateAccount', () => {
       const testUser = { ...user, createdAccountAddress: undefined } as User
       mockedUserRepository.getUserByEmail.mockResolvedValue(testUser)
       mockedWalletBackend.createSponsoredAccount.mockResolvedValue(walletBackendResponse)
-      mockedSorobanService.sendTransaction.mockResolvedValue({
-        status: rpc.Api.GetTransactionStatus.SUCCESS,
-        hash: 'test-transaction-hash',
-      } as unknown as rpc.Api.GetSuccessfulTransactionResponse)
+      mockedWalletBackend.createFeeBumpTransaction.mockResolvedValue(feeBumpResponse)
+      mockedSorobanService.sendTransaction.mockResolvedValue(mockTxResponse)
       mockedUserRepository.saveUser.mockResolvedValue(testUser)
 
       const result = await useCase.handle(basePayload)
@@ -63,14 +72,17 @@ describe('CreateAccount', () => {
       expect(result).toEqual({
         data: {
           address: testAddress,
-          transaction: walletBackendResponse.transaction,
-          networkPassphrase: walletBackendResponse.networkPassphrase,
+          transaction: feeBumpResponse.transaction,
+          networkPassphrase: feeBumpResponse.networkPassphrase,
         },
         message: 'Account created successfully',
       })
 
       expect(mockedWalletBackend.createSponsoredAccount).toHaveBeenCalledWith(testAddress)
-      expect(mockedSorobanService.sendTransaction).toHaveBeenCalledWith(walletBackendResponse.transaction)
+      expect(mockedWalletBackend.createFeeBumpTransaction).toHaveBeenCalledWith({
+        transaction: walletBackendResponse.transaction,
+      })
+      expect(mockedSorobanService.sendTransaction).toHaveBeenCalledWith(feeBumpResponse.transaction)
       expect(mockedUserRepository.saveUser).toHaveBeenCalledWith({
         ...testUser,
         createdAccountAddress: testAddress,
@@ -149,6 +161,7 @@ describe('CreateAccount', () => {
       const testUser = { ...user, createdAccountAddress: undefined } as User
       mockedUserRepository.getUserByEmail.mockResolvedValue(testUser)
       mockedWalletBackend.createSponsoredAccount.mockResolvedValue(walletBackendResponse)
+      mockedWalletBackend.createFeeBumpTransaction.mockResolvedValue(feeBumpResponse)
       mockedSorobanService.sendTransaction.mockResolvedValue({
         status: rpc.Api.GetTransactionStatus.FAILED,
         hash: 'test-transaction-hash',
@@ -157,7 +170,10 @@ describe('CreateAccount', () => {
       await expect(useCase.handle(basePayload)).rejects.toBeInstanceOf(ResourceNotFoundException)
 
       expect(mockedWalletBackend.createSponsoredAccount).toHaveBeenCalledWith(testAddress)
-      expect(mockedSorobanService.sendTransaction).toHaveBeenCalledWith(walletBackendResponse.transaction)
+      expect(mockedWalletBackend.createFeeBumpTransaction).toHaveBeenCalledWith({
+        transaction: walletBackendResponse.transaction,
+      })
+      expect(mockedSorobanService.sendTransaction).toHaveBeenCalledWith(feeBumpResponse.transaction)
       expect(mockedUserRepository.saveUser).not.toHaveBeenCalled()
     })
 
@@ -165,6 +181,7 @@ describe('CreateAccount', () => {
       const testUser = { ...user, createdAccountAddress: undefined } as User
       mockedUserRepository.getUserByEmail.mockResolvedValue(testUser)
       mockedWalletBackend.createSponsoredAccount.mockResolvedValue(walletBackendResponse)
+      mockedWalletBackend.createFeeBumpTransaction.mockResolvedValue(feeBumpResponse)
       mockedSorobanService.sendTransaction.mockResolvedValue(
         null as unknown as rpc.Api.GetSuccessfulTransactionResponse
       )
@@ -172,7 +189,10 @@ describe('CreateAccount', () => {
       await expect(useCase.handle(basePayload)).rejects.toBeInstanceOf(ResourceNotFoundException)
 
       expect(mockedWalletBackend.createSponsoredAccount).toHaveBeenCalledWith(testAddress)
-      expect(mockedSorobanService.sendTransaction).toHaveBeenCalledWith(walletBackendResponse.transaction)
+      expect(mockedWalletBackend.createFeeBumpTransaction).toHaveBeenCalledWith({
+        transaction: walletBackendResponse.transaction,
+      })
+      expect(mockedSorobanService.sendTransaction).toHaveBeenCalledWith(feeBumpResponse.transaction)
       expect(mockedUserRepository.saveUser).not.toHaveBeenCalled()
     })
 
@@ -180,6 +200,7 @@ describe('CreateAccount', () => {
       const testUser = { ...user, createdAccountAddress: undefined } as User
       mockedUserRepository.getUserByEmail.mockResolvedValue(testUser)
       mockedWalletBackend.createSponsoredAccount.mockResolvedValue(walletBackendResponse)
+      mockedWalletBackend.createFeeBumpTransaction.mockResolvedValue(feeBumpResponse)
       mockedSorobanService.sendTransaction.mockResolvedValue({
         status: rpc.Api.GetTransactionStatus.NOT_FOUND,
         hash: 'test-transaction-hash',
@@ -188,7 +209,27 @@ describe('CreateAccount', () => {
       await expect(useCase.handle(basePayload)).rejects.toBeInstanceOf(ResourceNotFoundException)
 
       expect(mockedWalletBackend.createSponsoredAccount).toHaveBeenCalledWith(testAddress)
-      expect(mockedSorobanService.sendTransaction).toHaveBeenCalledWith(walletBackendResponse.transaction)
+      expect(mockedWalletBackend.createFeeBumpTransaction).toHaveBeenCalledWith({
+        transaction: walletBackendResponse.transaction,
+      })
+      expect(mockedSorobanService.sendTransaction).toHaveBeenCalledWith(feeBumpResponse.transaction)
+      expect(mockedUserRepository.saveUser).not.toHaveBeenCalled()
+    })
+
+    it('should throw error when fee bump transaction fails', async () => {
+      const testUser = { ...user, createdAccountAddress: undefined } as User
+      mockedUserRepository.getUserByEmail.mockResolvedValue(testUser)
+      mockedWalletBackend.createSponsoredAccount.mockResolvedValue(walletBackendResponse)
+      const feeBumpError = new Error('Fee bump transaction failed')
+      mockedWalletBackend.createFeeBumpTransaction.mockRejectedValue(feeBumpError)
+
+      await expect(useCase.handle(basePayload)).rejects.toThrow('Fee bump transaction failed')
+
+      expect(mockedWalletBackend.createSponsoredAccount).toHaveBeenCalledWith(testAddress)
+      expect(mockedWalletBackend.createFeeBumpTransaction).toHaveBeenCalledWith({
+        transaction: walletBackendResponse.transaction,
+      })
+      expect(mockedSorobanService.sendTransaction).not.toHaveBeenCalled()
       expect(mockedUserRepository.saveUser).not.toHaveBeenCalled()
     })
   })
