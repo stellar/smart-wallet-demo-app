@@ -12,6 +12,7 @@ use stellar_non_fungible::{
 
 #[contract]
 pub struct Contract;
+pub const WEEK_OF_LEDGERS: u32 = 60 * 60 * 24 / 5 * 7; // assumes 5 second ledger close times
 
 #[contractimpl]
 impl Contract {
@@ -64,10 +65,12 @@ impl Contract {
             })
     }
 
-    pub fn mint_with_data(env: &Env, to: Address, data: TokenData) -> u32 {
+    pub fn mint_with_data(env: &Env, to: Address, data: Vec<TokenData>) -> u32 {
         let token_id = Self::mint(env, to);
 
-        Self::set_token_data(env, token_id, data);
+        for (_, token_data) in data.iter().enumerate() {
+            Self::set_token_data(env, token_id as u32, token_data);
+        }
 
         token_id
     }
@@ -80,7 +83,7 @@ impl Contract {
             panic_with_error!(env, NonFungibleTokenContractError::MaxSupplyReached);
         }
 
-        Enumerable::sequential_mint(env, &to)
+        Base::sequential_mint(env, &to)
     }
 
     pub fn get_token_metadata(env: &Env) -> TokenMetadata {
@@ -112,11 +115,11 @@ impl Contract {
 
         let mut address_minted: Map<Address, Vec<u32>> = Map::new(env);
 
-        for (index, to) in to.iter().enumerate() {
+        for (_, to) in to.iter().enumerate() {
             let token_id = Self::mint_with_data(
                 env,
                 to.clone(),
-                data.get(index.try_into().unwrap()).unwrap().clone(),
+                data.clone(),
             );
 
             if !address_minted.contains_key(to.clone()) {
