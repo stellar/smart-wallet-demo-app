@@ -26,11 +26,7 @@ export const RouteNotFound = () => {
             {c('routeNotFoundDescription')}
           </Text>
 
-          <Button
-            onClick={goHome}
-            variant={'secondary'}
-            size={'lg'}
-          >
+          <Button onClick={goHome} variant={'secondary'} size={'lg'}>
             {c('goHome')}
           </Button>
         </div>
