@@ -92,7 +92,12 @@ export class CreateAccount extends UseCaseBase implements IUseCaseHttp<ResponseS
       throw error
     }
 
-    const txResponse = await this.sorobanService.sendTransaction(walletResponse.transaction)
+    // Wrap the transaction in a fee bump transaction
+    const feeBumpResponse = await this.walletBackend.createFeeBumpTransaction({
+      transaction: walletResponse.transaction,
+    })
+
+    const txResponse = await this.sorobanService.sendTransaction(feeBumpResponse.transaction)
 
     if (!txResponse || txResponse.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
       logger.error(
@@ -120,8 +125,8 @@ export class CreateAccount extends UseCaseBase implements IUseCaseHttp<ResponseS
     return {
       data: {
         address: validatedData.address,
-        transaction: walletResponse.transaction,
-        networkPassphrase: walletResponse.networkPassphrase,
+        transaction: feeBumpResponse.transaction,
+        networkPassphrase: feeBumpResponse.networkPassphrase,
       },
       message: 'Account created successfully',
     }
