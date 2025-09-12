@@ -2,12 +2,10 @@ use crate::{
     errors::NonFungibleTokenContractError,
     types::{DataKey, TokenData, TokenMetadata},
 };
-use soroban_sdk::{contract, contractimpl, panic_with_error, Address, Env, Map, String, Vec};
+use soroban_sdk::{contract, contractimpl, panic_with_error, vec, Address, Env, String, Vec};
 use stellar_default_impl_macro::default_impl;
 use stellar_non_fungible::{
-    burnable::NonFungibleBurnable,
-    enumerable::{Enumerable, NonFungibleEnumerable},
-    Base, NonFungibleToken, NonFungibleTokenError,
+    burnable::NonFungibleBurnable, Base, NFTStorageKey, NonFungibleToken, NonFungibleTokenError,
 };
 
 #[contract]
@@ -52,13 +50,13 @@ impl Contract {
 
     fn set_token_data(env: &Env, token_id: u32, data: TokenData) {
         env.storage()
-            .instance()
+            .persistent()
             .set(&DataKey::TokenData(token_id), &data);
     }
 
     pub fn get_token_data(env: &Env, token_id: u32) -> TokenData {
         env.storage()
-            .instance()
+            .persistent()
             .get(&DataKey::TokenData(token_id))
             .unwrap_or_else(|| {
                 panic_with_error!(env, NonFungibleTokenContractError::UnsetTokenData)
@@ -66,35 +64,35 @@ impl Contract {
     }
 
     pub fn get_owner_tokens(env: &Env, owner: Address) -> Vec<u32> {
-        let mut ids = Vec::new(env);
-        let total_minted = Enumerable::total_supply(env);
-
-        for token_id in 0..total_minted {
-            if Base::owner_of(env, token_id) == owner {
-                ids.push_back(token_id);
-            }
-        }
-
-        ids
+        env.storage()
+            .persistent()
+            .get(&DataKey::OwnerTokens(owner))
+            .unwrap_or_else(|| vec![&env])
     }
 
     pub fn mint_with_data(env: &Env, to: Address, token_id: u32, data: TokenData) -> u32 {
         let token_id = Self::mint(env, to.clone(), token_id);
-        
+
         Self::set_token_data(env, token_id, data);
 
         token_id
     }
 
     pub fn mint(env: &Env, to: Address, token_id: u32) -> u32 {
-        let total_minted = Enumerable::total_supply(env);
         let total_supply = Self::get_max_supply(env);
 
-        if total_minted >= total_supply {
-            panic_with_error!(env, NonFungibleTokenContractError::MaxSupplyReached);
+        if token_id >= total_supply {
+            panic_with_error!(env, NonFungibleTokenContractError::TokenIdOutOfBounds);
         }
-
-        Enumerable::non_sequential_mint(env, &to, token_id);
+        if env
+            .storage()
+            .persistent()
+            .has(&NFTStorageKey::Owner(token_id))
+        {
+            panic_with_error!(env, NonFungibleTokenContractError::AlreadyMinted);
+        }
+        add_token_to_owner_list(env, &to, token_id);
+        Base::mint(env, &to, token_id);
 
         token_id
     }
@@ -131,16 +129,101 @@ impl Contract {
     // }
 }
 
-#[default_impl]
 #[contractimpl]
 impl NonFungibleToken for Contract {
-    type ContractType = Enumerable;
+    type ContractType = Base;
+    fn balance(e: &Env, owner: Address) -> u32 {
+        Base::balance(e, &owner)
+    }
+
+    fn owner_of(e: &Env, token_id: u32) -> Address {
+        Base::owner_of(e, token_id)
+    }
+
+    fn transfer(e: &Env, from: Address, to: Address, token_id: u32) {
+        Base::transfer(e, &from, &to, token_id);
+        remove_token_from_owner_list(e, &from, token_id);
+        add_token_to_owner_list(e, &to, token_id);
+    }
+
+    fn transfer_from(e: &Env, spender: Address, from: Address, to: Address, token_id: u32) {
+        Base::transfer_from(e, &spender, &from, &to, token_id);
+        remove_token_from_owner_list(e, &from, token_id);
+        add_token_to_owner_list(e, &to, token_id);
+    }
+
+    fn approve(
+        e: &Env,
+        approver: Address,
+        approved: Address,
+        token_id: u32,
+        live_until_ledger: u32,
+    ) {
+        Base::approve(e, &approver, &approved, token_id, live_until_ledger);
+    }
+
+    fn approve_for_all(e: &Env, owner: Address, operator: Address, live_until_ledger: u32) {
+        Base::approve_for_all(e, &owner, &operator, live_until_ledger);
+    }
+
+    fn get_approved(e: &Env, token_id: u32) -> Option<Address> {
+        Base::get_approved(e, token_id)
+    }
+
+    fn is_approved_for_all(e: &Env, owner: Address, operator: Address) -> bool {
+        Base::is_approved_for_all(e, &owner, &operator)
+    }
+
+    fn name(e: &Env) -> String {
+        Base::name(e)
+    }
+
+    fn symbol(e: &Env) -> String {
+        Base::symbol(e)
+    }
+
+    fn token_uri(e: &Env, token_id: u32) -> String {
+        Base::token_uri(e, token_id)
+    }
 }
 
-#[default_impl]
 #[contractimpl]
-impl NonFungibleEnumerable for Contract {}
+impl NonFungibleBurnable for Contract {
+    fn burn(e: &Env, from: Address, token_id: u32) {
+        Base::burn(e, &from, token_id);
+        remove_token_from_owner_list(e, &from, token_id);
+    }
 
-#[default_impl]
-#[contractimpl]
-impl NonFungibleBurnable for Contract {}
+    fn burn_from(e: &Env, spender: Address, from: Address, token_id: u32) {
+        Base::burn_from(e, &spender, &from, token_id);
+        remove_token_from_owner_list(e, &from, token_id);
+    }
+}
+
+fn add_token_to_owner_list(env: &Env, owner: &Address, token_id: u32) {
+    let mut tokens: Vec<u32> = env
+        .storage()
+        .persistent()
+        .get(&DataKey::OwnerTokens(owner.clone()))
+        .unwrap_or_else(|| vec![env]);
+    tokens.push_back(token_id);
+    env.storage()
+        .persistent()
+        .set(&DataKey::OwnerTokens(owner.clone()), &tokens);
+}
+
+fn remove_token_from_owner_list(env: &Env, owner: &Address, token_id: u32) {
+    let mut tokens: Vec<u32> = env
+        .storage()
+        .persistent()
+        .get(&DataKey::OwnerTokens(owner.clone()))
+        .unwrap_or_else(|| {
+            panic_with_error!(env, NonFungibleTokenContractError::TokenDoesNotExist)
+        });
+    if let Some(pos) = tokens.first_index_of(&token_id) {
+        tokens.remove(pos);
+        env.storage()
+            .persistent()
+            .set(&DataKey::OwnerTokens(owner.clone()), &tokens);
+    }
+}

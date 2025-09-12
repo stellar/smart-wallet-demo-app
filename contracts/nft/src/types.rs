@@ -1,4 +1,4 @@
-use soroban_sdk::{contracttype, String};
+use soroban_sdk::{contracttype, Address, String};
 
 #[contracttype]
 pub enum DataKey {
@@ -6,6 +6,7 @@ pub enum DataKey {
     TotalMinted,
     MaxSupply,
     TokenData(u32),
+    OwnerTokens(Address),
 }
 
 #[contracttype]
