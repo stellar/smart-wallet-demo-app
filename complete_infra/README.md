@@ -2,6 +2,12 @@
 
 ## Gettings started
 
+Copy envs from `complete_infra/.env.example` to `complete_infra/.env`:
+
+```bash
+cp complete_infra/.env.example complete_infra/.env
+```
+
 Setting up local resources:
 
 ```bash
