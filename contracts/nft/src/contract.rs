@@ -3,7 +3,6 @@ use crate::{
     types::{DataKey, TokenData, TokenMetadata},
 };
 use soroban_sdk::{contract, contractimpl, panic_with_error, vec, Address, Env, String, Vec};
-use stellar_default_impl_macro::default_impl;
 use stellar_non_fungible::{
     burnable::NonFungibleBurnable, Base, NFTStorageKey, NonFungibleToken, NonFungibleTokenError,
 };
@@ -99,8 +98,8 @@ impl Contract {
             panic_with_error!(env, NonFungibleTokenContractError::AlreadyMinted);
         }
         increase_total_minted(env);
-        add_token_to_owner_list(env, &to, token_id);
-        Base::mint(env, &to, token_id);
+        add_token_to_owner_list(env, to, token_id);
+        Base::mint(env, to, token_id);
     }
 
     pub fn get_token_metadata(env: &Env) -> TokenMetadata {
@@ -117,7 +116,7 @@ impl Contract {
         }
     }
 
-    pub fn bulk_mint_with_data(env: &Env, tokens: Vec<(Address, u32, TokenData)>) -> () {
+    pub fn bulk_mint_with_data(env: &Env, tokens: Vec<(Address, u32, TokenData)>) {
         Self::only_owner(env);
 
         for (to, token_id, data) in tokens.iter() {
@@ -218,7 +217,7 @@ fn remove_token_from_owner_list(env: &Env, owner: &Address, token_id: u32) {
         .unwrap_or_else(|| {
             panic_with_error!(env, NonFungibleTokenContractError::TokenDoesNotExist)
         });
-    if let Some(pos) = tokens.first_index_of(&token_id) {
+    if let Some(pos) = tokens.first_index_of(token_id) {
         tokens.remove(pos);
         env.storage()
             .persistent()
