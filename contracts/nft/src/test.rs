@@ -85,7 +85,7 @@ fn test_mint_success() {
                 function: AuthorizedFunction::Contract((
                     contract_address.clone(),
                     symbol_short!("mint"),
-                    ((recipient.clone(), token_id)).into_val(&env),
+                    (recipient.clone(), token_id).into_val(&env),
                 )),
                 sub_invocations: std::vec![]
             }
