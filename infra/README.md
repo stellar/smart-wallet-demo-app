@@ -1,11 +1,27 @@
 # How to deploy the whole infrastructure
 
-## Gettings started
+## Getting started
 
-Copy envs from `complete_infra/.env.example` to `complete_infra/.env`:
+### Clone the repository with submodules
+
+This project uses git submodules to include external dependencies. Clone the repository with submodules:
 
 ```bash
-cp complete_infra/.env.example complete_infra/.env
+git clone --recurse-submodules <repository-url>
+```
+
+If you've already cloned the repository without submodules, initialize them:
+
+```bash
+git submodule update --init --recursive
+```
+
+### Environment setup
+
+Copy envs from `infra/.env.example` to `infra/.env`:
+
+```bash
+cp infra/.env.example infra/.env
 ```
 
 Setting up local resources:
@@ -18,6 +34,7 @@ npm run setup-content --workspace=apps/web
 ## Running the infrastructure
 
 ```bash
+cd infra
 export COMPOSE_EXPERIMENTAL_GIT_REMOTE=1 && docker-compose --profile all up -d --build
 ```
 

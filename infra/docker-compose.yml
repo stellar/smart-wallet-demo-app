@@ -7,14 +7,14 @@ services:
   # ================================ Wallet Backend ================================
   wb-db:
     extends:
-      file: https://github.com/stellar/wallet-backend.git#smart-wallet-deployment:docker-compose.yaml
+      file: ./external/wallet-backend/docker-compose.yaml
       service: wb-db
     volumes:
       - postgres-wb-db:/data/postgres
 
   wb-api:
     extends:
-      file: https://github.com/stellar/wallet-backend.git#smart-wallet-deployment:docker-compose.yaml
+      file: ./external/wallet-backend/docker-compose.yaml
       service: wb-api
     depends_on:
       wb-db:
@@ -22,7 +22,7 @@ services:
 
   wb-ingest:
     extends:
-      file: https://github.com/stellar/wallet-backend.git#smart-wallet-deployment:docker-compose.yaml
+      file: ./external/wallet-backend/docker-compose.yaml
       service: wb-ingest
     depends_on:
       wb-db:
@@ -32,7 +32,7 @@ services:
   sdp-db:
     container_name: sdp-db
     extends:
-      file: https://github.com/stellar/stellar-disbursement-platform-backend.git#marcelo/docker-default:dev/docker-compose-sdp-anchor.yml
+      file: ./external/stellar-disbursement-platform-backend/dev/docker-compose-sdp-anchor.yml
       service: sdp-db
     volumes:
       - postgres-sdp-db:/data/postgres
@@ -40,7 +40,7 @@ services:
   sdp-api:
     container_name: sdp-api
     extends:
-      file: https://github.com/stellar/stellar-disbursement-platform-backend.git#marcelo/docker-default:dev/docker-compose-sdp-anchor.yml
+      file: ./external/stellar-disbursement-platform-backend/dev/docker-compose-sdp-anchor.yml
       service: sdp-api
     depends_on:
       sdp-db:
@@ -52,7 +52,7 @@ services:
   sdp-tss:
     container_name: sdp-tss
     extends:
-      file: https://github.com/stellar/stellar-disbursement-platform-backend.git#marcelo/docker-default:dev/docker-compose-tss.yml
+      file: ./external/stellar-disbursement-platform-backend/dev/docker-compose-tss.yml
       service: sdp-tss
     depends_on:
       - sdp-db
@@ -61,7 +61,7 @@ services:
   sdp-frontend:
     container_name: sdp-frontend
     extends:
-      file: https://github.com/stellar/stellar-disbursement-platform-backend.git#marcelo/docker-default:dev/docker-compose-frontend.yml
+      file: ./external/stellar-disbursement-platform-backend/dev/docker-compose-frontend.yml
       service: sdp-frontend
 
   # ================================ Smart Wallet ================================
