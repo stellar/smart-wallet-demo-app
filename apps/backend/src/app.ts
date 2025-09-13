@@ -54,7 +54,6 @@ class Application {
   }
 
   private async config(): Promise<void> {
-    await import('interfaces/batch-mint/batch-processor')
     await initializeDatabase()
   }
 }
