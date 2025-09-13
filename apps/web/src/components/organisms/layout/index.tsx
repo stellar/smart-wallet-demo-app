@@ -19,33 +19,24 @@ export function Layout({ children }: { children: React.ReactNode }): React.React
 
     // maintain viewport height correctly on iOS Safari
     const setHeight = () => {
+      setVh(`${window.innerHeight}px`)
       setTimeout(() => {
         setVh(`${window.innerHeight}px`)
       }, 100)
     }
 
-    // Initial height setting
     setHeight()
 
     window.addEventListener('resize', setHeight)
     window.addEventListener('focus', setHeight)
-    document.addEventListener('visibilitychange', setHeight)
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', setHeight)
-    }
 
     return () => {
-      // cleanup
       document.body.style.overflow = original.overflow
       document.body.style.position = original.position
       document.body.style.width = original.width
 
       window.removeEventListener('resize', setHeight)
       window.removeEventListener('focus', setHeight)
-      document.removeEventListener('visibilitychange', setHeight)
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', setHeight)
-      }
     }
   }, [])
 
