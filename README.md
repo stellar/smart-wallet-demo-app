@@ -1,3 +1,18 @@
+## Instructions
+
+### SDP
+
+1. Go through the forgot-password flow with the user `admin@example.com`, and set the password.
+1. Login and create an API key with ALL write permissions by going to `API Keys` -> `Create API Key` and set the permissions to `ALL: READ&WRITE`. Copy the generated key and use it for The smart-wallet's `SDP_EMBEDDED_WALLETS_API_KEY` env.
+1. Create a disbursement using `SDP Embedded Wallet` as the wallet provider, and set a file like:
+
+   ```csv
+   email,id,amount,verification
+   foo@example.com,4ba1,0.01,2000-01-01
+   ```
+
+1. Start the disbursement and check the links in the emails porinted in the logs.
+
 # Stellar Smart Wallet Demo
 
 This monorepo provides a complete, modular demo application for a Stellar-based smart wallet. It includes everything you need to explore and extend a full-stack Stellar wallet solution. From backend services and frontend interface to smart contracts. While not a white-label solution, it serves as a solid foundation for developers who want to build their own Stellar-powered wallets.
@@ -23,7 +38,9 @@ This repository is organized as follows:
 
 ## Quick Start
 
-To get started with the full environment locally using Docker:
+To start with the whole infrastructure, please refer to the [complete_infra](./complete_infra) directory.
+
+To start with the applications hosted in this repository using Docker:
 
 ```bash
 make docker-setup-dev

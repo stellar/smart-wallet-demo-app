@@ -1,0 +1,103 @@
+# # Complete Infrastructure Orchestration
+# # Using include with remote Git URLs
+
+version: '3'
+name: mp
+services:
+  # ================================ Wallet Backend ================================
+  wb-db:
+    extends:
+      file: https://github.com/stellar/wallet-backend.git#smart-wallet-deployment:docker-compose.yaml
+      service: wb-db
+    volumes:
+      - postgres-wb-db:/data/postgres
+
+  wb-api:
+    extends:
+      file: https://github.com/stellar/wallet-backend.git#smart-wallet-deployment:docker-compose.yaml
+      service: wb-api
+    depends_on:
+      wb-db:
+        condition: service_started
+
+  wb-ingest:
+    extends:
+      file: https://github.com/stellar/wallet-backend.git#smart-wallet-deployment:docker-compose.yaml
+      service: wb-ingest
+    depends_on:
+      wb-db:
+        condition: service_started
+
+  # ================================ Stellar Disbursement Platform ================================
+  sdp-db:
+    container_name: sdp-db
+    extends:
+      file: https://github.com/stellar/stellar-disbursement-platform-backend.git#marcelo/docker-default:dev/docker-compose-sdp-anchor.yml
+      service: sdp-db
+    volumes:
+      - postgres-sdp-db:/data/postgres
+
+  sdp-api:
+    container_name: sdp-api
+    extends:
+      file: https://github.com/stellar/stellar-disbursement-platform-backend.git#marcelo/docker-default:dev/docker-compose-sdp-anchor.yml
+      service: sdp-api
+    depends_on:
+      sdp-db:
+        condition: service_started
+    # Override volumes to remove problematic bind mounts
+    volumes:
+      - /dev/null:/app/github.com/stellar/stellar-disbursement-platform/dev/scripts/add_test_users.sh:ro
+
+  sdp-tss:
+    container_name: sdp-tss
+    extends:
+      file: https://github.com/stellar/stellar-disbursement-platform-backend.git#marcelo/docker-default:dev/docker-compose-tss.yml
+      service: sdp-tss
+    depends_on:
+      - sdp-db
+      - sdp-api
+
+  sdp-frontend:
+    container_name: sdp-frontend
+    extends:
+      file: https://github.com/stellar/stellar-disbursement-platform-backend.git#marcelo/docker-default:dev/docker-compose-frontend.yml
+      service: sdp-frontend
+
+  # ================================ Smart Wallet ================================
+  backend-db:
+    container_name: smart-wallet-database
+    extends:
+      file: ../docker-compose.yml
+      service: backend-db
+
+  backend:
+    container_name: smart-wallet-backend
+    extends:
+      file: ../docker-compose.yml
+      service: backend
+    depends_on:
+      backend-db:
+        condition: service_started
+
+  web:
+    container_name: smart-wallet-web
+    extends:
+      file: ../docker-compose.yml
+      service: web
+
+volumes:
+  postgres-wb-db:
+    driver: local
+  postgres-sdp-db:
+    driver: local
+  backend-db-data:
+    driver: local
+  backend-root-node-modules:
+    driver: local
+  backend-node-modules:
+    driver: local
+  web-root-node-modules:
+    driver: local
+  web-node-modules:
+    driver: local

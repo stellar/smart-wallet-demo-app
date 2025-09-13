@@ -4,21 +4,22 @@ volumes:
   backend-node-modules:
   web-root-node-modules:
   web-node-modules:
-
+name: meridian-pay
 services:
   # PostgreSQL Database#
-  db:
+  backend-db:
     container_name: smart-wallet-database
     profiles: ["all", "db", "backend"]
     image: postgres:17-alpine
     ports:
-      - 5432:5432
+      - 5452:5452
     volumes:
       - backend-db-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ${DATABASE_USER:-postgres}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
       POSTGRES_DB: ${DATABASE_NAME:-smart_wallet_db}
+      PGPORT: ${DATABASE_PORT:-5452}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -37,27 +38,30 @@ services:
       DEPLOY_STAGE: ${DEPLOY_STAGE:-local}
       ENVIRONMENT_NAME: ${ENVIRONMENT_NAME:-staging}
       NODE_ENV: ${NODE_ENV:-development}
-      PORT: ${NODE_PORT:-8000}
+      PORT: ${NODE_PORT:-8001}
       DEBUG: ${DEBUG:-true}
       FRONT_ADDRESS: ${FRONT_ADDRESS:-http://localhost:3000}
       DATABASE_TYPE: ${DATABASE_TYPE:-postgres}
       DATABASE_NAME: ${DATABASE_NAME:-smart_wallet_db}
       DATABASE_HOST: ${DATABASE_HOST:-smart-wallet-database}
-      DATABASE_PORT: ${DATABASE_PORT:-5432}
+      DATABASE_PORT: ${DATABASE_PORT:-5452}
       DATABASE_USER: ${DATABASE_USER:-postgres}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
-      SDP_EMBEDDED_WALLETS_URL: ${SDP_EMBEDDED_WALLETS_URL:-https://stellar-disbursement-platform-backend-dev.stellar.org/embedded-wallets}
+      SDP_EMBEDDED_WALLETS_API_KEY: ${SDP_EMBEDDED_WALLETS_API_KEY}
+      SDP_EMBEDDED_WALLETS_URL: ${SDP_EMBEDDED_WALLETS_URL:-http://localhost:8001/embedded-wallets}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-string-at-least-256-bits-long}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-1h}
+      STELLAR_WALLET_BACKEND_URL: ${STELLAR_WALLET_BACKEND_URL:-http://localhost:8101}
+      JWT_SECRET_KEY_WALLET_BACKEND: ${JWT_SECRET_KEY_WALLET_BACKEND:-JWT_SECRET_KEY_WALLET_BACKEND}
     volumes:
       - './:/app'
       - 'backend-root-node-modules:/app/node_modules'
       - 'backend-node-modules:/app/apps/backend/node_modules'
     ports:
-      - ${NODE_PORT:-8000}:${NODE_PORT:-8000}
+      - ${NODE_PORT:-8001}:${NODE_PORT:-8001}
       - 9229:9229
     depends_on:
-      db:
+      backend-db:
         condition: service_healthy
 
   # React Service #
@@ -70,7 +74,7 @@ services:
       target: local
       args:
         PROD: ${PROD:-false}
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8001}
         VITE_X_API_KEY: ${VITE_X_API_KEY:-"your-valid-api-keys,split-by-commas"}
         VITE_THEME_SWITCH_ENABLED: ${VITE_THEME_SWITCH_ENABLED:-false}
         VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
@@ -78,7 +82,7 @@ services:
       DEPLOY_STAGE: ${DEPLOY_STAGE:-local}
       PORT: ${PORT:-3000}
       PROD: ${PROD:-false}
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8001}
       VITE_X_API_KEY: ${VITE_X_API_KEY:-"your-valid-api-keys,split-by-commas"}
       VITE_THEME_SWITCH_ENABLED: ${VITE_THEME_SWITCH_ENABLED:-false}
       VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
