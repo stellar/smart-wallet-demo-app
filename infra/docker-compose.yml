@@ -60,9 +60,13 @@ services:
 
   sdp-frontend:
     container_name: sdp-frontend
-    extends:
-      file: ./external/stellar-disbursement-platform-backend/dev/docker-compose-frontend.yml
-      service: sdp-frontend
+    build:
+      context: ./external/stellar-disbursement-platform-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:80"
+    volumes:
+      - ./external/stellar-disbursement-platform-backend/dev/env-config.js:/usr/share/nginx/html/settings/env-config.js
 
   # ================================ Smart Wallet ================================
   backend-db:

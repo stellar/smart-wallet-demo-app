@@ -16,6 +16,13 @@ If you've already cloned the repository without submodules, initialize them:
 git submodule update --init --recursive
 ```
 
+### Submodules
+
+This setup includes the following submodules:
+- `infra/external/wallet-backend` - Stellar Wallet Backend
+- `infra/external/stellar-disbursement-platform-backend` - SDP Backend  
+- `infra/external/stellar-disbursement-platform-frontend` - SDP Frontend
+
 ### Environment setup
 
 Copy envs from `infra/.env.example` to `infra/.env`:

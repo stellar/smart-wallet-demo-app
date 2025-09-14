@@ -10,3 +10,6 @@
 [submodule "infra/external/stellar-disbursement-platform-backend"]
 	path = infra/external/stellar-disbursement-platform-backend
 	url = https://github.com/stellar/stellar-disbursement-platform-backend.git
+[submodule "infra/external/stellar-disbursement-platform-frontend"]
+	path = infra/external/stellar-disbursement-platform-frontend
+	url = https://github.com/stellar/stellar-disbursement-platform-frontend.git
