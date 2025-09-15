@@ -141,6 +141,7 @@
   "invalidClassicWalletAddressError": "Use a wallet address starting with G",
   "restrictedWalletAddressError": "This account requires memo. Use different one.",
   "transferNftsSelectNftError": "Please select at least one NFT to transfer",
+  "transferNftsSelectNftExceededError": "For smooth and reliable transfers, transfer NFTs in groups of 10. If you have more, please make multiple transfers.",
   "transferNftsConfirmTransferButton": "Confirm Transfer",
   "transferNftsNftsCount": "NFTs",
   "transferNftsSelectAllButton": "Select all",
