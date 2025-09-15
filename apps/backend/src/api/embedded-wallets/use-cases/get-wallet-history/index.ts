@@ -119,7 +119,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
 
       // Determine contract invoked function name, defaulting to 'transfer' if not found
       const functionName =
-        tx.operations[0].stateChanges[0]?.stateChangeCategory || operationData?.functionName || 'transfer'
+        operationData?.functionName || tx.operations[0].stateChanges[0]?.stateChangeCategory || 'transfer'
 
       if (functionName === 'rotate_signer') continue // skip rotate_signer operations
 
@@ -128,6 +128,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       let fromAddress, toAddress: string | undefined
       let vendorContractAddress: string | undefined
       let amount: number | undefined
+      let invocationsLength: number | undefined
 
       // If the function is 'exec' it's a router contract (multi-call) transaction,
       // we need to dig deeper to find the actual invoked function and its args
@@ -145,6 +146,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
         }
 
         amount = execOperationData?.invocations?.length
+        invocationsLength = execOperationData?.invocations?.length
         vendorContractAddress = operationData?.contractId
         if (vendorContractAddress?.includes('Unknown')) vendorContractAddress = undefined
 
@@ -204,7 +206,7 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
         // TODO: get amount in NFT transactions (number of NFTs transferred). Fallback to 1 for now
         amount = tx.operations[0].stateChanges[0]?.amount
           ? Number(ScConvert.stringToFormatString(tx.operations[0].stateChanges[0]?.amount))
-          : 1
+          : (invocationsLength as number) || 1
       }
 
       // Fetch asset details using the tokenId from the transaction
