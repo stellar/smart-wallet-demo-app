@@ -4,7 +4,8 @@ use crate::{
 };
 use soroban_sdk::{contract, contractimpl, panic_with_error, vec, Address, Env, String, Vec};
 use stellar_non_fungible::{
-    burnable::NonFungibleBurnable, Base, NFTStorageKey, NonFungibleToken, NonFungibleTokenError,
+    burnable::NonFungibleBurnable, emit_transfer, Base, NFTStorageKey, NonFungibleToken,
+    NonFungibleTokenError,
 };
 
 #[contract]
@@ -122,6 +123,17 @@ impl Contract {
         for (to, token_id, data) in tokens.iter() {
             Self::do_mint(env, &to, token_id);
             Self::set_token_data(env, token_id, data);
+        }
+    }
+
+    pub fn bulk_transfer(env: &Env, from: Address, to: Address, token_ids: Vec<u32>) {
+        from.require_auth();
+
+        for token_id in token_ids.iter() {
+            Base::update(env, Some(&from), Some(&to), token_id);
+            emit_transfer(env, &from, &to, token_id);
+            add_token_to_owner_list(env, &to, token_id);
+            remove_token_from_owner_list(env, &from, token_id);
         }
     }
 }

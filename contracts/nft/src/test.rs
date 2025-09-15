@@ -492,3 +492,58 @@ fn test_mint_with_data_unauthorized() {
 
     contract.mint_with_data(&recipient, &1u32, &token_data);
 }
+
+#[test]
+fn test_bulk_transfer() {
+    let env = setup_test_env();
+    let owner = Address::generate(&env);
+    let from = Address::generate(&env);
+    let to = Address::generate(&env);
+    let contract = get_contract(&env, &owner, 200u32);
+    let tokens_transferred = 46_u32;
+    let token_count = 2 * tokens_transferred;
+
+    let mut tokens = vec![&env];
+    let mut transfer_tokens = vec![&env];
+    let mut tokens_left = vec![&env];
+    for i in 0..token_count {
+        tokens.push_back(i);
+        contract.mint(&from, &i);
+        if i % 2 == 0 {
+            transfer_tokens.push_back(i);
+        } else {
+            tokens_left.push_back(i);
+        }
+    }
+
+    contract.bulk_transfer(&from, &to, &transfer_tokens);
+    let resources = env.cost_estimate().resources();
+    std::dbg!(&resources);
+    // Footprint size should not exceed 100 entries (read + write).
+    // This is may be slightly inaccurate because SDK is still on p22, and auth
+    // may incur additional entry access depending on the account impl used.
+    assert!(resources.read_entries + resources.write_entries <= 100);
+    assert_eq!(
+        env.auths(),
+        std::vec![(
+            from.clone(),
+            AuthorizedInvocation {
+                function: AuthorizedFunction::Contract((
+                    contract.address.clone(),
+                    Symbol::new(&env, "bulk_transfer"),
+                    (from.clone(), to.clone(), transfer_tokens.clone()).into_val(&env),
+                )),
+                sub_invocations: std::vec![]
+            }
+        )]
+    );
+
+    for token_id in transfer_tokens.iter() {
+        assert_eq!(contract.owner_of(&token_id), to);
+    }
+    for token_id in tokens_left.iter() {
+        assert_eq!(contract.owner_of(&token_id), from);
+    }
+    assert_eq!(contract.get_owner_tokens(&from), tokens_left);
+    assert_eq!(contract.get_owner_tokens(&to), transfer_tokens,);
+}
