@@ -44,7 +44,7 @@ export class ListNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT
 
     // Check if user exists
     const user = await this.userRepository.getUserByEmail(validatedData.email, {
-      relations: ['nfts', 'nfts.nftSupply'],
+      relations: ['nfts'],
     })
     if (!user) {
       throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
@@ -53,22 +53,24 @@ export class ListNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT
     // Return empty array if user does not have a wallet
     if (!user.contractAddress) return this.parseResponse({ nfts: [] })
 
-    // TODO: get NFTs from DB, from contract (enumerable) and merge to return
-    // TODO: implement a list_owner_tokens method in NFT contract using Enumerable interface (https://github.com/OpenZeppelin/stellar-contracts/blob/main/packages/tokens/src/non_fungible/extensions/enumerable/mod.rs)
     const nfts: NftSchemaT[] = []
 
     for (const userNft of user.nfts ?? []) {
-      const tokenData = await getTokenData({ assetContractAddress: userNft.contractAddress, tokenId: userNft.tokenId })
+      // Get token metadata using getTokenData helper
+      const tokenData = await getTokenData({
+        assetContractAddress: userNft.contractAddress,
+        tokenId: userNft.tokenId,
+      })
 
       const nft: NftSchemaT = {
         token_id: userNft.tokenId,
         transaction_hash: userNft.transactionHash,
-        code: userNft.nftSupply?.code || tokenData.symbol,
-        name: userNft.nftSupply?.name || tokenData.name,
-        description: userNft.nftSupply?.description || tokenData.description || '',
-        url: userNft.nftSupply?.url || tokenData.url || '',
+        code: tokenData.symbol,
+        name: tokenData.name,
+        description: tokenData.description || '',
+        url: tokenData.url || '',
         contract_address: userNft.contractAddress || '',
-        resource: userNft.nftSupply?.resource || '',
+        resource: tokenData.image || '',
       }
 
       nfts.push(nft)
