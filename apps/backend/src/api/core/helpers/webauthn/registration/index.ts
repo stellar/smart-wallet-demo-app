@@ -59,6 +59,7 @@ export default class WebAuthnRegistration extends SingletonBase implements IWebA
         residentKey: 'preferred',
         userVerification: 'required',
       },
+      timeout: 120000, // 2 minutes
     })
 
     this.webauthnChallengeService.storeChallenge(userIdentifier, options.challenge)
