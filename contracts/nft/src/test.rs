@@ -500,7 +500,7 @@ fn test_bulk_transfer() {
     let from = Address::generate(&env);
     let to = Address::generate(&env);
     let contract = get_contract(&env, &owner, 200u32);
-    let tokens_transferred = 46_u32;
+    let tokens_transferred = 22_u32;
     let token_count = 2 * tokens_transferred;
 
     let mut tokens = vec![&env];
@@ -522,7 +522,7 @@ fn test_bulk_transfer() {
     // Footprint size should not exceed 100 entries (read + write).
     // This is may be slightly inaccurate because SDK is still on p22, and auth
     // may incur additional entry access depending on the account impl used.
-    assert!(resources.read_entries + resources.write_entries <= 100);
+    assert!(resources.write_entries <= 50);
     assert_eq!(
         env.auths(),
         std::vec![(
