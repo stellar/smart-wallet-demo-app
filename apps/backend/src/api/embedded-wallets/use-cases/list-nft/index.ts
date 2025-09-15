@@ -3,7 +3,6 @@ import { Request, Response } from 'express'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
-import { getTokenData } from 'api/core/helpers/get-token-data'
 import UserRepository from 'api/core/services/user'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
@@ -44,7 +43,7 @@ export class ListNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT
 
     // Check if user exists
     const user = await this.userRepository.getUserByEmail(validatedData.email, {
-      relations: ['nfts'],
+      relations: ['nfts', 'nfts.nftSupply'],
     })
     if (!user) {
       throw new ResourceNotFoundException(messages.USER_NOT_FOUND_BY_EMAIL)
@@ -56,21 +55,15 @@ export class ListNft extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT
     const nfts: NftSchemaT[] = []
 
     for (const userNft of user.nfts ?? []) {
-      // Get token metadata using getTokenData helper
-      const tokenData = await getTokenData({
-        assetContractAddress: userNft.contractAddress,
-        tokenId: userNft.tokenId,
-      })
-
       const nft: NftSchemaT = {
         token_id: userNft.tokenId,
         transaction_hash: userNft.transactionHash,
-        code: tokenData.symbol,
-        name: tokenData.name,
-        description: tokenData.description || '',
-        url: tokenData.url || '',
+        code: userNft.nftSupply?.code,
+        name: userNft.nftSupply?.name,
+        description: userNft.nftSupply?.description || '',
+        url: userNft.nftSupply?.url || '',
         contract_address: userNft.contractAddress || '',
-        resource: tokenData.image || '',
+        resource: userNft.nftSupply?.resource || '',
       }
 
       nfts.push(nft)
