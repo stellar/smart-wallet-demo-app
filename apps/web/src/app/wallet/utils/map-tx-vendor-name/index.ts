@@ -11,8 +11,12 @@ export const mapTxVendorName = (tx: Transaction): string => {
       if (tx.sendOrReceive === 'receive') return c('transactionReceivedSwagVendor')
       break
     case CustomTxTypes.NFT:
-    case CustomTxTypes.NFT_CLAIM:
       if (!tx.vendor) return tx.token?.contract_address ?? ''
+      break
+    case CustomTxTypes.NFT_CLAIM:
+      if (tx.token?.session_id) return tx.token?.session_id
+      if (!tx.vendor) return tx.token?.contract_address ?? ''
+      break
   }
 
   if (tx.vendor !== tx.toAddress && tx.vendor !== tx.fromAddress) return tx.vendor ?? ''
