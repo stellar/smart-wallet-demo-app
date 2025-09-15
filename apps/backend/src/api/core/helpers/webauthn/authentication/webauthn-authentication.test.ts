@@ -91,6 +91,7 @@ describe('WebAuthnAuthentication', () => {
           { id: 'cred-1', type: 'public-key', transports: ['usb', 'nfc'] },
           { id: 'cred-2', type: 'public-key', transports: ['cable'] },
         ],
+        timeout: 120000,
       })
       expect(mockedWebauthnChallengeService.storeChallenge).toHaveBeenCalledWith('test@example.com', 'challenge-xyz')
       expect(result).toBe(
@@ -124,6 +125,7 @@ describe('WebAuthnAuthentication', () => {
             { id: 'cred-1', type: 'public-key', transports: ['usb', 'nfc'] },
             { id: 'cred-2', type: 'public-key', transports: ['cable'] },
           ],
+          timeout: 120000,
         })
       )
     })
@@ -147,6 +149,7 @@ describe('WebAuthnAuthentication', () => {
         challenge: 'challenge-xyz',
         userVerification: 'required',
         allowCredentials: [],
+        timeout: 120000,
       })
     })
   })

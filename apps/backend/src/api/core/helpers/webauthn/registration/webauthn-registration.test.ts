@@ -94,6 +94,7 @@ describe('WebAuthnRegistration', () => {
         residentKey: 'preferred',
         userVerification: 'required',
       },
+      timeout: 120000,
     }
 
     beforeEach(() => {
