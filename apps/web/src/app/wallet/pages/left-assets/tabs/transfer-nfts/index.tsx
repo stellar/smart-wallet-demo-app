@@ -17,6 +17,8 @@ import { queryClient } from 'src/interfaces/query-client'
 
 import TransferNftsTemplate from './template'
 
+const MAX_NFTS_TO_TRANSFER = 10
+
 export const TransferNfts = () => {
   const navigate = useNavigate()
   const toast = useToast()
@@ -44,16 +46,17 @@ export const TransferNfts = () => {
 
   useEffect(() => {
     if (nfts.length > 0) {
-      setSelectedNfts(new Set(nfts.map(nft => nft.id || '')))
+      setSelectedNfts(new Set(nfts.slice(0, MAX_NFTS_TO_TRANSFER).map(nft => nft.id || '')))
     }
   }, [nfts])
 
   const transfer = useTransfer({
     onSuccess: () => {
+      const isStillRemainingNfts = nfts.length > selectedNfts.size
       modalService.close()
       queryClient.forceRefetch(getWallet())
       queryClient.forceRefetch(getNfts())
-      nftsReviewForm.reset()
+      if (!isStillRemainingNfts) nftsReviewForm.reset()
       setSelectedNfts(new Set())
 
       // Show success modal
@@ -62,8 +65,8 @@ export const TransferNfts = () => {
         variantOptions: {
           variant: 'transfer-success',
           title: c('transferSuccessModalTitle'),
-          message: c('transferNftSuccessModalMessage'),
-          buttonText: c('transferSuccessModalButtonText'),
+          message: isStillRemainingNfts ? undefined : c('transferNftSuccessModalMessage'),
+          buttonText: isStillRemainingNfts ? c('close') : c('transferSuccessModalButtonText'),
           button: {
             variant: 'secondary',
             size: 'lg',
@@ -71,7 +74,7 @@ export const TransferNfts = () => {
             isFullWidth: true,
             onClick: () => {
               modalService.close()
-              navigate({ to: WalletPagesPath.HOME })
+              if (!isStillRemainingNfts) navigate({ to: WalletPagesPath.HOME })
             },
           },
         },
@@ -84,16 +87,30 @@ export const TransferNfts = () => {
     if (newSelected.has(nftId)) {
       newSelected.delete(nftId)
     } else {
+      if (newSelected.size >= MAX_NFTS_TO_TRANSFER) {
+        toast.notify({
+          message: c('transferNftsSelectNftExceededError'),
+          type: Toast.toastType.WARNING,
+        })
+        return
+      }
       newSelected.add(nftId)
     }
     setSelectedNfts(newSelected)
   }
 
   const handleSelectAll = () => {
+    if (selectedNfts.size === MAX_NFTS_TO_TRANSFER) {
+      toast.notify({
+        message: c('transferNftsSelectNftExceededError'),
+        type: Toast.toastType.WARNING,
+      })
+    }
+
     if (selectedNfts.size === nfts.length) {
       setSelectedNfts(new Set())
     } else {
-      setSelectedNfts(new Set(nfts.map(nft => nft.id || '')))
+      setSelectedNfts(new Set(nfts.slice(0, MAX_NFTS_TO_TRANSFER).map(nft => nft.id || '')))
     }
   }
 
