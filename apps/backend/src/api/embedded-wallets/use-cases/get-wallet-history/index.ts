@@ -235,7 +235,10 @@ export class GetWalletHistory extends UseCaseBase implements IUseCaseHttp<Respon
       if (tx.hash) {
         productsTransactions = await this.productTransactionRepository.getProductsTransactionsByHash(tx.hash)
         nftSupply = await this.nftSupplyRepository.getNftSupplyByTransactionHash(tx.hash)
-      } else if (contractId) {
+      }
+
+      // Check if the transaction is linked to any NFT supply
+      if (!nftSupply && contractId) {
         nftSupply = await this.nftSupplyRepository.getNftSupplyByContractAddress(contractId as string)
       }
 
