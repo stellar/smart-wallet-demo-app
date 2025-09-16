@@ -43,6 +43,14 @@ export class GetNftMetadata extends UseCaseBase implements IUseCaseHttp<Response
           trait_type: 'Collection',
           value: nftSupply.name,
         },
+        {
+          trait_type: 'Session',
+          value: nftSupply.sessionId,
+        },
+        {
+          trait_type: 'Resource',
+          value: nftSupply.resource,
+        },
       ],
     }
   }
