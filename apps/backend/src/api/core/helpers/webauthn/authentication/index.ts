@@ -49,6 +49,7 @@ export default class WebAuthnAuthentication extends SingletonBase implements IWe
         type: 'public-key',
         transports: passkey.transports?.split(',') as AuthenticatorTransportFuture[] | undefined,
       })),
+      timeout: 120000, // 2 minutes
     }
 
     if (type === 'standard') {
