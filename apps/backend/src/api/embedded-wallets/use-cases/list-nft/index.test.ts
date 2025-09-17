@@ -12,8 +12,7 @@ import { NftSchemaT, RequestSchemaT } from './types'
 
 import { ListNft, endpoint } from './index'
 
-// Mock the getTokenData helper
-vi.mock('api/core/helpers/get-token-data')
+// No need to mock getTokenData since we're using nftSupply data directly
 
 const mockedUserRepository = mockUserRepository()
 
@@ -28,7 +27,15 @@ const mockNft = {
   nftId: 'nft-123',
   tokenId: 'token-123',
   contractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+  transactionHash: 'tx-hash-123',
   user: mockUser,
+  nftSupply: {
+    code: 'TEST',
+    name: 'Test NFT',
+    description: 'A test NFT',
+    url: 'https://example.com',
+    resource: 'test-resource',
+  },
   createdAt: new Date(),
   updatedAt: new Date(),
 } as Nft
@@ -71,19 +78,7 @@ describe('ListNft', () => {
       userWithNfts.nfts = [mockNft]
       mockedUserRepository.getUserByEmail.mockResolvedValue(userWithNfts)
 
-      // Mock getTokenData after the import
-      const { getTokenData } = await import('api/core/helpers/get-token-data')
-      vi.mocked(getTokenData).mockResolvedValue({
-        symbol: 'TEST',
-        name: 'Test NFT',
-        description: 'A test NFT',
-        url: 'https://example.com',
-        image: '',
-        externalUrl: '',
-        collection: undefined,
-        attributes: undefined,
-        properties: undefined,
-      })
+      // No need to mock getTokenData since we're using nftSupply data directly
 
       await listNft.executeHttp(req, res)
 
@@ -97,6 +92,10 @@ describe('ListNft', () => {
                 name: 'Test NFT',
                 description: 'A test NFT',
                 url: 'https://example.com',
+                contract_address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+                resource: 'test-resource',
+                token_id: 'token-123',
+                transaction_hash: 'tx-hash-123',
               }),
             ],
           },
@@ -168,19 +167,7 @@ describe('ListNft', () => {
       userWithNfts.nfts = [mockNft]
       mockedUserRepository.getUserByEmail.mockResolvedValue(userWithNfts)
 
-      // Mock getTokenData after the import
-      const { getTokenData } = await import('api/core/helpers/get-token-data')
-      vi.mocked(getTokenData).mockResolvedValue({
-        symbol: 'TEST',
-        name: 'Test NFT',
-        description: 'A test NFT',
-        url: 'https://example.com',
-        image: '',
-        externalUrl: '',
-        collection: undefined,
-        attributes: undefined,
-        properties: undefined,
-      })
+      // No need to mock getTokenData since we're using nftSupply data directly
 
       const payload = { email: 'test@example.com' }
 
@@ -195,16 +182,14 @@ describe('ListNft', () => {
                 name: 'Test NFT',
                 description: 'A test NFT',
                 url: 'https://example.com',
+                contract_address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+                resource: 'test-resource',
+                token_id: 'token-123',
+                transaction_hash: 'tx-hash-123',
               }),
             ],
           },
           message: 'Tokens list retrieved successfully',
-        })
-      )
-
-      expect(vi.mocked(getTokenData)).toHaveBeenCalledWith(
-        expect.objectContaining({
-          assetContractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
         })
       )
     })
@@ -214,7 +199,15 @@ describe('ListNft', () => {
         nftId: 'nft-456',
         tokenId: 'token-456',
         contractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+        transactionHash: 'tx-hash-456',
         user: mockUser,
+        nftSupply: {
+          code: 'TEST2',
+          name: 'Test NFT 2',
+          description: 'Second test NFT',
+          url: 'https://example.com/2',
+          resource: 'test-resource-2',
+        },
         createdAt: new Date(),
         updatedAt: new Date(),
       } as Nft
@@ -228,31 +221,7 @@ describe('ListNft', () => {
       userWithMultipleNfts.nfts = [mockNft, mockNft2]
       mockedUserRepository.getUserByEmail.mockResolvedValue(userWithMultipleNfts)
 
-      // Mock getTokenData after the import
-      const { getTokenData } = await import('api/core/helpers/get-token-data')
-      vi.mocked(getTokenData)
-        .mockResolvedValueOnce({
-          symbol: 'TEST1',
-          name: 'Test NFT 1',
-          description: 'First test NFT',
-          url: 'https://example.com/1',
-          image: '',
-          externalUrl: '',
-          collection: undefined,
-          attributes: undefined,
-          properties: undefined,
-        })
-        .mockResolvedValueOnce({
-          symbol: 'TEST2',
-          name: 'Test NFT 2',
-          description: 'Second test NFT',
-          url: 'https://example.com/2',
-          image: '',
-          externalUrl: '',
-          collection: undefined,
-          attributes: undefined,
-          properties: undefined,
-        })
+      // No need to mock getTokenData since we're using nftSupply data directly
 
       const payload = { email: 'test@example.com' }
 
@@ -261,10 +230,14 @@ describe('ListNft', () => {
       expect(result.data.nfts).toHaveLength(2)
       expect(result.data.nfts[0]).toEqual(
         expect.objectContaining({
-          code: 'TEST1',
-          name: 'Test NFT 1',
-          description: 'First test NFT',
-          url: 'https://example.com/1',
+          code: 'TEST',
+          name: 'Test NFT',
+          description: 'A test NFT',
+          url: 'https://example.com',
+          contract_address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+          resource: 'test-resource',
+          token_id: 'token-123',
+          transaction_hash: 'tx-hash-123',
         })
       )
       expect(result.data.nfts[1]).toEqual(
@@ -273,35 +246,42 @@ describe('ListNft', () => {
           name: 'Test NFT 2',
           description: 'Second test NFT',
           url: 'https://example.com/2',
+          contract_address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+          resource: 'test-resource-2',
+          token_id: 'token-456',
+          transaction_hash: 'tx-hash-456',
         })
       )
-
-      expect(vi.mocked(getTokenData)).toHaveBeenCalledTimes(2)
     })
 
     it('should handle NFTs with missing metadata gracefully', async () => {
+      const mockNftWithMissingMetadata = {
+        nftId: 'nft-123',
+        tokenId: 'token-123',
+        contractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+        transactionHash: 'tx-hash-123',
+        user: mockUser,
+        nftSupply: {
+          code: 'TEST',
+          name: 'Test NFT',
+          description: '',
+          url: '',
+          resource: '',
+        },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as Nft
+
       const userWithNfts = userFactory({
         userId: 'user-123',
         email: 'test@example.com',
         contractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
         uniqueToken: 'unique-token',
       })
-      userWithNfts.nfts = [mockNft]
+      userWithNfts.nfts = [mockNftWithMissingMetadata]
       mockedUserRepository.getUserByEmail.mockResolvedValue(userWithNfts)
 
-      // Mock getTokenData after the import
-      const { getTokenData } = await import('api/core/helpers/get-token-data')
-      vi.mocked(getTokenData).mockResolvedValue({
-        symbol: 'TEST',
-        name: 'Test NFT',
-        description: '',
-        url: '',
-        image: '',
-        externalUrl: '',
-        collection: undefined,
-        attributes: undefined,
-        properties: undefined,
-      })
+      // No need to mock getTokenData since we're using nftSupply data directly
 
       const payload = { email: 'test@example.com' }
 
@@ -313,6 +293,10 @@ describe('ListNft', () => {
           name: 'Test NFT',
           description: '',
           url: '',
+          contract_address: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
+          resource: '',
+          token_id: 'token-123',
+          transaction_hash: 'tx-hash-123',
         })
       )
     })

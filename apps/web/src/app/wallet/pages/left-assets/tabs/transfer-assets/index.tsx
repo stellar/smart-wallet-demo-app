@@ -43,7 +43,7 @@ export const TransferAssets = () => {
 
   const { data: getOrganizationsData, isLoading: isLoadingOrganizations } = useGetOrganizations()
 
-  const organizations = getOrganizationsData?.data.ngos || []
+  const organizations = getOrganizationsData?.data.ngos.sort((a, b) => a.name.localeCompare(b.name)) || []
 
   const transfer = useTransfer({
     onSuccess: (_, values) => {

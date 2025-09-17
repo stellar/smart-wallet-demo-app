@@ -48,7 +48,7 @@ export const TransferAssetsTemplate = ({
           </div>
 
           <div>
-            <img src={organization.profile_image} alt={organization.name} className="max-h-[16px]" />
+            <img src={organization.profile_image} alt={organization.name} className="max-h-[100px] max-w-[100px]" />
           </div>
         </div>
 
