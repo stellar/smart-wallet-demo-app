@@ -18,5 +18,6 @@ export function mockNftSupplyRepository(): Mocked<NftSupplyRepositoryType> {
     deleteNftSupply: vi.fn(),
     saveNftSupply: vi.fn(),
     incrementMintedAmount: vi.fn(),
+    decrementMintedAmount: vi.fn(),
   }
 }

@@ -33,4 +33,5 @@ export type NftSupplyRepositoryType = {
   deleteNftSupply(nftId: string): Promise<DeleteResult>
   saveNftSupply(nft: NftSupply): Promise<NftSupply>
   incrementMintedAmount(id: string, data?: Partial<NftSupply>): Promise<NftSupply>
+  decrementMintedAmount(id: string, data?: Partial<NftSupply>): Promise<NftSupply>
 }

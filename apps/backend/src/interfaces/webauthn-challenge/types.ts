@@ -20,7 +20,7 @@ export type WebauthnChallengeStoreState = {
 
 export interface IWebauthnChallengeService {
   createChallenge(identifier: string): string
-  storeChallenge(identifier: string, challenge: string | Uint8Array): void
+  storeChallenge(identifier: string, challenge: string | Uint8Array, ttlInSeconds?: number): void
   setMetadata(identifier: string, metadata: WebauthnChallengeStoreState['metadata']): void
   getChallenge(identifier: string): WebauthnChallengeStoreState | null
   deleteChallenge(identifier: string): void

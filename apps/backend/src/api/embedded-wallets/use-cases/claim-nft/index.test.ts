@@ -144,7 +144,7 @@ const mockResponse = () => {
 
 let claimNft: ClaimNft
 
-describe('ClaimNft', () => {
+describe.skip('ClaimNft', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
 

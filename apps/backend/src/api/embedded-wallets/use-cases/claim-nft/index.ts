@@ -1,9 +1,6 @@
 import { xdr, rpc, Keypair } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
-import { Nft as NftModel } from 'api/core/entities/nft/model'
-import { Nft } from 'api/core/entities/nft/types'
-import { NftSupply as NftSupplyModel } from 'api/core/entities/nft-supply/model'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
@@ -14,7 +11,6 @@ import UserRepository from 'api/core/services/user'
 import { deterministicRandom } from 'api/core/utils/crypto'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { messages } from 'api/embedded-wallets/constants/messages'
-import { AppDataSource } from 'config/database'
 import { getValueFromEnv } from 'config/env-utils'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
@@ -23,6 +19,8 @@ import { ScConvert } from 'interfaces/soroban/helpers/sc-convert'
 import { ISorobanService, ContractSigner } from 'interfaces/soroban/types'
 import WalletBackend from 'interfaces/wallet-backend'
 import { WalletBackendType } from 'interfaces/wallet-backend/types'
+import { WebAuthnChallengeService } from 'interfaces/webauthn-challenge'
+import { IWebauthnChallengeService } from 'interfaces/webauthn-challenge/types'
 
 import { RequestSchema, RequestSchemaT, ResponseSchemaT } from './types'
 
@@ -35,6 +33,7 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
   private sorobanService: ISorobanService
   private walletBackend: WalletBackendType
   private transactionSigner: Keypair
+  private webauthnChallengeService: IWebauthnChallengeService
 
   constructor(
     userRepository?: UserRepositoryType,
@@ -42,7 +41,8 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     nftSupplyRepository?: NftSupplyRepository,
     sorobanService?: ISorobanService,
     walletBackend?: WalletBackendType,
-    transactionSigner?: Keypair
+    transactionSigner?: Keypair,
+    webauthnChallengeService?: IWebauthnChallengeService
   ) {
     super()
     this.nftRepository = nftRepository || NftRepository.getInstance()
@@ -52,6 +52,7 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     this.walletBackend = walletBackend || WalletBackend.getInstance()
     this.transactionSigner =
       transactionSigner || Keypair.fromSecret(getValueFromEnv('NFT_CONTRACT_DEPLOYER_PRIVATE_KEY'))
+    this.webauthnChallengeService = webauthnChallengeService || WebAuthnChallengeService.getInstance()
   }
 
   async executeHttp(request: Request, response: Response<ResponseSchemaT>) {
@@ -154,60 +155,22 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       throw new ResourceNotFoundException(messages.UNABLE_TO_EXECUTE_TRANSACTION)
     }
 
-    // Execute all critical operations within a database transaction for "all or nothing" behavior
-    const queryRunner = AppDataSource.createQueryRunner()
-    let txResponse: rpc.Api.GetSuccessfulTransactionResponse
-    let mintedTokenId: string
-    let newUserNft: Nft
+    const attemptChallengeIdentifier = `${user.userId}-${validatedData.session_id}`
+
+    if (this.webauthnChallengeService.getChallenge(attemptChallengeIdentifier)) {
+      throw new ResourceNotFoundException(messages.NFT_ALREADY_OWNED_BY_USER)
+    }
+
+    const challenge = this.webauthnChallengeService.createChallenge(attemptChallengeIdentifier)
+    // Store challenge for 30 seconds
+    this.webauthnChallengeService.storeChallenge(attemptChallengeIdentifier, challenge, 30)
+
+    // Increment minted amount before submitting transaction
+    await this.nftSupplyRepository.incrementMintedAmount(nftSupply.nftSupplyId)
 
     try {
-      // Start db transaction
-      await queryRunner.connect()
-      await queryRunner.startTransaction()
-
-      // Lock the row for update to avoid race conditions
-      const foundNftSupply = await queryRunner.manager
-        .createQueryBuilder(NftSupplyModel, 'nftSupply')
-        .setLock('pessimistic_write')
-        .where('nftSupply.resource = :resource', { resource: validatedData.resource })
-        .andWhere('nftSupply.sessionId = :sessionId', { sessionId: validatedData.session_id })
-        .getOne()
-
-      if (!foundNftSupply) {
-        throw new ResourceNotFoundException(messages.NFT_SUPPLY_NOT_FOUND)
-      }
-
-      if (foundNftSupply.totalSupply - foundNftSupply.mintedAmount <= 0) {
-        throw new ResourceNotFoundException(messages.NFT_SUPPLY_NOT_ENOUGH)
-      }
-
-      // Re-check if user already owns NFT for this session (prevents race conditions)
-      const existingUserNft = await queryRunner.manager.findOne(NftModel, {
-        where: { user: { userId: user.userId }, nftSupply: { sessionId: foundNftSupply.sessionId } },
-      })
-      if (existingUserNft) {
-        throw new ResourceNotFoundException(messages.NFT_ALREADY_OWNED_BY_USER)
-      }
-
-      // Prepare new NFT entry
-      newUserNft = queryRunner.manager.create(NftModel, {
-        sessionId: foundNftSupply.sessionId,
-        contractAddress: foundNftSupply.contractAddress,
-        nftSupply: foundNftSupply,
-        user,
-      })
-      await queryRunner.manager.save(newUserNft)
-
-      // Atomic increment of mintedAmount
-      await queryRunner.manager.increment(
-        NftSupplyModel,
-        { nftSupplyId: foundNftSupply.nftSupplyId },
-        'mintedAmount',
-        1
-      )
-
       // Submit transaction at the end only if everything`s ok with prior database operations
-      txResponse = await submitTx({
+      const txResponse = await submitTx({
         tx,
         simulationResponse,
         walletBackend: this.walletBackend,
@@ -219,32 +182,30 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
       }
 
       // Get tokenId from tx response
-      mintedTokenId = ScConvert.scValToString(txResponse.returnValue as xdr.ScVal)
+      const mintedTokenId = ScConvert.scValToString(txResponse.returnValue as xdr.ScVal)
 
-      // Update newUserNft with newly minted tokenId and mint tx hash
-      await queryRunner.manager.update(
-        NftModel,
-        { nftId: newUserNft.nftId },
-        { tokenId: mintedTokenId, transactionHash: txResponse.txHash }
+      // Create NFT
+      await this.nftRepository.createNft(
+        {
+          tokenId: mintedTokenId,
+          transactionHash: txResponse.txHash,
+          contractAddress: nftSupply.contractAddress,
+          nftSupply,
+          user,
+        },
+        true
       )
 
-      // Commit transaction if all operations succeed
-      await queryRunner.commitTransaction()
+      return {
+        data: {
+          hash: txResponse.txHash,
+          tokenId: mintedTokenId,
+        },
+        message: 'NFT claimed successfully',
+      }
     } catch (error) {
-      // Rollback transaction on any failure
-      await queryRunner.rollbackTransaction()
+      await this.nftSupplyRepository.decrementMintedAmount(nftSupply.nftSupplyId)
       throw error
-    } finally {
-      // Release query runner
-      await queryRunner.release()
-    }
-
-    return {
-      data: {
-        hash: txResponse.txHash,
-        tokenId: mintedTokenId,
-      },
-      message: 'NFT claimed successfully',
     }
   }
 }
