@@ -78,7 +78,8 @@ export default class WebAuthnAuthentication extends SingletonBase implements IWe
 
     const authenticationResponse = JSON.parse(authenticationResponseJSON) as AuthenticationResponseJSON
     const passkey = user.passkeys[0]
-    if (!passkey || passkey.credentialId !== authenticationResponse.id) throw Error(`${this.constructor.name} | complete | Passkey not matching for ${authenticationResponse.id}`)
+    if (!passkey || passkey.credentialId !== authenticationResponse.id)
+      throw Error(`${this.constructor.name} | complete | Passkey not matching for ${authenticationResponse.id}`)
 
     const { authenticationInfo } = await verifyAuthenticationResponse({
       response: authenticationResponse,
