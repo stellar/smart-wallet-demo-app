@@ -4,6 +4,7 @@ import { SingletonBase } from 'api/core/framework/singleton/interface'
 
 import { IWebauthnChallengeService, WebauthnChallengeStoreState } from './types'
 
+// TODO: Use redis
 export class WebAuthnChallengeService extends SingletonBase implements IWebauthnChallengeService {
   private store: Map<string, WebauthnChallengeStoreState>
 
