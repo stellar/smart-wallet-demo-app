@@ -30,7 +30,7 @@ export default class SDPEmbeddedWallets extends SingletonBase implements SDPEmbe
         ),
         timeout: CONNECTION_TIMEOUT,
         headers: {
-          Authorization: getValueFromEnv('SDP_EMBEDDED_WALLETS_API_KEY'),
+          Authorization: getValueFromEnv('SDP_EMBEDDED_WALLETS_API_KEY', ''),
         },
       })
 

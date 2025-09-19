@@ -2,6 +2,7 @@
 set -e
 
 if [[ $DEPLOY_STAGE = "local" ]] ; then
+  make setup-dev APP=web
   make start-dev APP=web
 else
   for value in $ENVS_TO_REPLACE; do
