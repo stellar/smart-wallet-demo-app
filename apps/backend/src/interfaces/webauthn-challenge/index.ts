@@ -4,6 +4,7 @@ import { SingletonBase } from 'api/core/framework/singleton/interface'
 
 import { IWebauthnChallengeService, WebauthnChallengeStoreState } from './types'
 
+// TODO: Use redis
 export class WebAuthnChallengeService extends SingletonBase implements IWebauthnChallengeService {
   private store: Map<string, WebauthnChallengeStoreState>
 
@@ -17,8 +18,9 @@ export class WebAuthnChallengeService extends SingletonBase implements IWebauthn
     return challenge
   }
 
-  storeChallenge(identifier: string, challenge: string): void {
-    const expiresAt = Date.now() + 5 * 60 * 1000 // 5 min TTL
+  storeChallenge(identifier: string, challenge: string, ttlInSeconds?: number): void {
+    const ttlInMinutes = ttlInSeconds ? ttlInSeconds / 60 : 5
+    const expiresAt = Date.now() + ttlInMinutes * 60 * 1000
     this.store.set(identifier, { challenge, expiresAt })
   }
 
