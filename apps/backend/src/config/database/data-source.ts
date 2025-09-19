@@ -10,6 +10,7 @@ const deploymentOptions = isProdEnv()
   ? {
       ssl: true,
       extra: {
+        max: Number(getValueFromEnv('DATABASE_MAX_CONNECTIONS', '40')),
         ssl: {
           rejectUnauthorized: false,
         },
