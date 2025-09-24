@@ -5,6 +5,7 @@ import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 
 import embeddedWalletsRoutes from '../embedded-wallets/routes'
 import {
+  generalSettingsRoutes,
   featureFlagsRoutes,
   adminFeatureFlagsRoutes,
   adminAssetsRoutes,
@@ -27,6 +28,7 @@ function routes(http: express.Router): void {
   http.use('/api/feature-flags', featureFlagsRoutes)
   http.use('/api/ngos', ngosRoutes)
 
+  http.use('/api/admin', generalSettingsRoutes)
   http.use('/api/admin/feature-flags', adminFeatureFlagsRoutes)
   http.use('/api/admin/assets', adminAssetsRoutes)
   http.use('/api/admin/nft-collections', adminNftSupplyRoutes)

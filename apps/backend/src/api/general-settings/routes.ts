@@ -11,6 +11,7 @@ import { CreateProduct, endpoint as CreateProductEndpoint } from './use-cases/cr
 import { CreateVendor, endpoint as CreateVendorEndpoint } from './use-cases/create-vendor'
 import { GetAssets, endpoint as GetAssetsEndpoint } from './use-cases/get-assets'
 import { GetFeatureFlags, endpoint as GetFeatureFlagsEndpoint } from './use-cases/get-feature-flags'
+import { GetGeneralBalance, endpoint as GetGeneralBalanceEndpoint } from './use-cases/get-general-balance'
 import { GetLeaderboard, endpoint as GetLeaderboardEndpoint } from './use-cases/get-leaderboard'
 import { GetNftMetadata, endpoint as GetNftMetadataEndpoint } from './use-cases/get-nft-metadata'
 import { GetNftSupply, endpoint as GetNftSupplyEndpoint } from './use-cases/get-nft-supply'
@@ -24,6 +25,11 @@ import { UpdateNftSupply, endpoint as UpdateNftSupplyEndpoint } from './use-case
 import { UpdateNgo, endpoint as UpdateNgoEndpoint } from './use-cases/update-ngo'
 import { UpdateProduct, endpoint as UpdateProductEndpoint } from './use-cases/update-product'
 import { UpdateVendor, endpoint as UpdateVendorEndpoint } from './use-cases/update-vendor'
+
+const generalSettingsRoutes = Router()
+generalSettingsRoutes.get(`${GetGeneralBalanceEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  GetGeneralBalance.init().executeHttp(req, res)
+)
 
 const featureFlagsRoutes = Router()
 featureFlagsRoutes.get(`${GetFeatureFlagsEndpoint}`, apiKeyAuthentication, async (req, res) =>
@@ -113,6 +119,7 @@ resolveRedirectUrlRoutes.post(`${ResolveRedirectUrlEndpoint}`, authentication, a
 )
 
 export {
+  generalSettingsRoutes,
   featureFlagsRoutes,
   adminFeatureFlagsRoutes,
   adminAssetsRoutes,

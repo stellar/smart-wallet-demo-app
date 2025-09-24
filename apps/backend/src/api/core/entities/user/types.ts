@@ -9,6 +9,7 @@ import { UserProduct } from '../user-product/types'
 export type User = UserModel
 
 export type UserRepositoryType = {
+  getUsers(options?: Record<string, unknown>): Promise<User[]>
   getUserById(userId: string, options?: FindOneOptions<User>): Promise<User | null>
   getUserByToken(token: string): Promise<User | null>
   getUserByContractAddress(contractAddress: string): Promise<User | null>

@@ -9,6 +9,10 @@ export default class UserRepository extends SingletonBase implements UserReposit
     super()
   }
 
+  async getUsers(options?: Record<string, unknown>): Promise<User[]> {
+    return UserModel.find(options)
+  }
+
   async getUserById(userId: string, options?: FindOneOptions<User>): Promise<User | null> {
     return UserModel.findOne({ where: { userId: userId }, ...options })
   }
