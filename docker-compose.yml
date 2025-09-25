@@ -50,7 +50,7 @@ services:
       DATABASE_PORT: ${DATABASE_PORT:-5452}
       DATABASE_USER: ${DATABASE_USER:-postgres}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
-      SDP_EMBEDDED_WALLETS_URL: ${SDP_EMBEDDED_WALLETS_URL:-http://localhost:8001/embedded-wallets}
+      SDP_EMBEDDED_WALLETS_URL: ${SDP_EMBEDDED_WALLETS_URL:-http://localhost:8000/embedded-wallets}
       SDP_EMBEDDED_WALLETS_API_KEY: ${SDP_EMBEDDED_WALLETS_API_KEY:-}
       STELLAR_HORIZON_URL: ${STELLAR_HORIZON_URL:-https://horizon-testnet.stellar.org}
       STELLAR_SOROBAN_RPC_URL: ${STELLAR_SOROBAN_RPC_URL:-https://soroban-testnet.stellar.org}
