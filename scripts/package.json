@@ -9,7 +9,8 @@
     "upload-proofs": "node upload-proofs-to-db.mjs",
     "deploy-airdrop": "node deploy-airdrop.mjs",
     "deploy-nft-ipfs": "node nft/deploy-nft-ipfs.mjs",
-    "set-token-metadata": "node nft/set-token-metadata.mjs"
+    "set-token-metadata": "node nft/set-token-metadata.mjs",
+    "seed-xlm-asset": "node seed-xlm-asset.mjs"
   },
   "engines": {
     "node": ">=20"
