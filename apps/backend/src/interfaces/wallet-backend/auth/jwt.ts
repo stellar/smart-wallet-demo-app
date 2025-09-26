@@ -10,8 +10,9 @@ import { TokenPayload } from './types'
 const SECRET_KEY = getValueFromEnv('JWT_SECRET_KEY_WALLET_BACKEND', '')
 const PUBLIC_KEY: string | undefined = !SECRET_KEY ? undefined : Keypair.fromSecret(SECRET_KEY).publicKey() // Public key used as subject in JWT
 const AUDIENCE = getValueFromEnv('STELLAR_WALLET_BACKEND_URL', 'http://localhost:8101')
-  .replace('https://', '')
-  .replace('http://', '') // Remove protocol from URL to match wallet-backend requirements
+  .replace(/\/$/, '') // Remove trailing slash if present
+  .replace(/^https?:\/\//, '') // Remove protocol
+  .replace(/:\d+$/, '') // Remove port
 
 /**
  * Generate a JWT token as per wallet-backend requirements: https://github.com/stellar/wallet-backend?tab=readme-ov-file#authentication
