@@ -6,7 +6,7 @@ import WalletBackend, { CONNECTION_TIMEOUT } from '.'
 
 describe('WalletBackend', () => {
   const connection = axios.create({
-    baseURL: getValueFromEnv('STELLAR_WALLET_BACKEND_URL', 'https://wallet-backend-testnet-21ac687b8418.herokuapp.com'),
+    baseURL: getValueFromEnv('STELLAR_WALLET_BACKEND_URL', 'http://localhost:8101'),
     timeout: CONNECTION_TIMEOUT,
   })
   const walletBackend = new WalletBackend(connection)

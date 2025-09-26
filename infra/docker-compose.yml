@@ -16,6 +16,8 @@ services:
     extends:
       file: ./external/wallet-backend/docker-compose.yaml
       service: wb-api
+    environment:
+      BASE_FEE: "42949672"
     depends_on:
       wb-db:
         condition: service_started
@@ -24,6 +26,8 @@ services:
     extends:
       file: ./external/wallet-backend/docker-compose.yaml
       service: wb-ingest
+    environment:
+      BASE_FEE: "42949672"
     depends_on:
       wb-db:
         condition: service_started
@@ -42,6 +46,8 @@ services:
     extends:
       file: ./external/stellar-disbursement-platform-backend/dev/docker-compose-sdp-anchor.yml
       service: sdp-api
+    environment:
+      MAX_BASE_FEE: "42949672"
     depends_on:
       sdp-db:
         condition: service_started
@@ -54,6 +60,8 @@ services:
     extends:
       file: ./external/stellar-disbursement-platform-backend/dev/docker-compose-tss.yml
       service: sdp-tss
+    environment:
+      MAX_BASE_FEE: "42949672"
     depends_on:
       - sdp-db
       - sdp-api
