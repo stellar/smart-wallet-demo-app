@@ -49,6 +49,7 @@ export default class WebAuthnAuthentication extends SingletonBase implements IWe
         type: 'public-key',
         transports: passkey.transports?.split(',') as AuthenticatorTransportFuture[] | undefined,
       })),
+      timeout: 120000, // 2 minutes
     }
 
     if (type === 'standard') {
@@ -76,9 +77,9 @@ export default class WebAuthnAuthentication extends SingletonBase implements IWe
       throw Error(`${this.constructor.name} | complete | Missing challenge information for ${userIdentifier}`)
 
     const authenticationResponse = JSON.parse(authenticationResponseJSON) as AuthenticationResponseJSON
-    const passkey = await this.passkeyRepository.getPasskeyById(authenticationResponse.id)
-
-    if (!passkey) throw Error(`${this.constructor.name} | complete | Missing passkey for ${authenticationResponse.id}`)
+    const passkey = user.passkeys[0]
+    if (!passkey || passkey.credentialId !== authenticationResponse.id)
+      throw Error(`${this.constructor.name} | complete | Passkey not matching for ${authenticationResponse.id}`)
 
     const { authenticationInfo } = await verifyAuthenticationResponse({
       response: authenticationResponse,

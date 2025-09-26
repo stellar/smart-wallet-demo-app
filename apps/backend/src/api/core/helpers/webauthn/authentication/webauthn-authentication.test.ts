@@ -3,6 +3,7 @@ import base64url from 'base64url'
 import { passkeyFactory } from 'api/core/entities/passkey/factory'
 import { Passkey } from 'api/core/entities/passkey/types'
 import { userFactory } from 'api/core/entities/user/factory'
+import { User } from 'api/core/entities/user/types'
 import { mockPasskeyRepository } from 'api/core/services/passkey/mocks'
 import { mockWebauthnChallenge } from 'interfaces/webauthn-challenge/mock'
 import { WebauthnChallengeStoreState } from 'interfaces/webauthn-challenge/types'
@@ -91,6 +92,7 @@ describe('WebAuthnAuthentication', () => {
           { id: 'cred-1', type: 'public-key', transports: ['usb', 'nfc'] },
           { id: 'cred-2', type: 'public-key', transports: ['cable'] },
         ],
+        timeout: 120000,
       })
       expect(mockedWebauthnChallengeService.storeChallenge).toHaveBeenCalledWith('test@example.com', 'challenge-xyz')
       expect(result).toBe(
@@ -124,6 +126,7 @@ describe('WebAuthnAuthentication', () => {
             { id: 'cred-1', type: 'public-key', transports: ['usb', 'nfc'] },
             { id: 'cred-2', type: 'public-key', transports: ['cable'] },
           ],
+          timeout: 120000,
         })
       )
     })
@@ -147,6 +150,7 @@ describe('WebAuthnAuthentication', () => {
         challenge: 'challenge-xyz',
         userVerification: 'required',
         allowCredentials: [],
+        timeout: 120000,
       })
     })
   })
@@ -184,7 +188,6 @@ describe('WebAuthnAuthentication', () => {
         compactSignature: 'compact-signature',
         customMetadata: mockChallenge.metadata,
       })
-      expect(mockedPasskeyRepository.getPasskeyById).toHaveBeenCalledWith('cred-1')
       expect(mockedPasskeyRepository.updatePasskey).toHaveBeenCalledWith('cred-1', { counter: 2 })
       expect(mockedWebauthnChallengeService.deleteChallenge).toHaveBeenCalledWith('test@example.com')
     })
@@ -205,10 +208,10 @@ describe('WebAuthnAuthentication', () => {
       await expect(
         webauthnAuthentication.complete({
           type: 'standard',
-          user: mockUser,
+          user: { ...mockUser, passkeys: [] } as unknown as User,
           authenticationResponseJSON: mockAuthenticationResponseJSON,
         })
-      ).rejects.toThrow(/Missing passkey/)
+      ).rejects.toThrow(/Passkey not matching/)
     })
 
     it('should return false if userVerified is false', async () => {

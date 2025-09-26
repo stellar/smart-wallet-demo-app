@@ -4,6 +4,7 @@ import { UserRepositoryType } from 'api/core/entities/user/types'
 
 export function mockUserRepository(): Mocked<UserRepositoryType> {
   return {
+    getUsers: vi.fn(),
     getUserById: vi.fn(),
     getUserByToken: vi.fn(),
     getUserByEmail: vi.fn(),

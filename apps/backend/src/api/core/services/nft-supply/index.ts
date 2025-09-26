@@ -98,4 +98,15 @@ export default class NftSupplyRepository extends SingletonBase implements NftSup
 
     return result.raw[0] as NftSupply // Updated entity with new mintedAmount
   }
+
+  async decrementMintedAmount(id: string, data: Partial<NftSupply> = {}): Promise<NftSupply> {
+    const result = await AppDataSource.createQueryBuilder(NftSupplyModel, 'nft_supply')
+      .update()
+      .set({ mintedAmount: () => `"minted_amount" - 1`, ...data }) // atomic decrement in Postgres
+      .where('nft_supply_id = :id', { id })
+      .returning('*') // returns the updated row(s)
+      .execute()
+
+    return result.raw[0] as NftSupply // Updated entity with new mintedAmount
+  }
 }

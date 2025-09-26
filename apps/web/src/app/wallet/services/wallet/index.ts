@@ -74,15 +74,24 @@ export class WalletService implements IWalletService {
   }
 
   async getNftClaimOptions(session_id: string, resource: string): Promise<GetNftClaimOptionsResult> {
+    // Remove the G from the resource - Not handled by the backend
+    const filteredSessionId = session_id.replace('G', '')
+
     const response = await authHttp.get('/api/embedded-wallets/nft/claim/options', {
-      params: { session_id, resource },
+      params: { session_id: filteredSessionId, resource },
     })
 
     return response.data
   }
 
   async claimNft(input: ClaimNftInput): Promise<ClaimNftResult> {
-    const response = await authHttp.post(`/api/embedded-wallets/nft/claim/complete`, input)
+    // Remove the G from the resource - Not handled by the backend
+    const filteredSessionId = input.session_id.replace('G', '')
+
+    const response = await authHttp.post(`/api/embedded-wallets/nft/claim/complete`, {
+      ...input,
+      session_id: filteredSessionId,
+    })
 
     return response.data
   }
