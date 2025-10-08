@@ -4,6 +4,10 @@ import { getValueFromEnv } from 'config/env-utils'
 
 import WalletBackend, { CONNECTION_TIMEOUT } from '.'
 
+vi.mock('./auth/jwt', () => ({
+  generateToken: vi.fn().mockReturnValue('Bearer token'),
+}))
+
 describe('WalletBackend', () => {
   const connection = axios.create({
     baseURL: getValueFromEnv('STELLAR_WALLET_BACKEND_URL', 'http://localhost:8101'),
