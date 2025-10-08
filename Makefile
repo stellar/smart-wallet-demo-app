@@ -81,6 +81,12 @@ test-coverage:
 type-check:
 	npm run type-check --workspace=apps/$(APP)
 
+seed-xlm-dev:
+	npm run --workspace=scripts seed-xlm-asset -- --database-url="postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}" --network=testnet
+
+seed-xlm:
+	npm run --workspace=scripts seed-xlm-asset -- --database-url="postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}" --network=mainnet
+
 lint:
 	npx --no-install eslint ./apps/$(APP)
 

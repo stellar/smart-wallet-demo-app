@@ -4,9 +4,13 @@ import { getValueFromEnv } from 'config/env-utils'
 
 import WalletBackend, { CONNECTION_TIMEOUT } from '.'
 
+vi.mock('./auth/jwt', () => ({
+  generateToken: vi.fn().mockReturnValue('Bearer token'),
+}))
+
 describe('WalletBackend', () => {
   const connection = axios.create({
-    baseURL: getValueFromEnv('STELLAR_WALLET_BACKEND_URL', 'https://wallet-backend-testnet-21ac687b8418.herokuapp.com'),
+    baseURL: getValueFromEnv('STELLAR_WALLET_BACKEND_URL', 'http://localhost:8101'),
     timeout: CONNECTION_TIMEOUT,
   })
   const walletBackend = new WalletBackend(connection)

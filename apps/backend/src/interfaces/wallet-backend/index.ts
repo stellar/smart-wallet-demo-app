@@ -28,10 +28,7 @@ export default class WalletBackend extends SingletonBase implements WalletBacken
     this.connection =
       connection ??
       axios.create({
-        baseURL: getValueFromEnv(
-          'STELLAR_WALLET_BACKEND_URL',
-          'https://wallet-backend-testnet-21ac687b8418.herokuapp.com'
-        ),
+        baseURL: getValueFromEnv('STELLAR_WALLET_BACKEND_URL', 'http://localhost:8101'),
         timeout: CONNECTION_TIMEOUT,
       })
 
