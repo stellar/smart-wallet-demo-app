@@ -196,5 +196,7 @@
   "routeErrorDescription": "Please try again.",
   "goHome": "Go Home",
   "walletComingSoonBannerTitle": "Wallet coming soon",
-  "walletComingSoonBannerDescription": "We're working hard to launch the wallet. Check back soon!"
+  "walletComingSoonBannerDescription": "We're working hard to launch the wallet. Check back soon!",
+  "comingSoon": "Coming Soon",
+  "welcomeBack": "Welcome Back"
 }

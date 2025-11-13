@@ -6,27 +6,37 @@ import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { Typography, TypographyVariant, TypographyWeight } from 'src/components/atoms'
 import { NavigateButton } from 'src/components/molecules'
 import { Form } from 'src/components/organisms'
+import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { FormValues } from './schema'
-import { EmailSent } from '../../components'
 
 type Props = {
+  onboardingStyleVariant: OnboardingStyleVariant
   form: UseFormReturn<FormValues>
   isResetLinkSent: boolean
   onGoBack: () => void
   onSendResetLink: (values: FormValues) => void
 }
 
-export const RecoverTemplate = ({ form, isResetLinkSent, onGoBack, onSendResetLink }: Props) => {
+export const RecoverTemplate = ({
+  onboardingStyleVariant,
+  isResetLinkSent,
+  form,
+  onGoBack,
+  onSendResetLink,
+}: Props) => {
   const { watch } = form
 
   const emailValue = watch('email')
-  const isSendResetLinkDisabled = useMemo(() => !emailValue, [emailValue])
+  const isSendResetLinkDisabled = useMemo(() => !emailValue || isResetLinkSent, [emailValue, isResetLinkSent])
 
   return (
     <div>
-      <OnboardingBackgroundImage className="bg-[60%]" />
+      <OnboardingBackgroundImage
+        className="bg-[60%]"
+        backgroundPosition={onboardingStyleVariant === 'stellar-house' ? 'center' : undefined}
+      />
       <div className="mt-[calc(100svh-71svh)] flex flex-col justify-start px-8">
         <NavigateButton className="mb-10" size="md" onClick={onGoBack} />
 
@@ -44,18 +54,20 @@ export const RecoverTemplate = ({ form, isResetLinkSent, onGoBack, onSendResetLi
               <Form.Input
                 name="email"
                 type="email"
-                variant="blurred"
+                variant={onboardingStyleVariant === 'meridian-2025' ? 'blurred' : 'default'}
                 fieldSize={'lg'}
                 placeholder={c('recoverEmailInputPlaceholder')}
               />
 
-              {isResetLinkSent ? (
-                <EmailSent />
-              ) : (
-                <Form.Submit disabled={isSendResetLinkDisabled} size="xl" variant="tertiary" isRounded isFullWidth>
-                  {c('sendResetLink')}
-                </Form.Submit>
-              )}
+              <Form.Submit
+                disabled={isSendResetLinkDisabled}
+                size="xl"
+                variant={onboardingStyleVariant === 'meridian-2025' ? 'tertiary' : 'secondary'}
+                isRounded
+                isFullWidth
+              >
+                {c('sendResetLink')}
+              </Form.Submit>
             </div>
           </Form>
         </div>

@@ -6,27 +6,37 @@ import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { Typography, TypographyVariant, TypographyWeight } from 'src/components/atoms'
 import { NavigateButton } from 'src/components/molecules'
 import { Form } from 'src/components/organisms'
+import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { FormValues } from './schema'
-import { EmailSent } from '../../components'
 
 type Props = {
+  onboardingStyleVariant: OnboardingStyleVariant
   form: UseFormReturn<FormValues>
   isInviteLinkSent: boolean
   onGoBack: () => void
   onSendLink: (values: FormValues) => void
 }
 
-export const InviteResendTemplate = ({ form, isInviteLinkSent, onGoBack, onSendLink }: Props) => {
+export const InviteResendTemplate = ({
+  onboardingStyleVariant,
+  isInviteLinkSent,
+  form,
+  onGoBack,
+  onSendLink,
+}: Props) => {
   const { watch } = form
 
   const emailValue = watch('email')
-  const isSendLinkDisabled = useMemo(() => !emailValue, [emailValue])
+  const isSendLinkDisabled = useMemo(() => !emailValue || isInviteLinkSent, [emailValue, isInviteLinkSent])
 
   return (
     <div>
-      <OnboardingBackgroundImage className="bg-[60%]" />
+      <OnboardingBackgroundImage
+        className="bg-[60%]"
+        backgroundPosition={onboardingStyleVariant === 'stellar-house' ? 'center' : undefined}
+      />
       <div className="mt-[calc(100svh-71svh)] flex flex-col justify-start px-8">
         <NavigateButton className="mb-10" size="md" onClick={onGoBack} />
 
@@ -46,18 +56,20 @@ export const InviteResendTemplate = ({ form, isInviteLinkSent, onGoBack, onSendL
               <Form.Input
                 name="email"
                 type="email"
-                variant="blurred"
+                variant={onboardingStyleVariant === 'meridian-2025' ? 'blurred' : 'default'}
                 fieldSize={'lg'}
                 placeholder={c('inviteResendInputPlaceholder')}
               />
 
-              {isInviteLinkSent ? (
-                <EmailSent />
-              ) : (
-                <Form.Submit disabled={isSendLinkDisabled} size="xl" variant="tertiary" isRounded isFullWidth>
-                  {c('sendLink')}
-                </Form.Submit>
-              )}
+              <Form.Submit
+                disabled={isSendLinkDisabled}
+                size="xl"
+                variant={onboardingStyleVariant === 'meridian-2025' ? 'tertiary' : 'secondary'}
+                isRounded
+                isFullWidth
+              >
+                {c('sendLink')}
+              </Form.Submit>
             </div>
           </Form>
         </div>

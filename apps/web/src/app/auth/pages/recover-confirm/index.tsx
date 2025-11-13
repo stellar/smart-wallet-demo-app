@@ -1,6 +1,8 @@
 import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 
+import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
+
 import { RecoverConfirmTemplate } from './template'
 import { useRecoverWallet } from '../../queries/use-recover-wallet'
 import { recoverConfirmRoute } from '../../routes'
@@ -32,6 +34,7 @@ export const RecoverConfirm = () => {
 
   return (
     <RecoverConfirmTemplate
+      onboardingStyleVariant={import.meta.env.VITE_ONBOARDING_STYLE_VARIANT as OnboardingStyleVariant}
       isRecoveringWallet={recoverWallet.isPending || isRedirecting}
       onGoBack={handleGoBack}
       onCreatePasskey={handleCreatePasskey}

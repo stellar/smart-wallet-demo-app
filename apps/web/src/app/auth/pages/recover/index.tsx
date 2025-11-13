@@ -2,6 +2,11 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 
+import { useToast } from 'src/app/core/hooks/use-toast'
+import { Toast } from 'src/app/core/services/toast'
+import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
+import { c } from 'src/interfaces/cms/useContent'
+
 import { FormValues, schema } from './schema'
 import { RecoverTemplate } from './template'
 import { useSendRecoveryEmail } from '../../queries/use-send-recovery-email'
@@ -11,8 +16,16 @@ export const Recover = () => {
   const router = useRouter()
   const navigate = useNavigate()
   const canGoBack = useCanGoBack()
+  const toast = useToast()
 
-  const sendRecoveryEmail = useSendRecoveryEmail()
+  const sendRecoveryEmail = useSendRecoveryEmail({
+    onSuccess: () => {
+      toast.notify({
+        message: c('resetLinkSent'),
+        type: Toast.toastType.SUCCESS,
+      })
+    },
+  })
 
   const form = useForm<FormValues>({
     resolver: yupResolver(schema),
@@ -31,6 +44,7 @@ export const Recover = () => {
 
   return (
     <RecoverTemplate
+      onboardingStyleVariant={import.meta.env.VITE_ONBOARDING_STYLE_VARIANT as OnboardingStyleVariant}
       form={form}
       isResetLinkSent={sendRecoveryEmail.isSuccess}
       onGoBack={handleGoBack}

@@ -18,6 +18,12 @@ export enum TypographyVariant {
   h5 = 'h5',
 }
 
+export enum TypographyFontFamily {
+  sans = 'sans',
+  schabo = 'schabo',
+  lora = 'lora',
+}
+
 export enum TypographyWeight {
   lighter = 'lighter',
   light = 'light',
@@ -92,6 +98,11 @@ const typographyVariants = cva('', {
     decoration: {
       [TypographyDecoration.none]: '',
       [TypographyDecoration.underline]: '',
+    },
+    fontFamily: {
+      [TypographyFontFamily.sans]: 'font-sans',
+      [TypographyFontFamily.schabo]: 'font-schabo',
+      [TypographyFontFamily.lora]: 'font-lora',
     },
   },
   compoundVariants: [
@@ -211,6 +222,7 @@ const Typography = ({
   decoration,
   weight,
   className,
+  fontFamily,
   asChild = false,
   ...props
 }: ITypographyProps): JSX.Element => {
@@ -218,7 +230,7 @@ const Typography = ({
 
   return (
     <TypographyVariantComponent
-      className={cn(typographyVariants({ variant, status, size, decoration, weight }), className)}
+      className={cn(typographyVariants({ variant, status, size, decoration, weight, fontFamily }), className)}
       {...props}
     >
       {children}

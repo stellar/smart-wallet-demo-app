@@ -6,12 +6,13 @@ import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { Typography, TypographyVariant, TypographyWeight } from 'src/components/atoms'
 import { NavigateButton } from 'src/components/molecules'
 import { Form } from 'src/components/organisms'
+import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { FormValues } from './schema'
-import { EmailSent } from '../../components'
 
 type Props = {
+  onboardingStyleVariant: OnboardingStyleVariant
   isLoggingIn: boolean
   isLoginLinkSent: boolean
   form: UseFormReturn<FormValues>
@@ -19,15 +20,25 @@ type Props = {
   onLogIn: (values: FormValues) => void
 }
 
-export const LogInTemplate = ({ isLoggingIn, isLoginLinkSent, form, onGoBack, onLogIn }: Props) => {
+export const LogInTemplate = ({
+  onboardingStyleVariant,
+  isLoginLinkSent,
+  isLoggingIn,
+  form,
+  onGoBack,
+  onLogIn,
+}: Props) => {
   const { watch } = form
 
   const emailValue = watch('email')
-  const isSendResetLinkDisabled = useMemo(() => !emailValue, [emailValue])
+  const isSendResetLinkDisabled = useMemo(() => !emailValue || isLoginLinkSent, [emailValue, isLoginLinkSent])
 
   return (
     <div>
-      <OnboardingBackgroundImage className="bg-[60%]" />
+      <OnboardingBackgroundImage
+        className="bg-[60%]"
+        backgroundPosition={onboardingStyleVariant === 'stellar-house' ? 'center' : undefined}
+      />
       <div className="mt-[calc(100svh-71svh)] flex flex-col justify-start px-8">
         <NavigateButton className="mb-10" size="md" onClick={onGoBack} />
 
@@ -47,25 +58,21 @@ export const LogInTemplate = ({ isLoggingIn, isLoginLinkSent, form, onGoBack, on
               <Form.Input
                 name="email"
                 type="email"
-                variant="blurred"
+                variant={onboardingStyleVariant === 'meridian-2025' ? 'blurred' : 'default'}
                 fieldSize={'lg'}
                 placeholder={c('recoverEmailInputPlaceholder')}
               />
 
-              {isLoginLinkSent ? (
-                <EmailSent />
-              ) : (
-                <Form.Submit
-                  disabled={isSendResetLinkDisabled}
-                  isLoading={isLoggingIn}
-                  size="xl"
-                  variant="tertiary"
-                  isRounded
-                  isFullWidth
-                >
-                  {c('logIn')}
-                </Form.Submit>
-              )}
+              <Form.Submit
+                disabled={isSendResetLinkDisabled}
+                isLoading={isLoggingIn}
+                size="xl"
+                variant={onboardingStyleVariant === 'meridian-2025' ? 'tertiary' : 'secondary'}
+                isRounded
+                isFullWidth
+              >
+                {c('logIn')}
+              </Form.Submit>
             </div>
           </Form>
         </div>

@@ -5,6 +5,7 @@ import { featureFlagsState } from 'src/app/core/helpers'
 import { privateRootRoute } from 'src/app/core/router/routeTree'
 import { preloadImages } from 'src/app/core/utils/preload'
 import { Home, Scan, Profile, Transactions, Nfts, LeftAssets, SpecialGift } from 'src/app/wallet/pages'
+import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
 import { checkImageExists } from 'src/helpers/check-image-exists'
 import { sleepInSeconds } from 'src/helpers/sleep'
 import { a } from 'src/interfaces/cms/useAssets'
@@ -147,7 +148,12 @@ export const specialGiftRoute = createRoute({
   getParentRoute: () => walletRootRoute,
   path: filterHomePath(WalletPagesPath.SPECIAL_GIFT),
   component: SpecialGift,
-  pendingComponent: () => <WalletRouteLoading overrideDescription={c('specialGiftRouteLoadingDescription')} />,
+  pendingComponent: () => (
+    <WalletRouteLoading
+      onboardingStyleVariant={import.meta.env.VITE_ONBOARDING_STYLE_VARIANT as OnboardingStyleVariant}
+      overrideDescription={c('specialGiftRouteLoadingDescription')}
+    />
+  ),
   errorComponent: ({ error }) => <ErrorComponent error={error} />,
   validateSearch: search =>
     yup
