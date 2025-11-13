@@ -3,14 +3,11 @@ import { useEffect, useMemo } from 'react'
 import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { useWalletStatusStore } from 'src/app/wallet/store'
 import { Loading } from 'src/components/atoms'
-import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
+import { useTheme } from 'src/config/theme/provider'
 import { setThemeColor } from 'src/helpers/theme-color'
 
-type Props = {
-  onboardingStyleVariant: OnboardingStyleVariant
-}
-
-export const RouteLoading = ({ onboardingStyleVariant }: Props) => {
+export const RouteLoading = () => {
+  const { onboardingStyleVariant } = useTheme()
   const { status: walletStatus } = useWalletStatusStore()
 
   const isSuccessWallet = useMemo(() => walletStatus === 'SUCCESS', [walletStatus])

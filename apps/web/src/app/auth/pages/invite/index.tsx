@@ -2,8 +2,6 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 
-import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
-
 import { InviteTemplate } from './template'
 import { useCreateWallet } from '../../queries/use-create-wallet'
 import { getInvitationInfoOptions } from '../../queries/use-get-invitation-info'
@@ -54,7 +52,6 @@ export const Invite = () => {
 
   return (
     <InviteTemplate
-      onboardingStyleVariant={import.meta.env.VITE_ONBOARDING_STYLE_VARIANT as OnboardingStyleVariant}
       isReturningUser={isReturningUser}
       isCreatingWallet={createWallet.isPending || isRedirecting}
       isLoggingIn={logIn.isPending || isRedirecting}

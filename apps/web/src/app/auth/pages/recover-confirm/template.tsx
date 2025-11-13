@@ -3,22 +3,18 @@ import { Button, Text } from '@stellar/design-system'
 import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { Typography, TypographyVariant, TypographyWeight } from 'src/components/atoms'
 import { NavigateButton } from 'src/components/molecules'
-import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
+import { useTheme } from 'src/config/theme/provider'
 import { c } from 'src/interfaces/cms/useContent'
 
 type Props = {
-  onboardingStyleVariant: OnboardingStyleVariant
   isRecoveringWallet: boolean
   onGoBack: () => void
   onCreatePasskey: () => void
 }
 
-export const RecoverConfirmTemplate = ({
-  onboardingStyleVariant,
-  isRecoveringWallet,
-  onGoBack,
-  onCreatePasskey,
-}: Props) => {
+export const RecoverConfirmTemplate = ({ isRecoveringWallet, onGoBack, onCreatePasskey }: Props) => {
+  const { onboardingStyleVariant } = useTheme()
+
   return (
     <div>
       <OnboardingBackgroundImage

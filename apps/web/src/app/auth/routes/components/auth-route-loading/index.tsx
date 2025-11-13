@@ -1,8 +1,10 @@
 import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { Loading } from 'src/components/atoms'
-import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
+import { useTheme } from 'src/config/theme/provider'
 
-export const AuthRouteLoading = ({ onboardingStyleVariant }: { onboardingStyleVariant: OnboardingStyleVariant }) => {
+export const AuthRouteLoading = () => {
+  const { onboardingStyleVariant } = useTheme()
+
   return (
     <div>
       <OnboardingBackgroundImage

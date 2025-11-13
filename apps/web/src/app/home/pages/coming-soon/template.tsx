@@ -5,15 +5,13 @@ import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { ONBOARDING_LOGO_WIDTH } from 'src/app/core/constants/onboarding'
 import { Typography, TypographyFontFamily, TypographyVariant } from 'src/components/atoms'
 import { BrandTightHeading } from 'src/components/molecules'
-import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
+import { useTheme } from 'src/config/theme/provider'
 import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 
-type Props = {
-  onboardingStyleVariant: OnboardingStyleVariant
-}
+export const ComingSoonTemplate = () => {
+  const { onboardingStyleVariant } = useTheme()
 
-export const ComingSoonTemplate = ({ onboardingStyleVariant }: Props) => {
   const Content = () => {
     switch (onboardingStyleVariant) {
       case 'meridian-2025':

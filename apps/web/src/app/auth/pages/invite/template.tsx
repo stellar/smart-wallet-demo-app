@@ -6,12 +6,11 @@ import { ONBOARDING_LOGO_WIDTH } from 'src/app/core/constants/onboarding'
 import { mapTextWithLinks } from 'src/app/core/utils/map-text-with-links'
 import { Typography, TypographyFontFamily, TypographyVariant } from 'src/components/atoms'
 import { BrandTightHeading, GhostButton } from 'src/components/molecules'
-import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
+import { useTheme } from 'src/config/theme/provider'
 import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 
 type Props = {
-  onboardingStyleVariant: OnboardingStyleVariant
   isReturningUser: boolean
   isCreatingWallet: boolean
   isLoggingIn: boolean
@@ -21,7 +20,6 @@ type Props = {
 }
 
 export const InviteTemplate = ({
-  onboardingStyleVariant,
   isReturningUser,
   isCreatingWallet,
   isLoggingIn,
@@ -29,6 +27,8 @@ export const InviteTemplate = ({
   onLogIn,
   onForgotPassword,
 }: Props) => {
+  const { onboardingStyleVariant } = useTheme()
+
   const config = isReturningUser
     ? {
         titleLines: [c('inviteOptionBTitleLine1'), c('inviteOptionBTitleLine2')],

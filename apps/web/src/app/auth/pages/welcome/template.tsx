@@ -5,18 +5,19 @@ import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { ONBOARDING_LOGO_WIDTH } from 'src/app/core/constants/onboarding'
 import { mapTextWithLinks } from 'src/app/core/utils/map-text-with-links'
 import { BrandTightHeading, GhostButton } from 'src/components/molecules'
-import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
+import { useTheme } from 'src/config/theme/provider'
 import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 
 type Props = {
-  onboardingStyleVariant: OnboardingStyleVariant
   onCreateWallet: () => void
   onLogIn: () => void
   onForgotPassword: () => void
 }
 
-export const WelcomeTemplate = ({ onboardingStyleVariant, onCreateWallet, onLogIn, onForgotPassword }: Props) => {
+export const WelcomeTemplate = ({ onCreateWallet, onLogIn, onForgotPassword }: Props) => {
+  const { onboardingStyleVariant } = useTheme()
+
   const Header = () => {
     switch (onboardingStyleVariant) {
       case 'meridian-2025':

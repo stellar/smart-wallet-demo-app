@@ -5,16 +5,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { useWalletStatusStore } from 'src/app/wallet/store'
 import { Loading } from 'src/components/atoms'
-import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
+import { useTheme } from 'src/config/theme/provider'
 import { setThemeColor } from 'src/helpers/theme-color'
 import { c } from 'src/interfaces/cms/useContent'
 
 type Props = {
-  onboardingStyleVariant: OnboardingStyleVariant
   overrideDescription?: string
 }
 
-export const WalletRouteLoading = ({ onboardingStyleVariant, overrideDescription }: Props) => {
+export const WalletRouteLoading = ({ overrideDescription }: Props) => {
+  const { onboardingStyleVariant } = useTheme()
   const { status: walletStatus } = useWalletStatusStore()
   const [timeoutReached, setTimeoutReached] = useState(false)
 

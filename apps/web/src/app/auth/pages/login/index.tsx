@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form'
 import { useToast } from 'src/app/core/hooks/use-toast'
 import { Toast } from 'src/app/core/services/toast'
 import { useDeepLinkStore } from 'src/app/core/store'
-import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { FormValues, schema } from './schema'
@@ -66,7 +65,6 @@ export const LogIn = () => {
 
   return (
     <LogInTemplate
-      onboardingStyleVariant={import.meta.env.VITE_ONBOARDING_STYLE_VARIANT as OnboardingStyleVariant}
       isLoggingIn={logIn.isPending || isRedirecting}
       isLoginLinkSent={logIn.isSuccess}
       form={form}

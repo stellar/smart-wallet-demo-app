@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 
 import { useToast } from 'src/app/core/hooks/use-toast'
 import { Toast } from 'src/app/core/services/toast'
-import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { FormValues, schema } from './schema'
@@ -44,7 +43,6 @@ export const InviteResend = () => {
 
   return (
     <InviteResendTemplate
-      onboardingStyleVariant={import.meta.env.VITE_ONBOARDING_STYLE_VARIANT as OnboardingStyleVariant}
       form={form}
       isInviteLinkSent={resendInviteEmail.isSuccess}
       onGoBack={handleGoBack}

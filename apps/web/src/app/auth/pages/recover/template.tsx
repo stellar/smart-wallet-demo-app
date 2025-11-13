@@ -6,26 +6,20 @@ import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { Typography, TypographyVariant, TypographyWeight } from 'src/components/atoms'
 import { NavigateButton } from 'src/components/molecules'
 import { Form } from 'src/components/organisms'
-import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
+import { useTheme } from 'src/config/theme/provider'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { FormValues } from './schema'
 
 type Props = {
-  onboardingStyleVariant: OnboardingStyleVariant
   form: UseFormReturn<FormValues>
   isResetLinkSent: boolean
   onGoBack: () => void
   onSendResetLink: (values: FormValues) => void
 }
 
-export const RecoverTemplate = ({
-  onboardingStyleVariant,
-  isResetLinkSent,
-  form,
-  onGoBack,
-  onSendResetLink,
-}: Props) => {
+export const RecoverTemplate = ({ isResetLinkSent, form, onGoBack, onSendResetLink }: Props) => {
+  const { onboardingStyleVariant } = useTheme()
   const { watch } = form
 
   const emailValue = watch('email')

@@ -2,7 +2,6 @@ import { createRoute, redirect } from '@tanstack/react-router'
 import * as yup from 'yup'
 
 import { publicRootRoute } from 'src/app/core/router/routeTree'
-import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
 
 import { Welcome, Invite, InviteResend, Recover, RecoverConfirm, LogIn } from '../pages'
 import { AuthPagesPath } from './types'
@@ -20,11 +19,7 @@ export const inviteRoute = createRoute({
   getParentRoute: () => publicRootRoute,
   path: AuthPagesPath.INVITE,
   component: Invite,
-  pendingComponent: () => (
-    <AuthRouteLoading
-      onboardingStyleVariant={import.meta.env.VITE_ONBOARDING_STYLE_VARIANT as OnboardingStyleVariant}
-    />
-  ),
+  pendingComponent: AuthRouteLoading,
   validateSearch: search =>
     yup
       .object({
@@ -66,11 +61,7 @@ export const recoverConfirmRoute = createRoute({
   getParentRoute: () => publicRootRoute,
   path: AuthPagesPath.RECOVER_CONFIRM,
   component: RecoverConfirm,
-  pendingComponent: () => (
-    <AuthRouteLoading
-      onboardingStyleVariant={import.meta.env.VITE_ONBOARDING_STYLE_VARIANT as OnboardingStyleVariant}
-    />
-  ),
+  pendingComponent: AuthRouteLoading,
   validateSearch: search =>
     yup
       .object({

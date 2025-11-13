@@ -6,13 +6,12 @@ import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { Typography, TypographyVariant, TypographyWeight } from 'src/components/atoms'
 import { NavigateButton } from 'src/components/molecules'
 import { Form } from 'src/components/organisms'
-import { OnboardingStyleVariant } from 'src/constants/theme/onboarding-style'
+import { useTheme } from 'src/config/theme/provider'
 import { c } from 'src/interfaces/cms/useContent'
 
 import { FormValues } from './schema'
 
 type Props = {
-  onboardingStyleVariant: OnboardingStyleVariant
   isLoggingIn: boolean
   isLoginLinkSent: boolean
   form: UseFormReturn<FormValues>
@@ -20,14 +19,8 @@ type Props = {
   onLogIn: (values: FormValues) => void
 }
 
-export const LogInTemplate = ({
-  onboardingStyleVariant,
-  isLoginLinkSent,
-  isLoggingIn,
-  form,
-  onGoBack,
-  onLogIn,
-}: Props) => {
+export const LogInTemplate = ({ isLoginLinkSent, isLoggingIn, form, onGoBack, onLogIn }: Props) => {
+  const { onboardingStyleVariant } = useTheme()
   const { watch } = form
 
   const emailValue = watch('email')
