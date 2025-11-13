@@ -68,4 +68,4 @@ export COMPOSE_EXPERIMENTAL_GIT_REMOTE=1 && docker-compose --profile all up -d -
 3. Authenticate with your passkey. 🎉 This should create your smart wallet on the blockchain 🎉.
 4. Transfer some XLM to your smart wallet.
 5. Now you can use your smart wallet to send and receive payments using the URL links like:
-   - `http://localhost:3000/wallet?type=transfer&to={recipient_address}&amount={amount}&asset=XLM`
+   - `http://localhost:3201/wallet?type=transfer&to={recipient_address}&amount={amount}&asset=XLM`

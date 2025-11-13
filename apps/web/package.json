@@ -83,10 +83,10 @@
     "clean-setup-dev": "npm ci && npm run setup-dev-env-vars && npm run setup-test-env-vars && npm run setup-content && npm run setup-assets",
     "clean-setup": "npm ci --production",
     "build": "tsc && vite build",
-    "start": "vite --port ${PORT:-3000} --host;",
+    "start": "vite --port ${PORT:-3201} --host;",
     "start-dev": "npm start",
     "start-staging": "npm start -- --mode staging",
-    "serve": "npx serve -l ${PORT:-3000} -s dist",
+    "serve": "npx serve -l ${PORT:-3201} -s dist",
     "test": "vitest --config vitest.config.ts",
     "test-coverage": "vitest run --config vitest.config.ts --coverage",
     "type-check": "tsc --noEmit"

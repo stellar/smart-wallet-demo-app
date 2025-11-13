@@ -3,7 +3,7 @@ import axios from 'axios'
 import { accessTokenInterceptor, apiKeyInterceptor, unauthorizedInterceptor } from './interceptors'
 
 const baseConfig = {
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8201',
   withCredentials: true,
 }
 
