@@ -1,0 +1,72 @@
+name: Backend Deploy to Heroku
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      version:
+        type: string
+        required: true
+    secrets:
+      HEROKU_APP_NAME:
+        required: true
+      HEROKU_API_KEY:
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy to Heroku
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: "read"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Heroku Container Registry
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
+
+      - name: Download built image
+        uses: actions/download-artifact@v4
+        with:
+          name: docker_image_backend
+          path: /tmp
+
+      - name: Load, tag and push Docker image
+        env:
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+        run: |
+          docker load --input /tmp/docker_image_backend.tar
+          docker tag build-backend:${{ inputs.version }} registry.heroku.com/$HEROKU_APP_NAME/web
+          docker image ls -a
+          docker push registry.heroku.com/$HEROKU_APP_NAME/web
+
+      - name: Create .netrc for Heroku API authentication
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          echo "machine api.heroku.com
+            login _
+            password $HEROKU_API_KEY
+          machine git.heroku.com
+            login _
+            password $HEROKU_API_KEY" > ~/.netrc
+          chmod 600 ~/.netrc
+
+      - name: Install Heroku CLI
+        run: curl https://cli-assets.heroku.com/install.sh | sh
+
+      - name: Release Heroku App via CLI
+        env:
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+        run: heroku container:release web --app $HEROKU_APP_NAME
+
+      - name: Cleanup .netrc
+        run: rm -f ~/.netrc

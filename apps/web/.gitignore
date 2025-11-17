@@ -1,0 +1,9 @@
+# Application specific ignores
+/.pnp
+.pnp.js
+/build
+.idea/
+assets*.json
+!assets.example.json
+content*.json
+!content.example.json

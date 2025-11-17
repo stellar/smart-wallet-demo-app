@@ -1,0 +1,50 @@
+import { Column, Entity, ModelBase, OneToMany, PrimaryGeneratedColumn } from 'api/core/framework/orm/base'
+
+import { GiftClaim } from '../gift-claim/model'
+import { Nft } from '../nft/model'
+import { Otp } from '../otp/model'
+import { Passkey } from '../passkey/model'
+import { UserProduct } from '../user-product/model'
+
+@Entity()
+export class User extends ModelBase {
+  @PrimaryGeneratedColumn('uuid')
+  userId: string
+
+  @Column({
+    type: 'varchar',
+  })
+  email: string
+
+  @Column({
+    type: 'varchar',
+  })
+  uniqueToken: string
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  contractAddress?: string
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  createdAccountAddress?: string
+
+  @OneToMany(() => Passkey, passkey => passkey.user)
+  passkeys: Passkey[]
+
+  @OneToMany(() => Otp, otp => otp.user)
+  otps: Otp[]
+
+  @OneToMany(() => Nft, nft => nft.user)
+  nfts: Nft[]
+
+  @OneToMany(() => GiftClaim, giftClaim => giftClaim.user)
+  giftClaims: GiftClaim[]
+
+  @OneToMany(() => UserProduct, userProduct => userProduct.user)
+  userProducts: UserProduct[]
+}

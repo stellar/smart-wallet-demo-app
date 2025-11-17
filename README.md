@@ -1,2 +1,131 @@
-# smart-wallet-demo-app
-Smart Wallet Demo App
+## Instructions
+
+### SDP
+
+1. Go through the forgot-password flow with the user `admin@example.com`, and set the password.
+1. Login and create an API key with ALL write permissions by going to `API Keys` -> `Create API Key` and set the permissions to `ALL: READ&WRITE`. Copy the generated key and use it for The smart-wallet's `SDP_EMBEDDED_WALLETS_API_KEY` env.
+1. Create a disbursement using `SDP Embedded Wallet` as the wallet provider, and set a file like:
+
+   ```csv
+   email,id,amount,verification
+   foo@example.com,4ba1,0.01,2000-01-01
+   ```
+
+1. Start the disbursement and check the links in the emails porinted in the logs.
+
+# Stellar Smart Wallet Demo
+
+This monorepo provides a complete, modular demo application for a Stellar-based smart wallet. It includes everything you need to explore and extend a full-stack Stellar wallet solution. From backend services and frontend interface to smart contracts. While not a white-label solution, it serves as a solid foundation for developers who want to build their own Stellar-powered wallets.
+
+## Monorepo Structure
+
+This repository is organized as follows:
+
+- [apps/](./apps)
+  - [backend/](./apps/backend) | Node.js backend (API)
+  - [web/](./apps/web) | React-based web application
+- [contracts/](./contracts) | Smart contracts (e.g., Soroban)
+- [scripts/](./scripts) | Utility scripts for setting up and managing the environment
+- [Makefile](./Makefile) | Project-level build and dev commands
+- [docker-compose.yml](./docker-compose.yml) | Container orchestration
+
+## Requirements
+
+- [Docker](https://www.docker.com/)
+- [Node.js](https://nodejs.org/) v22+
+- [NPM](https://www.npmjs.com/)
+- [Make](https://www.gnu.org/software/make/)
+
+## Quick Start
+
+To start with the whole infrastructure, please refer to the [complete_infra](./complete_infra) directory.
+
+To start with the applications hosted in this repository using Docker:
+
+```bash
+make docker-setup-dev
+make docker-start-dev
+```
+
+### Environment Variables
+
+Make sure to configure your environment variables before running the apps:
+
+- Backend
+
+  - `apps/backend/src/config/.env.example` (used as a reference)
+  - `apps/backend/src/config/.env.development`
+  - `apps/backend/src/config/.env.test`
+
+- Web
+  - `apps/web/src/config/.env.example` (used as a reference)
+  - `apps/web/src/config/.env.local`
+  - `apps/web/src/config/.env.test`
+
+## Running Apps Individually
+
+You can also work on a specific app (e.g., backend or web) without running the full stack.
+
+### Example: Running the Backend Only
+
+```bash
+make docker-setup-dev PROFILE=backend
+make docker-start-dev PROFILE=backend
+```
+
+### Example: Running the Web App Only
+
+```bash
+make docker-setup-dev PROFILE=web
+make docker-start-dev PROFILE=web
+```
+
+## Local Development Commands
+
+All workspace apps support the following `make` commands:
+
+| Command                         | Description                                                                                        |
+| ------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `setup-dev`                     | Installs dependencies and performs initial setup for the app                                       |
+| `clean-setup-dev`               | Removes previous builds and sets up a clean dev environment                                        |
+| `clean-setup`                   | Cleans previous installations and prepares for new setup                                           |
+| `build`                         | Builds the selected app                                                                            |
+| `start`                         | Starts the app in production mode                                                                  |
+| `start-dev`                     | Starts the app in development mode                                                                 |
+| `start-staging`                 | Starts the app using staging configuration                                                         |
+| `test`                          | Runs tests for the selected app                                                                    |
+| `test-coverage`                 | Runs tests and shows coverage                                                                      |
+| `lint`                          | Runs ESLint on the codebase                                                                        |
+| `lint-fix`                      | Auto-fixes linting issues                                                                          |
+| `type-check`                    | Runs TypeScript type checking                                                                      |
+| `format-code`                   | Formats the code using Prettier                                                                    |
+| `serve`                         | Runs a local static server (**only for web**)                                                      |
+| `migration-run`                 | Runs database migrations (**only for backend**)                                                    |
+| `migration-generate`            | Generates a new migration based on entities changes (**only for backend**)                         |
+| `docker-run-migration-run`      | Runs database migrations - on a Docker container (**only for backend**)                            |
+| `docker-run-migration-generate` | Generates a new migration based on entities changes - on a Docker container (**only for backend**) |
+
+Use these commands by specifying the `APP` variable. For example:
+
+```bash
+make build APP=web
+make test APP=backend
+```
+
+## Smart Contracts
+
+The `contracts` folder contains Stellar smart contracts (e.g., Soroban) used by the backend or client apps. Instructions for compiling, testing, and deploying contracts are documented in that directory’s README.
+
+## Airdrop API
+
+The backend includes airdrop functionality through the embedded wallets API for Merkle proof verification and airdrop claims. The airdrop contract needs to be deployed and proofs need to be uploaded to the backend before users can claim their airdrops.
+
+### Setup
+
+1. Deploy an airdrop contract (see [contracts/](./contracts))
+2. Generate proofs: `npm run --workspace=scripts generate-proofs`
+3. Upload proofs: `npm run --workspace=scripts upload-proofs`
+4. Get airdrop options: `GET /api/embedded-wallets/airdrop/options`
+5. Complete airdrop claim: `POST /api/embedded-wallets/airdrop/complete`
+
+---

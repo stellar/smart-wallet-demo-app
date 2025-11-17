@@ -1,0 +1,43 @@
+import 'express-async-errors'
+import express, { NextFunction, Request, Response, Router } from 'express'
+
+import { HttpStatusCodes } from 'api/core/utils/http/status-code'
+
+import embeddedWalletsRoutes from '../embedded-wallets/routes'
+import {
+  generalSettingsRoutes,
+  featureFlagsRoutes,
+  adminFeatureFlagsRoutes,
+  adminAssetsRoutes,
+  adminNftSupplyRoutes,
+  adminVendorsRoutes,
+  adminProductsRoutes,
+  adminNgosRoutes,
+  ngosRoutes,
+  adminLeaderboardRoutes,
+  nftMetadataRoutes,
+  resolveRedirectUrlRoutes,
+} from '../general-settings/routes'
+
+function routes(http: express.Router): void {
+  http.get('/health', (_req, res) => {
+    res.status(HttpStatusCodes.OK).send()
+  })
+
+  http.use('/api/embedded-wallets', embeddedWalletsRoutes)
+  http.use('/api/feature-flags', featureFlagsRoutes)
+  http.use('/api/ngos', ngosRoutes)
+
+  http.use('/api/admin', generalSettingsRoutes)
+  http.use('/api/admin/feature-flags', adminFeatureFlagsRoutes)
+  http.use('/api/admin/assets', adminAssetsRoutes)
+  http.use('/api/admin/nft-collections', adminNftSupplyRoutes)
+  http.use('/api/admin/vendors', adminVendorsRoutes)
+  http.use('/api/admin/products', adminProductsRoutes)
+  http.use('/api/admin/ngos', adminNgosRoutes)
+  http.use('/api/admin/leaderboard', adminLeaderboardRoutes)
+  http.use('/nft-metadata', nftMetadataRoutes)
+  http.use('/api/resolve-redirect-url', resolveRedirectUrlRoutes)
+}
+
+export { routes, Request, Response, Router, NextFunction }

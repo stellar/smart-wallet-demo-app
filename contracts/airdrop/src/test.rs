@@ -1,0 +1,432 @@
+//! Proofs generated using https://github.com/philipliu/soroban-merkle-airdrop
+
+#![cfg(test)]
+
+use crate::{AirdropContract, AirdropContractClient};
+use hex_literal::hex;
+use soroban_sdk::{
+    contract, contractimpl,
+    testutils::{Address as _, MockAuth, MockAuthInvoke},
+    vec, Address, BytesN, Env, IntoVal,
+};
+use stellar_default_impl_macro::default_impl;
+use stellar_fungible::{Base, FungibleToken};
+
+#[contract]
+pub struct TokenContract;
+
+#[contractimpl]
+impl TokenContract {
+    pub fn __constructor(e: &Env, owner: Address, initial_supply: i128) {
+        Base::mint(e, &owner, initial_supply);
+    }
+
+    pub fn mint(e: &Env, to: Address, amount: i128) {
+        Base::mint(e, &to, amount);
+    }
+}
+
+#[default_impl]
+#[contractimpl]
+impl FungibleToken for TokenContract {
+    type ContractType = Base;
+}
+
+fn create_token_contract<'a>(e: &Env, owner: &Address) -> TokenContractClient<'a> {
+    let address = e.register(TokenContract, (owner, 10_000i128));
+    TokenContractClient::new(e, &address)
+}
+
+fn make_args(
+    e: &Env,
+    hash_bytes: [u8; 32],
+    token: Address,
+    admin: Address,
+    funder: Address,
+) -> (BytesN<32>, Address, Address, Address) {
+    let root_hash = BytesN::from_array(e, &hash_bytes);
+
+    (root_hash, token, admin, funder)
+}
+
+fn hex_to_bytes(e: &Env, hash_bytes: [u8; 32]) -> BytesN<32> {
+    BytesN::from_array(e, &hash_bytes)
+}
+
+#[test]
+fn test_valid_claim() {
+    let e = Env::default();
+    e.mock_all_auths_allowing_non_root_auth();
+
+    let owner = Address::generate(&e);
+    let token_client = create_token_contract(&e, &owner);
+
+    let constructor_args = make_args(
+        &e,
+        hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
+        token_client.address.clone(),
+        owner.clone(),
+        owner.clone(),
+    );
+
+    let contract_id = e.register(AirdropContract, constructor_args);
+    let client = AirdropContractClient::new(&e, &contract_id);
+    token_client.transfer(&owner, &contract_id, &1000);
+
+    let receiver = Address::from_str(
+        &e,
+        "CAASCQKVVBSLREPEUGPOTQZ4BC2NDBY2MW7B2LGIGFUPIY4Z3XUZRVTX",
+    );
+    let amount = 100;
+    let proofs = vec![
+        &e,
+        hex_to_bytes(
+            &e,
+            hex!("fc0d9c2f46c1e910bd3af8665318714c7c97486d2a206f96236c6e7e50c080d7"),
+        ),
+        hex_to_bytes(
+            &e,
+            hex!("c83f7b26055572e5e84c78ec4d4f45b85b71698951077baafe195279c1f30be4"),
+        ),
+    ];
+
+    e.set_auths(&[]);
+
+    client
+        .mock_auths(&[MockAuth {
+            address: &receiver,
+            invoke: &MockAuthInvoke {
+                contract: &contract_id,
+                fn_name: "claim",
+                args: (3_u32, receiver.clone(), amount, proofs.clone()).into_val(&e),
+                sub_invokes: &[],
+            },
+        }])
+        .claim(&3_u32, &receiver, &amount, &proofs);
+    assert_eq!(token_client.balance(&receiver), 100);
+    assert_eq!(token_client.balance(&contract_id), 900);
+}
+
+#[test]
+fn test_valid_claim_no_auth() {
+    let e = Env::default();
+    e.mock_all_auths_allowing_non_root_auth();
+
+    let owner = Address::generate(&e);
+    let token_client = create_token_contract(&e, &owner);
+
+    let constructor_args = make_args(
+        &e,
+        hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
+        token_client.address.clone(),
+        owner.clone(),
+        owner.clone(),
+    );
+
+    let contract_id = e.register(AirdropContract, constructor_args);
+    let client = AirdropContractClient::new(&e, &contract_id);
+    token_client.transfer(&owner, &contract_id, &1000);
+
+    let receiver = Address::from_str(
+        &e,
+        "CAASCQKVVBSLREPEUGPOTQZ4BC2NDBY2MW7B2LGIGFUPIY4Z3XUZRVTX",
+    );
+    let amount = 100;
+    let proofs = vec![
+        &e,
+        hex_to_bytes(
+            &e,
+            hex!("fc0d9c2f46c1e910bd3af8665318714c7c97486d2a206f96236c6e7e50c080d7"),
+        ),
+        hex_to_bytes(
+            &e,
+            hex!("c83f7b26055572e5e84c78ec4d4f45b85b71698951077baafe195279c1f30be4"),
+        ),
+    ];
+
+    e.set_auths(&[]);
+
+    let res = client.try_claim(&3_u32, &receiver, &amount, &proofs);
+    assert!(res.is_err());
+}
+
+#[test]
+fn test_double_claim() {
+    let e: Env = Env::default();
+    e.mock_all_auths_allowing_non_root_auth();
+
+    let owner = Address::generate(&e);
+    let token_client = create_token_contract(&e, &owner);
+
+    let args = make_args(
+        &e,
+        hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
+        token_client.address.clone(),
+        owner.clone(),
+        owner.clone(),
+    );
+    let contract_id = e.register(AirdropContract, args);
+    let client = AirdropContractClient::new(&e, &contract_id);
+    token_client.transfer(&owner, &contract_id, &1000);
+
+    let receiver = Address::from_str(
+        &e,
+        "CAASCQKVVBSLREPEUGPOTQZ4BC2NDBY2MW7B2LGIGFUPIY4Z3XUZRVTX",
+    );
+    let amount: i128 = 100;
+    let proofs = vec![
+        &e,
+        hex_to_bytes(
+            &e,
+            hex!("fc0d9c2f46c1e910bd3af8665318714c7c97486d2a206f96236c6e7e50c080d7"),
+        ),
+        hex_to_bytes(
+            &e,
+            hex!("c83f7b26055572e5e84c78ec4d4f45b85b71698951077baafe195279c1f30be4"),
+        ),
+    ];
+
+    client.claim(&3_u32, &receiver, &amount, &proofs);
+    let second_claim = client.try_claim(&3_u32, &receiver, &amount, &proofs);
+
+    assert!(second_claim.is_err());
+}
+
+#[test]
+fn test_claimed_not_reset() {
+    let e: Env = Env::default();
+    e.mock_all_auths_allowing_non_root_auth();
+
+    let owner = Address::generate(&e);
+    let token_client = create_token_contract(&e, &owner);
+
+    let args = make_args(
+        &e,
+        hex!("9ecccb575ce934ab36a6db174e9f521137c942422b76332b047b49f5a1a58048"),
+        token_client.address.clone(),
+        owner.clone(),
+        owner.clone(),
+    );
+    let contract_id = e.register(AirdropContract, args);
+    let client = AirdropContractClient::new(&e, &contract_id);
+    token_client.transfer(&owner, &contract_id, &1000);
+
+    let receiver_1 = Address::from_str(
+        &e,
+        "CAASCQKVVBSLREPEUGPOTQZ4BC2NDBY2MW7B2LGIGFUPIY4Z3XUZRVTX",
+    );
+    let amount_1: i128 = 100;
+    let proofs_1 = vec![
+        &e,
+        hex_to_bytes(
+            &e,
+            hex!("cd9bbfb141e8c63b620238d79aabfbe5eaf16309874b3f32fc443b4f477c9b2f"),
+        ),
+        hex_to_bytes(
+            &e,
+            hex!("ae7ed9c150e2d582d1db0a32dc7370c00a22405324e5b5f1c9272e57274a08f4"),
+        ),
+        hex_to_bytes(
+            &e,
+            hex!("fc0d9c2f46c1e910bd3af8665318714c7c97486d2a206f96236c6e7e50c080d7"),
+        ),
+    ];
+
+    let receiver_2 = Address::from_str(
+        &e,
+        "CCAYN4HGXBYMAREFANQKKRNCIPLXYGXT7OVXDXG6APXBGKJPKARAOHAK",
+    );
+    let amount_2: i128 = 100;
+    let proofs_2 = vec![
+        &e,
+        hex_to_bytes(
+            &e,
+            hex!("bab7bc2e36db8910a5e047989f1bfb6791bb8a2d3b3218fd363969294aaac83e"),
+        ),
+        hex_to_bytes(
+            &e,
+            hex!("c8b6359bcd036ed19bff1e307c7f0eeb410ec193a5a4647f7cf36fdba86af070"),
+        ),
+        hex_to_bytes(
+            &e,
+            hex!("fc0d9c2f46c1e910bd3af8665318714c7c97486d2a206f96236c6e7e50c080d7"),
+        ),
+    ];
+
+    client.claim(&3_u32, &receiver_1, &amount_1, &proofs_1);
+    client.claim(&4_u32, &receiver_2, &amount_2, &proofs_2);
+    let second_receiver_1_claim = client.try_claim(&3_u32, &receiver_1, &amount_2, &proofs_2);
+
+    assert!(second_receiver_1_claim.is_err());
+}
+
+#[test]
+fn test_bad_claim() {
+    let e = Env::default();
+    e.mock_all_auths_allowing_non_root_auth();
+
+    let owner = Address::generate(&e);
+    let token_client = create_token_contract(&e, &owner);
+
+    let args = make_args(
+        &e,
+        hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
+        token_client.address.clone(),
+        owner.clone(),
+        owner.clone(),
+    );
+    let contract_id = e.register(AirdropContract, args);
+    let client = AirdropContractClient::new(&e, &contract_id);
+    token_client.transfer(&owner, &contract_id, &1000);
+
+    let receiver = Address::from_str(
+        &e,
+        "CAASCQKVVBSLREPEUGPOTQZ4BC2NDBY2MW7B2LGIGFUPIY4Z3XUZRVTX",
+    );
+    let amount = 100000; // This is a different amount
+    let proofs = vec![
+        &e,
+        hex_to_bytes(
+            &e,
+            hex!("fc0d9c2f46c1e910bd3af8665318714c7c97486d2a206f96236c6e7e50c080d7"),
+        ),
+        hex_to_bytes(
+            &e,
+            hex!("c83f7b26055572e5e84c78ec4d4f45b85b71698951077baafe195279c1f30be4"),
+        ),
+    ];
+
+    let claim = client.try_claim(&3_u32, &receiver, &amount, &proofs);
+
+    assert!(claim.is_err());
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #1000)")]
+fn test_recover_unclaimed_to_funder() {
+    let e = Env::default();
+    e.mock_all_auths_allowing_non_root_auth();
+
+    let token_owner = Address::generate(&e);
+    let admin = Address::generate(&e);
+    let funder = Address::generate(&e);
+    let token_client = create_token_contract(&e, &token_owner);
+
+    let args = make_args(
+        &e,
+        hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
+        token_client.address.clone(),
+        admin.clone(),
+        funder.clone(),
+    );
+    let contract_id = e.register(AirdropContract, args);
+    let client = AirdropContractClient::new(&e, &contract_id);
+
+    token_client.transfer(&token_owner, &contract_id, &1000);
+
+    e.set_auths(&[]);
+
+    client
+        .mock_auths(&[MockAuth {
+            address: &admin,
+            invoke: &MockAuthInvoke {
+                contract: &contract_id,
+                fn_name: "recover_unclaimed",
+                args: ().into_val(&e),
+                sub_invokes: &[],
+            },
+        }])
+        .recover_unclaimed();
+
+    assert_eq!(token_client.balance(&funder), 1000);
+    assert_eq!(token_client.balance(&admin), 0);
+    assert_eq!(token_client.balance(&contract_id), 0);
+    assert!(client.is_ended());
+
+    let receiver = Address::from_str(
+        &e,
+        "CAASCQKVVBSLREPEUGPOTQZ4BC2NDBY2MW7B2LGIGFUPIY4Z3XUZRVTX",
+    );
+    let amount = 100;
+    let proofs = vec![&e];
+
+    client.claim(&3_u32, &receiver, &amount, &proofs);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #1000)")]
+fn test_recover_unclaimed_after_ended() {
+    let e = Env::default();
+    e.mock_all_auths_allowing_non_root_auth();
+
+    let owner = Address::generate(&e);
+    let token_client = create_token_contract(&e, &owner);
+
+    let args = make_args(
+        &e,
+        hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
+        token_client.address.clone(),
+        owner.clone(),
+        owner.clone(),
+    );
+    let contract_id = e.register(AirdropContract, args);
+    let client = AirdropContractClient::new(&e, &contract_id);
+    token_client.transfer(&owner, &contract_id, &1000);
+
+    client.recover_unclaimed();
+    client.recover_unclaimed();
+}
+
+#[test]
+fn test_recover_unclaimed_no_admin_auth() {
+    let e = Env::default();
+    e.mock_all_auths_allowing_non_root_auth();
+
+    let token_owner = Address::generate(&e);
+    let admin = Address::generate(&e);
+    let funder = Address::generate(&e);
+    let random_caller = Address::generate(&e);
+    let token_client = create_token_contract(&e, &token_owner);
+
+    let args = make_args(
+        &e,
+        hex!("11932105f1a4d0092e87cead3a543da5afd8adcff63f9a8ceb6c5db3c8135722"),
+        token_client.address.clone(),
+        admin.clone(),
+        funder.clone(),
+    );
+    let contract_id = e.register(AirdropContract, args);
+    let client = AirdropContractClient::new(&e, &contract_id);
+    token_client.transfer(&token_owner, &contract_id, &1000);
+
+    e.set_auths(&[]);
+
+    let result = client.try_recover_unclaimed();
+    assert!(result.is_err());
+
+    let result_with_funder = client
+        .mock_auths(&[MockAuth {
+            address: &funder,
+            invoke: &MockAuthInvoke {
+                contract: &contract_id,
+                fn_name: "recover_unclaimed",
+                args: ().into_val(&e),
+                sub_invokes: &[],
+            },
+        }])
+        .try_recover_unclaimed();
+    assert!(result_with_funder.is_err());
+
+    let result_with_random = client
+        .mock_auths(&[MockAuth {
+            address: &random_caller,
+            invoke: &MockAuthInvoke {
+                contract: &contract_id,
+                fn_name: "recover_unclaimed",
+                args: ().into_val(&e),
+                sub_invokes: &[],
+            },
+        }])
+        .try_recover_unclaimed();
+    assert!(result_with_random.is_err());
+}

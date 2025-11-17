@@ -1,0 +1,10 @@
+# Application specific ignores
+/src/config/.env*
+!/src/config/.env.example
+dist/
+api-docs/
+!src/public/**/*
+test/**/*.js
+coverage/
+template.html
+!template.example.html

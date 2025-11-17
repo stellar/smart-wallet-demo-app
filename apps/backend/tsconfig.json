@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "allowJs": true,
+    "pretty": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "rootDir": "./src",
+    "importHelpers": true,
+    "alwaysStrict": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "removeComments": true,
+    "moduleResolution": "node",
+    "baseUrl": "./src",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "lib": ["es5", "es6", "ES2022"],
+    "types": ["vitest/globals"],
+    "skipLibCheck": true
+  }
+}

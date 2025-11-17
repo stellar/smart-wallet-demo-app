@@ -1,0 +1,38 @@
+.loadingContainer {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinner {
+  position: relative;
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+}
+
+.bar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--bar-width);
+  height: var(--bar-height);
+  background: var(--bar-color);
+  /* use custom color */
+  border-radius: calc(var(--bar-width)/2);
+  transform-origin: center top;
+  animation: barGrowOut var(--duration) ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes barGrowOut {
+  0%, 100% {
+    transform: rotate(var(--angle)) translateY(var(--center-radius)) scaleY(0.75);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: rotate(var(--angle)) translateY(var(--center-radius)) scaleY(1);
+    opacity: 1;
+  }
+}

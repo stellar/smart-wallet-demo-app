@@ -1,0 +1,151 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "prettier", "unicorn", "import", "react", "react-hooks"],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "project": ["apps/backend/tsconfig.json", "apps/web/tsconfig.json"],
+  },
+  "env": {
+    "browser": true,
+    "es2024": true,
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:prettier/recommended",
+  ],
+  "ignorePatterns": [
+    "tailwind.config.js",
+    "postcss.config.js",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ],
+  "rules": {
+    "no-console": "warn",
+    "no-return-await": "error",
+    "no-empty-function": "error",
+    "prettier/prettier": "error",
+    "react/react-in-jsx-scope": "off",
+    "import/export": "warn",
+    "import/namespace": "off",
+    "import/no-unresolved": "error",
+    "import/no-named-as-default": "off",
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin", // Built-in imports (come from NodeJS native) go first
+          "external", // <- External imports
+          "internal", // <- Absolute imports
+          ["sibling", "parent"], // <- Relative imports, the sibling and parent types they can be mingled together
+          "index", // <- index imports
+          "unknown", // <- unknown
+        ],
+        "newlines-between": "always",
+        "alphabetize": {
+          /* sort in ascending order. Options: ["ignore", "asc", "desc"] */
+          "order": "asc",
+          /* ignore case. Options: [true, false] */
+          "caseInsensitive": true,
+        },
+      },
+    ],
+    "@typescript-eslint/array-type": "error",
+    "@typescript-eslint/no-explicit-any": [
+      "error",
+      {
+        "ignoreRestArgs": true
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_",
+      },
+    ],
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/typedef": [
+      "error",
+      {
+        "memberVariableDeclaration": true,
+        "propertyDeclaration": true
+      }
+    ],
+    "@typescript-eslint/consistent-indexed-object-style": [
+      "error",
+      "record"
+    ],
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "variable",
+        "format": ["camelCase", "PascalCase"],
+        "types": ["function"],
+      },
+      {
+        "selector": "variable",
+        "format": ["camelCase", "UPPER_CASE"],
+        "types": ["string", "number", "boolean", "array"],
+      },
+      {
+        "selector": "function",
+        "format": ["camelCase", "PascalCase"],
+      },
+      {
+        "selector": ["typeLike"],
+        "format": ["PascalCase"],
+      },
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+      },
+    ],
+    "@typescript-eslint/no-non-null-assertion": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.stories.*"],
+      "rules": {
+        "import/no-anonymous-default-export": "off",
+      },
+    },
+    {
+      "files": ["**/*"],
+      "excludedFiles": ["apps/web/**/*"],
+      "rules": {
+           "unicorn/filename-case": [
+          "error",
+          {
+            "case": "kebabCase",
+          },
+        ],
+      },
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {
+        "react/prop-types": "off",
+        "react/display-name": "off",
+    },
+  },
+  ],
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "project": ["./apps/backend/tsconfig.json", "./apps/web/tsconfig.json"],
+      },
+    },
+    "react": {
+      "version": "detect",
+    },
+  },
+}

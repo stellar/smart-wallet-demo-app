@@ -1,0 +1,52 @@
+name: Backend Build
+
+on:
+  workflow_call:
+    secrets:
+      APP_RECOVERY_EMAIL_TEMPLATE:
+        required: true
+
+jobs:
+  build:
+    name: Build backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download recovery email template
+        run: |
+          curl -sSL --fail ${{ secrets.APP_RECOVERY_EMAIL_TEMPLATE }} -o apps/backend/src/api/embedded-wallets/use-cases/generate-recovery-link/template.html
+
+      - name: Get backend app version
+        id: get-version
+        run: |
+          VERSION=$(jq -r '.version' apps/backend/package.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          file: apps/backend/Dockerfile
+          target: remote
+          push: false
+          tags: build-backend:${{ steps.get-version.outputs.version }}
+          outputs: type=docker,dest=/tmp/docker_image_backend.tar
+          build-args: |
+            SENTRY_RELEASE=${{ github.sha }}
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker_image_backend
+          path: /tmp/docker_image_backend.tar

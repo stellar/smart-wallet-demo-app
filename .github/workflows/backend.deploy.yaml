@@ -1,0 +1,57 @@
+name: Backend Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      run-type:
+        description: "Run option"
+        required: true
+        default: "Deploy-to-Staging-Testnet"
+        type: choice
+        options:
+          - Code-Quality
+          - Deploy-to-Staging-Testnet
+          - Deploy-to-Prod-Mainnet
+
+jobs:
+  set-outputs:
+    name: Set outputs
+    uses: ./.github/workflows/backend.set-outputs.yaml
+    with:
+      run-type: ${{ inputs.run-type }}
+
+  build:
+    name: Build backend
+    needs: [set-outputs]
+    uses: ./.github/workflows/backend.build.yaml
+    secrets:
+      APP_RECOVERY_EMAIL_TEMPLATE: ${{ needs.set-outputs.outputs.environment == 'Production-Mainnet' && secrets.BACKEND_PROD_APP_RECOVERY_EMAIL_TEMPLATE || secrets.BACKEND_STAGING_APP_RECOVERY_EMAIL_TEMPLATE }}
+
+  code-quality:
+    name: Code quality
+    needs: [build]
+    uses: ./.github/workflows/backend.code-quality.yaml
+
+  deploy-staging-testnet:
+    name: Deploy to Heroku (Staging Testnet)
+    needs: [set-outputs, build, code-quality]
+    if: needs.code-quality.result == 'success' && needs.build.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment == 'Staging-Testnet'
+    uses: ./.github/workflows/backend.deploy-heroku.yaml
+    with:
+      environment: ${{ needs.set-outputs.outputs.environment }}
+      version: ${{ needs.set-outputs.outputs.version_number }}
+    secrets:
+      HEROKU_APP_NAME: ${{ secrets.HEROKU_BACKEND_APP_NAME_STAGING_TESTNET }}
+      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+  deploy-prod-mainnet:
+    name: Deploy to Heroku (Production Mainnet)
+    needs: [set-outputs, build, code-quality]
+    if: needs.code-quality.result == 'success' && needs.build.result == 'success' && needs.set-outputs.result == 'success' && needs.set-outputs.outputs.environment == 'Production-Mainnet'
+    uses: ./.github/workflows/backend.deploy-heroku.yaml
+    with:
+      environment: ${{ needs.set-outputs.outputs.environment }}
+      version: ${{ needs.set-outputs.outputs.version_number }}
+    secrets:
+      HEROKU_APP_NAME: ${{ secrets.HEROKU_BACKEND_APP_NAME_PROD_MAINNET }}
+      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}

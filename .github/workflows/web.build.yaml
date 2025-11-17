@@ -1,0 +1,63 @@
+name: Web Build
+
+on:
+  workflow_call:
+    secrets:
+      APP_ASSETS_URL:
+        required: true
+      APP_CONTENT_URL:
+        required: true
+      SENTRY_ORG:
+        required: false
+      SENTRY_PROJECT_WEB:
+        required: false
+      SENTRY_AUTH_TOKEN:
+        required: false
+
+jobs:
+  build:
+    name: Build web
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download assets and content
+        run: |
+          curl -sSL --fail ${{ secrets.APP_ASSETS_URL }} -o apps/web/src/config/assets.json
+          curl -sSL --fail ${{ secrets.APP_CONTENT_URL }} -o apps/web/src/config/content.json
+
+      - name: Get web app version
+        id: get-version
+        run: |
+          VERSION=$(jq -r '.version' apps/web/package.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          file: apps/web/Dockerfile
+          target: remote
+          push: false
+          tags: build-web:${{ steps.get-version.outputs.version }}
+          outputs: type=docker,dest=/tmp/docker_image_web.tar
+          build-args: |
+            SENTRY_ORG=${{ secrets.SENTRY_ORG || '' }}
+            SENTRY_PROJECT_WEB=${{ secrets.SENTRY_PROJECT_WEB || '' }}
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN || '' }}
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker_image_web
+          path: /tmp/docker_image_web.tar

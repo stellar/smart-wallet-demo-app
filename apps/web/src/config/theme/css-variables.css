@@ -1,0 +1,76 @@
+:root {
+  --color-primary: #FDDA24;
+  --color-secondary: #B7ACE8;
+  --color-tertiary: #00A7B5;
+  --color-accent: #FC7D27;
+  --color-accent-black: #000000;
+  --color-accent-white: #FFFFFF;
+  --color-accent-muted: #D6D2C4;
+  --color-text: #171717;
+  --color-text-secondary: #6F6F6F;
+  --color-text-tertiary: #DFE3E6;
+  --color-foreground-primary: #8F8F8F;
+  --color-background: #FFFFFF;
+  --color-background-primary: #FCFCFC;
+  --color-background-secondary: #F2F2F7;
+  --color-background-tertiary: #F3F3F3;
+  --color-border-primary: #E2E2E2;
+  --color-border-secondary: #E8E8E8;
+  --color-whitish: #FFFFFF;
+  --color-blackish: #000000;
+  --color-muted: #f6f6f6;
+  --color-error: #cd2b31;
+  --color-error-secondary: #E5484D;
+  --color-error-tertiary: #FFE5E5;
+  --color-success: #30A46C;
+  --color-success-secondary: #DDF3E4;
+  --color-danger: #ff3636;
+  --color-warning: #FFB224;
+  --color-brand-primary: #5746AF;
+  --color-pink: #D6409F;
+  --color-pink-secondary: #FCE5F3;
+
+  --font-size-xxxs: 0.5rem;
+  /**  8px */
+  --font-size-xxs: 0.625rem;
+  /** 10px */
+  --font-size-xs: 0.75rem;
+  /**  12px */
+  --font-size-sm: 0.875rem;
+  /** 14px */
+  --font-size-md: 1rem;
+  /**  16px */
+  --font-size-lg: 1.25rem;
+  /**  20px */
+  --font-size-xl: 1.5rem;
+  /**  24px */
+  --font-size-2xl: 2rem;
+  /** 32px */
+  --font-size-3xl: 2.5rem;
+  /** 40px **/
+  --font-size-4xl: 3rem;
+  /** 48px */
+
+  --font-family: 'Inter', sans-serif;
+  --font-font-style: normal;
+
+  --font-weight-lighter: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-bolder: 900;
+
+  --border-radius-small: 4px;
+  --border-radius-default: 8px;
+  --border-radius-large: 12px;
+  --border-radius-full: 999999px;
+
+  --line-height-none: 100%;
+  --line-height-tight: 110%;
+  --line-height-normal: 120%;
+  --line-height-loose: 130%;
+}

@@ -1,0 +1,23 @@
+.ghost-button-container .Button--secondary {
+  background-color: transparent;
+  border: 0;
+  box-shadow: 0 0 0 var(--Button-box-shadow-size) #e8e8e8;
+}
+
+.ghost-button-container .Button--tertiary {
+  background-color: transparent;
+  border: 0;
+  box-shadow: 0 0 0 var(--Button-box-shadow-size) rgba(170, 159, 159, 0.5);
+}
+
+.ghost-button-container-bordered .Button--secondary {
+  background-color: transparent;
+  border: 1px solid var(--color-border-primary);
+  box-shadow: 0 0 0 var(--Button-box-shadow-size) #e8e8e8;
+}
+
+.ghost-button-container-bordered .Button--tertiary {
+  background-color: transparent;
+  border: 1px solid var(--sds-clr-gray-06);
+  box-shadow: 0 0 0 var(--Button-box-shadow-size) rgba(170, 159, 159, 0.5);
+}

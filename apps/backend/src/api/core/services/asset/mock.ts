@@ -1,0 +1,18 @@
+import { Mocked } from 'vitest'
+
+import { AssetRepositoryType } from 'api/core/entities/asset/types'
+
+export function mockAssetRepository(): Mocked<AssetRepositoryType> {
+  return {
+    getAssets: vi.fn(),
+    getAssetById: vi.fn(),
+    getAssetByContractAddress: vi.fn(),
+    getAssetsByContractAddress: vi.fn(),
+    getAssetByType: vi.fn(),
+    getAssetByCode: vi.fn(),
+    getAssetsByCode: vi.fn(),
+    createAsset: vi.fn(),
+    updateAsset: vi.fn(),
+    saveAsset: vi.fn(),
+  }
+}

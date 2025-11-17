@@ -1,0 +1,14 @@
+@import 'components/molecules/blurred-input/styles.css';
+@import 'components/molecules/ghost-button/styles.css';
+
+@font-face {
+  font-family: 'SCHABO-Condensed';
+  src: url('/fonts/SCHABO-Condensed.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

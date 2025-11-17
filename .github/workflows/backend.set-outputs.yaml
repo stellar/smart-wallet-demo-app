@@ -1,0 +1,57 @@
+name: Backend Set Outputs
+
+on:
+  workflow_call:
+    inputs:
+      run-type:
+        type: string
+        required: true
+    outputs:
+      environment:
+        description: "Deployment environment"
+        value: ${{ jobs.set-outputs.outputs.environment }}
+      version_number:
+        description: "App version"
+        value: ${{ jobs.set-outputs.outputs.version_number }}
+
+jobs:
+  set-outputs:
+    name: Set outputs
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    outputs:
+      environment: ${{ steps.set.outputs.environment }}
+      version_number: ${{ steps.set.outputs.version_number }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get Backend app version
+        id: get-version
+        run: |
+          VERSION=$(jq -r '.version' apps/backend/package.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set outputs for next jobs
+        id: set
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Staging-Testnet" ]]; then
+            echo "environment=Staging-Testnet" >> $GITHUB_OUTPUT
+            echo "version_number=${{ steps.get-version.outputs.version }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "workflow_dispatch" ] && [[ "${{ inputs.run-type }}" == "Deploy-to-Prod-Mainnet" ]]; then
+            echo "environment=Production-Mainnet" >> $GITHUB_OUTPUT
+            echo "version_number=${{ steps.get-version.outputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "environment=Disabled" >> $GITHUB_OUTPUT
+            echo "version_number=Disabled" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Show Job details
+        shell: bash
+        run: |
+          echo "Branch/Tag: ${{ github.ref }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Environment: ${{ steps.set.outputs.environment }}"
+          echo "Version Number: ${{ steps.set.outputs.version_number }}"
+          echo "Build Number: ${{ github.run_number }}"

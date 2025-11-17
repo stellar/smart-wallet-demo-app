@@ -1,0 +1,21 @@
+{
+  "blackLogo": "src/assets/black-logo.svg",
+  "yellowLogo": "src/assets/yellow-logo.svg",
+  "onboardingBackground": "src/assets/images/onboarding-background.png",
+  "airdropBannerBackground": "src/assets/images/airdrop-banner-background.png",
+  "airdropDefaultBackground": "src/assets/images/airdrop-default-background.png",
+  "transferLeftAssetsBannerBackground": "src/assets/images/transfer-left-assets-banner-background.png",
+  "transferLeftAssetsDefaultBackground": "src/assets/images/transfer-left-assets-default-background.png",
+  "behindScenesBannerBackground": "src/assets/images/behind-scenes-assets-banner-background.png",
+  "behindScenesDefaultBackground": "src/assets/images/behind-scenes-assets-default-background.png",
+  "leftSwagsBannerBackground": "src/assets/images/left-swags-banner-background.png",
+  "customModalBackground": "src/assets/images/custom-modal-background.png",
+  "transactionsHistoryListMintBackground": "src/assets/images/transactions-history-list-mint-background.png",
+  "transactionsHistoryMintBackground": "src/assets/images/transactions-history-mint-background.png",
+  "nftModalBackground": "src/assets/images/nft-modal-background.png",
+  "customNftModalBackground": "src/assets/images/custom-nft-modal-background.png",
+  "emptyList": "src/assets/images/empty-list.png",
+  "specialGiftBox": "src/assets/images/special-gift-box.png",
+  "specialGiftModalBackground": "src/assets/images/special-gift-modal-background.png",
+  "walletComingSoonBannerBackground": "src/assets/images/wallet-coming-soon-banner-background.png"
+}

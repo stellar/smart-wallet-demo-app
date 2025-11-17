@@ -1,0 +1,95 @@
+import { Heading, Text } from '@stellar/design-system'
+import { useMemo } from 'react'
+
+import { createShortStellarAddress, formatNumber } from 'src/app/core/utils'
+import { THEME_COLORS } from 'src/constants/theme/colors'
+
+type Props = {
+  amount: number
+  amountColor?: keyof typeof THEME_COLORS
+  amountVariant?: 'default' | 'max-decimal'
+  size?: 'sm' | 'md' | 'lg'
+  weight?: React.ComponentProps<typeof Text>['weight']
+  asset: {
+    value: string
+    variant: 'sm' | 'lg'
+  }
+}
+
+export const AssetAmount = ({
+  amount,
+  amountColor = 'text',
+  amountVariant = 'default',
+  size = 'md',
+  weight = 'semi-bold',
+  asset,
+}: Props) => {
+  const formattedAmount = formatNumber(
+    amount,
+    'en-US',
+    amountVariant === 'max-decimal' ? Infinity : 14,
+    amountVariant === 'max-decimal' ? 0 : 2,
+    amountVariant === 'max-decimal' ? 7 : 4
+  )
+  const formattedAsset = createShortStellarAddress(asset.value, { onlyValidAddress: true })
+
+  const amountText = useMemo(() => {
+    switch (size) {
+      case 'sm':
+        return (
+          <Text addlClassName={`text-${amountColor}`} as="span" size="sm" weight={weight}>
+            {formattedAmount}
+          </Text>
+        )
+      case 'md':
+        return (
+          <Heading addlClassName={`text-${amountColor}`} as={'h2'} size={'xs'} weight={weight}>
+            {formattedAmount}
+          </Heading>
+        )
+      case 'lg':
+        return (
+          <Heading addlClassName={`text-${amountColor}`} as={'h1'} size={'xs'} weight={weight}>
+            {formattedAmount}
+          </Heading>
+        )
+    }
+  }, [amountColor, formattedAmount, size, weight])
+
+  const lgAssetText = useMemo(() => {
+    switch (size) {
+      case 'sm':
+        return (
+          <Text as="span" size="sm" weight={weight}>
+            {formattedAsset}
+          </Text>
+        )
+      case 'md':
+        return (
+          <Heading as={'h2'} size={'xs'} weight={weight}>
+            {formattedAsset}
+          </Heading>
+        )
+      case 'lg':
+        return (
+          <Heading as={'h1'} size={'xs'} weight={weight}>
+            {formattedAsset}
+          </Heading>
+        )
+    }
+  }, [formattedAsset, size, weight])
+
+  return (
+    <div className="flex items-baseline gap-1">
+      {amountText}
+
+      {asset.variant === 'sm' ? (
+        <Text addlClassName={'text-textSecondary'} size={'md'} weight="medium" as="span">
+          {createShortStellarAddress(asset.value, { onlyValidAddress: true })}
+        </Text>
+      ) : (
+        lgAssetText
+      )}
+    </div>
+  )
+}

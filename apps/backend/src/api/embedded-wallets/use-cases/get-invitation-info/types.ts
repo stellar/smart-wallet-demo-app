@@ -1,0 +1,19 @@
+import { z } from 'zod'
+
+import { createResponseSchema } from 'api/core/framework/use-case/base'
+import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
+
+export const RequestSchema = z.object({
+  token: z.string(),
+})
+
+export type RequestSchemaT = z.infer<typeof RequestSchema>
+
+export const ResponseSchema = createResponseSchema(
+  z.object({
+    status: z.nativeEnum(WalletStatus).or(z.literal('NOT_ALLOWED')),
+    email: z.string().optional(),
+  })
+)
+
+export type ResponseSchemaT = z.infer<typeof ResponseSchema>
