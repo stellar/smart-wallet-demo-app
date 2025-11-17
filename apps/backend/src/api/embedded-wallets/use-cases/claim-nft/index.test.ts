@@ -230,6 +230,32 @@ describe('ClaimNft', () => {
       await expect(claimNft.handle(validPayload)).rejects.toThrow(ResourceNotFoundException)
     })
 
+    it('should find NFT supply by supply id', async () => {
+      mockedUserRepository.getUserByEmail.mockResolvedValue({
+        ...mockUser,
+        passkeys: [{ credentialId: 'passkey-1' } as Passkey],
+      } as unknown as User)
+      mockedNftSupplyRepository.getNftSupplyById.mockResolvedValue(mockNftSupply)
+
+      const payload: RequestSchemaT = {
+        email: 'test@example.com',
+        supply_id: 'supply-123',
+      }
+
+      const result = await claimNft.handle(payload)
+
+      expect(result).toEqual({
+        data: {
+          hash: 'mock-tx-hash',
+          tokenId: 'mock-token-id',
+        },
+        message: 'NFT claimed successfully',
+      })
+      expect(mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId).not.toHaveBeenCalled()
+      expect(mockedNftSupplyRepository.getNftSupplyByContractAndSessionId).not.toHaveBeenCalled()
+      expect(mockedNftSupplyRepository.getNftSupplyById).toHaveBeenCalledWith('supply-123')
+    })
+
     it('should find NFT supply by contract address if not found by resource', async () => {
       mockedUserRepository.getUserByEmail.mockResolvedValue({
         ...mockUser,
@@ -366,8 +392,10 @@ describe('ClaimNft', () => {
 
     it('should validate input payload', async () => {
       const invalidPayload = { email: 123, session_id: 'session-123', resource: 'test-resource' }
-
       await expect(claimNft.handle(invalidPayload as unknown as RequestSchemaT)).rejects.toThrow()
+
+      const invalidPayload2 = { email: 'valid-email@test.com' }
+      await expect(claimNft.handle(invalidPayload2 as unknown as RequestSchemaT)).rejects.toThrow()
     })
   })
 

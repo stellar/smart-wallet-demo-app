@@ -244,6 +244,30 @@ describe('ClaimNftOptions', () => {
       )
     })
 
+    it('should find NFT supply by supply id', async () => {
+      mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
+      mockedNftSupplyRepository.getNftSupplyById.mockResolvedValue(mockNftSupply)
+
+      const payload: RequestSchemaT = {
+        email: 'test@example.com',
+        supply_id: 'supply-123',
+      }
+
+      const result = await claimNftOptions.handle(payload)
+
+      expect(result).toEqual({
+        data: {
+          nft: {
+            ...mockNftSupply,
+          },
+        },
+        message: 'Retrieved NFT options successfully',
+      })
+      expect(mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId).not.toHaveBeenCalled()
+      expect(mockedNftSupplyRepository.getNftSupplyByContractAndSessionId).not.toHaveBeenCalled()
+      expect(mockedNftSupplyRepository.getNftSupplyById).toHaveBeenCalledWith('supply-123')
+    })
+
     it('should find NFT supply by contract address when not found by resource', async () => {
       mockedUserRepository.getUserByEmail.mockResolvedValue(mockUser)
       mockedNftSupplyRepository.getNftSupplyByResourceAndSessionId.mockResolvedValue(null)
