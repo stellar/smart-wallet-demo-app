@@ -1,3 +1,4 @@
+import { seeds } from 'api/core/seeds'
 import { isTestEnv } from 'config/env-utils'
 import { LogTypes, logger } from 'config/logger'
 
@@ -18,6 +19,7 @@ const initializeDatabase = async (): Promise<void> => {
     await AppDataSource.initialize()
     databaseConnectionLog(LogTypes.Info, 'Initialized database')
     await runMigrations()
+    await runSeeds()
   } catch (err) {
     databaseConnectionLog(LogTypes.Error, 'Error initializing database', err)
   }
@@ -33,6 +35,22 @@ const runMigrations = async (): Promise<void> => {
     }
   } catch (err) {
     databaseConnectionLog(LogTypes.Error, 'Error running migrations', err)
+  }
+}
+
+export async function runSeeds(): Promise<void> {
+  try {
+    logger.info(`Running ${seeds.length} seed(s)...`)
+
+    for (const seed of seeds) {
+      logger.info(`Running seed: ${seed.name}`)
+      await seed.run(AppDataSource)
+    }
+
+    logger.info('✅ All seeds completed successfully')
+  } catch (error) {
+    logger.error({ err: error }, '❌ Error running seeds')
+    throw error
   }
 }
 

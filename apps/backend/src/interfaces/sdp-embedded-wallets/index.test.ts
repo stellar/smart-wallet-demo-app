@@ -8,10 +8,7 @@ import SDPEmbeddedWallets, { CONNECTION_TIMEOUT } from '.'
 
 describe('SDPEmbeddedWallets', () => {
   const connection = axios.create({
-    baseURL: getValueFromEnv(
-      'SDP_EMBEDDED_WALLETS_URL',
-      'https://stellar-disbursement-platform-backend-dev.stellar.org/embedded-wallets'
-    ),
+    baseURL: getValueFromEnv('SDP_EMBEDDED_WALLETS_URL', 'http://localhost:8000/embedded-wallets'),
     timeout: CONNECTION_TIMEOUT,
     headers: {
       Authorization: getValueFromEnv('SDP_EMBEDDED_WALLETS_API_KEY'),

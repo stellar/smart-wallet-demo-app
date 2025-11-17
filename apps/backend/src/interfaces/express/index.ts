@@ -15,7 +15,7 @@ const application: express.Application = express()
 
 // MIDDLEWARES
 const corsOptions = {
-  origin: [process.env.FRONT_ADDRESS ?? 'http://localhost:3000'],
+  origin: [process.env.FRONT_ADDRESS ?? 'http://localhost:3201'],
   credentials: true,
 }
 application.use(cors(corsOptions))
