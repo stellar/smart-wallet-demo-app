@@ -5,20 +5,32 @@
 ### Constructor
 
 ```rust
-__constructor(owner: Address, total_supply: u128, metadata: TokenMetadata)
+__constructor(owner: Address, max_supply: u32, metadata: TokenMetadata)
 ```
 
 Initialize the NFT contract with owner, maximum supply, and token metadata (name, symbol, base URI).
 
 ### Public Functions
 
-- `mint(to: Address) -> Result<u32, NonFungibleTokenContractError>` - Mint a new NFT to the specified address (owner auth required)
-- `get_total_minted() -> u128` - Get the current number of minted tokens
-- `get_max_supply() -> u128` - Get the maximum supply limit
+- `mint(to: Address, token_id: u32) -> u32` - Mint a new NFT with the specified token ID to the specified address (owner auth required)
+- `mint_with_data(to: Address, token_id: u32, data: TokenData) -> u32` - Mint a new NFT with token ID and associated data (owner auth required)
+- `bulk_mint_with_data(tokens: Vec<(Address, u32, TokenData)>)` - Mint multiple NFTs with data in a single transaction (owner auth required)
+- `total_supply() -> u32` - Get the current number of minted tokens
+- `get_max_supply() -> u32` - Get the maximum supply limit
 - `get_token_metadata() -> TokenMetadata` - Get the token metadata (name, symbol, base URI)
-- `get_owner_tokens(owner: Address) -> Vec<TokenMetadata>` - Get all tokens owned by a specific address
+- `get_owner_tokens(owner: Address) -> Vec<u32>` - Get all token IDs owned by a specific address
+- `get_token_data(token_id: u32) -> TokenData` - Get the data associated with a specific token
 - `set_metadata_uri(base_uri: String)` - Update the base URI for token metadata (owner auth required)
-- `bulk_transfer(from: Address, to: Address, token_ids: Vec<u32>)` - Transfer multiple tokens between addresses (owner auth required)
+- `balance(owner: Address) -> u32` - Get the balance (number of tokens) for an address
+- `owner_of(token_id: u32) -> Address` - Get the owner of a specific token
+- `transfer(from: Address, to: Address, token_id: u32)` - Transfer a token from one address to another
+- `transfer_from(spender: Address, from: Address, to: Address, token_id: u32)` - Transfer a token on behalf of another address
+- `approve(approver: Address, approved: Address, token_id: u32, live_until_ledger: u32)` - Approve an address to transfer a specific token
+- `approve_for_all(owner: Address, operator: Address, live_until_ledger: u32)` - Approve an address to transfer all tokens
+- `get_approved(token_id: u32) -> Option<Address>` - Get the approved address for a token
+- `is_approved_for_all(owner: Address, operator: Address) -> bool` - Check if an operator is approved for all tokens
+- `burn(from: Address, token_id: u32)` - Burn (destroy) a token
+- `burn_from(spender: Address, from: Address, token_id: u32)` - Burn a token on behalf of another address
 
 ### Token Metadata Structure
 
@@ -27,6 +39,15 @@ struct TokenMetadata {
   name: String,        // Token collection name
   symbol: String,      // Token symbol
   base_uri: String,    // Base URI for token metadata
+}
+```
+
+### Token Data Structure
+
+```rust
+struct TokenData {
+  session_id: String,  // Session identifier
+  resource: String,    // Resource identifier
 }
 ```
 
@@ -112,7 +133,7 @@ make upload NETWORK=mainnet SOURCE=your_account_address
 make deploy NETWORK=testnet SOURCE=your_account_address
 
 # Deploy with custom parameters
-make deploy \
+make deploy
   NETWORK=testnet \
   SOURCE=your_account_address \
   CONTRACT_SYMBOL=MYNFT \
@@ -120,7 +141,7 @@ make deploy \
   CONTRACT_MAX_SUPPLY=5000
 
 # Deploy to mainnet
-make deploy \
+make deploy
   NETWORK=mainnet \
   SOURCE=your_account_address \
   CONTRACT_SYMBOL=PRODNFT \
@@ -144,7 +165,7 @@ make test
 make upload NETWORK=testnet SOURCE=your_testnet_account
 
 # 5. Deploy with your desired parameters
-make deploy \
+make deploy
   NETWORK=testnet \
   SOURCE=your_testnet_account \
   CONTRACT_SYMBOL=DEMO \
@@ -181,7 +202,7 @@ stellar contract build --package nft
 Deploy the contract with constructor arguments:
 
 ```bash
-make deploy \
+make deploy
   NETWORK=testnet \
   SOURCE=$IDENTITY \
   CONTRACT_SYMBOL=COLLECTION \
@@ -198,10 +219,8 @@ stellar contract deploy \
   --source $IDENTITY \
   -- \
   --owner $IDENTITY \
-  --name "Your Collection Name" \
-  --symbol COLLECTION \
-  --uri https://ipfs.io/ipfs/your-metadata-uri \
-  --max-supply 10000
+  --max-supply 10000 \
+  --metadata "{\"name\": \"Your Collection Name\", \"symbol\": \"COLLECTION\", \"base_uri\": \"https://ipfs.io/ipfs/your-metadata-uri\"}"
 ```
 
 ### Contract Features
@@ -210,16 +229,21 @@ stellar contract deploy \
 - **Burnable**: Tokens can be burned (destroyed)
 - **Owner Controls**: Only the contract owner can mint new tokens and update metadata
 - **Supply Management**: Enforces maximum supply limits
-- **Bulk Operations**: Supports transferring multiple tokens at once
+- **Bulk Operations**: Supports minting multiple tokens with data in a single transaction
+- **Token Data**: Supports associating custom data (session_id, resource) with each token
+- **ERC-721 Compatible**: Implements standard NFT functions (transfer, approve, etc.)
 
 ### Error Handling
 
 The contract includes custom error types:
 
-- `MaxSupplyReached`: Attempted to mint beyond the maximum supply
+- `SupplyExhausted`: Attempted to mint beyond the maximum supply
+- `AlreadyMinted`: Attempted to mint a token ID that has already been minted
 - `UnsetMaxSupply`: Maximum supply not configured
 - `UnsetTotalMinted`: Total minted count not initialized
 - `UnsetOwner`: Contract owner not set
+- `UnsetTokenData`: Token data not found for the specified token ID
+- `TokenDoesNotExist`: Token does not exist in the owner's token list
 
 ### Testing
 
