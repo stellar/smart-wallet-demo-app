@@ -1,3 +1,4 @@
+import BaseError from 'src/helpers/error-handling/base-error'
 import { authHttp } from 'src/interfaces/http'
 
 import {
@@ -73,9 +74,17 @@ export class WalletService implements IWalletService {
     return response.data
   }
 
-  async getNftClaimOptions(session_id: string, resource: string): Promise<GetNftClaimOptionsResult> {
+  async getNftClaimOptions(
+    supply_id: string | undefined,
+    session_id: string | undefined,
+    resource: string | undefined
+  ): Promise<GetNftClaimOptionsResult> {
+    if (!supply_id && (!session_id || !resource)) {
+      throw new BaseError('Invalid input parameters.')
+    }
+
     const response = await authHttp.get('/api/embedded-wallets/nft/claim/options', {
-      params: { session_id, resource },
+      params: { supply_id, session_id, resource },
     })
 
     return response.data

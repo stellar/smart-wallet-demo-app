@@ -12,7 +12,11 @@ export interface IWalletService {
   getAirdropOptions: () => Promise<GetAirdropOptionsResult>
   postAirdrop: (input: PostAirdropInput) => Promise<PostAirdropResult>
   getNfts: () => Promise<GetNftsResult>
-  getNftClaimOptions: (session_id: string, resource: string) => Promise<GetNftClaimOptionsResult>
+  getNftClaimOptions: (
+    supply_id: string | undefined,
+    session_id: string | undefined,
+    resource: string | undefined
+  ) => Promise<GetNftClaimOptionsResult>
   claimNft: (input: ClaimNftInput) => Promise<ClaimNftResult>
   getGiftOptions: (input: GetGiftOptionsInput) => Promise<GetGiftOptionsResult>
   postGift: (input: PostGiftInput) => Promise<PostAirdropResult>
@@ -55,11 +59,12 @@ export const isTransferTypeParams = (params: { type: TransferTypes }): params is
 
 export type NftClaimTypeParams = {
   type: Extract<TransferTypes, 'nft'>
-  session_id: string
-  resource: string
+  supply_id: string | undefined
+  session_id: string | undefined
+  resource: string | undefined
 }
 export const isNftClaimTypeParams = (params: { type: TransferTypes }): params is NftClaimTypeParams =>
-  params.type === 'nft' && 'session_id' in params && 'resource' in params
+  params.type === 'nft'
 
 export type NftTransferTypeParams = {
   type: Extract<TransferTypes, 'nft'>
@@ -136,8 +141,9 @@ export type GetNftsResult = IHTTPResponse<{
 }>
 
 export type ClaimNftInput = {
-  session_id: string
-  resource: string
+  supply_id: string | undefined
+  session_id: string | undefined
+  resource: string | undefined
 }
 
 export type ClaimNftResult = IHTTPResponse<{

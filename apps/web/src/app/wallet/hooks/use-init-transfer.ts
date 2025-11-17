@@ -128,7 +128,7 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
       if (isNftClaimTypeParams(params)) {
         modalService.remove(loadingParamsModalKey)
 
-        handleClaimNft(nft, params.session_id, params.resource)
+        handleClaimNft(nft, params.supply_id, params.session_id, params.resource)
       }
     },
     onError: error => {

@@ -4,16 +4,17 @@ import { walletService } from '../services'
 import { GetNftClaimOptionsResult } from '../services/wallet/types'
 
 type UseGetNftClaimOptionsInput = {
-  session_id: string
-  resource: string
+  supply_id: string | undefined
+  session_id: string | undefined
+  resource: string | undefined
 }
 
 export const useGetNftClaimOptions = (
   options?: UseMutationOptions<GetNftClaimOptionsResult, Error, UseGetNftClaimOptionsInput>
 ) => {
   return useMutation({
-    mutationFn: ({ session_id, resource }: UseGetNftClaimOptionsInput) =>
-      walletService.getNftClaimOptions(session_id, resource),
+    mutationFn: ({ supply_id, session_id, resource }: UseGetNftClaimOptionsInput) =>
+      walletService.getNftClaimOptions(supply_id, session_id, resource),
     ...options,
   })
 }
