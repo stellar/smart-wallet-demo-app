@@ -32,7 +32,7 @@ export const ParseSchema = z.object({
       })
     )
     .optional(),
-  vendors: z.array(vendorSchema).optional(),
+  vendors: z.array(vendorSchema.omit({ is_active: true })).optional(),
 })
 
 export type ParseSchemaT = z.infer<typeof ParseSchema>

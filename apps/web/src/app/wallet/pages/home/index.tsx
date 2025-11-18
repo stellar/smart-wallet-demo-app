@@ -130,7 +130,6 @@ export const Home = () => {
 
   const vendors: React.ComponentProps<typeof VendorCard>[] = useMemo(() => {
     return (walletData?.vendors || [])
-      .filter(vendor => vendor.is_active)
       .sort((a, b) => a.display_order - b.display_order)
       .map(vendor => ({
         imageUri: vendor.profile_image ?? 'unknown',
