@@ -7,7 +7,7 @@ import { getFeatureFlags } from 'src/app/core/queries/use-get-feature-flags'
 import logger from 'src/app/core/services/logger'
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
 import { Loading } from 'src/components/atoms'
-import { ImageCard } from 'src/components/organisms'
+import { ImageCard, VendorCard } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 import { queryClient } from 'src/interfaces/query-client'
 
@@ -128,6 +128,17 @@ export const Home = () => {
     }))
   }, [walletData?.swags])
 
+  const vendors: React.ComponentProps<typeof VendorCard>[] = useMemo(() => {
+    return (walletData?.vendors || [])
+      .filter(vendor => vendor.is_active)
+      .sort((a, b) => a.display_order - b.display_order)
+      .map(vendor => ({
+        imageUri: vendor.profile_image ?? 'unknown',
+        name: vendor.name,
+        description: vendor.description,
+      }))
+  }, [walletData?.vendors])
+
   const isSwagActionButtonDisabled = useMemo(
     () => (walletData?.swags || []).every(swag => swag.status === 'claimed'),
     [walletData?.swags]
@@ -138,6 +149,12 @@ export const Home = () => {
 
     return getWalletQuery.isLoading || getWalletQuery.isError
   }, [getWalletQuery.isError, getWalletQuery.isLoading, loaderDeps.shouldInitTransfer, walletData?.swags])
+
+  const isLoadingVendors = useMemo(() => {
+    if (!walletData?.vendors && loaderDeps.shouldInitTransfer) return true
+
+    return getWalletQuery.isLoading || getWalletQuery.isError
+  }, [getWalletQuery.isError, getWalletQuery.isLoading, loaderDeps.shouldInitTransfer, walletData?.vendors])
 
   const isLoadingBalance = useMemo(() => {
     if (!walletData?.balance && loaderDeps.shouldInitTransfer) return true
@@ -173,10 +190,12 @@ export const Home = () => {
       <HomeTemplate
         isLoadingBalance={isLoadingBalance}
         isLoadingSwags={isLoadingSwags}
+        isLoadingVendors={isLoadingVendors}
         balanceAmount={walletData?.balance || 0}
         topBanners={topBanners}
         banners={banners}
         products={swags}
+        vendors={vendors}
         isProductActionButtonDisabled={isSwagActionButtonDisabled}
         faq={faq}
         onNavbarButtonClick={handleNavbarButtonClick}

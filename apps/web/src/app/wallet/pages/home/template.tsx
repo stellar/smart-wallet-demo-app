@@ -5,7 +5,7 @@ import Skeleton from 'react-loading-skeleton'
 import ProductMock02 from 'src/assets/images/mock/ecobag.png'
 import ProductMock01 from 'src/assets/images/mock/jacket.png'
 import { AssetAmount, NavigateButton } from 'src/components/molecules'
-import { Carousel, SafeAreaView, ImageCard, Collapse, CollapseItem } from 'src/components/organisms'
+import { Carousel, SafeAreaView, ImageCard, Collapse, CollapseItem, VendorCard } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
 
 export type BannerOptions = {
@@ -32,10 +32,12 @@ type NavbarItemType = 'nft' | 'history' | 'profile'
 type Props = {
   isLoadingBalance: boolean
   isLoadingSwags: boolean
+  isLoadingVendors: boolean
   balanceAmount: number
   topBanners?: BannerOptions[]
   banners?: BannerOptions[]
   products?: React.ComponentProps<typeof ImageCard>[]
+  vendors?: React.ComponentProps<typeof VendorCard>[]
   isProductActionButtonDisabled?: boolean
   faq?: FaqOptions
   onNavbarButtonClick: (item: NavbarItemType) => void
@@ -46,6 +48,7 @@ type Props = {
 export const HomeTemplate = ({
   isLoadingBalance,
   isLoadingSwags,
+  isLoadingVendors,
   balanceAmount,
   topBanners,
   banners,
@@ -61,6 +64,7 @@ export const HomeTemplate = ({
       leftBadge: { label: c('walletHomeProductListLeftBadgeOptionBLabel'), variant: 'disabled' },
     },
   ],
+  vendors = [],
   isProductActionButtonDisabled,
   faq = {
     title: c('frequentlyAskedQuestions'),
@@ -203,6 +207,16 @@ export const HomeTemplate = ({
     </Carousel>
   )
 
+  const VendorsList = () => (
+    <Carousel title={c('walletHomeVendorsListTitle')} className="gap-3 py-2 px-4 -mx-4">
+      {isLoadingVendors
+        ? Array.from({ length: 3 }).map((_, index) => (
+            <Skeleton key={index} height={220} width={224} borderRadius={24} />
+          ))
+        : vendors.map((vendor, index) => <VendorCard key={index} {...vendor} />)}
+    </Carousel>
+  )
+
   const ProductActionButton = () => (
     <div className="flex flex-col items-center gap-3">
       <Button
@@ -245,6 +259,7 @@ export const HomeTemplate = ({
         <HorizontalRule />
         <ProductList />
         <ProductActionButton />
+        <VendorsList />
         <HorizontalRule />
         <Faq />
       </div>
