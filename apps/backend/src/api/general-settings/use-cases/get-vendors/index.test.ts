@@ -39,12 +39,18 @@ describe('GetVendors', () => {
       {
         id: vendor1.vendorId,
         name: vendor1.name,
+        description: vendor1.description,
+        is_active: vendor1.isActive,
+        display_order: vendor1.displayOrder,
         wallet_address: vendor1.walletAddress,
         profile_image: vendor1.profileImage,
       },
       {
         id: vendor2.vendorId,
         name: vendor2.name,
+        description: vendor2.description,
+        is_active: vendor2.isActive,
+        display_order: vendor2.displayOrder,
         wallet_address: vendor2.walletAddress,
         profile_image: vendor2.profileImage,
       },

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { createResponseSchema } from 'api/core/framework/use-case/base'
+import { vendorSchema } from 'api/core/utils/zod'
 import { WalletStatus } from 'interfaces/sdp-embedded-wallets/types'
 
 export const TokenBalance = z.object({
@@ -31,6 +32,7 @@ export const ParseSchema = z.object({
       })
     )
     .optional(),
+  vendors: z.array(vendorSchema).optional(),
 })
 
 export type ParseSchemaT = z.infer<typeof ParseSchema>

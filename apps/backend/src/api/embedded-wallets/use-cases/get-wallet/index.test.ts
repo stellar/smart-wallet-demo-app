@@ -10,6 +10,7 @@ import { mockProductRepository } from 'api/core/services/product/mocks'
 import { mockProofRepository } from 'api/core/services/proof/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { mockUserProductRepository } from 'api/core/services/user-product/mocks'
+import { mockVendorRepository } from 'api/core/services/vendor/mock'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { mockSDPEmbeddedWallets } from 'interfaces/sdp-embedded-wallets/mock'
@@ -31,6 +32,7 @@ const mockedAssetRepository = mockAssetRepository()
 const mockedProofRepository = mockProofRepository()
 const mockedProductRepository = mockProductRepository()
 const mockedUserProductRepository = mockUserProductRepository()
+const mockedVendorRepository = mockVendorRepository()
 const mockedSDPEmbeddedWallets = mockSDPEmbeddedWallets()
 const mockedSorobanService = mockSorobanService()
 const mockedWalletBackend = mockWalletBackend()
@@ -61,6 +63,7 @@ describe('GetWallet', () => {
       mockedProofRepository,
       mockedProductRepository,
       mockedUserProductRepository,
+      mockedVendorRepository,
       mockedSDPEmbeddedWallets,
       mockedSorobanService,
       mockedWalletBackend as unknown as WalletBackend
@@ -109,6 +112,7 @@ describe('GetWallet', () => {
       },
     } as unknown as SimulationResult)
     mockedProductRepository.getSwagProducts.mockResolvedValueOnce([])
+    mockedVendorRepository.getVendors.mockResolvedValueOnce([])
 
     const payload = { id: 'user-123' }
 
@@ -137,6 +141,7 @@ describe('GetWallet', () => {
       contractAddress: 'CCQ6FGYK3YRWZ3UEWFBZYKE3ZOJJSYQTM4WN7IC2TKA5AUP2BSAFPFVV',
     } as User)
     mockedProductRepository.getSwagProducts.mockResolvedValueOnce([])
+    mockedVendorRepository.getVendors.mockResolvedValueOnce([])
 
     const payload = { id: 'user-123' }
     const result = await getWallet.handle(payload)

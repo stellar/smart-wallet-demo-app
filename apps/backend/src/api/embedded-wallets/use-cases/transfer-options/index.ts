@@ -261,7 +261,7 @@ export class TransferOptions extends UseCaseBase implements IUseCaseHttp<Respons
     // Get vendor data (for 'transfer' and 'nft' types only)
     let vendor: Vendor | null = null
     if (validatedData.type === TransferTypes.TRANSFER || validatedData.type === TransferTypes.NFT) {
-      vendor = await this.vendorRepository.getVendorByWalletAddress(validatedData.to)
+      vendor = await this.vendorRepository.getVendorByWalletAddress(validatedData.to, { where: { isActive: true } })
     }
 
     // Get products data (for 'transfer' type only)

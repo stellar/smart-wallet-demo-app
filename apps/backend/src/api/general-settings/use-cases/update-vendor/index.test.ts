@@ -37,6 +37,9 @@ describe('UpdateVendor', () => {
     const result = useCase.parseResponseVendor(mockedVendor)
     expect(result).toEqual({
       name: mockedVendor.name,
+      description: mockedVendor.description,
+      is_active: mockedVendor.isActive,
+      display_order: mockedVendor.displayOrder,
       wallet_address: mockedVendor.walletAddress,
       profile_image: mockedVendor.profileImage,
     })
