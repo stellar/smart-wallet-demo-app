@@ -14,6 +14,21 @@ export class Vendor extends ModelBase {
     type: 'varchar',
     nullable: true,
   })
+  description?: string
+
+  @Column({
+    type: 'boolean',
+    default: true,
+  })
+  isActive: boolean
+
+  @Column({ type: 'integer', default: 0 })
+  displayOrder: number
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
   walletAddress?: string
 
   @Column({

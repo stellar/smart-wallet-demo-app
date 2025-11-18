@@ -5,12 +5,39 @@ import { BaseSeed } from 'api/core/framework/orm/base-seed'
 import { logger } from 'config/logger'
 
 const featureFlags = [
-  { name: 'airdrop', isActive: false },
-  { name: 'behind-scenes', isActive: false },
-  { name: 'coming-soon', isActive: false },
-  { name: 'left-swags', isActive: false },
-  { name: 'transfer-left-assets', isActive: false },
-  { name: 'wallet-coming-soon', isActive: false },
+  {
+    name: 'airdrop',
+    isActive: false,
+    description:
+      'When enabled, displays the airdrop banner at wallet home page for users eligible to receive the airdrop.',
+  },
+  {
+    name: 'behind-scenes',
+    isActive: false,
+    description: 'When enabled, shows the "Behind the Scenes" banner at wallet home page.',
+  },
+  {
+    name: 'coming-soon',
+    isActive: false,
+    description:
+      'When enabled, displays the Coming Soon page for non-authenticated users, blocking them to access the wallet.',
+  },
+  {
+    name: 'left-swags',
+    isActive: false,
+    description: 'When enabled, shows the Left Swags banner at wallet home page.',
+  },
+  {
+    name: 'transfer-left-assets',
+    isActive: false,
+    description:
+      'When enabled, shows the Transfer Left Assets banner and unlocks the left-assets page; users can transfer their remaining assets to external wallets.',
+  },
+  {
+    name: 'wallet-coming-soon',
+    isActive: false,
+    description: 'When enabled, displays the Wallet Coming Soon banner at wallet home page.',
+  },
 ]
 
 export class FeatureFlagsSeed extends BaseSeed {
