@@ -34,7 +34,17 @@ export const Home = () => {
     isBehindScenesActive,
     isLeftSwagsActive,
     isWalletComingSoonActive,
-  ] = useFeatureFlagsState(['airdrop', 'transfer-left-assets', 'behind-scenes', 'left-swags', 'wallet-coming-soon'])
+    isProductsListActive,
+    isVendorsListActive,
+  ] = useFeatureFlagsState([
+    'airdrop',
+    'transfer-left-assets',
+    'behind-scenes',
+    'left-swags',
+    'wallet-coming-soon',
+    'products-list',
+    'vendors-list',
+  ])
 
   // Wallet information
   const getWalletQuery = useGetWallet({
@@ -195,6 +205,8 @@ export const Home = () => {
         banners={banners}
         products={swags}
         vendors={vendors}
+        isProductsListActive={isProductsListActive}
+        isVendorsListActive={isVendorsListActive}
         isProductActionButtonDisabled={isSwagActionButtonDisabled}
         faq={faq}
         onNavbarButtonClick={handleNavbarButtonClick}

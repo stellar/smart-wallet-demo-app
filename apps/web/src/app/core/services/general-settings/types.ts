@@ -7,6 +7,8 @@ export type FeatureFlags =
   | 'behind-scenes'
   | 'left-swags'
   | 'wallet-coming-soon'
+  | 'products-list'
+  | 'vendors-list'
 
 export interface IGeneralSettingsService {
   getFeatureFlags: () => Promise<GetFeatureFlagsResult>
