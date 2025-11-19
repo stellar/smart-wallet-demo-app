@@ -46,7 +46,7 @@ export const useNfts = () => {
   })
 
   const handleClaimNft = useCallback(
-    async (nft: Nft, session_id: string, resource: string) => {
+    async (nft: Nft, supply_id: string | undefined, session_id: string | undefined, resource: string | undefined) => {
       modalService.open({
         key: nftModalKey,
         variantOptions: {
@@ -71,6 +71,7 @@ export const useNfts = () => {
             isRounded: true,
             onClick: () => {
               claimNft.mutate({
+                supply_id,
                 session_id,
                 resource,
               })

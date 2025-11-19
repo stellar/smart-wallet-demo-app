@@ -1,6 +1,7 @@
 import { xdr, rpc, Keypair } from '@stellar/stellar-sdk'
 import { Request, Response } from 'express'
 
+import { NftSupply } from 'api/core/entities/nft-supply/types'
 import { UserRepositoryType } from 'api/core/entities/user/types'
 import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
@@ -89,15 +90,20 @@ export class ClaimNft extends UseCaseBase implements IUseCaseHttp<ResponseSchema
     }
 
     // Get NFT Supply data
-    let nftSupply = await this.nftSupplyRepository.getNftSupplyByResourceAndSessionId(
-      validatedData.resource,
-      validatedData.session_id
-    )
-    if (!nftSupply) {
-      nftSupply = await this.nftSupplyRepository.getNftSupplyByContractAndSessionId(
+    let nftSupply: NftSupply | null = null
+    if (validatedData.supply_id) {
+      nftSupply = await this.nftSupplyRepository.getNftSupplyById(validatedData.supply_id)
+    } else if (validatedData.session_id && validatedData.resource) {
+      nftSupply = await this.nftSupplyRepository.getNftSupplyByResourceAndSessionId(
         validatedData.resource,
         validatedData.session_id
       )
+      if (!nftSupply) {
+        nftSupply = await this.nftSupplyRepository.getNftSupplyByContractAndSessionId(
+          validatedData.resource,
+          validatedData.session_id
+        )
+      }
     }
 
     if (!nftSupply) {

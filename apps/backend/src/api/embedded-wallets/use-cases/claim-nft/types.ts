@@ -4,8 +4,9 @@ import { createResponseSchema } from 'api/core/framework/use-case/base'
 
 export const RequestSchema = z.object({
   email: z.string(),
-  session_id: z.string(),
-  resource: z.string(),
+  supply_id: z.string().optional(),
+  session_id: z.string().optional(),
+  resource: z.string().optional(),
 })
 
 export type RequestSchemaT = z.infer<typeof RequestSchema>

@@ -1,4 +1,5 @@
 export interface ClaimNftInput {
-  session_id: string
-  resource: string
+  supply_id: string | undefined
+  session_id: string | undefined
+  resource: string | undefined
 }
