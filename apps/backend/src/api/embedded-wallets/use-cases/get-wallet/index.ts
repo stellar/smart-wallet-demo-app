@@ -215,7 +215,6 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       id: vendor.vendorId,
       name: vendor.name,
       description: vendor.description,
-      is_active: vendor.isActive,
       display_order: vendor.displayOrder,
       wallet_address: vendor.walletAddress,
       profile_image: vendor.profileImage,

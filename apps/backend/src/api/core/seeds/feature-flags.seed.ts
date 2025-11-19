@@ -38,6 +38,16 @@ const featureFlags = [
     isActive: false,
     description: 'When enabled, displays the Wallet Coming Soon banner at wallet home page.',
   },
+  {
+    name: 'products-list',
+    isActive: true,
+    description: 'When enabled, shows the products list at wallet home page.',
+  },
+  {
+    name: 'vendors-list',
+    isActive: true,
+    description: 'When enabled, shows the vendors list at wallet home page.',
+  },
 ]
 
 export class FeatureFlagsSeed extends BaseSeed {

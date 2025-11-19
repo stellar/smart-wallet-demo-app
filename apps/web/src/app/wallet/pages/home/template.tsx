@@ -39,6 +39,8 @@ type Props = {
   products?: React.ComponentProps<typeof ImageCard>[]
   vendors?: React.ComponentProps<typeof VendorCard>[]
   isProductActionButtonDisabled?: boolean
+  isProductsListActive?: boolean
+  isVendorsListActive?: boolean
   faq?: FaqOptions
   onNavbarButtonClick: (item: NavbarItemType) => void
   onScanClick: () => void
@@ -66,6 +68,8 @@ export const HomeTemplate = ({
   ],
   vendors = [],
   isProductActionButtonDisabled,
+  isProductsListActive,
+  isVendorsListActive,
   faq = {
     title: c('frequentlyAskedQuestions'),
     items: [
@@ -257,9 +261,13 @@ export const HomeTemplate = ({
         <Balance />
         <Banners bannersList={banners} />
         <HorizontalRule />
-        <ProductList />
-        <ProductActionButton />
-        <VendorsList />
+        {isProductsListActive && (
+          <>
+            <ProductList />
+            <ProductActionButton />
+          </>
+        )}
+        {isVendorsListActive && <VendorsList />}
         <HorizontalRule />
         <Faq />
       </div>
