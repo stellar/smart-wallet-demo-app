@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 
+import { useTheme } from 'src/config/theme/provider'
 import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 
@@ -14,16 +15,18 @@ type HandleWalletComingSoonReturn = {
 }
 
 export const useHandleWalletComingSoon = ({ enabled }: HandleWalletComingSoonProps): HandleWalletComingSoonReturn => {
+  const { onboardingStyleVariant } = useTheme()
+
   const banner: BannerOptions = useMemo(
     () => ({
       backgroundImageUri: a('walletComingSoonBannerBackground'),
       label: {
         title: c('walletComingSoonBannerTitle'),
         description: c('walletComingSoonBannerDescription'),
-        variant: 'primary',
+        variant: onboardingStyleVariant === 'stellar-house' ? 'secondary' : 'primary',
       },
     }),
-    []
+    [onboardingStyleVariant]
   )
 
   const shouldReturnBanner = useMemo(() => enabled, [enabled])
