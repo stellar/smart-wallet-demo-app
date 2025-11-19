@@ -9,6 +9,7 @@ import { HomePagesPath } from 'src/app/home/routes/types'
 import { walletRoutes } from 'src/app/wallet/routes'
 import { WalletPagesPath } from 'src/app/wallet/routes/types'
 import { a } from 'src/interfaces/cms/useAssets'
+import { useLayoutStore } from 'src/store'
 
 import { featureFlagsState } from '../helpers'
 import { RouteLayout } from './components/route-layout'
@@ -19,7 +20,7 @@ export const rootRoute = createRootRouteWithContext<{ client: QueryClient }>()({
   component: RouteLayout,
   beforeLoad: async ({ context }) => {
     // Preload images
-    preloadImages([a('blackLogo'), a('yellowLogo')])
+    preloadImages([a('blackLogo'), a('yellowLogo'), a('horizontalLogo')])
 
     // Fetch feature flags
     await context.client.ensureQueryData(getFeatureFlags())
@@ -32,7 +33,12 @@ export const publicRootRoute = createRoute({
   id: 'public',
   beforeLoad: ({ location }) => {
     // Preload images
-    preloadImages([a('onboardingBackground')])
+    const layout = useLayoutStore.getState().layout
+    if (layout === 'desktop') {
+      preloadImages([a('onboardingDesktopBackground'), a('onboardingBrandLogo')])
+    } else {
+      preloadImages([a('onboardingBackground'), a('onboardingBrandLogo')])
+    }
 
     const accessTokenStore = useAccessTokenStore.getState()
     const isAuthenticated = !!accessTokenStore.accessToken

@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 
 import { a } from 'src/interfaces/cms/useAssets'
+import { useLayout } from 'src/interfaces/layout'
 
 type Props = {
   gradientTopPercentage?: number
@@ -17,6 +18,9 @@ export const OnboardingBackgroundImage = ({
   gradientTopPercentage = 0,
   gradientBottomPercentage = 100,
 }: Props) => {
+  const layout = useLayout()
+  const backgroundImage = layout === 'desktop' ? a('onboardingDesktopBackground') : a('onboardingBackground')
+
   return (
     <div
       className={clsx(
@@ -29,7 +33,7 @@ export const OnboardingBackgroundImage = ({
         className
       )}
       style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) ${gradientTopPercentage}%, rgba(10, 10, 10, 0.8) ${gradientBottomPercentage}%), url(${a('onboardingBackground')}`,
+        backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) ${gradientTopPercentage}%, rgba(10, 10, 10, 0.8) ${gradientBottomPercentage}%), url(${backgroundImage})`,
       }}
     />
   )

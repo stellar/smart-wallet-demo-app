@@ -3,6 +3,7 @@
   "yellowLogo": "src/assets/yellow-logo.svg",
   "horizontalLogo": "src/assets/horizontal-logo.svg",
   "onboardingBackground": "src/assets/images/onboarding-background.webp",
+  "onboardingDesktopBackground": "src/assets/images/onboarding-desktop-background.webp",
   "onboardingBrandLogo": "src/assets/images/onboarding-brand-logo.png",
   "airdropBannerBackground": "src/assets/images/airdrop-banner-background.webp",
   "airdropDefaultBackground": "src/assets/images/airdrop-default-background.webp",
