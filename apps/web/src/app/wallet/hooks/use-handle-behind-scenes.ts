@@ -3,6 +3,7 @@ import { useRouter } from '@tanstack/react-router'
 import { useEffect, useMemo } from 'react'
 
 import { modalService } from 'src/components/organisms/modal/provider'
+import { useTheme } from 'src/config/theme/provider'
 import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 
@@ -21,6 +22,7 @@ const BEHIND_SCENES_URL = 'https://github.com/stellar/smart-wallet-demo-app'
 
 export const useHandleBehindScenes = ({ enabled }: HandleBehindScenesProps): HandleBehindScenesReturn => {
   const router = useRouter()
+  const { onboardingStyleVariant } = useTheme()
   const { isFirstOpen: isBehindScenesFirstOpen, setIsFirstOpen: setIsBehindScenesFirstOpen } = useBehindScenesStore()
 
   const behindScenesModalKey = 'transfer-left-assets-modal'
@@ -34,7 +36,7 @@ export const useHandleBehindScenes = ({ enabled }: HandleBehindScenesProps): Han
         variant: 'secondary',
       },
       button: {
-        variant: 'tertiary',
+        variant: onboardingStyleVariant === 'stellar-house' ? 'secondary' : 'tertiary',
         title: c('behindScenesBannerButtonTitle'),
         icon: Icon.ArrowUpRight({ className: 'text-whitish' }),
         onClick: () => {
@@ -42,7 +44,7 @@ export const useHandleBehindScenes = ({ enabled }: HandleBehindScenesProps): Han
         },
       },
     }),
-    []
+    [onboardingStyleVariant]
   )
 
   const shouldOpenBehindScenesModal = useMemo(

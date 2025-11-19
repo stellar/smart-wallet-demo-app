@@ -138,7 +138,7 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.25 }}
         className={clsx(
-          'relative w-full mx-10 max-w-sm p-6 rounded-2xl shadow-xl',
+          'relative w-full mx-10 max-w-sm pt-8 pb-6 pl-6 pr-6 rounded-2xl shadow-xl',
           !backgroundImageUri && 'bg-backgroundPrimary'
         )}
         style={

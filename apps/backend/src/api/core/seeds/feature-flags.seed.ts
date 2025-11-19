@@ -73,6 +73,7 @@ export class FeatureFlagsSeed extends BaseSeed {
       const newFlag = featureFlagRepository.create({
         name: flag.name,
         isActive: flag.isActive,
+        description: flag.description,
       })
 
       const savedFlag = await featureFlagRepository.save(newFlag)
