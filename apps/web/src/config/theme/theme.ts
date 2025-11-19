@@ -40,6 +40,7 @@ export const THEME_STYLES = {
       fontFamily: {
         sans: ['var(--font-family)', ...defaultTheme.fontFamily.sans],
         schabo: ['SCHABO-Condensed', 'sans-serif'],
+        lora: ['Lora', 'serif'],
       },
       fontSize: {
         xxxs: 'var(--font-size-xxxs)',

@@ -5,6 +5,7 @@ import { a } from 'src/interfaces/cms/useAssets'
 type Props = {
   gradientTopPercentage?: number
   gradientBottomPercentage?: number
+  backgroundPosition?: 'center' | 'top' | 'bottom'
   isAnimated?: boolean
   className?: string
 }
@@ -12,12 +13,21 @@ type Props = {
 export const OnboardingBackgroundImage = ({
   className,
   isAnimated = false,
+  backgroundPosition,
   gradientTopPercentage = 0,
   gradientBottomPercentage = 100,
 }: Props) => {
   return (
     <div
-      className={clsx('fixed', 'inset-0', 'bg-cover', 'z-[-1]', isAnimated && 'animate-background-move', className)}
+      className={clsx(
+        'fixed',
+        'inset-0',
+        'bg-cover',
+        'z-[-1]',
+        backgroundPosition && `bg-${backgroundPosition}`,
+        isAnimated && 'animate-background-move',
+        className
+      )}
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) ${gradientTopPercentage}%, rgba(10, 10, 10, 0.8) ${gradientBottomPercentage}%), url(${a('onboardingBackground')}`,
       }}
