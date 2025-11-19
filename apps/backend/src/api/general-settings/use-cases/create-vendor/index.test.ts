@@ -7,12 +7,14 @@ const mockedVendorRepository = mockVendorRepository()
 
 const mockedPayload = {
   name: 'Vendor Name',
+  description: 'Vendor description',
   wallet_address: 'vendor_wallet_address',
   profile_image: 'https://vendor_profile_image.link',
 }
 
 const newVendor = vendorFactory({
   name: mockedPayload.name,
+  description: mockedPayload.description,
   walletAddress: mockedPayload.wallet_address,
   profileImage: mockedPayload.profile_image,
 })
@@ -36,7 +38,11 @@ describe('CreateVendor', () => {
   it('should parse vendor correctly', () => {
     const result = useCase.parseResponseVendor(newVendor)
     expect(result).toEqual({
+      id: newVendor.vendorId,
       name: newVendor.name,
+      description: newVendor.description,
+      is_active: newVendor.isActive,
+      display_order: newVendor.displayOrder,
       wallet_address: newVendor.walletAddress,
       profile_image: newVendor.profileImage,
     })

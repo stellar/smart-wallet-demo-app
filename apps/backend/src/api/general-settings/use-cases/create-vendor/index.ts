@@ -26,7 +26,11 @@ export class CreateVendor extends UseCaseBase implements IUseCaseHttp<ResponseSc
 
   parseResponseVendor(vendor: Vendor) {
     return {
+      id: vendor.vendorId,
       name: vendor.name,
+      description: vendor.description,
+      is_active: vendor.isActive,
+      display_order: vendor.displayOrder,
       wallet_address: vendor.walletAddress,
       profile_image: vendor.profileImage,
     }
@@ -36,6 +40,9 @@ export class CreateVendor extends UseCaseBase implements IUseCaseHttp<ResponseSc
     const validatedData = this.validate(payload, RequestSchema)
     const vendor = {
       name: validatedData.name,
+      description: validatedData.description,
+      isActive: validatedData.is_active,
+      displayOrder: validatedData.display_order,
       walletAddress: validatedData.wallet_address,
       profileImage: validatedData.profile_image,
     }

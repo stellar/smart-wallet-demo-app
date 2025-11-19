@@ -1,4 +1,4 @@
-import { ILike } from 'typeorm'
+import { FindManyOptions, FindOneOptions, ILike } from 'typeorm'
 
 import { Vendor as VendorModel } from 'api/core/entities/vendor/model'
 import { Vendor, VendorRepositoryType } from 'api/core/entities/vendor/types'
@@ -9,20 +9,27 @@ export default class VendorRepository extends SingletonBase implements VendorRep
     super()
   }
 
-  async getVendors(): Promise<Vendor[]> {
-    return VendorModel.find()
+  async getVendors(options?: FindManyOptions<Vendor>): Promise<Vendor[]> {
+    return VendorModel.find(options ?? {})
   }
 
   async getVendorById(vendorId: string): Promise<Vendor | null> {
     return VendorModel.findOneBy({ vendorId })
   }
 
-  async getVendorByWalletAddress(walletAddress: string): Promise<Vendor | null> {
-    return VendorModel.findOneBy({ walletAddress: ILike(walletAddress) })
+  async getVendorByWalletAddress(walletAddress: string, options?: FindOneOptions<Vendor>): Promise<Vendor | null> {
+    return VendorModel.findOne({ where: { walletAddress: ILike(walletAddress) }, ...options })
   }
 
   async createVendor(
-    vendor: { name: string; walletAddress?: string; profileImage?: string },
+    vendor: {
+      name: string
+      description?: string
+      isActive?: boolean
+      displayOrder?: number
+      walletAddress?: string
+      profileImage?: string
+    },
     save?: boolean
   ): Promise<Vendor> {
     const newVendor = VendorModel.create({ ...vendor })

@@ -39,6 +39,15 @@ export type GetWalletResult = IHTTPResponse<{
     assetCode: string
     status: 'unclaimed' | 'claimed'
   }[]
+  vendors?: {
+    id: string
+    name: string
+    description?: string
+    is_active: boolean
+    display_order: number
+    wallet_address?: string
+    profile_image?: string
+  }[]
 }>
 export type GetTransactionHistoryResult = IHTTPResponse<{
   address: string
