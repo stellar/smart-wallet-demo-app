@@ -9,5 +9,6 @@ export function mockFaqRepository(): Mocked<FaqRepositoryType> {
     createFaq: vi.fn(),
     updateFaq: vi.fn(),
     saveFaq: vi.fn(),
+    deleteFaq: vi.fn(),
   }
 }

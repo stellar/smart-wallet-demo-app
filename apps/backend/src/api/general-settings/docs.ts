@@ -5,6 +5,7 @@ import CreateFeatureFlagsDocs from 'api/general-settings/use-cases/create-featur
 import CreateNgoDocs from 'api/general-settings/use-cases/create-ngo/index.docs'
 import CreateProductDocs from 'api/general-settings/use-cases/create-product/index.docs'
 import CreateVendorDocs from 'api/general-settings/use-cases/create-vendor/index.docs'
+import DeleteFaqDocs from 'api/general-settings/use-cases/delete-faq/index.docs'
 import GetAssetsDocs from 'api/general-settings/use-cases/get-assets/index.docs'
 import GetFaqsDocs from 'api/general-settings/use-cases/get-faqs/index.docs'
 import GetFeatureFlagsDocs from 'api/general-settings/use-cases/get-feature-flags/index.docs'
@@ -78,5 +79,6 @@ export default {
   },
   '/api/admin/faqs/{id}': {
     ...UpdateFaqDocs,
+    ...DeleteFaqDocs,
   },
 }

@@ -17,4 +17,5 @@ export type FaqRepositoryType = {
   ): Promise<Faq>
   updateFaq(faqId: string, data: Partial<Faq>): Promise<Faq>
   saveFaq(faq: Faq): Promise<Faq>
+  deleteFaq(faqId: string): Promise<void>
 }

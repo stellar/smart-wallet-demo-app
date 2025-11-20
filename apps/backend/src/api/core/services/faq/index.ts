@@ -40,4 +40,8 @@ export default class FaqRepository extends SingletonBase implements FaqRepositor
   async saveFaq(faq: Faq): Promise<Faq> {
     return FaqModel.save(faq)
   }
+
+  async deleteFaq(faqId: string): Promise<void> {
+    await FaqModel.delete(faqId)
+  }
 }

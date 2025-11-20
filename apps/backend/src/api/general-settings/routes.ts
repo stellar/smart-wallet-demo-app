@@ -10,6 +10,7 @@ import { CreateNftSupply, endpoint as CreateNftSupplyEndpoint } from './use-case
 import { CreateNgo, endpoint as CreateNgoEndpoint } from './use-cases/create-ngo'
 import { CreateProduct, endpoint as CreateProductEndpoint } from './use-cases/create-product'
 import { CreateVendor, endpoint as CreateVendorEndpoint } from './use-cases/create-vendor'
+import { DeleteFaq, endpoint as DeleteFaqEndpoint } from './use-cases/delete-faq'
 import { GetAssets, endpoint as GetAssetsEndpoint } from './use-cases/get-assets'
 import { GetFaqs, endpoint as GetFaqsEndpoint } from './use-cases/get-faqs'
 import { GetFeatureFlags, endpoint as GetFeatureFlagsEndpoint } from './use-cases/get-feature-flags'
@@ -117,6 +118,9 @@ adminFaqsRoutes.post(`${CreateFaqEndpoint}`, apiKeyAuthentication, async (req, r
 )
 adminFaqsRoutes.patch(`${UpdateFaqEndpoint}`, apiKeyAuthentication, async (req, res) =>
   UpdateFaq.init().executeHttp(req, res)
+)
+adminFaqsRoutes.delete(`${DeleteFaqEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  DeleteFaq.init().executeHttp(req, res)
 )
 
 const adminLeaderboardRoutes = Router()
