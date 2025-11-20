@@ -144,13 +144,17 @@ export const ProfileTemplate = ({
               link: import.meta.env.VITE_PRIVACY_POLICY_URL,
               removeBlankSpace: true,
             },
-            {
-              text: c('inviteOptionADisclaimerText5'),
-            },
-            {
-              text: c('inviteOptionADisclaimerText6'),
-              link: import.meta.env.VITE_ADDENDUM_URL,
-            },
+            ...(import.meta.env.VITE_ADDENDUM_URL
+              ? [
+                  {
+                    text: c('inviteOptionADisclaimerText5'),
+                  },
+                  {
+                    text: c('inviteOptionADisclaimerText6'),
+                    link: import.meta.env.VITE_ADDENDUM_URL,
+                  },
+                ]
+              : []),
           ])}
         </Text>
       </div>
