@@ -24,6 +24,7 @@ export type FaqOptions = {
   items: {
     title: string
     description: string
+    order?: number
   }[]
 }
 
@@ -31,6 +32,7 @@ type NavbarItemType = 'nft' | 'history' | 'profile'
 
 type Props = {
   isLoadingBalance: boolean
+  isLoadingFaq: boolean
   isLoadingSwags: boolean
   isLoadingVendors: boolean
   balanceAmount: number
@@ -49,6 +51,7 @@ type Props = {
 
 export const HomeTemplate = ({
   isLoadingBalance,
+  isLoadingFaq,
   isLoadingSwags,
   isLoadingVendors,
   balanceAmount,
@@ -215,7 +218,7 @@ export const HomeTemplate = ({
     <Carousel title={c('walletHomeVendorsListTitle')} className="gap-3 py-2 px-4 -mx-4">
       {isLoadingVendors
         ? Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton key={index} height={220} width={224} borderRadius={24} />
+            <Skeleton key={index} height={156} width={230} borderRadius={8} />
           ))
         : vendors.map((vendor, index) => <VendorCard key={index} {...vendor} />)}
     </Carousel>
@@ -241,17 +244,24 @@ export const HomeTemplate = ({
     </div>
   )
 
-  const Faq = () => (
-    <Collapse title={faq.title}>
-      {faq.items.map((item, index) => (
-        <CollapseItem key={index} title={{ text: item.title }}>
-          <Text as={'p'} size={'sm'}>
-            {item.description}
-          </Text>
-        </CollapseItem>
-      ))}
-    </Collapse>
-  )
+  const Faq = () =>
+    isLoadingFaq ? (
+      <div className="flex flex-col gap-3">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <Skeleton key={index} height={50} width="100%" borderRadius={10} />
+        ))}
+      </div>
+    ) : (
+      <Collapse title={faq.title}>
+        {faq.items.map((item, index) => (
+          <CollapseItem key={index} title={{ text: item.title }}>
+            <Text as={'p'} size={'sm'}>
+              {item.description}
+            </Text>
+          </CollapseItem>
+        ))}
+      </Collapse>
+    )
 
   return (
     <SafeAreaView>

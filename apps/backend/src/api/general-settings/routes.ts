@@ -4,12 +4,14 @@ import { apiKeyAuthentication } from 'api/core/middlewares/api-key-authenticatio
 import { authentication } from 'api/core/middlewares/authentication'
 
 import { CreateAsset, endpoint as CreateAssetEndpoint } from './use-cases/create-asset'
+import { CreateFaq, endpoint as CreateFaqEndpoint } from './use-cases/create-faq'
 import { CreateFeatureFlag, endpoint as CreateFeatureFlagEndpoint } from './use-cases/create-feature-flag'
 import { CreateNftSupply, endpoint as CreateNftSupplyEndpoint } from './use-cases/create-nft-supply'
 import { CreateNgo, endpoint as CreateNgoEndpoint } from './use-cases/create-ngo'
 import { CreateProduct, endpoint as CreateProductEndpoint } from './use-cases/create-product'
 import { CreateVendor, endpoint as CreateVendorEndpoint } from './use-cases/create-vendor'
 import { GetAssets, endpoint as GetAssetsEndpoint } from './use-cases/get-assets'
+import { GetFaqs, endpoint as GetFaqsEndpoint } from './use-cases/get-faqs'
 import { GetFeatureFlags, endpoint as GetFeatureFlagsEndpoint } from './use-cases/get-feature-flags'
 import { GetGeneralBalance, endpoint as GetGeneralBalanceEndpoint } from './use-cases/get-general-balance'
 import { GetLeaderboard, endpoint as GetLeaderboardEndpoint } from './use-cases/get-leaderboard'
@@ -20,6 +22,7 @@ import { GetProducts, endpoint as GetProductsEndpoint } from './use-cases/get-pr
 import { GetVendors, endpoint as GetVendorsEndpoint } from './use-cases/get-vendors'
 import { ResolveRedirectUrl, endpoint as ResolveRedirectUrlEndpoint } from './use-cases/resolve-redirect-url'
 import { UpdateAsset, endpoint as UpdateAssetEndpoint } from './use-cases/update-asset'
+import { UpdateFaq, endpoint as UpdateFaqEndpoint } from './use-cases/update-faq'
 import { UpdateFeatureFlag, endpoint as UpdateFeatureFlagEndpoint } from './use-cases/update-feature-flag'
 import { UpdateNftSupply, endpoint as UpdateNftSupplyEndpoint } from './use-cases/update-nft-supply'
 import { UpdateNgo, endpoint as UpdateNgoEndpoint } from './use-cases/update-ngo'
@@ -105,6 +108,17 @@ adminNgosRoutes.patch(`${UpdateNgoEndpoint}`, apiKeyAuthentication, async (req, 
   UpdateNgo.init().executeHttp(req, res)
 )
 
+const adminFaqsRoutes = Router()
+adminFaqsRoutes.get(`${GetFaqsEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  GetFaqs.init().executeHttp(req, res)
+)
+adminFaqsRoutes.post(`${CreateFaqEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  CreateFaq.init().executeHttp(req, res)
+)
+adminFaqsRoutes.patch(`${UpdateFaqEndpoint}`, apiKeyAuthentication, async (req, res) =>
+  UpdateFaq.init().executeHttp(req, res)
+)
+
 const adminLeaderboardRoutes = Router()
 adminLeaderboardRoutes.get(`${GetLeaderboardEndpoint}`, apiKeyAuthentication, async (req, res) =>
   GetLeaderboard.init().executeHttp(req, res)
@@ -129,6 +143,7 @@ export {
   adminNftSupplyRoutes,
   adminProductsRoutes,
   adminLeaderboardRoutes,
+  adminFaqsRoutes,
   nftMetadataRoutes,
   resolveRedirectUrlRoutes,
 }

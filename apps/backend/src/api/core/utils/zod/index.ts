@@ -81,6 +81,13 @@ export const vendorSchema = z.object({
   profile_image: z.string().optional(),
 })
 
+export const faqSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  order: z.number().int().min(0),
+})
+
 export const productSchema = z.object({
   id: z.string().optional(),
   code: z.string().optional(),

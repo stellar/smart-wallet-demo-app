@@ -47,6 +47,11 @@ export type GetWalletResult = IHTTPResponse<{
     wallet_address?: string
     profile_image?: string
   }[]
+  faq?: {
+    title: string
+    description: string
+    order: number
+  }[]
 }>
 export type GetTransactionHistoryResult = IHTTPResponse<{
   address: string

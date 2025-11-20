@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 
 import { AssetRepositoryType } from 'api/core/entities/asset/types'
+import { FaqRepositoryType } from 'api/core/entities/faq/types'
 import { Nft } from 'api/core/entities/nft/model'
 import { Product, ProductRepositoryType } from 'api/core/entities/product/types'
 import { ProofRepositoryType } from 'api/core/entities/proof/types'
@@ -12,6 +13,7 @@ import { UseCaseBase } from 'api/core/framework/use-case/base'
 import { IUseCaseHttp } from 'api/core/framework/use-case/http'
 import { getWalletBalance } from 'api/core/helpers/get-balance'
 import AssetRepository from 'api/core/services/asset'
+import FaqRepository from 'api/core/services/faq'
 import ProductRepository from 'api/core/services/product'
 import ProofRepository from 'api/core/services/proof'
 import UserRepository from 'api/core/services/user'
@@ -40,6 +42,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
   private productRepository: ProductRepositoryType
   private userProductRepository: UserProductRepositoryType
   private vendorRepository: VendorRepositoryType
+  private faqRepository: FaqRepositoryType
   private sdpEmbeddedWallets: SDPEmbeddedWalletsType
   private sorobanService: ISorobanService
   private walletBackend: WalletBackend
@@ -51,6 +54,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     productRepository?: ProductRepositoryType,
     userProductRepository?: UserProductRepositoryType,
     vendorRepository?: VendorRepositoryType,
+    faqRepository?: FaqRepositoryType,
     sdpEmbeddedWallets?: SDPEmbeddedWalletsType,
     sorobanService?: ISorobanService,
     walletBackend?: WalletBackend
@@ -62,6 +66,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     this.productRepository = productRepository || ProductRepository.getInstance()
     this.userProductRepository = userProductRepository || UserProductRepository.getInstance()
     this.vendorRepository = vendorRepository || VendorRepository.getInstance()
+    this.faqRepository = faqRepository || FaqRepository.getInstance()
     this.sdpEmbeddedWallets = sdpEmbeddedWallets || SDPEmbeddedWallets.getInstance()
     this.sorobanService = sorobanService || SorobanService.getInstance()
     this.walletBackend = walletBackend || WalletBackend.getInstance()
@@ -99,7 +104,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     // Check if user already has a wallet
     if (user.contractAddress) {
       // Get all info from a valid wallet (balance, etc)
-      const { balance, isAirdropAvailable, isGiftAvailable, swags, vendors } = await this.infoFromValidWallet(
+      const { balance, isAirdropAvailable, isGiftAvailable, swags, vendors, faq } = await this.infoFromValidWallet(
         user.userId,
         user.contractAddress
       )
@@ -120,6 +125,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
         is_gift_available: isGiftAvailable,
         swags,
         vendors,
+        faq,
       })
     }
 
@@ -158,7 +164,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       })
 
     // Get all info from a valid wallet (balance, etc)
-    const { balance, isAirdropAvailable, isGiftAvailable, swags, vendors } = await this.infoFromValidWallet(
+    const { balance, isAirdropAvailable, isGiftAvailable, swags, vendors, faq } = await this.infoFromValidWallet(
       user.userId,
       user.contractAddress
     )
@@ -178,6 +184,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       is_gift_available: isGiftAvailable,
       swags,
       vendors,
+      faq,
     })
   }
 
@@ -190,42 +197,39 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     isGiftAvailable: boolean
     swags: ResponseSchemaT['data']['swags']
     vendors: ResponseSchemaT['data']['vendors']
+    faq: ResponseSchemaT['data']['faq']
   }> {
-    // Get wallet balance
-    const balance = await getWalletBalance({
-      userContractAddress: contractAddress,
-      assetRepository: this.assetRepository,
-      sorobanService: this.sorobanService,
-    })
-
     // Get airdrop contract addresses from config
     const airdropContractAddress = STELLAR.AIRDROP_CONTRACT_ADDRESS
     const giftContractAddress = STELLAR.GIFT_AIRDROP_CONTRACT_ADDRESS
 
-    // Get user airdrop proofs
-    const airdropProof = await this.proofRepository.findByAddressAndContract(contractAddress, airdropContractAddress)
-    const giftProof = await this.proofRepository.findByAddressAndContract(contractAddress, giftContractAddress)
-
-    // Map swags
-    const swags = await this.syncWalletSwags(userId, contractAddress)
-
-    // Get vendors
-    const vendors = await this.vendorRepository.getVendors({ where: { isActive: true } })
-    const parsedVendors: ResponseSchemaT['data']['vendors'] = vendors.map(vendor => ({
-      id: vendor.vendorId,
-      name: vendor.name,
-      description: vendor.description,
-      display_order: vendor.displayOrder,
-      wallet_address: vendor.walletAddress,
-      profile_image: vendor.profileImage,
-    }))
+    // Execute all independent operations in parallel
+    const [balance, airdropProof, giftProof, swags, vendors, faq] = await Promise.all([
+      // Get wallet balance
+      getWalletBalance({
+        userContractAddress: contractAddress,
+        assetRepository: this.assetRepository,
+        sorobanService: this.sorobanService,
+      }),
+      // Get user airdrop proofs
+      this.proofRepository.findByAddressAndContract(contractAddress, airdropContractAddress),
+      // Get user gift proof
+      this.proofRepository.findByAddressAndContract(contractAddress, giftContractAddress),
+      // Map swags
+      this.syncWalletSwags(userId, contractAddress),
+      // Get active vendors
+      this.getActiveVendors(),
+      // Get FAQ
+      this.faqRepository.getFaqs(),
+    ])
 
     return {
       balance,
       isAirdropAvailable: airdropProof ? !airdropProof.isClaimed : false,
       isGiftAvailable: giftProof ? !giftProof.isClaimed : false,
       swags,
-      vendors: parsedVendors,
+      vendors,
+      faq,
     }
   }
 
@@ -301,6 +305,18 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       imageUrl: swag.product.imageUrl,
       assetCode: swag.product.asset.code,
       status: swag.status as UserProductStatus,
+    }))
+  }
+
+  private async getActiveVendors(): Promise<ResponseSchemaT['data']['vendors']> {
+    const vendors = await this.vendorRepository.getVendors({ where: { isActive: true } })
+    return vendors.map(vendor => ({
+      id: vendor.vendorId,
+      name: vendor.name,
+      description: vendor.description,
+      display_order: vendor.displayOrder,
+      wallet_address: vendor.walletAddress,
+      profile_image: vendor.profileImage,
     }))
   }
 }
