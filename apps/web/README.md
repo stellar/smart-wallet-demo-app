@@ -55,6 +55,8 @@ This project leverages the following libraries and tools:
 
   Note: The value of `VITE_FAQ` should be a base64 stringified version of the above JSON array. (E.g.: `btoa(JSON.stringify(json))`)
 
+  **Important:** If `VITE_FAQ` is set, it will override the FAQ data retrieved from the get-wallet endpoint (database source). The environment variable takes precedence over the database source, allowing you to customize FAQ content via environment configuration.
+
 ## 📁 Project Structure
 
 ```

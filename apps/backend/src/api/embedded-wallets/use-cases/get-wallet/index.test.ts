@@ -3,9 +3,12 @@ import { Request, Response } from 'express'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import { Asset as AssetModel } from 'api/core/entities/asset/model'
+import { faqFactory } from 'api/core/entities/faq/factory'
 import { userFactory } from 'api/core/entities/user/factory'
 import { User } from 'api/core/entities/user/types'
+import { vendorFactory } from 'api/core/entities/vendor/factory'
 import { mockAssetRepository } from 'api/core/services/asset/mock'
+import { mockFaqRepository } from 'api/core/services/faq/mock'
 import { mockProductRepository } from 'api/core/services/product/mocks'
 import { mockProofRepository } from 'api/core/services/proof/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
@@ -33,6 +36,7 @@ const mockedProofRepository = mockProofRepository()
 const mockedProductRepository = mockProductRepository()
 const mockedUserProductRepository = mockUserProductRepository()
 const mockedVendorRepository = mockVendorRepository()
+const mockedFaqRepository = mockFaqRepository()
 const mockedSDPEmbeddedWallets = mockSDPEmbeddedWallets()
 const mockedSorobanService = mockSorobanService()
 const mockedWalletBackend = mockWalletBackend()
@@ -41,6 +45,21 @@ const user = userFactory({
   userId: 'user-123',
   contractAddress: 'CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE',
   uniqueToken: 'unique-token',
+})
+
+const activeVendor = vendorFactory({
+  name: 'Vendor 1',
+  description: 'Vendor 1 description',
+  isActive: true,
+  displayOrder: 1,
+  walletAddress: 'ABCD1234EFGH5678IJKL9012MNOP3456QRST7890UVWX',
+  profileImage: 'https://example.com/image.png',
+})
+
+const faq = faqFactory({
+  title: 'FAQ 1',
+  description: 'FAQ 1 description',
+  order: 1,
 })
 
 const mockResponse = () => {
@@ -64,6 +83,7 @@ describe('GetWallet', () => {
       mockedProductRepository,
       mockedUserProductRepository,
       mockedVendorRepository,
+      mockedFaqRepository,
       mockedSDPEmbeddedWallets,
       mockedSorobanService,
       mockedWalletBackend as unknown as WalletBackend
@@ -112,7 +132,8 @@ describe('GetWallet', () => {
       },
     } as unknown as SimulationResult)
     mockedProductRepository.getSwagProducts.mockResolvedValueOnce([])
-    mockedVendorRepository.getVendors.mockResolvedValueOnce([])
+    mockedVendorRepository.getVendors.mockResolvedValueOnce([activeVendor])
+    mockedFaqRepository.getFaqs.mockResolvedValueOnce([faq])
 
     const payload = { id: 'user-123' }
 
@@ -121,6 +142,17 @@ describe('GetWallet', () => {
     expect(result.data.address).toBe('CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE')
     expect(result.data.balance).toBe(1.23) // 1.23 XLM
     expect(result.data.email).toBe(user.email)
+    expect(result.data.vendors).toEqual([
+      {
+        id: activeVendor.vendorId,
+        name: activeVendor.name,
+        description: activeVendor.description,
+        display_order: activeVendor.displayOrder,
+        wallet_address: activeVendor.walletAddress,
+        profile_image: activeVendor.profileImage,
+      },
+    ])
+    expect(result.data.faq).toEqual([faq])
     expect(mockedSDPEmbeddedWallets.checkWalletStatus).not.toHaveBeenCalled()
     expect(mockedUserRepository.updateUser).not.toHaveBeenCalled()
     expect(mockedSorobanService.simulateContractOperation).toHaveBeenCalledWith({
@@ -142,11 +174,13 @@ describe('GetWallet', () => {
     } as User)
     mockedProductRepository.getSwagProducts.mockResolvedValueOnce([])
     mockedVendorRepository.getVendors.mockResolvedValueOnce([])
+    mockedFaqRepository.getFaqs.mockResolvedValueOnce([faq])
 
     const payload = { id: 'user-123' }
     const result = await getWallet.handle(payload)
     expect(result.data.status).toBe(WalletStatus.SUCCESS)
     expect(result.data.address).toBe('CCQ6FGYK3YRWZ3UEWFBZYKE3ZOJJSYQTM4WN7IC2TKA5AUP2BSAFPFVV')
+    expect(result.data.faq).toEqual([faq])
     expect(mockedSDPEmbeddedWallets.checkWalletStatus).toHaveBeenCalledTimes(1)
     expect(mockedUserRepository.updateUser).toHaveBeenCalledWith(
       'user-123',

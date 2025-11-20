@@ -112,18 +112,23 @@ export const Home = () => {
 
   const faq: FaqOptions = useMemo(() => {
     let faqItems: FaqOptions['items'] = []
+    const envFaq = import.meta.env.VITE_FAQ
 
-    try {
-      faqItems = JSON.parse(atob(import.meta.env.VITE_FAQ)).items
-    } catch (error) {
-      logger.error(`Failed to parse faq`, { error })
+    if (envFaq) {
+      try {
+        faqItems = JSON.parse(atob(import.meta.env.VITE_FAQ)).items
+      } catch (error) {
+        logger.error(`Failed to parse faq`, { error })
+      }
+    } else if (walletData?.faq) {
+      faqItems = walletData.faq
     }
 
     return {
       title: c('frequentlyAskedQuestions'),
       items: faqItems,
     }
-  }, [])
+  }, [walletData?.faq])
 
   const swags: React.ComponentProps<typeof ImageCard>[] = useMemo(() => {
     return (walletData?.swags || []).map(swag => ({
@@ -152,6 +157,15 @@ export const Home = () => {
     () => (walletData?.swags || []).every(swag => swag.status === 'claimed'),
     [walletData?.swags]
   )
+
+  const isLoadingFaq = useMemo(() => {
+    const envFaq = import.meta.env.VITE_FAQ
+    if (envFaq) return false
+
+    if (!walletData?.faq && loaderDeps.shouldInitTransfer) return true
+
+    return getWalletQuery.isLoading || getWalletQuery.isError
+  }, [getWalletQuery.isError, getWalletQuery.isLoading, loaderDeps.shouldInitTransfer, walletData?.faq])
 
   const isLoadingSwags = useMemo(() => {
     if (!walletData?.swags && loaderDeps.shouldInitTransfer) return true
@@ -198,6 +212,7 @@ export const Home = () => {
     >
       <HomeTemplate
         isLoadingBalance={isLoadingBalance}
+        isLoadingFaq={isLoadingFaq}
         isLoadingSwags={isLoadingSwags}
         isLoadingVendors={isLoadingVendors}
         balanceAmount={walletData?.balance || 0}

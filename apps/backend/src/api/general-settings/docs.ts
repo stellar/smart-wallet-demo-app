@@ -1,15 +1,19 @@
 import { Tags } from 'api/core/utils/docs/tags'
 import CreateAssetDocs from 'api/general-settings/use-cases/create-asset/index.docs'
+import CreateFaqDocs from 'api/general-settings/use-cases/create-faq/index.docs'
 import CreateFeatureFlagsDocs from 'api/general-settings/use-cases/create-feature-flag/index.docs'
 import CreateNgoDocs from 'api/general-settings/use-cases/create-ngo/index.docs'
 import CreateProductDocs from 'api/general-settings/use-cases/create-product/index.docs'
 import CreateVendorDocs from 'api/general-settings/use-cases/create-vendor/index.docs'
+import DeleteFaqDocs from 'api/general-settings/use-cases/delete-faq/index.docs'
 import GetAssetsDocs from 'api/general-settings/use-cases/get-assets/index.docs'
+import GetFaqsDocs from 'api/general-settings/use-cases/get-faqs/index.docs'
 import GetFeatureFlagsDocs from 'api/general-settings/use-cases/get-feature-flags/index.docs'
 import GetNgosDocs from 'api/general-settings/use-cases/get-ngos/index.docs'
 import GetProductsDocs from 'api/general-settings/use-cases/get-products/index.docs'
 import GetVendorsDocs from 'api/general-settings/use-cases/get-vendors/index.docs'
 import UpdateAssetDocs from 'api/general-settings/use-cases/update-asset/index.docs'
+import UpdateFaqDocs from 'api/general-settings/use-cases/update-faq/index.docs'
 import UpdateFeatureFlagDocs from 'api/general-settings/use-cases/update-feature-flag/index.docs'
 import UpdateNgoDocs from 'api/general-settings/use-cases/update-ngo/index.docs'
 import UpdateProductDocs from 'api/general-settings/use-cases/update-product/index.docs'
@@ -68,5 +72,13 @@ export default {
   },
   '/api/admin/ngos/{id}': {
     ...UpdateNgoDocs,
+  },
+  '/api/admin/faqs': {
+    ...GetFaqsDocs,
+    ...CreateFaqDocs,
+  },
+  '/api/admin/faqs/{id}': {
+    ...UpdateFaqDocs,
+    ...DeleteFaqDocs,
   },
 }
