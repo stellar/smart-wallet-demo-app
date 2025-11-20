@@ -6,6 +6,7 @@ import { createShortStellarAddress } from 'src/app/core/utils'
 import { Nft } from 'src/app/wallet/domain/models/nft'
 import { isTreasureNft } from 'src/app/wallet/utils'
 import { c } from 'src/interfaces/cms/useContent'
+import { useLayout } from 'src/interfaces/layout'
 
 import { BaseModalProps, ModalVariants } from '..'
 import { NavigateButton } from '../../../molecules'
@@ -34,7 +35,8 @@ export const ModalNftTransferReview = ({
   internalState,
   onClose,
 }: BaseModalProps & ModalNftTransferReviewProps) => {
-  const maxCarouselWidth = `${(window.innerWidth > 768 ? 768 : window.innerWidth) - 80}px`
+  const layout = useLayout()
+  const maxCarouselWidth = `${(layout === 'desktop' ? 768 : window.innerWidth) - 80}px`
 
   const isLoading = useMemo(() => !!internalState?.isLoading, [internalState?.isLoading])
 
