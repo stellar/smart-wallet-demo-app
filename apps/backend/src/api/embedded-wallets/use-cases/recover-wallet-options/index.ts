@@ -51,6 +51,7 @@ export class RecoverWalletOptions extends UseCaseBase implements IUseCaseHttp<Re
     return {
       data: {
         options_json: optionsJSON,
+        email: otp.user.email,
       },
       message: 'Retrieved recover wallet options successfully',
     }

@@ -1,3 +1,5 @@
+import { WebAuthnError } from '@simplewebauthn/browser'
+
 import { authService, webauthnService } from 'src/app/auth/services'
 import { IAuthService } from 'src/app/auth/services/auth/types'
 import { IWebAuthnService } from 'src/app/auth/services/webauthn/types'
@@ -5,6 +7,7 @@ import { UseCaseBase } from 'src/app/core/framework/use-case/base'
 
 import { RecoverWalletInput } from './types'
 import { storeSessionInfo } from '../../helpers'
+import { logInUseCase } from '../login'
 
 export class RecoverWalletUseCase extends UseCaseBase<void> {
   private authService: IAuthService
@@ -23,19 +26,30 @@ export class RecoverWalletUseCase extends UseCaseBase<void> {
     const { data: recoverWalletOptions } = await this.authService.getRecoverWalletOptions({ code })
     const optionsJSON = JSON.parse(recoverWalletOptions.options_json)
 
-    // Start WebAuthn registration (touchID/fingerprint/pin auth on the user's device)
-    const { rawResponse: createPasskeyResponse } = await this.webauthnService.createPasskey({
-      optionsJSON,
-    })
+    try {
+      // Start WebAuthn registration (touchID/fingerprint/pin auth on the user's device)
+      const { rawResponse: createPasskeyResponse } = await this.webauthnService.createPasskey({
+        optionsJSON,
+      })
 
-    // Complete registration on the server (challenge validation)
-    const { data: recoverWalletResult } = await this.authService.postRecoverWallet({
-      code,
-      registrationResponseJSON: JSON.stringify(createPasskeyResponse),
-    })
+      // Complete registration on the server (challenge validation)
+      const { data: recoverWalletResult } = await this.authService.postRecoverWallet({
+        code,
+        registrationResponseJSON: JSON.stringify(createPasskeyResponse),
+      })
 
-    // Store access token for future requests
-    storeSessionInfo(recoverWalletResult.token)
+      // Store access token for future requests
+      storeSessionInfo(recoverWalletResult.token)
+    } catch (error) {
+      if (error instanceof WebAuthnError) {
+        if (error.code === 'ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED') {
+          // If the passkey is already registered, log in the user
+          await logInUseCase.handle({ email: recoverWalletOptions.email })
+        }
+      } else {
+        throw error
+      }
+    }
   }
 }
 

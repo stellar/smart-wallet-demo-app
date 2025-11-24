@@ -72,6 +72,7 @@ export type GetRecoverWalletOptionsInput = {
 }
 export type GetRecoverWalletOptionsResult = IHTTPResponse<{
   options_json: string
+  email: string
 }>
 
 export type PostRecoverWalletInput = {

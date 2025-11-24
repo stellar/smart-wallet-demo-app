@@ -93,6 +93,7 @@ describe('RecoverWalletOptions', () => {
     expect(res.json).toHaveBeenCalledWith({
       data: {
         options_json: optionsJSON,
+        email: mockedUser.email,
       },
       message: 'Retrieved recover wallet options successfully',
     })
