@@ -3,10 +3,11 @@ import { Text } from '@stellar/design-system'
 type Props = {
   imageUri: string
   name: string
+  marketingName?: string
   description?: string
 }
 
-export const VendorCard = ({ imageUri, name, description }: Props): React.ReactNode => {
+export const VendorCard = ({ imageUri, name, marketingName, description }: Props): React.ReactNode => {
   return (
     <div>
       <div className="flex flex-col gap-4 p-4 rounded-lg bg-backgroundPrimary border border-borderPrimary">
@@ -17,7 +18,7 @@ export const VendorCard = ({ imageUri, name, description }: Props): React.ReactN
         <div className="flex flex-col gap-1">
           <div className="text-text">
             <Text as="p" size={'md'} weight="medium">
-              {name}
+              {marketingName ?? name}
             </Text>
           </div>
 

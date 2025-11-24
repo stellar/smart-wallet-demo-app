@@ -39,6 +39,7 @@ describe('GetVendors', () => {
       {
         id: vendor1.vendorId,
         name: vendor1.name,
+        marketing_name: vendor1.marketingName,
         description: vendor1.description,
         is_active: vendor1.isActive,
         display_order: vendor1.displayOrder,
@@ -48,6 +49,7 @@ describe('GetVendors', () => {
       {
         id: vendor2.vendorId,
         name: vendor2.name,
+        marketing_name: vendor2.marketingName,
         description: vendor2.description,
         is_active: vendor2.isActive,
         display_order: vendor2.displayOrder,

@@ -152,6 +152,7 @@ export const Home = () => {
       .map(vendor => ({
         imageUri: vendor.profile_image ?? 'unknown',
         name: vendor.name,
+        marketingName: vendor.marketing_name,
         description: vendor.description,
       }))
   }, [walletData?.vendors])

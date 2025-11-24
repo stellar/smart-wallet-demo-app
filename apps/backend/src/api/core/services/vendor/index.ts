@@ -24,6 +24,7 @@ export default class VendorRepository extends SingletonBase implements VendorRep
   async createVendor(
     vendor: {
       name: string
+      marketingName?: string
       description?: string
       isActive?: boolean
       displayOrder?: number

@@ -42,6 +42,7 @@ export type GetWalletResult = IHTTPResponse<{
   vendors?: {
     id: string
     name: string
+    marketing_name?: string
     description?: string
     display_order: number
     wallet_address?: string

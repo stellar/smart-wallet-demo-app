@@ -6,6 +6,7 @@ import { vendorSchema } from 'api/core/utils/zod'
 export const RequestSchema = z.object({
   id: z.string(),
   name: z.string().optional(),
+  marketing_name: z.string().optional(),
   description: z.string().optional(),
   is_active: z.boolean().optional(),
   display_order: z.number().int().min(0).optional(),
