@@ -96,6 +96,7 @@ export const Transactions = () => {
         transactionHash: tx.hash,
       },
       backgroundImageUri: mapBackgroundImageUri(tx),
+      customBackgroundColor: tx.type === CustomTxTypes.DONATION ? 'pinkTertiary' : undefined,
     })
   }
 

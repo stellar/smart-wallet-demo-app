@@ -29,4 +29,5 @@ export const THEME_COLORS = {
   brandPrimary: '#5746AF',
   pink: '#D6409F',
   pinkSecondary: '#FCE5F3',
+  pinkTertiary: '#FFF7FC',
 }

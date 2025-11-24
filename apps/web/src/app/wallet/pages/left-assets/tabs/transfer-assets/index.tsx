@@ -64,6 +64,7 @@ export const TransferAssets = () => {
       // Show success modal
       modalService.open({
         key: 'transfer-success',
+        customBackgroundColor: 'pinkTertiary',
         variantOptions: {
           variant: 'transfer-success',
           title: organization ? c('transferOrganizationSuccessModalTitle') : c('transferSuccessModalTitle'),

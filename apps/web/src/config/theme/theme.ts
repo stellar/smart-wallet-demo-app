@@ -36,6 +36,7 @@ export const THEME_STYLES = {
         brandPrimary: 'var(--color-brand-primary)',
         pink: 'var(--color-pink)',
         pinkSecondary: 'var(--color-pink-secondary)',
+        pinkTertiary: 'var(--color-pink-tertiary)',
       },
       fontFamily: {
         sans: ['var(--font-family)', ...defaultTheme.fontFamily.sans],

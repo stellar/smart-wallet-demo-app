@@ -2,6 +2,8 @@ import clsx from 'clsx'
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useRef } from 'react'
 
+import { THEME_COLORS } from 'src/constants/theme/colors'
+
 import {
   ModalDefault,
   ModalDefaultProps,
@@ -23,6 +25,7 @@ export type ModalInternalState = Record<string, unknown>
 
 export type BaseModalProps = {
   backgroundImageUri?: string | 'default'
+  customBackgroundColor?: keyof typeof THEME_COLORS
   internalState?: ModalInternalState
   onClose?: () => void
 }
@@ -36,7 +39,13 @@ export type ModalProps = {
     | ModalTransferSuccessProps
 } & BaseModalProps
 
-export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri, internalState, onClose }) => {
+export const Modal: React.FC<ModalProps> = ({
+  variantOptions,
+  backgroundImageUri,
+  customBackgroundColor,
+  internalState,
+  onClose,
+}) => {
   const modalRef = useRef<HTMLDivElement>(null)
   const isLocked = useRef(variantOptions.variant === 'loading' && variantOptions.isLocked)
 
@@ -139,7 +148,8 @@ export const Modal: React.FC<ModalProps> = ({ variantOptions, backgroundImageUri
         transition={{ duration: 0.25 }}
         className={clsx(
           'relative w-full mx-10 max-w-sm pt-8 pb-6 pl-6 pr-6 rounded-2xl shadow-xl',
-          !backgroundImageUri && 'bg-backgroundPrimary'
+          !backgroundImageUri && !customBackgroundColor && 'bg-backgroundPrimary',
+          customBackgroundColor && `bg-${customBackgroundColor}`
         )}
         style={
           backgroundImageUri
