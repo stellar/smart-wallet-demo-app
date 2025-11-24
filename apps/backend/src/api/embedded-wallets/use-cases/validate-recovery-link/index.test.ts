@@ -4,7 +4,6 @@ import { Otp } from 'api/core/entities/otp/types'
 import { userFactory } from 'api/core/entities/user/factory'
 import { mockOtpRepository } from 'api/core/services/otp/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
-import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 
 import { RequestSchemaT } from './types'
 
@@ -44,10 +43,12 @@ describe('ValidateRecoveryLink', () => {
     expect(result.data.is_valid).toBeFalsy()
   })
 
-  it('should throw an error if code is not found', async () => {
+  it('should return false if code is not found', async () => {
     mockedOtpRepository.getOtpByCode.mockResolvedValue(null)
+    const result = await useCase.handle({ code: mockedCode })
 
-    await expect(useCase.handle({ code: mockedCode })).rejects.toThrow(ResourceNotFoundException)
+    expect(result.data.is_valid).toBeFalsy()
+    expect(result.message).toBe('Invalid recovery link')
   })
 
   it('should thrown an error if payload is invalid', async () => {
