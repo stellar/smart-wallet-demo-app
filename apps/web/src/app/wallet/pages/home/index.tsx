@@ -112,16 +112,19 @@ export const Home = () => {
 
   const faq: FaqOptions = useMemo(() => {
     let faqItems: FaqOptions['items'] = []
+
     const envFaq = import.meta.env.VITE_FAQ
 
     if (envFaq) {
       try {
-        faqItems = JSON.parse(atob(import.meta.env.VITE_FAQ)).items
+        faqItems = JSON.parse(atob(envFaq)).items
       } catch (error) {
         logger.error(`Failed to parse faq`, { error })
       }
-    } else if (walletData?.faq) {
-      faqItems = walletData.faq
+    }
+
+    if (faqItems.length === 0) {
+      faqItems = walletData?.faq || []
     }
 
     return {
