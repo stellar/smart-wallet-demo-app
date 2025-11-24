@@ -124,7 +124,7 @@ export const Home = () => {
     }
 
     if (faqItems.length === 0) {
-      faqItems = walletData?.faq || []
+      faqItems = walletData?.faq?.sort((a, b) => a.order - b.order) || []
     }
 
     return {
