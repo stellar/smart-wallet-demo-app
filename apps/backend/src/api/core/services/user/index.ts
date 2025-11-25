@@ -14,7 +14,12 @@ export default class UserRepository extends SingletonBase implements UserReposit
   }
 
   async getUserById(userId: string, options?: FindOneOptions<User>): Promise<User | null> {
-    return UserModel.findOne({ where: { userId: userId }, ...options })
+    const whereCondition = {
+      userId,
+      ...options?.where,
+    }
+
+    return UserModel.findOne({ ...options, where: whereCondition })
   }
 
   async getUserByToken(token: string): Promise<User | null> {
@@ -22,7 +27,12 @@ export default class UserRepository extends SingletonBase implements UserReposit
   }
 
   async getUserByEmail(email: string, options?: FindOneOptions<User>): Promise<User | null> {
-    return UserModel.findOne({ where: { email: ILike(email) }, ...options })
+    const whereCondition = {
+      email: ILike(email),
+      ...options?.where,
+    }
+
+    return UserModel.findOne({ ...options, where: whereCondition })
   }
 
   async getUserByContractAddress(contractAddress: string): Promise<User | null> {

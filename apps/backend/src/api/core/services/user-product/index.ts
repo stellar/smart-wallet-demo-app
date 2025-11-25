@@ -29,9 +29,9 @@ export default class UserProductRepository extends SingletonBase implements User
     options?: FindOneOptions<UserProduct>
   ): Promise<UserProduct[]> {
     const whereCondition = {
-      ...options?.where,
       user: { contractAddress: ILike(contractAddress) },
       product: { asset: { code: ILike(assetCode) } },
+      ...options?.where,
     }
 
     return UserProductModel.find({

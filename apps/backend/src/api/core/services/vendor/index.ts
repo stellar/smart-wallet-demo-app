@@ -18,7 +18,12 @@ export default class VendorRepository extends SingletonBase implements VendorRep
   }
 
   async getVendorByWalletAddress(walletAddress: string, options?: FindOneOptions<Vendor>): Promise<Vendor | null> {
-    return VendorModel.findOne({ where: { walletAddress: ILike(walletAddress) }, ...options })
+    const whereCondition = {
+      walletAddress: ILike(walletAddress),
+      ...options?.where,
+    }
+
+    return VendorModel.findOne({ ...options, where: whereCondition })
   }
 
   async createVendor(

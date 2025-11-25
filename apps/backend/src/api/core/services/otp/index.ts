@@ -11,7 +11,12 @@ export default class OtpRepository extends SingletonBase implements OtpRepositor
   }
 
   async getOtpByCode(code: string, options?: FindOneOptions<Otp>): Promise<Otp | null> {
-    return OtpModel.findOne({ where: { code }, ...options })
+    const whereCondition = {
+      code,
+      ...options?.where,
+    }
+
+    return OtpModel.findOne({ ...options, where: whereCondition })
   }
 
   async createOtp(user: User, save?: boolean): Promise<Otp> {
