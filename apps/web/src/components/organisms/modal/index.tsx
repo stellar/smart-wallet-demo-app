@@ -148,8 +148,7 @@ export const Modal: React.FC<ModalProps> = ({
         transition={{ duration: 0.25 }}
         className={clsx(
           'relative w-full mx-10 max-w-sm pt-8 pb-6 pl-6 pr-6 rounded-2xl shadow-xl',
-          !backgroundImageUri && !customBackgroundColor && 'bg-backgroundPrimary',
-          customBackgroundColor && `bg-${customBackgroundColor}`
+          !backgroundImageUri && !customBackgroundColor && 'bg-backgroundPrimary'
         )}
         style={
           backgroundImageUri
@@ -159,7 +158,11 @@ export const Modal: React.FC<ModalProps> = ({
                 backgroundPositionY: 'top',
                 backgroundPositionX: 'center',
               }
-            : undefined
+            : customBackgroundColor
+              ? {
+                  backgroundColor: THEME_COLORS[customBackgroundColor],
+                }
+              : undefined
         }
       >
         {modalContent}

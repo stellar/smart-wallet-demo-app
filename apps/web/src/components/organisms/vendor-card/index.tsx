@@ -12,7 +12,7 @@ export const VendorCard = ({ imageUri, name, marketingName, description }: Props
     <div>
       <div className="flex flex-col gap-4 p-4 rounded-lg bg-backgroundPrimary border border-borderPrimary">
         <div className="flex">
-          <img src={imageUri} className="max-h-[56px] min-h-[56px] rounded-full object-cover" alt={name} />
+          <img src={imageUri} className="max-h-[56px] min-h-[56px] object-cover" alt={name} />
         </div>
 
         <div className="flex flex-col gap-1">
