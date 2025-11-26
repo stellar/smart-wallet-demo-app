@@ -10,12 +10,12 @@ type Props = {
 export const VendorCard = ({ imageUri, name, marketingName, description }: Props): React.ReactNode => {
   return (
     <div>
-      <div className="flex flex-col gap-4 p-4 rounded-lg bg-backgroundPrimary border border-borderPrimary">
+      <div className="flex flex-col gap-4 p-4 rounded-lg bg-backgroundPrimary border border-borderPrimary items-center">
         <div className="flex">
           <img src={imageUri} className="max-h-[56px] min-h-[56px] object-cover" alt={name} />
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 items-center">
           <div className="text-text">
             <Text as="p" size={'md'} weight="medium">
               {marketingName ?? name}
