@@ -313,6 +313,7 @@ export class GetWallet extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     return vendors.map(vendor => ({
       id: vendor.vendorId,
       name: vendor.name,
+      marketing_name: vendor.marketingName,
       description: vendor.description,
       display_order: vendor.displayOrder,
       wallet_address: vendor.walletAddress,

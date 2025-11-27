@@ -45,10 +45,11 @@ export class RecoverWalletUseCase extends UseCaseBase<void> {
         if (error.code === 'ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED') {
           // If the passkey is already registered, log in the user
           await logInUseCase.handle({ email: recoverWalletOptions.email })
+          return
         }
-      } else {
-        throw error
       }
+
+      throw error
     }
   }
 }

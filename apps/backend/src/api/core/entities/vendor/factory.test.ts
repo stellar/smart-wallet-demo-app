@@ -6,6 +6,7 @@ describe('Vendor factory tests', () => {
 
     expect(mockedVendor.vendorId).not.toBeUndefined()
     expect(mockedVendor.name).not.toBeUndefined()
+    expect(mockedVendor.marketingName).not.toBeUndefined()
     expect(mockedVendor.description).not.toBeUndefined()
     expect(mockedVendor.isActive).not.toBeUndefined()
     expect(mockedVendor.displayOrder).not.toBeUndefined()
@@ -17,6 +18,7 @@ describe('Vendor factory tests', () => {
     const mockedVendor = vendorFactory({
       vendorId: 'xyz789',
       name: 'Galactic Shop',
+      marketingName: 'Galactic Shop Marketing Name',
       description: 'Galactic Shop description',
       isActive: true,
       displayOrder: 1,
@@ -26,6 +28,7 @@ describe('Vendor factory tests', () => {
 
     expect(mockedVendor.vendorId).toBe('xyz789')
     expect(mockedVendor.name).toBe('Galactic Shop')
+    expect(mockedVendor.marketingName).toBe('Galactic Shop Marketing Name')
     expect(mockedVendor.description).toBe('Galactic Shop description')
     expect(mockedVendor.isActive).toBe(true)
     expect(mockedVendor.displayOrder).toBe(1)

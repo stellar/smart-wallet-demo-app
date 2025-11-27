@@ -28,6 +28,7 @@ export class UpdateVendor extends UseCaseBase implements IUseCaseHttp<ResponseSc
   parseResponseVendor(vendor: Vendor) {
     return {
       name: vendor.name,
+      marketing_name: vendor.marketingName,
       description: vendor.description,
       is_active: vendor.isActive,
       display_order: vendor.displayOrder,
@@ -40,6 +41,7 @@ export class UpdateVendor extends UseCaseBase implements IUseCaseHttp<ResponseSc
     const validatedData = this.validate(payload, RequestSchema)
     const updatedFields = {
       name: validatedData.name,
+      marketingName: validatedData.marketing_name,
       description: validatedData.description,
       isActive: validatedData.is_active,
       displayOrder: validatedData.display_order,

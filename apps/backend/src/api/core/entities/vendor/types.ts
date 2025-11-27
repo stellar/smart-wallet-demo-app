@@ -11,10 +11,11 @@ export type VendorRepositoryType = {
   createVendor(
     vendor: {
       name: string
+      marketingName?: string
       description?: string
       isActive?: boolean
       displayOrder?: number
-      contractAddress?: string
+      walletAddress?: string
       profileImage?: string
     },
     save?: boolean

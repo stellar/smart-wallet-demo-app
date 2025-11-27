@@ -146,6 +146,7 @@ describe('GetWallet', () => {
       {
         id: activeVendor.vendorId,
         name: activeVendor.name,
+        marketing_name: activeVendor.marketingName,
         description: activeVendor.description,
         display_order: activeVendor.displayOrder,
         wallet_address: activeVendor.walletAddress,

@@ -14,6 +14,12 @@ export class Vendor extends ModelBase {
     type: 'varchar',
     nullable: true,
   })
+  marketingName?: string
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
   description?: string
 
   @Column({

@@ -74,6 +74,7 @@ export const assetSchema = z.object({
 export const vendorSchema = z.object({
   id: z.string(),
   name: z.string(),
+  marketing_name: z.string().optional(),
   description: z.string().optional(),
   is_active: z.boolean(),
   display_order: z.number().int().min(0),

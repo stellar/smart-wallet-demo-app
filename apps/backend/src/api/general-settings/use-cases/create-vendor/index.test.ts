@@ -7,6 +7,7 @@ const mockedVendorRepository = mockVendorRepository()
 
 const mockedPayload = {
   name: 'Vendor Name',
+  marketing_name: 'Vendor Marketing Name',
   description: 'Vendor description',
   wallet_address: 'vendor_wallet_address',
   profile_image: 'https://vendor_profile_image.link',
@@ -14,6 +15,7 @@ const mockedPayload = {
 
 const newVendor = vendorFactory({
   name: mockedPayload.name,
+  marketingName: mockedPayload.marketing_name,
   description: mockedPayload.description,
   walletAddress: mockedPayload.wallet_address,
   profileImage: mockedPayload.profile_image,
@@ -40,6 +42,7 @@ describe('CreateVendor', () => {
     expect(result).toEqual({
       id: newVendor.vendorId,
       name: newVendor.name,
+      marketing_name: newVendor.marketingName,
       description: newVendor.description,
       is_active: newVendor.isActive,
       display_order: newVendor.displayOrder,
