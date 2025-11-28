@@ -1,6 +1,8 @@
-import { startRegistration, startAuthentication } from '@simplewebauthn/browser'
+import { startRegistration, startAuthentication, browserSupportsWebAuthn } from '@simplewebauthn/browser'
 
 import logger from 'src/app/core/services/logger'
+import BaseError from 'src/helpers/error-handling/base-error'
+import { c } from 'src/interfaces/cms/useContent'
 
 import {
   WebAuthnAuthenticateWithPasskeyInput,
@@ -23,6 +25,12 @@ export class WebAuthnService implements IWebAuthnService {
     this.webAuthnClient = webAuthn || { startRegistration, startAuthentication }
   }
 
+  checkAvailability(): void {
+    if (!browserSupportsWebAuthn()) {
+      throw new BaseError(c('webauthnNotSupportedError'))
+    }
+  }
+
   /**
    * Initiates the passkey registration flow using WebAuthn.
    * The {@link WebAuthnCreatePasskeyInput} is used to construct the `PublicKeyCredentialCreationOptions` object
@@ -35,6 +43,8 @@ export class WebAuthnService implements IWebAuthnService {
    */
   async createPasskey(input: WebAuthnCreatePasskeyInput): Promise<WebAuthnCreatePasskeyResult> {
     logger.debug(`${this.constructor.name}.createPasskey | Input`, input)
+
+    this.checkAvailability()
 
     const rawResponse = await this.webAuthnClient.startRegistration({ optionsJSON: input.optionsJSON })
 
@@ -60,6 +70,8 @@ export class WebAuthnService implements IWebAuthnService {
     input: WebAuthnAuthenticateWithPasskeyInput
   ): Promise<WebAuthnAuthenticateWithPasskeyResult> {
     logger.debug(`${this.constructor.name}.authenticateWithPasskey | Input`, input)
+
+    this.checkAvailability()
 
     const rawResponse = await startAuthentication({ optionsJSON: input.optionsJSON })
 
