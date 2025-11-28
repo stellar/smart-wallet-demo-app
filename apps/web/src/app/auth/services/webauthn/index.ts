@@ -25,6 +25,10 @@ export class WebAuthnService implements IWebAuthnService {
     this.webAuthnClient = webAuthn || { startRegistration, startAuthentication }
   }
 
+  /**
+   * Checks if the browser supports WebAuthn.
+   * If the browser does not support WebAuthn, an error is thrown.
+   */
   checkAvailability(): void {
     if (!browserSupportsWebAuthn()) {
       throw new BaseError(c('webauthnNotSupportedError'))

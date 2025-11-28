@@ -4,6 +4,7 @@ import { IWebAuthnService } from './types'
 
 export function mockWebauthnService(): Mocked<IWebAuthnService> {
   return {
+    checkAvailability: vi.fn(),
     createPasskey: vi.fn(),
     authenticateWithPasskey: vi.fn(),
   }

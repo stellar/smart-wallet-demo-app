@@ -6,6 +6,7 @@ import {
 } from '@simplewebauthn/browser'
 
 export interface IWebAuthnService {
+  checkAvailability: () => void
   createPasskey: (input: WebAuthnCreatePasskeyInput) => Promise<WebAuthnCreatePasskeyResult>
   authenticateWithPasskey: (
     input: WebAuthnAuthenticateWithPasskeyInput
