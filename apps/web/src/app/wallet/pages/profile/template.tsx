@@ -37,6 +37,8 @@ export const ProfileTemplate = ({
   onSignOut,
   onGoBack,
 }: ProfileTemplateProps) => {
+  const hasAddendum = import.meta.env.VITE_ADDENDUM_URL && import.meta.env.VITE_ADDENDUM_URL.trim() !== ''
+
   const EmailSection = ({ email }: SectionProps) => (
     <div className="flex flex-col">
       <Text as="span" size="sm" className="text-textSecondary font-medium mb-1">
@@ -144,7 +146,7 @@ export const ProfileTemplate = ({
               link: import.meta.env.VITE_PRIVACY_POLICY_URL,
               removeBlankSpace: true,
             },
-            ...(import.meta.env.VITE_ADDENDUM_URL
+            ...(hasAddendum
               ? [
                   {
                     text: c('inviteOptionADisclaimerText5'),

@@ -29,6 +29,7 @@ export const InviteTemplate = ({
 }: Props) => {
   const { onboardingStyleVariant } = useTheme()
 
+  const hasAddendum = import.meta.env.VITE_ADDENDUM_URL && import.meta.env.VITE_ADDENDUM_URL.trim() !== ''
   const config = isReturningUser
     ? {
         titleLines: [c('inviteOptionBTitleLine1'), c('inviteOptionBTitleLine2')],
@@ -66,7 +67,7 @@ export const InviteTemplate = ({
             link: import.meta.env.VITE_PRIVACY_POLICY_URL,
             removeBlankSpace: true,
           },
-          ...(import.meta.env.VITE_ADDENDUM_URL
+          ...(hasAddendum
             ? [
                 {
                   text: c('inviteOptionADisclaimerText5'),
