@@ -13,16 +13,11 @@ const __dirname = path.dirname(__filename);
  * Creates metadata JSON structure matching the parseResponse format
  */
 function createMetadata(tokenId, nftSupply) {
-  const name = nftSupply.name || 'NFT';
-  const description = nftSupply.description || 'NFT Token';
-  const url = nftSupply.url || '';
-  const externalUrl = url ? url.split('/').slice(0, -1).join('/') : '';
-
   return {
-    name: `${name} #${tokenId}`,
-    description: `${description} #${tokenId}`,
-    image: url,
-    external_url: externalUrl,
+    name: `${nftSupply.name} #${tokenId}`.trim(),
+    description: `${nftSupply.description} #${tokenId}`.trim(),
+    image: nftSupply.url,
+    external_url: nftSupply.url.split('/').slice(0, -1).join('/'),
     attributes: [
       {
         trait_type: 'Token ID',
@@ -30,7 +25,7 @@ function createMetadata(tokenId, nftSupply) {
       },
       {
         trait_type: 'Collection',
-        value: name,
+        value: nftSupply.name,
       },
       {
         trait_type: 'Session',
