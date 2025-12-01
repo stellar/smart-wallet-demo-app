@@ -19,7 +19,7 @@ export type ModalTransactionDetailsProps = {
     name: string
     isVendorNameHidden?: boolean
     imageUri?: string
-    imageRadius?: 'full' | 'sm'
+    imageRadius?: 'full' | 'none' | 'sm'
   }
   descriptionItems?: string[]
   actionType?: 'receive' | 'send'
@@ -184,7 +184,7 @@ export const ModalTransactionDetails = ({
     name: string
     descriptionItems: string[]
     imageUri: string
-    imageRadius: 'full' | 'sm'
+    imageRadius: 'full' | 'none' | 'sm'
   }) => (
     <div
       className={clsx(
@@ -199,6 +199,7 @@ export const ModalTransactionDetails = ({
             'overflow-hidden w-[56px] h-[56px]',
 
             imageRadius === 'full' && 'rounded-full',
+            imageRadius === 'none' && 'rounded-none',
             imageRadius === 'sm' && 'rounded-[3.35px]'
           )}
         >

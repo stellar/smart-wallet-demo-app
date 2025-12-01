@@ -18,7 +18,7 @@ export const VendorCard = ({ imageUri, name, marketingName, description }: Props
         <div className="flex flex-col gap-1 items-center">
           <div className="text-text">
             <Text as="p" size={'md'} weight="medium">
-              {marketingName ?? name}
+              {marketingName || name}
             </Text>
           </div>
 

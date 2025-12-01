@@ -91,6 +91,7 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
             vendor: {
               name: data.vendor?.name || data.vendor?.wallet_address || 'Unknown Source',
               imageUri: data.vendor?.profile_image,
+              imageRadius: 'none',
             },
             descriptionItems: result.data.products?.map(product => product.description),
             actionType: 'send',
