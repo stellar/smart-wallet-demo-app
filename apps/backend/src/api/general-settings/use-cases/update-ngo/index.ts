@@ -30,6 +30,8 @@ export class UpdateNgo extends UseCaseBase implements IUseCaseHttp<ResponseSchem
       id: ngo.ngoId,
       name: ngo.name,
       description: ngo.description,
+      is_active: ngo.isActive,
+      display_order: ngo.displayOrder,
       wallet_address: ngo.walletAddress,
       profile_image: ngo.profileImage,
     }
@@ -40,6 +42,8 @@ export class UpdateNgo extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     const updatedFields = {
       name: validatedData.name,
       description: validatedData.description,
+      isActive: validatedData.is_active,
+      displayOrder: validatedData.display_order,
       walletAddress: validatedData.wallet_address,
       profileImage: validatedData.profile_image,
     }

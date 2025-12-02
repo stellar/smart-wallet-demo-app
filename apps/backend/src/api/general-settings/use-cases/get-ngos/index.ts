@@ -28,6 +28,8 @@ export class GetNgos extends UseCaseBase implements IUseCaseHttp<ResponseSchemaT
       id: ngo.ngoId,
       name: ngo.name,
       description: ngo.description,
+      is_active: ngo.isActive,
+      display_order: ngo.displayOrder,
       wallet_address: ngo.walletAddress,
       profile_image: ngo.profileImage,
     }))

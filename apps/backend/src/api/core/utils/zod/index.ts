@@ -111,6 +111,8 @@ export const productSchema = z.object({
 export const ngoSchema = z.object({
   id: z.string(),
   name: z.string(),
+  is_active: z.boolean(),
+  display_order: z.number().int().min(0),
   description: z.string(),
   wallet_address: z.string(),
   profile_image: z.string().optional(),

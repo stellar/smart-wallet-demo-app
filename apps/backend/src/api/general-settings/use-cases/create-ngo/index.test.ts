@@ -41,6 +41,8 @@ describe('CreateNgo', () => {
       id: newNgo.ngoId,
       name: newNgo.name,
       description: newNgo.description,
+      is_active: newNgo.isActive,
+      display_order: newNgo.displayOrder,
       wallet_address: newNgo.walletAddress,
       profile_image: newNgo.profileImage,
     })

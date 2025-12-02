@@ -7,6 +7,8 @@ describe('Ngo factory tests', () => {
     expect(mockedNgo.ngoId).not.toBeUndefined()
     expect(mockedNgo.name).not.toBeUndefined()
     expect(mockedNgo.description).not.toBeUndefined()
+    expect(mockedNgo.isActive).not.toBeUndefined()
+    expect(mockedNgo.displayOrder).not.toBeUndefined()
     expect(mockedNgo.walletAddress).not.toBeUndefined()
     expect(mockedNgo.profileImage).not.toBeUndefined()
   })
@@ -16,6 +18,8 @@ describe('Ngo factory tests', () => {
       ngoId: 'xyz789',
       name: 'NGO Name',
       description: 'NGO Description',
+      isActive: true,
+      displayOrder: 0,
       walletAddress: 'ABCD1234EFGH5678IJKL9012MNOP3456QRST7890UVWX',
       profileImage: 'https://example.com/image.png',
     })
@@ -23,6 +27,8 @@ describe('Ngo factory tests', () => {
     expect(mockedNgo.ngoId).toBe('xyz789')
     expect(mockedNgo.name).toBe('NGO Name')
     expect(mockedNgo.description).toBe('NGO Description')
+    expect(mockedNgo.isActive).toBe(true)
+    expect(mockedNgo.displayOrder).toBe(0)
     expect(mockedNgo.walletAddress).toBe('ABCD1234EFGH5678IJKL9012MNOP3456QRST7890UVWX')
     expect(mockedNgo.profileImage).toBe('https://example.com/image.png')
   })

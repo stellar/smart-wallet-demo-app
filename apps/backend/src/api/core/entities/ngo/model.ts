@@ -16,6 +16,15 @@ export class Ngo extends ModelBase {
   description: string
 
   @Column({
+    type: 'boolean',
+    default: true,
+  })
+  isActive: boolean
+
+  @Column({ type: 'integer', default: 0 })
+  displayOrder: number
+
+  @Column({
     type: 'varchar',
   })
   walletAddress: string

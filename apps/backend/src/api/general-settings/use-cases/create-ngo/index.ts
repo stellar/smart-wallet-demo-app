@@ -28,6 +28,8 @@ export class CreateNgo extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     return {
       id: ngo.ngoId,
       name: ngo.name,
+      is_active: ngo.isActive,
+      display_order: ngo.displayOrder,
       description: ngo.description,
       wallet_address: ngo.walletAddress,
       profile_image: ngo.profileImage,
@@ -39,6 +41,8 @@ export class CreateNgo extends UseCaseBase implements IUseCaseHttp<ResponseSchem
     const ngo = {
       name: validatedData.name,
       description: validatedData.description,
+      isActive: validatedData.is_active,
+      displayOrder: validatedData.display_order,
       walletAddress: validatedData.wallet_address,
       profileImage: validatedData.profile_image,
     }

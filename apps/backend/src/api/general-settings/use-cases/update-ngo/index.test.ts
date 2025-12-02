@@ -45,6 +45,8 @@ describe('UpdateNgo', () => {
       id: mockedNgo.ngoId,
       name: mockedNgo.name,
       description: mockedNgo.description,
+      is_active: mockedNgo.isActive,
+      display_order: mockedNgo.displayOrder,
       wallet_address: mockedNgo.walletAddress,
       profile_image: mockedNgo.profileImage,
     })

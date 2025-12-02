@@ -4,12 +4,19 @@ export type Ngo = NgoModel
 
 export type NgoRepositoryType = {
   getNgos(): Promise<Ngo[]>
-  getNgoById(vendorId: string): Promise<Ngo | null>
+  getNgoById(ngoId: string): Promise<Ngo | null>
   getNgoByWalletAddress(walletAddress: string): Promise<Ngo | null>
   createNgo(
-    ngo: { name: string; description: string; walletAddress: string; profileImage?: string },
+    ngo: {
+      name: string
+      description: string
+      walletAddress: string
+      profileImage?: string
+      isActive?: boolean
+      displayOrder?: number
+    },
     save?: boolean
   ): Promise<Ngo>
-  updateNgo(vendorId: string, data: Partial<Ngo>): Promise<Ngo>
-  saveNgo(vendor: Ngo): Promise<Ngo>
+  updateNgo(ngoId: string, data: Partial<Ngo>): Promise<Ngo>
+  saveNgo(ngo: Ngo): Promise<Ngo>
 }

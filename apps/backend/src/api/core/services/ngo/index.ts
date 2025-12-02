@@ -20,7 +20,14 @@ export default class NgoRepository extends SingletonBase implements NgoRepositor
   }
 
   async createNgo(
-    ngo: { name: string; description: string; walletAddress?: string; profileImage?: string },
+    ngo: {
+      name: string
+      description: string
+      walletAddress?: string
+      profileImage?: string
+      isActive?: boolean
+      displayOrder?: number
+    },
     save?: boolean
   ): Promise<Ngo> {
     const newNgo = NgoModel.create({ ...ngo })
