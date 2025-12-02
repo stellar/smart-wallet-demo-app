@@ -11,6 +11,7 @@ interface ImportMetaEnv {
   readonly VITE_PRIVACY_POLICE_URL: string
   readonly VITE_ADDENDUM_URL: string
   readonly VITE_ONBOARDING_STYLE_VARIANT: string
+  readonly VITE_PAYMENT_VARIANT: string
   readonly VITE_FAQ: string
 }
 

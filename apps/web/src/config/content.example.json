@@ -78,8 +78,6 @@
   "confirmPayment": "Confirm Payment",
   "invalidQrCode": "This QR code isn't valid. Please try another one",
   "transferSuccess": "Your transaction is complete!",
-  "nftModalTitle": "NFT is here!",
-  "nftModalDescription": "Confirm the transaction to claim your NFT. Show this NFT to redeem a special gift for this session.",
   "confirmWithPasskey": "Confirm with passkey",
   "nftsListTitle": "NFT Collectibles",
   "noNftsListTitle": "Your NFT gallery is empty",
@@ -199,5 +197,8 @@
   "walletComingSoonBannerTitle": "Welcome to Stellar House Miami!",
   "walletComingSoonBannerDescription": "Stellar House goes live on Dec 4, 2025",
   "comingSoon": "Coming Soon",
-  "welcomeBack": "Welcome Back"
+  "welcomeBack": "Welcome Back",
+  "tapToPayModalTitle": "Tap to pay or claim!",
+  "tapToPayModalDescription": "Tap an NFC chip onsite to pay vendors and claim NFTs. The transaction will process immediately after you confirm.",
+  "tapToPayModalButtonText": "Got it!"
 }

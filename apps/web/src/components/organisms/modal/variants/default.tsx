@@ -18,6 +18,7 @@ export type ModalDefaultProps = {
     image?: {
       source?: string | React.ReactNode | 'blank-space'
       variant?: 'sm' | 'md' | 'lg'
+      aspectVariant?: 'none' | 'square'
       format?: 'square' | 'circle'
     }
   }
@@ -37,16 +38,23 @@ export const ModalDefault = ({
   onClose,
 }: BaseModalProps & ModalDefaultProps) => {
   const imageSizeMap = {
-    sm: 'h-[80px] w-[80px]',
-    md: 'h-[123px] w-[123px]',
-    lg: 'h-[180px] w-[180px]',
+    sm: { height: 'h-[80px]', width: 'w-[80px]' },
+    md: { height: 'h-[123px]', width: 'w-[123px]' },
+    lg: { height: 'h-[180px]', width: 'w-[180px]' },
   }
 
   const renderImage = (image: NonNullable<ModalDefaultProps['title']>['image']) => {
     if (!image) return null
 
+    const variant = image.variant ?? 'md'
+    const sizeClasses = imageSizeMap[variant]
+    const isAspectNone = image.aspectVariant === 'none'
+
+    // For 'none' aspectVariant, only apply height; for 'square' or default, apply both
+    const dimensionClasses = isAspectNone ? sizeClasses.height : `${sizeClasses.height} ${sizeClasses.width}`
+
     if (image.source === 'blank-space') {
-      return <div className={imageSizeMap[image.variant ?? 'md']} />
+      return <div className={dimensionClasses} />
     }
 
     if (typeof image.source === 'string') {
@@ -58,13 +66,13 @@ export const ModalDefault = ({
             'object-cover',
             image.format === 'circle' && 'rounded-full',
             image.format === 'square' && 'rounded-xl',
-            imageSizeMap[image.variant ?? 'md']
+            dimensionClasses
           )}
         />
       )
     }
 
-    return <div className={clsx(imageSizeMap[image.variant ?? 'md'])}>{image.source}</div>
+    return <div className={clsx(dimensionClasses)}>{image.source}</div>
   }
 
   const ModalBadge = () => {

@@ -15,7 +15,7 @@ type Props = {
 }
 
 export const ViewNftDrawer = ({ nft, isTransferDisabled, onClose, onTransferClick }: Props) => {
-  const title = useMemo(() => `${nft?.name}${c('viewNftDrawerTitle')}`, [nft?.name])
+  const title = useMemo(() => `${nft?.name}${c('viewNftDrawerTitle')}`.trim(), [nft?.name])
 
   return (
     <Drawer size="max-height" isOpen={!!nft} onClose={onClose} hasCloseButton>

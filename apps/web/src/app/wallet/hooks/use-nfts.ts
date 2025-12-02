@@ -56,7 +56,7 @@ export const useNfts = () => {
             variant: isTreasureNft(nft) ? 'nft-treasure' : 'nft',
           },
           title: {
-            text: `${nft.name} ${isTreasureNft(nft) ? c('claimNftTitle2') : c('claimNftTitle1')}`,
+            text: `${nft.name} ${isTreasureNft(nft) ? c('claimNftTitle2') : c('claimNftTitle1')}`.trim(),
             image: {
               source: nft.url,
               variant: 'md',

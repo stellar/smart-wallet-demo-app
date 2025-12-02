@@ -4,8 +4,9 @@ import Skeleton from 'react-loading-skeleton'
 
 import ProductMock02 from 'src/assets/images/mock/ecobag.png'
 import ProductMock01 from 'src/assets/images/mock/jacket.png'
-import { AssetAmount, NavigateButton } from 'src/components/molecules'
+import { AssetAmount, GhostButton, NavigateButton } from 'src/components/molecules'
 import { Carousel, SafeAreaView, ImageCard, Collapse, CollapseItem, VendorCard } from 'src/components/organisms'
+import { PaymentVariant } from 'src/constants/enums'
 import { c } from 'src/interfaces/cms/useContent'
 
 export type BannerOptions = {
@@ -46,6 +47,7 @@ type Props = {
   faq?: FaqOptions
   onNavbarButtonClick: (item: NavbarItemType) => void
   onScanClick: () => void
+  onTapToPayTipClick: () => void
   onProductActionButtonClick: () => void
 }
 
@@ -88,8 +90,11 @@ export const HomeTemplate = ({
   },
   onNavbarButtonClick,
   onScanClick,
+  onTapToPayTipClick,
   onProductActionButtonClick,
 }: Props) => {
+  const paymentVariant = import.meta.env.VITE_PAYMENT_VARIANT as PaymentVariant
+
   const HorizontalRule = () => <div className="border-t border-borderPrimary w-full" />
 
   const Navbar = () => {
@@ -143,16 +148,24 @@ export const HomeTemplate = ({
           <AssetAmount amount={balanceAmount} size="lg" asset={{ value: 'XLM', variant: 'sm' }} />
         </div>
 
-        <Button
-          disabled={balanceAmount === 0}
-          variant={'secondary'}
-          size={'lg'}
-          icon={<Icon.Scan />}
-          iconPosition="left"
-          onClick={onScanClick}
-        >
-          {c('pay')}
-        </Button>
+        {paymentVariant === PaymentVariant.qrCode && (
+          <Button
+            disabled={balanceAmount === 0}
+            variant={'secondary'}
+            size={'lg'}
+            icon={<Icon.Scan />}
+            iconPosition="left"
+            onClick={onScanClick}
+          >
+            {c('pay')}
+          </Button>
+        )}
+
+        {paymentVariant === PaymentVariant.tapToPay && (
+          <GhostButton size={'lg'} onClick={onTapToPayTipClick} isBordered>
+            <Icon.InfoCircle className="text-textSecondary" />
+          </GhostButton>
+        )}
       </div>
     )
 

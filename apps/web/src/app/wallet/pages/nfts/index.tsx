@@ -1,11 +1,12 @@
 import { useNavigate } from '@tanstack/react-router'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 
 import { featureFlagsState } from 'src/app/core/helpers'
 
 import NftsTemplate from './template'
 import { ViewNftDrawer } from '../../components'
 import { Nft } from '../../domain/models/nft'
+import { useTapToPay } from '../../hooks/use-tap-to-pay'
 import { useGetNfts } from '../../queries/use-get-nfts'
 import { WalletPagesPath } from '../../routes/types'
 
@@ -29,6 +30,8 @@ export const Nfts = () => {
     }))
   }, [nftsData])
 
+  const { openModal: openTapToPayModal } = useTapToPay()
+
   const handleGoBack = () => {
     navigate({
       to: WalletPagesPath.HOME,
@@ -42,6 +45,7 @@ export const Nfts = () => {
   }
 
   const handleScanClick = () => navigate({ to: WalletPagesPath.SCAN })
+  const handleTapToPayTipClick = useCallback(() => openTapToPayModal(), [openTapToPayModal])
 
   const handleClickNft = (nft: Nft) => {
     setSelectedNft(nft)
@@ -65,6 +69,7 @@ export const Nfts = () => {
         nfts={nfts}
         onGoBack={handleGoBack}
         onScanClick={handleScanClick}
+        onTapToPayTipClick={handleTapToPayTipClick}
         onNftClick={handleClickNft}
       />
     </>

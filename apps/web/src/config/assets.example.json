@@ -20,5 +20,6 @@
   "emptyList": "src/assets/images/empty-list.png",
   "specialGiftBox": "src/assets/images/special-gift-box.png",
   "specialGiftModalBackground": "src/assets/images/special-gift-modal-background.webp",
-  "walletComingSoonBannerBackground": "src/assets/images/wallet-coming-soon-banner-background.webp"
+  "walletComingSoonBannerBackground": "src/assets/images/wallet-coming-soon-banner-background.webp",
+  "tapToPayModalImage": "src/assets/images/tap-to-pay-modal-image.png"
 }

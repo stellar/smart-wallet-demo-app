@@ -20,6 +20,7 @@ import { useHandleLeftSwags } from '../../hooks/use-handle-left-swags'
 import { useHandleTransferLeftAssets } from '../../hooks/use-handle-transfer-left-assets'
 import { useHandleWalletComingSoon } from '../../hooks/use-handle-wallet-coming-soon'
 import { useInitTransfer } from '../../hooks/use-init-transfer'
+import { useTapToPay } from '../../hooks/use-tap-to-pay'
 import { getWallet, useGetWallet } from '../../queries/use-get-wallet'
 import { homeRoute } from '../../routes'
 
@@ -92,6 +93,9 @@ export const Home = () => {
   // Refetch feature flags
   useFeatureFlagsRefetchOnFocus()
 
+  // Tap to pay
+  const { openModal: openTapToPayModal } = useTapToPay()
+
   const handleRefresh = useCallback(async () => {
     await Promise.allSettled([queryClient.forceRefetch(getWallet()), queryClient.forceRefetch(getFeatureFlags())])
   }, [])
@@ -107,6 +111,7 @@ export const Home = () => {
   }
 
   const handleScanClick = () => navigate({ to: WalletPagesPath.SCAN })
+  const handleTapToPayTipClick = useCallback(() => openTapToPayModal(), [openTapToPayModal])
 
   const handleSwagClick = () => navigate({ to: WalletPagesPath.SCAN })
 
@@ -230,6 +235,7 @@ export const Home = () => {
         faq={faq}
         onNavbarButtonClick={handleNavbarButtonClick}
         onScanClick={handleScanClick}
+        onTapToPayTipClick={handleTapToPayTipClick}
         onProductActionButtonClick={handleSwagClick}
       />
     </PullToRefresh>
