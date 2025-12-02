@@ -5,11 +5,13 @@ type ContentKeys = keyof typeof contentExample
 
 export const useContent = () => {
   return (key: ContentKeys): string => {
-    return content[key as keyof typeof content] || contentExample[key] || ''
+    const contentValue = content[key as keyof typeof content]
+    return contentValue !== undefined ? contentValue : contentExample[key] || ''
   }
 }
 
 // Static helper
 export const c = (key: ContentKeys): string => {
-  return content[key as keyof typeof content] || contentExample[key] || ''
+  const contentValue = content[key as keyof typeof content]
+  return contentValue !== undefined ? contentValue : contentExample[key] || ''
 }
