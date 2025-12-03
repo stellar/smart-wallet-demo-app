@@ -33,7 +33,7 @@ export class GetNftMetadata extends UseCaseBase implements IUseCaseHttp<Response
       name: `${nftSupply.name} #${tokenId}`.trim(),
       description: `${nftSupply.description} #${tokenId}`.trim(),
       image: nftSupply.url,
-      external_url: nftSupply.url.split('/').slice(0, -1).join('/'),
+      external_url: nftSupply.url,
       attributes: [
         {
           trait_type: 'Token ID',

@@ -17,7 +17,7 @@ function createMetadata(tokenId, nftSupply) {
     name: `${nftSupply.name} #${tokenId}`.trim(),
     description: `${nftSupply.description} #${tokenId}`.trim(),
     image: nftSupply.url,
-    external_url: nftSupply.url.split('/').slice(0, -1).join('/'),
+    external_url: nftSupply.url,
     attributes: [
       {
         trait_type: 'Token ID',
