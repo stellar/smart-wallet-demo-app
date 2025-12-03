@@ -32,6 +32,7 @@ export const ViewNftDrawer = ({ nft, isTransferDisabled, onClose, onTransferClic
           {nft?.url && (
             <ImageCard
               size="lg"
+              aspectVariant="none"
               radius="min"
               imageUri={nft?.url}
               rightBadge={

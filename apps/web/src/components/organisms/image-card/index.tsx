@@ -1,6 +1,6 @@
 import { Badge, Icon, IconButton, Text } from '@stellar/design-system'
 import clsx from 'clsx'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { CustomCheckbox } from 'src/components/atoms'
 
@@ -10,6 +10,7 @@ type Props = {
   imageUri: string
   variant?: 'enabled' | 'disabled'
   size?: 'sm' | 'md' | 'lg' | 'adapt'
+  aspectVariant?: 'none' | 'square'
   radius?: 'min' | 'max'
   name?: string
   leftBadge?: {
@@ -31,6 +32,7 @@ export const ImageCard = ({
   imageUri,
   variant = 'enabled',
   size = 'md',
+  aspectVariant = 'square',
   radius = 'max',
   name,
   leftBadge,
@@ -41,7 +43,29 @@ export const ImageCard = ({
   showLinkButton = false,
   onClick,
 }: Props): React.ReactNode => {
+  const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null)
+
+  useEffect(() => {
+    if (aspectVariant === 'none') {
+      const img = new Image()
+      img.onload = () => {
+        setImageDimensions({
+          width: img.naturalWidth,
+          height: img.naturalHeight,
+        })
+      }
+      img.onerror = () => {
+        // Default to square dimensions if image fails to load
+        setImageDimensions({ width: 1, height: 1 })
+      }
+      img.src = imageUri
+    } else {
+      setImageDimensions(null)
+    }
+  }, [imageUri, aspectVariant])
+
   const wrapperSizeClassNames = useMemo(() => {
+    // Default square behavior
     switch (size) {
       case 'sm':
         return clsx('w-[179px]', 'h-[182px]')
@@ -54,20 +78,91 @@ export const ImageCard = ({
     }
   }, [size])
 
-  const wrapperStyle = useMemo(
-    () =>
-      name
-        ? undefined
-        : {
-            backgroundImage: `url(${imageUri})`,
-          },
-    [imageUri, name]
-  )
+  const dynamicSizeStyle = useMemo(() => {
+    if (aspectVariant === 'none' && imageDimensions) {
+      const aspectRatio = imageDimensions.width / imageDimensions.height
+      const isLandscape = imageDimensions.width > imageDimensions.height
+
+      // Use natural aspect ratio with larger sizes
+      switch (size) {
+        case 'sm': {
+          const baseWidth = 225
+          const baseHeight = 230
+          if (isLandscape) {
+            return {
+              width: `${baseWidth}px`,
+              height: `${Math.round(baseWidth / aspectRatio)}px`,
+            }
+          } else {
+            return {
+              width: `${Math.round(baseHeight * aspectRatio)}px`,
+              height: `${baseHeight}px`,
+            }
+          }
+        }
+        case 'md': {
+          const baseWidth = 275
+          const baseHeight = 280
+          if (isLandscape) {
+            return {
+              width: `${baseWidth}px`,
+              height: `${Math.round(baseWidth / aspectRatio)}px`,
+            }
+          } else {
+            return {
+              width: `${Math.round(baseHeight * aspectRatio)}px`,
+              height: `${baseHeight}px`,
+            }
+          }
+        }
+        case 'lg': {
+          const baseWidth = 330
+          const baseHeight = 335
+          if (isLandscape) {
+            return {
+              width: `${baseWidth}px`,
+              height: `${Math.round(baseWidth / aspectRatio)}px`,
+            }
+          } else {
+            return {
+              width: `${Math.round(baseHeight * aspectRatio)}px`,
+              height: `${baseHeight}px`,
+            }
+          }
+        }
+        case 'adapt': {
+          return {
+            width: '100%',
+            aspectRatio: `${imageDimensions.width} / ${imageDimensions.height}`,
+          }
+        }
+      }
+    }
+    return undefined
+  }, [size, aspectVariant, imageDimensions])
+
+  const wrapperStyle = useMemo(() => {
+    const baseStyle = name
+      ? undefined
+      : {
+          backgroundImage: `url(${imageUri})`,
+        }
+
+    if (aspectVariant === 'none' && dynamicSizeStyle) {
+      return {
+        ...baseStyle,
+        ...dynamicSizeStyle,
+      }
+    }
+
+    return baseStyle
+  }, [imageUri, name, aspectVariant, dynamicSizeStyle])
 
   const sharedWrapperClassNames = useMemo(
     () =>
       clsx(
-        wrapperSizeClassNames,
+        (aspectVariant === 'square' || (aspectVariant === 'none' && !imageDimensions)) && wrapperSizeClassNames,
+        (aspectVariant === 'square' || (aspectVariant === 'none' && !imageDimensions)) && 'bg-center',
         'relative',
         'flex',
         'flex-col',
@@ -78,7 +173,7 @@ export const ImageCard = ({
         radius === 'max' && 'rounded-3xl',
         radius === 'min' && 'rounded-xl'
       ),
-    [radius, wrapperSizeClassNames]
+    [radius, wrapperSizeClassNames, aspectVariant, imageDimensions]
   )
 
   const Wrapper = ({ children }: { children: React.ReactNode }) =>
