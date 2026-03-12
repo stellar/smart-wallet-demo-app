@@ -1,14 +1,123 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Wallet Recovery</title>
+  <title>Stellar House</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Inconsolata:wght@500&display=swap"
+    rel="stylesheet"
+  />
+
+  <style type="text/css">
+    body {
+      margin: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      padding: 16px;
+      color: #171717;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+
+    img {
+      border: none;
+      outline: none;
+      text-decoration: none;
+      -ms-interpolation-mode: bicubic;
+    }
+
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
+      gap: 24px;
+      background-color: #F8F8F8;
+    }
+
+    .header-image {
+      width: 100%;
+      max-width: 600px;
+      height: auto;
+      display: block;
+    }
+
+    .content {
+      gap: 16px;
+      font-size: 16px;
+      line-height: 24px;
+    }
+
+    .button-link-container {
+      gap: 12px;
+    }
+
+    .button-link-container p {
+      line-height: 18px;
+      font-size: 12px;
+      color: #6F6F6F;
+    }
+
+    .button-link {
+      display: inline-block;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff !important;
+      background-color: #000000;
+      text-decoration: none;
+      border-radius: 8px;
+      min-width: 140px;
+      text-align: center;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .button-link:hover {
+      background-color: #222222;
+      text-decoration: none;
+    }
+
+    .separator {
+      border: none;
+      border-top: 1px solid #E2E2E2;
+    }
+
+    .disclaimer {
+      font-size: 14px;
+      line-height: 20px;
+      color: #6F6F6F;
+    }
+  </style>
 </head>
 <body>
-  <p>
-    Click on the following link to recover your wallet:
-    <a href="{{RECOVERY_LINK}}">Recover access</a>
-  </p>
+  <div class="email-container">
+    <img src="https://meridian-pay-assets.s3.us-east-1.amazonaws.com/stellar-house-cdmx-banner.webp"
+         alt="Stellar House"
+         class="header-image" />
+
+    <div class="content">
+      <p>Hello,</p>
+      <p>Looks like you'd like to recover your Stellar House account.</p>
+      <p>Click the button below to access the recovery process.</p>
+
+      <div class="button-link-container">
+        <a href="{{RECOVERY_LINK}}" target="_blank" class="button-link">
+          Recover Access
+        </a>
+
+        <p>Recovery links are valid for 5 minutes.</p>
+      </div>
+
+      <p>Best,<br />Stellar House Support</p>
+
+      <hr class="separator" />
+
+      <p class="disclaimer">Didn't make this request? Ignore this email — your account will remain secure.</p>
+    </div>
+  </div>
 </body>
 </html>
