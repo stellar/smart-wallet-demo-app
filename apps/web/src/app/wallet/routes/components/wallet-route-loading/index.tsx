@@ -3,13 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { useWalletStatusStore } from 'src/app/wallet/store'
-import { Loading } from 'src/components/atoms'
-import {
-  Typography,
-  TypographyFontFamily,
-  TypographyVariant,
-  TypographyWeight,
-} from 'src/components/atoms'
+import { Loading, Typography, TypographyFontFamily, TypographyVariant, TypographyWeight } from 'src/components/atoms'
 import { useTheme } from 'src/config/theme/provider'
 import { setThemeColor } from 'src/helpers/theme-color'
 import { c } from 'src/interfaces/cms/useContent'
