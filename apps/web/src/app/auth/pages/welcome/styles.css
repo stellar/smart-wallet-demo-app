@@ -1,0 +1,13 @@
+.stellar-house-outline-button .Button--tertiary,
+.stellar-house-outline-button .Button--tertiary:hover,
+.stellar-house-outline-button .Button--tertiary:focus {
+  background-color: transparent;
+  border-color: var(--color-brownish);
+  color: var(--color-blackish);
+}
+
+.stellar-house-outline-button .Button--tertiary:disabled {
+  background-color: transparent;
+  border-color: var(--color-brownish-secondary);
+  color: var(--color-blackish);
+}

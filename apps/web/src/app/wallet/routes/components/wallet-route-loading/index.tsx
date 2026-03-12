@@ -1,10 +1,15 @@
-import { Text } from '@stellar/design-system'
 import clsx from 'clsx'
 import { useEffect, useMemo, useState } from 'react'
 
 import { OnboardingBackgroundImage } from 'src/app/core/components'
 import { useWalletStatusStore } from 'src/app/wallet/store'
 import { Loading } from 'src/components/atoms'
+import {
+  Typography,
+  TypographyFontFamily,
+  TypographyVariant,
+  TypographyWeight,
+} from 'src/components/atoms'
 import { useTheme } from 'src/config/theme/provider'
 import { setThemeColor } from 'src/helpers/theme-color'
 import { c } from 'src/interfaces/cms/useContent'
@@ -57,14 +62,29 @@ export const WalletRouteLoading = ({ overrideDescription }: Props) => {
       )}
 
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <div className={clsx('flex flex-col items-center gap-6', !isSuccessWallet && 'text-textTertiary')}>
+        <div
+          className={clsx(
+            'flex flex-col items-center gap-6',
+            !isSuccessWallet && onboardingStyleVariant !== 'stellar-house' && 'text-textTertiary'
+          )}
+        >
           {/* Loading Indicator */}
-          <Loading size="sm" color={isSuccessWallet ? 'text' : undefined} />
+          <Loading
+            size="sm"
+            color={onboardingStyleVariant === 'stellar-house' ? 'brownish' : isSuccessWallet ? 'text' : undefined}
+          />
 
           {/* Description */}
-          <Text as="span" size="md" weight="medium" addlClassName="text-center">
+          <Typography
+            className={clsx('text-center text-md', onboardingStyleVariant === 'stellar-house' && '!text-brownish')}
+            variant={TypographyVariant.p}
+            fontFamily={
+              onboardingStyleVariant === 'stellar-house' ? TypographyFontFamily.lora : TypographyFontFamily.sans
+            }
+            weight={TypographyWeight.medium}
+          >
             {overrideDescription ? overrideDescription : description}
-          </Text>
+          </Typography>
         </div>
       </div>
     </div>

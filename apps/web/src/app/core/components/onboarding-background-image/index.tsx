@@ -4,20 +4,12 @@ import { a } from 'src/interfaces/cms/useAssets'
 import { useLayout } from 'src/interfaces/layout'
 
 type Props = {
-  gradientTopPercentage?: number
-  gradientBottomPercentage?: number
   backgroundPosition?: 'center' | 'top' | 'bottom'
   isAnimated?: boolean
   className?: string
 }
 
-export const OnboardingBackgroundImage = ({
-  className,
-  isAnimated = false,
-  backgroundPosition,
-  gradientTopPercentage = 0,
-  gradientBottomPercentage = 100,
-}: Props) => {
+export const OnboardingBackgroundImage = ({ className, isAnimated = false, backgroundPosition }: Props) => {
   const layout = useLayout()
   const backgroundImage = layout === 'desktop' ? a('onboardingDesktopBackground') : a('onboardingBackground')
 
@@ -33,7 +25,7 @@ export const OnboardingBackgroundImage = ({
         className
       )}
       style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) ${gradientTopPercentage}%, rgba(10, 10, 10, 0.8) ${gradientBottomPercentage}%), url(${backgroundImage})`,
+        backgroundImage: `url(${backgroundImage})`,
       }}
     />
   )

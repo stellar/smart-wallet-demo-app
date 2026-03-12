@@ -18,6 +18,8 @@ export const THEME_COLORS = {
   borderSecondary: '#E8E8E8',
   whitish: '#FFFFFF',
   blackish: '#000000',
+  brownish: '#47120a',
+  brownishSecondary: 'rgba(71, 18, 10, 0.5)',
   muted: '#f6f6f6',
   error: '#cd2b31',
   errorTertiary: '#E5484D',

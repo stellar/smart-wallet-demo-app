@@ -35,11 +35,19 @@ export const RecoverTemplate = ({ isResetLinkSent, form, onGoBack, onSendResetLi
         <NavigateButton className="mb-10" size="md" onClick={onGoBack} />
 
         <div className="flex flex-col gap-6">
-          <Typography className="text-whitish" variant={TypographyVariant.h1} weight={TypographyWeight.bold}>
+          <Typography
+            className={onboardingStyleVariant === 'stellar-house' ? 'text-brownish' : 'text-whitish'}
+            variant={TypographyVariant.h1}
+            weight={TypographyWeight.bold}
+          >
             {c('recoverTitle')}
           </Typography>
 
-          <Text addlClassName="text-whitish" as="h3" size="md">
+          <Text
+            addlClassName={onboardingStyleVariant === 'stellar-house' ? 'text-brownishSecondary' : 'text-whitish'}
+            as="h3"
+            size="md"
+          >
             {c('recoverSubtitle')}
           </Text>
 

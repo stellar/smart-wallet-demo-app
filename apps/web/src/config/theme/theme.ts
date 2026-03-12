@@ -25,6 +25,8 @@ export const THEME_STYLES = {
         borderSecondary: 'var(--color-border-secondary)',
         whitish: 'var(--color-whitish)',
         blackish: 'var(--color-blackish)',
+        brownish: 'var(--color-brownish)',
+        brownishSecondary: 'var(--color-brownish-secondary)',
         muted: 'var(--color-muted)',
         error: 'var(--color-error)',
         errorSecondary: 'var(--color-error-secondary)',

@@ -101,18 +101,16 @@ export const InviteTemplate = ({
           <div className="flex flex-col items-center gap-6 mb-8">
             {isReturningUser ? (
               <Typography
-                className="text-whitish text-xl"
+                className="text-brownish text-xl"
                 variant={TypographyVariant.label}
                 fontFamily={TypographyFontFamily.lora}
               >
                 {c('welcomeBack')}
               </Typography>
-            ) : (
-              <img src={a('horizontalLogo')} height={24} width={98} alt="Logo" />
-            )}
+            ) : null}
             <img src={a('onboardingBrandLogo')} alt="Brand Logo" />
 
-            <Text addlClassName="text-whitish text-center" as="h3" size="md">
+            <Text addlClassName="text-brownishSecondary text-center" as="h3" size="md">
               {mapTextWithLinks(config.subtitle)}
             </Text>
           </div>
@@ -138,7 +136,9 @@ export const InviteTemplate = ({
 
         {config.showForgot && (
           <GhostButton onClick={onForgotPassword} size="md" isRounded isFullWidth invertColor>
-            {c('forgotPassword')}
+            <span className={onboardingStyleVariant === 'stellar-house' ? 'text-brownish' : undefined}>
+              {c('forgotPassword')}
+            </span>
           </GhostButton>
         )}
       </div>

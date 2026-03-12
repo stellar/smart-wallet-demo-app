@@ -9,6 +9,8 @@ import { useTheme } from 'src/config/theme/provider'
 import { a } from 'src/interfaces/cms/useAssets'
 import { c } from 'src/interfaces/cms/useContent'
 
+import './styles.css'
+
 type Props = {
   onCreateWallet: () => void
   onLogIn: () => void
@@ -37,10 +39,9 @@ export const WelcomeTemplate = ({ onCreateWallet, onLogIn, onForgotPassword }: P
       case 'stellar-house':
         return (
           <div className="flex flex-col items-center gap-6 mb-8">
-            <img src={a('horizontalLogo')} height={24} width={98} alt="Logo" />
             <img src={a('onboardingBrandLogo')} alt="Brand Logo" />
 
-            <Text addlClassName="text-whitish text-center" as="h3" size="md">
+            <Text addlClassName="text-brownishSecondary text-center" as="h3" size="md">
               {c('inviteSubtitle')}
             </Text>
           </div>
@@ -72,14 +73,18 @@ export const WelcomeTemplate = ({ onCreateWallet, onLogIn, onForgotPassword }: P
             )}
 
             {onboardingStyleVariant === 'stellar-house' && (
-              <Button onClick={onLogIn} size="xl" variant="tertiary" isRounded isFullWidth>
-                {c('logIn')}
-              </Button>
+              <div className="stellar-house-outline-button">
+                <Button onClick={onLogIn} size="xl" variant="tertiary" isRounded isFullWidth>
+                  {c('logIn')}
+                </Button>
+              </div>
             )}
           </>
 
           <GhostButton onClick={onForgotPassword} size="md" isRounded isFullWidth invertColor>
-            {c('forgotPassword')}
+            <span className={onboardingStyleVariant === 'stellar-house' ? 'text-brownish' : undefined}>
+              {c('forgotPassword')}
+            </span>
           </GhostButton>
         </div>
       </div>
@@ -96,7 +101,7 @@ export const WelcomeTemplate = ({ onCreateWallet, onLogIn, onForgotPassword }: P
         className={clsx(
           'flex flex-col justify-start px-8',
           onboardingStyleVariant === 'meridian-2025' && 'mt-[calc(100svh-85svh)]',
-          onboardingStyleVariant === 'stellar-house' && 'mt-[calc(100svh-71svh)]'
+          onboardingStyleVariant === 'stellar-house' && 'mt-[calc(100svh-82svh)]'
         )}
       >
         <div className="flex flex-col gap-6">
