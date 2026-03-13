@@ -1,6 +1,7 @@
 import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
-import { useState, useMemo, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
+import { useFeatureFlagsState } from 'src/app/core/helpers'
 import { HorizontalNavbar, NavigateButton } from 'src/components/molecules'
 import { SafeAreaView } from 'src/components/organisms'
 import { c } from 'src/interfaces/cms/useContent'
@@ -17,24 +18,29 @@ export const LeftAssets = () => {
   const search = leftAssetsRoute.useSearch()
   const navigate = useNavigate()
   const canGoBack = useCanGoBack()
+  const [isNftsActive] = useFeatureFlagsState(['nfts'])
 
   const [activeTab, setActiveTab] = useState<LeftAssetsTab>(search.tab || 'transfer-assets')
 
-  const transferOptions: { id: LeftAssetsTab; label: string; onClick: () => void }[] = useMemo(
-    () => [
+  const transferOptions: { id: LeftAssetsTab; label: string; onClick: () => void }[] = useMemo(() => {
+    const options: { id: LeftAssetsTab; label: string; onClick: () => void }[] = [
       {
         id: 'transfer-assets',
         label: c('transferAssetsTabLabel'),
         onClick: () => setActiveTab('transfer-assets'),
       },
-      {
+    ]
+
+    if (isNftsActive) {
+      options.push({
         id: 'transfer-nfts',
         label: c('transferNftsTabLabel'),
         onClick: () => setActiveTab('transfer-nfts'),
-      },
-    ],
-    []
-  )
+      })
+    }
+
+    return options
+  }, [isNftsActive])
 
   const handleGoBack = () => {
     if (canGoBack) router.history.back()
@@ -47,15 +53,15 @@ export const LeftAssets = () => {
       case 'transfer-assets':
         return TransferAssets
       case 'transfer-nfts':
-        return TransferNfts
+        return isNftsActive ? TransferNfts : TransferAssets
       default:
         return TransferAssets
     }
-  }, [activeTab])
+  }, [activeTab, isNftsActive])
 
   useEffect(() => {
-    setActiveTab(search.tab || 'transfer-assets')
-  }, [search.tab])
+    setActiveTab(search.tab === 'transfer-nfts' && isNftsActive ? 'transfer-nfts' : 'transfer-assets')
+  }, [isNftsActive, search.tab])
 
   return (
     <SafeAreaView>

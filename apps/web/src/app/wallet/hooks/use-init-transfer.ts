@@ -1,6 +1,7 @@
 import { useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useRef } from 'react'
 
+import { useFeatureFlagsState } from 'src/app/core/helpers'
 import { useToast } from 'src/app/core/hooks/use-toast'
 import { Toast } from 'src/app/core/services/toast'
 import { modalService } from 'src/components/organisms/modal/provider'
@@ -26,6 +27,7 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
   const router = useRouter()
 
   const toast = useToast()
+  const [isNftsActive] = useFeatureFlagsState(['nfts'])
   const { handleClaimNft } = useNfts()
 
   const transactionDetailsModalKey = 'transaction-details'
@@ -156,6 +158,10 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
     isHandlingTransfer.current = true
 
     if (!params.type) return
+    if (isNftClaimTypeParams(params) && !isNftsActive) {
+      exit()
+      return
+    }
 
     modalService.open({
       key: loadingParamsModalKey,
@@ -173,7 +179,7 @@ export const useInitTransfer = ({ params, enabled }: InitTransferProps) => {
     } else if (isSwagTypeParams(params)) {
       await getTransferOptions.mutateAsync(params)
     }
-  }, [getTransferOptions, getNftClaimOptions, params])
+  }, [exit, getTransferOptions, getNftClaimOptions, isNftsActive, params])
 
   useEffect(() => {
     modalService.setState(transactionDetailsModalKey, { isLoading: transfer.isPending })

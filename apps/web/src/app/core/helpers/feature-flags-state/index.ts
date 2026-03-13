@@ -10,7 +10,7 @@ const mapFlags = (flags: FeatureFlags[], storedFlags: GetFeatureFlagsResult[`dat
 export const featureFlagsState = (flags: FeatureFlags[]): boolean[] => {
   const result = queryClient.getQueryData<GetFeatureFlagsResult>([CoreQueryKeys.GetFeatureFlags])
 
-  if (!result) throw Error('featureFlagsState | Feature flags are not available from query')
+  if (!result) return flags.map(() => false)
 
   const storedFlags = result.data.flags
 
@@ -20,7 +20,7 @@ export const featureFlagsState = (flags: FeatureFlags[]): boolean[] => {
 export const useFeatureFlagsState = (flags: FeatureFlags[]) => {
   const { data: result } = useGetFeatureFlags()
 
-  if (!result) throw Error('featureFlagsState | Feature flags are not available from query')
+  if (!result) return flags.map(() => false)
 
   const storedFlags = result.data.flags
 

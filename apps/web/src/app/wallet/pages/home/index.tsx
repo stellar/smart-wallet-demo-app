@@ -37,7 +37,7 @@ export const Home = () => {
     isWalletComingSoonActive,
     isProductsListActive,
     isVendorsListActive,
-    isNftTabActive,
+    isNftsActive,
   ] = useFeatureFlagsState([
     'airdrop',
     'transfer-left-assets',
@@ -46,7 +46,7 @@ export const Home = () => {
     'wallet-coming-soon',
     'products-list',
     'vendors-list',
-    'nft-tab',
+    'nfts',
   ])
 
   // Wallet information
@@ -226,7 +226,7 @@ export const Home = () => {
         isLoadingFaq={isLoadingFaq}
         isLoadingSwags={isLoadingSwags}
         isLoadingVendors={isLoadingVendors}
-        isNftTabActive={isNftTabActive}
+        isNftsActive={isNftsActive}
         balanceAmount={walletData?.balance || 0}
         topBanners={topBanners}
         banners={banners}

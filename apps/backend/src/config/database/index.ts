@@ -1,3 +1,5 @@
+import { BaseEntity } from 'typeorm'
+
 import { seeds } from 'api/core/seeds'
 import { isTestEnv } from 'config/env-utils'
 import { LogTypes, logger } from 'config/logger'
@@ -17,11 +19,22 @@ const databaseConnectionLog = (logType: LogTypes, message: string, err?: unknown
 const initializeDatabase = async (): Promise<void> => {
   try {
     await AppDataSource.initialize()
+    bindEntitiesToDataSource()
     databaseConnectionLog(LogTypes.Info, 'Initialized database')
     await runMigrations()
     await runSeeds()
   } catch (err) {
     databaseConnectionLog(LogTypes.Error, 'Error initializing database', err)
+  }
+}
+
+const bindEntitiesToDataSource = (): void => {
+  for (const metadata of AppDataSource.entityMetadatas) {
+    const entity = metadata.target as typeof BaseEntity
+
+    if (typeof entity?.useDataSource === 'function') {
+      entity.useDataSource(AppDataSource)
+    }
   }
 }
 

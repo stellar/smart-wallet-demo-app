@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { useFeatureFlagsState } from 'src/app/core/helpers'
 import { formatNumber } from 'src/app/core/utils'
 import { ConfirmTransferDrawer, SelectAmountTransferDrawer } from 'src/app/wallet/components'
 import {
@@ -27,6 +28,7 @@ import TransferAssetsTemplate from './template'
 
 export const TransferAssets = () => {
   const navigate = useNavigate()
+  const [isNftsActive] = useFeatureFlagsState(['nfts'])
   const getWallet = useGetWallet()
   const walletData = getWallet.data
   const [reviewStandardTransferInfo, setReviewStandardTransferInfo] = useState<WalletAddressFormValues | null>(null)
@@ -73,7 +75,7 @@ export const TransferAssets = () => {
           title: organization ? c('transferOrganizationSuccessModalTitle') : c('transferSuccessModalTitle'),
           icon: organization ? 'heart' : 'check',
           message: message.trim(),
-          buttonText: organization ? c('close') : c('transferNft'),
+          buttonText: organization || !isNftsActive ? c('close') : c('transferNft'),
           button: {
             variant: 'secondary',
             size: 'lg',
@@ -81,7 +83,9 @@ export const TransferAssets = () => {
             isFullWidth: true,
             onClick: () => {
               modalService.close()
-              if (!organization) navigate({ to: WalletPagesPath.LEFT_ASSETS, search: { tab: 'transfer-nfts' } })
+              if (!organization && isNftsActive) {
+                navigate({ to: WalletPagesPath.LEFT_ASSETS, search: { tab: 'transfer-nfts' } })
+              }
             },
           },
         },

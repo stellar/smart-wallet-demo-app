@@ -48,6 +48,11 @@ const featureFlags = [
     isActive: true,
     description: 'When enabled, shows the vendors list at wallet home page.',
   },
+  {
+    name: 'nfts',
+    isActive: false,
+    description: 'When enabled, exposes NFT-related wallet functionality.',
+  },
 ]
 
 export class FeatureFlagsSeed extends BaseSeed {

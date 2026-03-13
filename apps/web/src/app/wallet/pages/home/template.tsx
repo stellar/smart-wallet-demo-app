@@ -36,7 +36,7 @@ type Props = {
   isLoadingFaq: boolean
   isLoadingSwags: boolean
   isLoadingVendors: boolean
-  isNftTabActive?: boolean
+  isNftsActive?: boolean
   balanceAmount: number
   topBanners?: BannerOptions[]
   banners?: BannerOptions[]
@@ -57,7 +57,7 @@ export const HomeTemplate = ({
   isLoadingFaq,
   isLoadingSwags,
   isLoadingVendors,
-  isNftTabActive = false,
+  isNftsActive = false,
   balanceAmount,
   topBanners,
   banners,
@@ -114,7 +114,7 @@ export const HomeTemplate = ({
 
     return (
       <nav className="w-full gap-2 flex justify-between items-center">
-        {isNftTabActive && (
+        {isNftsActive && (
           <NavbarButton navbarItem="nft">
             <div className="flex items-center gap-2">
               <Icon.Image01 />

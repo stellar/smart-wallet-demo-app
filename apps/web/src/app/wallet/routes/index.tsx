@@ -58,21 +58,34 @@ export const homeRoute = createRoute({
   component: Home,
   errorComponent: ({ error }) => <ErrorComponent error={error} />,
   validateSearch: search => {
-    switch (search.type as TransferTypes) {
+    const validatedSearch = search ?? {}
+
+    switch (validatedSearch.type as TransferTypes) {
       case 'transfer':
-        return transferTypeSchema.validateSync(search)
+        return transferTypeSchema.validateSync(validatedSearch)
       case 'nft':
-        return nftTypeSchema.validateSync(search)
+        return nftTypeSchema.validateSync(validatedSearch)
       case 'swag':
-        return swagTypeSchema.validateSync(search)
+        return swagTypeSchema.validateSync(validatedSearch)
+      default:
+        return validatedSearch
     }
   },
   loaderDeps: ({ search }) => ({
     shouldInitTransfer: !!search.type,
   }),
-  beforeLoad: () => {
+  beforeLoad: ({ search }) => {
+    const [isNftsActive] = featureFlagsState(['nfts'])
+
+    if (search.type === 'nft' && !isNftsActive) {
+      throw redirect({
+        to: WalletPagesPath.HOME,
+        search: {},
+      })
+    }
+
     // Preload images
-    preloadImages([
+    const images = [
       a('airdropBannerBackground'),
       a('airdropDefaultBackground'),
       a('transferLeftAssetsBannerBackground'),
@@ -80,9 +93,13 @@ export const homeRoute = createRoute({
       a('behindScenesBannerBackground'),
       a('behindScenesDefaultBackground'),
       a('leftSwagsBannerBackground'),
-      a('nftModalBackground'),
-      a('customNftModalBackground'),
-    ])
+    ]
+
+    if (isNftsActive) {
+      images.push(a('nftModalBackground'), a('customNftModalBackground'))
+    }
+
+    preloadImages(images)
   },
 })
 
@@ -116,6 +133,14 @@ const nftsRoute = createRoute({
   path: filterHomePath(WalletPagesPath.NFTS),
   component: Nfts,
   beforeLoad: () => {
+    const [isNftsActive] = featureFlagsState(['nfts'])
+
+    if (!isNftsActive) {
+      throw redirect({
+        to: WalletPagesPath.HOME,
+      })
+    }
+
     // Preload images
     preloadImages([a('emptyList')])
   },
@@ -131,13 +156,21 @@ export const leftAssetsRoute = createRoute({
         tab: yup.string(),
       })
       .validateSync(search),
-  beforeLoad: () => {
+  beforeLoad: ({ search }) => {
     const [isTransferLeftAssetsActive] = featureFlagsState(['transfer-left-assets'])
+    const [isNftsActive] = featureFlagsState(['nfts'])
 
     // Redirect to home page if feature flag is disabled
     if (!isTransferLeftAssetsActive) {
       throw redirect({
         to: WalletPagesPath.HOME,
+      })
+    }
+
+    if (search.tab === 'transfer-nfts' && !isNftsActive) {
+      throw redirect({
+        to: WalletPagesPath.LEFT_ASSETS,
+        search: { tab: 'transfer-assets' },
       })
     }
   },
