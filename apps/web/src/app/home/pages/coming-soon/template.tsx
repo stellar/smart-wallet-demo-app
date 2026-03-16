@@ -32,18 +32,9 @@ export const ComingSoonTemplate = () => {
       case 'stellar-house':
         return (
           <div className="flex flex-col items-center gap-6 mb-8">
-            <Typography
-              className="text-whitish text-xl"
-              variant={TypographyVariant.label}
-              fontFamily={TypographyFontFamily.lora}
-            >
-              {c('comingSoon')}
-            </Typography>
-
-            <img src={a('horizontalLogo')} height={24} width={98} alt="Logo" />
             <img src={a('onboardingBrandLogo')} alt="Brand Logo" />
 
-            <Text addlClassName="text-whitish text-center" as="h3" size="md">
+            <Text addlClassName="text-brownishSecondary text-center" as="h3" size="md">
               {c('comingSoonSubtitleLine1')}
               <br />
               {c('comingSoonSubtitleLine2')}
@@ -56,7 +47,7 @@ export const ComingSoonTemplate = () => {
   }
 
   return (
-    <div>
+    <div className="h-full">
       <OnboardingBackgroundImage
         isAnimated={onboardingStyleVariant === 'meridian-2025'}
         backgroundPosition={onboardingStyleVariant === 'stellar-house' ? 'center' : undefined}
@@ -65,10 +56,19 @@ export const ComingSoonTemplate = () => {
         className={clsx(
           'flex flex-col px-8',
           onboardingStyleVariant === 'meridian-2025' && 'justify-start mt-[calc(100svh-80svh)]',
-          onboardingStyleVariant === 'stellar-house' && 'justify-center h-screen'
+          onboardingStyleVariant === 'stellar-house' && 'relative h-full justify-center'
         )}
       >
         <Content />
+        {onboardingStyleVariant === 'stellar-house' ? (
+          <Typography
+            className="absolute inset-x-0 bottom-[16%] text-center text-brownish text-md font-semibold"
+            variant={TypographyVariant.label}
+            fontFamily={TypographyFontFamily.lora}
+          >
+            {c('comingSoon')}
+          </Typography>
+        ) : null}
       </div>
     </div>
   )
