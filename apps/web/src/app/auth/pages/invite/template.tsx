@@ -14,6 +14,8 @@ type Props = {
   isReturningUser: boolean
   isCreatingWallet: boolean
   isLoggingIn: boolean
+  showTapToStart: boolean
+  onGetStarted: () => void
   onCreateWallet: () => void
   onLogIn: () => void
   onForgotPassword: () => void
@@ -23,11 +25,14 @@ export const InviteTemplate = ({
   isReturningUser,
   isCreatingWallet,
   isLoggingIn,
+  showTapToStart,
+  onGetStarted,
   onCreateWallet,
   onLogIn,
   onForgotPassword,
 }: Props) => {
   const { onboardingStyleVariant } = useTheme()
+  const showStellarHouseSubtitle = isReturningUser || showTapToStart
 
   const hasAddendum = import.meta.env.VITE_ADDENDUM_URL && import.meta.env.VITE_ADDENDUM_URL.trim() !== ''
   const config = isReturningUser
@@ -110,7 +115,11 @@ export const InviteTemplate = ({
             ) : null}
             <img src={a('onboardingBrandLogo')} alt="Brand Logo" />
 
-            <Text addlClassName="text-brownishSecondary text-center" as="h3" size="md">
+            <Text
+              addlClassName={clsx('text-brownishSecondary text-center', !showStellarHouseSubtitle && 'invisible')}
+              as="h3"
+              size="md"
+            >
               {mapTextWithLinks(config.subtitle)}
             </Text>
           </div>
@@ -145,6 +154,31 @@ export const InviteTemplate = ({
     )
   }
 
+  if (showTapToStart) {
+    return (
+      <div className="h-full">
+        <OnboardingBackgroundImage backgroundPosition="center" />
+        <button
+          type="button"
+          className="relative flex h-full w-full flex-col bg-transparent px-8 text-left"
+          onClick={onGetStarted}
+        >
+          <div className="mt-[calc(100svh-71svh)] flex flex-col">
+            <Header />
+          </div>
+
+          <Typography
+            className="absolute inset-x-0 bottom-[10%] text-center text-md font-semibold text-brownish"
+            variant={TypographyVariant.label}
+            fontFamily={TypographyFontFamily.lora}
+          >
+            {c('inviteTapToStart')}
+          </Typography>
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div>
       <OnboardingBackgroundImage
@@ -167,7 +201,9 @@ export const InviteTemplate = ({
         {config.disclaimer && (
           <div className="mt-2 text-center">
             <Text
-              addlClassName={onboardingStyleVariant === 'stellar-house' ? 'text-whitish' : 'text-textSecondary'}
+              addlClassName={
+                onboardingStyleVariant === 'stellar-house' ? 'text-brownishSecondary' : 'text-textSecondary'
+              }
               as="span"
               size="xs"
             >
