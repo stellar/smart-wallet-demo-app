@@ -93,6 +93,8 @@ export const homeRoute = createRoute({
       a('behindScenesBannerBackground'),
       a('behindScenesDefaultBackground'),
       a('leftSwagsBannerBackground'),
+      a('eventScheduleBannerBackground'),
+      a('dayOneTeaserBannerBackground'),
     ]
 
     if (isNftsActive) {

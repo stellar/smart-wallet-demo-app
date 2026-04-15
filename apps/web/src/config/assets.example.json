@@ -21,5 +21,7 @@
   "specialGiftBox": "src/assets/images/special-gift-box.png",
   "specialGiftModalBackground": "src/assets/images/special-gift-modal-background.webp",
   "walletComingSoonBannerBackground": "src/assets/images/wallet-coming-soon-banner-background.webp",
-  "tapToPayModalImage": "src/assets/images/tap-to-pay-modal-image.png"
+  "tapToPayModalImage": "src/assets/images/tap-to-pay-modal-image.png",
+  "eventScheduleBannerBackground": "src/assets/images/event-schedule-banner-background.webp",
+  "dayOneTeaserBannerBackground": "src/assets/images/day-one-teaser-banner-background.webp"
 }

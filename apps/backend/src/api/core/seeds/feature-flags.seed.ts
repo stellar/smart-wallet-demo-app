@@ -53,6 +53,16 @@ const featureFlags = [
     isActive: false,
     description: 'When enabled, exposes NFT-related wallet functionality.',
   },
+  {
+    name: 'event-schedule',
+    isActive: true,
+    description: 'When enabled, shows the event schedule banner at wallet home page.',
+  },
+  {
+    name: 'day-one-teaser',
+    isActive: false,
+    description: 'When enabled, shows the day one teaser banner at wallet home page.',
+  },
 ]
 
 export class FeatureFlagsSeed extends BaseSeed {

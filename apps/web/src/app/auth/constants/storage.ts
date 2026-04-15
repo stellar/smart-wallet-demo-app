@@ -10,3 +10,5 @@ export const AIRDROP_STORAGE_KEY = `${APP_NAME}/airdrop`
 export const TRANSFER_LEFT_ASSETS_STORAGE_KEY = `${APP_NAME}/transfer-left-assets`
 export const BEHIND_SCENES_STORAGE_KEY = `${APP_NAME}/behind-scenes`
 export const LEFT_SWAGS_STORAGE_KEY = `${APP_NAME}/left-swags`
+export const EVENT_SCHEDULE_STORAGE_KEY = `${APP_NAME}/event-schedule`
+export const DAY_ONE_TEASER_STORAGE_KEY = `${APP_NAME}/day-one-teaser`
