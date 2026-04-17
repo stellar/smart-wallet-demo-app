@@ -44,7 +44,7 @@
   "pay": "Pay",
   "scan": "Scan",
   "walletHomeProductListTitle": "Claim your free swag",
-  "walletHomeVendorsListTitle": "Explore Stellar House",
+  "walletHomeVendorsListTitle": "Head to the terrace!",
   "walletHomeProductListLeftBadgeOptionALabel": "Claimed",
   "walletHomeProductListLeftBadgeOptionBLabel": "Unclaimed",
   "walletHomeProductListButtonText": "Claim swag",
@@ -207,7 +207,7 @@
   "eventScheduleBannerTitle": "View today's schedule",
   "eventScheduleBannerDescription": "Keynotes, demos, workshops, and networking — see what's happening today.",
   "eventScheduleBannerButtonTitle": "Full schedule",
-  "eventScheduleUrl": "https://meridian.stellar.org/schedule",
+  "eventScheduleUrl": "https://cdn.sanity.io/images/e2r40yh6/production-i18n/66e13d3f9f455dfbd17fd00829808ce5e54cc13a-1084x1996.png",
   "dayOneTeaserBannerTitle": "Welcome to Stellar House!",
   "dayOneTeaserBannerDescription": "Tomorrow you'll use Meridian Pay to grab food, drinks, and swag right from your phone. Stay tuned!"
 }

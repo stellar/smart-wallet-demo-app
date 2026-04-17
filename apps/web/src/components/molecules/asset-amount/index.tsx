@@ -49,7 +49,7 @@ export const AssetAmount = ({
         )
       case 'lg':
         return (
-          <Heading addlClassName={`text-${amountColor}`} as={'h1'} size={'xs'} weight={weight}>
+          <Heading addlClassName={`text-${amountColor}`} as={'h1'} size={'md'} weight={weight}>
             {formattedAmount}
           </Heading>
         )
@@ -72,7 +72,7 @@ export const AssetAmount = ({
         )
       case 'lg':
         return (
-          <Heading as={'h1'} size={'xs'} weight={weight}>
+          <Heading as={'h1'} size={'md'} weight={weight}>
             {formattedAsset}
           </Heading>
         )
