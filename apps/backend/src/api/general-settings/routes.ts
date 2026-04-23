@@ -36,9 +36,7 @@ generalSettingsRoutes.get(`${GetGeneralBalanceEndpoint}`, apiKeyAuthentication, 
 )
 
 const featureFlagsRoutes = Router()
-featureFlagsRoutes.get(`${GetFeatureFlagsEndpoint}`, apiKeyAuthentication, async (req, res) =>
-  GetFeatureFlags.init().executeHttp(req, res)
-)
+featureFlagsRoutes.get(`${GetFeatureFlagsEndpoint}`, async (req, res) => GetFeatureFlags.init().executeHttp(req, res))
 
 const adminFeatureFlagsRoutes = Router()
 adminFeatureFlagsRoutes.get(`${GetFeatureFlagsEndpoint}`, apiKeyAuthentication, async (req, res) =>

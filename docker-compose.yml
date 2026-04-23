@@ -100,7 +100,6 @@ services:
         PROD: ${PROD:-false}
         APP_TITLE: ${APP_TITLE:-Smart Wallet Demo}
         VITE_API_URL: ${VITE_API_URL:-http://localhost:8201}
-        VITE_X_API_KEY: ${VITE_X_API_KEY:-"your-valid-api-keys,split-by-commas"}
         VITE_THEME_SWITCH_ENABLED: ${VITE_THEME_SWITCH_ENABLED:-false}
         VITE_ENVIRONMENT_NAME: ${VITE_ENVIRONMENT_NAME:-staging}
         VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
@@ -114,7 +113,6 @@ services:
       PORT: ${PORT:-3201}
       PROD: ${PROD:-false}
       VITE_API_URL: ${VITE_API_URL:-http://localhost:8201}
-      VITE_X_API_KEY: ${VITE_X_API_KEY:-"your-valid-api-keys,split-by-commas"}
       VITE_THEME_SWITCH_ENABLED: ${VITE_THEME_SWITCH_ENABLED:-false}
       VITE_ENVIRONMENT_NAME: ${VITE_ENVIRONMENT_NAME:-staging}
       VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}

@@ -24,6 +24,7 @@ export default {
     get: {
       ...GetFeatureFlagsDocs.get,
       tags: [Tags.FEATURE_FLAGS],
+      security: [],
     },
   },
   '/api/admin/feature-flags': {
