@@ -6,10 +6,13 @@
 	url = https://github.com/stellar/stellar-disbursement-platform-backend.git
 [submodule "infra/external/wallet-backend"]
 	path = infra/external/wallet-backend
-	url = https://github.com/stellar/wallet-backend.git
+	url = https://github.com/stellar-experimental/meridian-pay-wallet-backend.git
+	branch = develop
 [submodule "infra/external/stellar-disbursement-platform-backend"]
 	path = infra/external/stellar-disbursement-platform-backend
-	url = https://github.com/stellar/stellar-disbursement-platform-backend.git
+	url = https://github.com/stellar-experimental/meridian-pay-sdp-backend.git
+	branch = develop
 [submodule "infra/external/stellar-disbursement-platform-frontend"]
 	path = infra/external/stellar-disbursement-platform-frontend
-	url = https://github.com/stellar/stellar-disbursement-platform-frontend.git
+	url = https://github.com/stellar-experimental/meridian-pay-sdp-frontend.git
+	branch = develop
