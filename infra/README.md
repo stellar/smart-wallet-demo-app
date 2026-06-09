@@ -43,24 +43,25 @@ npm run setup-content --workspace=apps/web
 
 All services route Stellar RPC and Horizon calls through a local proxy (`apps/rpc-proxy`) instead of hitting public providers directly. The proxy tries providers sequentially and fails over automatically on network errors, timeouts, HTTP 5xx, and rate limits (429).
 
-| Port | Protocol | Purpose |
-|------|----------|---------|
+| Port   | Protocol        | Purpose                                                     |
+| ------ | --------------- | ----------------------------------------------------------- |
 | `8301` | JSON-RPC (POST) | Soroban RPC — used by `STELLAR_SOROBAN_RPC_URL` / `RPC_URL` |
-| `8302` | REST (GET/POST) | Horizon — used by `STELLAR_HORIZON_URL` / `HORIZON_URL` |
+| `8302` | REST (GET/POST) | Horizon — used by `STELLAR_HORIZON_URL` / `HORIZON_URL`     |
 
 **Health endpoints** (on `:8301`):
+
 - `GET /health` — liveness: always 200 while the process is up
 - `GET /health/ready` — readiness: probes each RPC provider with `getHealth`; returns 503 if all fail
 
 **Key env vars** (set in `docker-compose.yml` or `.env`):
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `STELLAR_NETWORK` | `testnet` | `testnet`, `mainnet`, or `futurenet` — selects the built-in provider list |
-| `PROVIDER_TIMEOUT_MS` | `10000` | Per-provider timeout for real requests (ms) |
-| `READINESS_TIMEOUT_MS` | `3000` | Per-provider timeout for `/health/ready` probe (ms) |
-| `RPC_PROVIDERS` | _(built-in list)_ | Comma-separated override of RPC provider URLs |
-| `HORIZON_PROVIDERS` | _(built-in list)_ | Comma-separated override of Horizon URLs |
+| Variable               | Default           | Description                                                               |
+| ---------------------- | ----------------- | ------------------------------------------------------------------------- |
+| `STELLAR_NETWORK`      | `testnet`         | `testnet`, `mainnet`, or `futurenet` — selects the built-in provider list |
+| `PROVIDER_TIMEOUT_MS`  | `10000`           | Per-provider timeout for real requests (ms)                               |
+| `READINESS_TIMEOUT_MS` | `3000`            | Per-provider timeout for `/health/ready` probe (ms)                       |
+| `RPC_PROVIDERS`        | _(built-in list)_ | Comma-separated override of RPC provider URLs                             |
+| `HORIZON_PROVIDERS`    | _(built-in list)_ | Comma-separated override of Horizon URLs                                  |
 
 ## Running the infrastructure
 

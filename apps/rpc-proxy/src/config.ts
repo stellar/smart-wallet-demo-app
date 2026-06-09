@@ -27,10 +27,7 @@ const RPC_PROVIDERS: Record<NetworkType, string[]> = {
     'https://rpc.ankr.com/stellar_soroban',
     'https://stellar-mainnet.liquify.com/api=41EEWAH79Y5OCGI7/mainnet',
   ],
-  futurenet: [
-    'https://rpc-futurenet.stellar.org',
-    'https://stellar.liquify.com/api=41EEWAH79Y5OCGI7/futurenet',
-  ],
+  futurenet: ['https://rpc-futurenet.stellar.org', 'https://stellar.liquify.com/api=41EEWAH79Y5OCGI7/futurenet'],
 }
 
 const HORIZON_PROVIDERS: Record<NetworkType, string[]> = {
@@ -46,8 +43,12 @@ export function getConfig(): ProxyConfig {
   const timeout = parseInt(process.env.PROVIDER_TIMEOUT_MS ?? '10000', 10)
   const readinessTimeout = parseInt(process.env.READINESS_TIMEOUT_MS ?? '3000', 10)
 
-  const customRpc = process.env.RPC_PROVIDERS?.split(',').map(s => s.trim()).filter(Boolean)
-  const customHorizon = process.env.HORIZON_PROVIDERS?.split(',').map(s => s.trim()).filter(Boolean)
+  const customRpc = process.env.RPC_PROVIDERS?.split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
+  const customHorizon = process.env.HORIZON_PROVIDERS?.split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
 
   return {
     rpcPort,

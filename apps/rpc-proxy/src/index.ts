@@ -1,33 +1,10 @@
 import http from 'http'
+
 import { getConfig } from './config'
-import { proxyWithFallback } from './proxy'
+import { logger } from './logger'
+import { checkRpcReadiness, proxyWithFallback } from './proxy'
 
 const config = getConfig()
-
-const GET_HEALTH_BODY = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'getHealth' })
-
-async function checkRpcReadiness(providers: string[], timeout: number): Promise<{ ready: boolean; reachable: string | null; failures: string[] }> {
-  const failures: string[] = []
-  for (const provider of providers) {
-    try {
-      const controller = new AbortController()
-      const timer = setTimeout(() => controller.abort(), timeout)
-      const res = await fetch(provider, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: GET_HEALTH_BODY,
-        signal: controller.signal,
-      })
-      clearTimeout(timer)
-      if (res.ok) return { ready: true, reachable: provider, failures }
-      failures.push(`${provider}: HTTP ${res.status}`)
-    } catch (err) {
-      const msg = err instanceof Error && err.name === 'AbortError' ? 'timeout' : (err instanceof Error ? err.message : String(err))
-      failures.push(`${provider}: ${msg}`)
-    }
-  }
-  return { ready: false, reachable: null, failures }
-}
 
 function createServer(providers: string[], mode: 'rpc' | 'horizon', port: number): void {
   const server = http.createServer(async (req, res) => {
@@ -62,7 +39,7 @@ function createServer(providers: string[], mode: 'rpc' | 'horizon', port: number
 
     try {
       await proxyWithFallback(providers, req, res, { timeout: config.timeout, mode })
-    } catch (err) {
+    } catch (_err) {
       if (!res.headersSent) {
         res.writeHead(500, { 'content-type': 'application/json' })
         res.end(JSON.stringify({ error: 'Internal proxy error' }))
@@ -71,8 +48,8 @@ function createServer(providers: string[], mode: 'rpc' | 'horizon', port: number
   })
 
   server.listen(port, () => {
-    console.log(`[rpc-proxy] ${mode.toUpperCase()} proxy on :${port} | network: ${config.network}`)
-    console.log(`[rpc-proxy] Providers (in order): ${providers.join(' → ')}`)
+    logger.info(`${mode.toUpperCase()} proxy on :${port} | network: ${config.network}`)
+    logger.info(`Providers (in order): ${providers.join(' → ')}`)
   })
 }
 

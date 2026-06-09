@@ -6,6 +6,7 @@
   "workspaces": [
     "apps/backend",
     "apps/web",
+    "apps/rpc-proxy",
     "scripts"
   ],
   "scripts": {
