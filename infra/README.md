@@ -39,12 +39,37 @@ npm run setup-assets --workspace=apps/web
 npm run setup-content --workspace=apps/web
 ```
 
+## RPC Proxy
+
+All services route Stellar RPC and Horizon calls through a local proxy (`apps/rpc-proxy`) instead of hitting public providers directly. The proxy tries providers sequentially and fails over automatically on network errors, timeouts, HTTP 5xx, and rate limits (429).
+
+| Port | Protocol | Purpose |
+|------|----------|---------|
+| `8301` | JSON-RPC (POST) | Soroban RPC — used by `STELLAR_SOROBAN_RPC_URL` / `RPC_URL` |
+| `8302` | REST (GET/POST) | Horizon — used by `STELLAR_HORIZON_URL` / `HORIZON_URL` |
+
+**Health endpoints** (on `:8301`):
+- `GET /health` — liveness: always 200 while the process is up
+- `GET /health/ready` — readiness: probes each RPC provider with `getHealth`; returns 503 if all fail
+
+**Key env vars** (set in `docker-compose.yml` or `.env`):
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `STELLAR_NETWORK` | `testnet` | `testnet`, `mainnet`, or `futurenet` — selects the built-in provider list |
+| `PROVIDER_TIMEOUT_MS` | `10000` | Per-provider timeout for real requests (ms) |
+| `READINESS_TIMEOUT_MS` | `3000` | Per-provider timeout for `/health/ready` probe (ms) |
+| `RPC_PROVIDERS` | _(built-in list)_ | Comma-separated override of RPC provider URLs |
+| `HORIZON_PROVIDERS` | _(built-in list)_ | Comma-separated override of Horizon URLs |
+
 ## Running the infrastructure
 
 ```bash
 cd infra
 export COMPOSE_EXPERIMENTAL_GIT_REMOTE=1 && docker-compose --profile all up -d --build
 ```
+
+> **Note:** The `--profile all` flag is required — it activates the `rpc-proxy` service (and other profile-gated services). Running without it will skip the proxy and dependent services will fail to start.
 
 ## Preparing the application
 

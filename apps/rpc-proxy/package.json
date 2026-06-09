@@ -1,0 +1,17 @@
+{
+  "name": "rpc-proxy",
+  "version": "1.0.0",
+  "description": "Stellar RPC/Horizon proxy with sequential provider fallback",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "start-dev": "ts-node-dev --transpile-only src/index.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.0"
+  }
+}
