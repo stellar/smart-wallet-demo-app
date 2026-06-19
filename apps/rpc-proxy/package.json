@@ -20,6 +20,7 @@
     "vitest": "^3.2.3"
   },
   "dependencies": {
+    "dotenv": "^16.6.1",
     "pino": "^10.3.1"
   }
 }

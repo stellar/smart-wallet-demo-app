@@ -13,6 +13,9 @@ services:
     build:
       context: ./apps/rpc-proxy
       dockerfile: Dockerfile
+    env_file:
+      - path: ./apps/rpc-proxy/.env
+        required: false
     environment:
       STELLAR_NETWORK: ${STELLAR_NETWORK:-testnet}
       RPC_PROXY_PORT: ${RPC_PROXY_PORT:-8301}

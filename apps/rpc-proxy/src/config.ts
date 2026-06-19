@@ -1,3 +1,7 @@
+import dotenv from 'dotenv'
+
+dotenv.config()
+
 export type NetworkType = 'testnet' | 'mainnet' | 'futurenet'
 
 export interface ProxyConfig {
@@ -10,30 +14,37 @@ export interface ProxyConfig {
   horizonProviders: string[]
 }
 
-// Ordered by reliability preference. First provider is tried first.
-const RPC_PROVIDERS: Record<NetworkType, string[]> = {
-  testnet: [
-    'https://soroban-testnet.stellar.org',
-    'https://soroban-rpc.testnet.stellar.gateway.fm',
-    'https://stellar-soroban-testnet-public.nodies.app',
-    'https://stellar.liquify.com/api=41EEWAH79Y5OCGI7/testnet',
-  ],
-  mainnet: [
-    'https://soroban-rpc.mainnet.stellar.gateway.fm',
-    'https://stellar-soroban-public.nodies.app',
-    'https://mainnet.sorobanrpc.com',
-    'https://rpc.lightsail.network',
-    'https://stellar.api.onfinality.io/public',
-    'https://rpc.ankr.com/stellar_soroban',
-    'https://stellar-mainnet.liquify.com/api=41EEWAH79Y5OCGI7/mainnet',
-  ],
-  futurenet: ['https://rpc-futurenet.stellar.org', 'https://stellar.liquify.com/api=41EEWAH79Y5OCGI7/futurenet'],
+function envProviders(...keys: string[]): string[] {
+  return keys.map(key => process.env[key]?.trim()).filter((value): value is string => Boolean(value))
 }
 
-const HORIZON_PROVIDERS: Record<NetworkType, string[]> = {
-  testnet: ['https://horizon-testnet.stellar.org'],
-  mainnet: ['https://horizon.stellar.org'],
-  futurenet: ['https://horizon-futurenet.stellar.org'],
+// Ordered by reliability preference. First provider is tried first.
+function getRpcProviders(network: NetworkType): string[] {
+  const byNetwork: Record<NetworkType, string[]> = {
+    testnet: envProviders('SDF_TESTNET_RPC', 'GATEWAY_TESTNET_RPC', 'NODIES_TESTNET_RPC', 'LIQUIFY_TESTNET_RPC'),
+    mainnet: envProviders(
+      'GATEWAY_MAINNET_RPC',
+      'NODIES_MAINNET_RPC',
+      'SOROBANRPC_MAINNET_RPC',
+      'LIGHTSAIL_MAINNET_RPC',
+      'ONFINALITY_MAINNET_RPC',
+      'ANKR_MAINNET_FULL_ARCHIVE_RPC',
+      'LIQUIFY_MAINNET_RPC'
+    ),
+    futurenet: envProviders('SDF_FUTURENET_RPC', 'LIQUIFY_FUTURENET_RPC'),
+  }
+
+  return byNetwork[network] ?? byNetwork.testnet
+}
+
+function getHorizonProviders(network: NetworkType): string[] {
+  const byNetwork: Record<NetworkType, string[]> = {
+    testnet: envProviders('HORIZON_PROVIDER_TESTNET'),
+    mainnet: envProviders('HORIZON_PROVIDER_MAINNET'),
+    futurenet: envProviders('HORIZON_PROVIDER_FUTURENET'),
+  }
+
+  return byNetwork[network] ?? byNetwork.testnet
 }
 
 export function getConfig(): ProxyConfig {
@@ -56,7 +67,7 @@ export function getConfig(): ProxyConfig {
     network,
     timeout,
     readinessTimeout,
-    rpcProviders: customRpc?.length ? customRpc : (RPC_PROVIDERS[network] ?? RPC_PROVIDERS.testnet),
-    horizonProviders: customHorizon?.length ? customHorizon : (HORIZON_PROVIDERS[network] ?? HORIZON_PROVIDERS.testnet),
+    rpcProviders: customRpc?.length ? customRpc : getRpcProviders(network),
+    horizonProviders: customHorizon?.length ? customHorizon : getHorizonProviders(network),
   }
 }
