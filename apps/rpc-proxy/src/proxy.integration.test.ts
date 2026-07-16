@@ -28,17 +28,14 @@ function close(server: http.Server): Promise<void> {
 // transport surfaces the bytes to the gzip reader in wallet-backend.
 function rawPost(port: number, body: string, headers: Record<string, string>): Promise<RawResponse> {
   return new Promise((resolve, reject) => {
-    const req = http.request(
-      { host: '127.0.0.1', port, method: 'POST', path: '/', headers },
-      res => {
-        const chunks: Buffer[] = []
-        res.on('data', chunk => chunks.push(chunk))
-        res.on('end', () =>
-          resolve({ statusCode: res.statusCode ?? 0, headers: res.headers, body: Buffer.concat(chunks) })
-        )
-        res.on('error', reject)
-      }
-    )
+    const req = http.request({ host: '127.0.0.1', port, method: 'POST', path: '/', headers }, res => {
+      const chunks: Buffer[] = []
+      res.on('data', chunk => chunks.push(chunk))
+      res.on('end', () =>
+        resolve({ statusCode: res.statusCode ?? 0, headers: res.headers, body: Buffer.concat(chunks) })
+      )
+      res.on('error', reject)
+    })
     req.on('error', reject)
     req.end(body)
   })
