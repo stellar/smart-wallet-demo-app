@@ -1,5 +1,7 @@
 import http, { IncomingHttpHeaders } from 'http'
 
+import { request, Dispatcher } from 'undici'
+
 import { logger } from './logger'
 
 // Headers that must not be forwarded upstream or downstream
@@ -29,13 +31,21 @@ function buildUpstreamHeaders(incoming: IncomingHttpHeaders, bodyLength: number)
   return headers
 }
 
-function buildDownstreamHeaders(upstream: Response): Record<string, string> {
-  const headers: Record<string, string> = {}
-  upstream.headers.forEach((value, key) => {
-    if (!HOP_BY_HOP.has(key.toLowerCase())) {
-      headers[key] = value
-    }
-  })
+function buildDownstreamHeaders(
+  upstream: Record<string, string | string[] | undefined>,
+  bodyLength: number
+): Record<string, string | string[]> {
+  const headers: Record<string, string | string[]> = {}
+  for (const [key, value] of Object.entries(upstream)) {
+    if (HOP_BY_HOP.has(key)) continue
+    // The body is forwarded byte-for-byte (undici.request never decompresses),
+    // so content-encoding stays valid; content-length is restated from the buffer
+    // to also cover upstreams that responded with chunked transfer encoding.
+    if (key === 'content-length') continue
+    if (value === undefined) continue
+    headers[key] = value
+  }
+  headers['content-length'] = String(bodyLength)
   return headers
 }
 
@@ -101,8 +111,8 @@ export async function proxyWithFallback(
       const controller = new AbortController()
       const timer = setTimeout(() => controller.abort(), options.timeout)
 
-      const upstream = await fetch(url, {
-        method: req.method ?? 'GET',
+      const upstream = await request(url, {
+        method: (req.method ?? 'GET') as Dispatcher.HttpMethod,
         headers: upstreamHeaders,
         body: body.length > 0 ? body : undefined,
         signal: controller.signal,
@@ -111,15 +121,16 @@ export async function proxyWithFallback(
       clearTimeout(timer)
 
       // Retry on server errors (5xx) and rate limiting (429). Other 4xx and JSON-RPC application errors are valid responses.
-      if (upstream.status >= 500 || upstream.status === 429) {
-        lastError = `HTTP ${upstream.status} from ${provider}`
+      if (upstream.statusCode >= 500 || upstream.statusCode === 429) {
+        lastError = `HTTP ${upstream.statusCode} from ${provider}`
         logger.warn(`[${options.mode}] ${lastError}`)
+        await upstream.body.dump()
         continue
       }
 
-      const responseBody = await upstream.arrayBuffer()
-      res.writeHead(upstream.status, buildDownstreamHeaders(upstream))
-      res.end(Buffer.from(responseBody))
+      const responseBody = Buffer.from(await upstream.body.arrayBuffer())
+      res.writeHead(upstream.statusCode, buildDownstreamHeaders(upstream.headers, responseBody.byteLength))
+      res.end(responseBody)
       return
     } catch (err) {
       const isTimeout = err instanceof Error && err.name === 'AbortError'
