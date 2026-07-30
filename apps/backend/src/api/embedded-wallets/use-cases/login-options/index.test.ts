@@ -6,7 +6,6 @@ import { User } from 'api/core/entities/user/types'
 import { mockWebAuthnAuthentication } from 'api/core/helpers/webauthn/authentication/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
-import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
 
 import { LogInOptions } from '.'
 
@@ -51,7 +50,7 @@ describe('LogInOptions', () => {
     expect(result.message).toBe('Retrieved log in options successfully')
   })
 
-  it('should throw ResourceNotFoundException when user does not exist', async () => {
+  it('should return a fake (null) response when user does not exist, to avoid enumeration', async () => {
     const payload = {
       email: 'notfound@example.com',
     }
@@ -63,13 +62,15 @@ describe('LogInOptions', () => {
     expect(mockedGenerateAuthenticationOptions).not.toHaveBeenCalled()
   })
 
-  it('should throw ResourceNotFoundException when user passkeys are empty', async () => {
+  it('should return the same fake (null) response when user has no passkeys, to avoid enumeration', async () => {
     const payload = {
       email: mockUser.email,
     }
     mockedUserRepository.getUserByEmail.mockResolvedValue({ ...mockUser, passkeys: [] } as unknown as User)
 
-    await expect(useCase.handle(payload)).rejects.toBeInstanceOf(ResourceNotFoundException)
+    const result = await useCase.handle(payload)
+
+    expect(result.data.options_json).toBe(null)
     expect(mockedGenerateAuthenticationOptions).not.toHaveBeenCalled()
   })
 
