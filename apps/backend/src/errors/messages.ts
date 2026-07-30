@@ -25,4 +25,8 @@ export const ERROR_MESSAGES: Record<number, ErrorMessage> = {
     code: ErrorCode.BAD_REQUEST,
     message: 'The request is not properly formed',
   },
+  [ErrorCode.RATE_LIMITED]: {
+    code: ErrorCode.RATE_LIMITED,
+    message: 'Too many requests, please try again later',
+  },
 }

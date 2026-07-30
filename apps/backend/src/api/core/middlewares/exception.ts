@@ -6,6 +6,7 @@ import { BadRequestException } from 'errors/exceptions/bad-request'
 import { BaseException } from 'errors/exceptions/base'
 import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
 import { ResourceNotFoundException } from 'errors/exceptions/resource-not-found'
+import { TooManyRequestsException } from 'errors/exceptions/too-many-requests'
 import { UnauthorizedException } from 'errors/exceptions/unauthorized'
 import { ZodValidationException } from 'errors/exceptions/zod-validation'
 
@@ -80,7 +81,8 @@ export function exceptionMiddleware(err: Error, request: Request, response: Resp
   if (
     err instanceof BadRequestException ||
     err instanceof UnauthorizedException ||
-    err instanceof ResourceConflictedException
+    err instanceof ResourceConflictedException ||
+    err instanceof TooManyRequestsException
   ) {
     captureSentryException(err, request, 'warning', 'client_error')
 

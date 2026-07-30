@@ -5,6 +5,7 @@ export enum ErrorCode {
   'PERMISSION_ERROR',
   'RESOURCE_NOT_FOUND',
   'RESOURCE_CONFLICTED',
+  'RATE_LIMITED',
 }
 
 export type ErrorMessage = {
