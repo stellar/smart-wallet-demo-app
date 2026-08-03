@@ -5,10 +5,11 @@ import { TooManyRequestsException } from 'errors/exceptions/too-many-requests'
 
 import { rateLimiter } from './rate-limit'
 
-function buildMockReq(ip: string): Request {
+function buildMockReq(ip: string, headers: Record<string, string> = {}): Request {
   return {
     ip,
-    headers: {},
+    headers,
+    socket: { remoteAddress: ip },
     app: { get: () => false },
   } as unknown as Request
 }
@@ -65,5 +66,34 @@ describe('rateLimiter middleware', () => {
 
     expect(mockNext).toHaveBeenCalledTimes(2)
     expect(mockNext).not.toHaveBeenCalledWith(expect.any(TooManyRequestsException))
+  })
+
+  it('keys by cf-connecting-ip instead of the immediate socket peer, when present', async () => {
+    // Same proxy IP (e.g. the in-cluster ingress) for two different real clients,
+    // distinguished only by the Cloudflare-set header — must not share one bucket.
+    const middleware = rateLimiter({ windowMs: 60_000, max: 1, details: 'too many' })
+    const proxyIp = '10.0.0.5'
+
+    await middleware(buildMockReq(proxyIp, { 'cf-connecting-ip': '203.0.113.10' }), buildMockRes(), mockNext)
+    await middleware(buildMockReq(proxyIp, { 'cf-connecting-ip': '203.0.113.20' }), buildMockRes(), mockNext)
+
+    expect(mockNext).toHaveBeenCalledTimes(2)
+    expect(mockNext).not.toHaveBeenCalledWith(expect.any(TooManyRequestsException))
+  })
+
+  it('blocks a client behind the proxy once it exceeds the limit, even sharing the proxy IP with others', async () => {
+    const middleware = rateLimiter({ windowMs: 60_000, max: 1, details: 'too many' })
+    const proxyIp = '10.0.0.6'
+    const attackerHeaders = { 'cf-connecting-ip': '203.0.113.30' }
+
+    await middleware(buildMockReq(proxyIp, attackerHeaders), buildMockRes(), mockNext)
+    await middleware(buildMockReq(proxyIp, attackerHeaders), buildMockRes(), mockNext)
+    // A different real client behind the same proxy must be unaffected
+    await middleware(buildMockReq(proxyIp, { 'cf-connecting-ip': '203.0.113.40' }), buildMockRes(), mockNext)
+
+    const calls = (mockNext as ReturnType<typeof vi.fn>).mock.calls
+    expect(calls[0][0]).toBeUndefined()
+    expect(calls[1][0]).toBeInstanceOf(TooManyRequestsException)
+    expect(calls[2][0]).toBeUndefined()
   })
 })
