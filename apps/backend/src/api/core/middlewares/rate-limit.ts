@@ -9,7 +9,6 @@ type RateLimiterConfig = {
   details: string
 }
 
- * two proxy hops (Cloudflare, then the ingress), and that count silently breaks if the
 function resolveClientIp(request: Request): string {
   const cfConnectingIp = request.headers['cf-connecting-ip']
   if (typeof cfConnectingIp === 'string' && cfConnectingIp.length > 0) {
