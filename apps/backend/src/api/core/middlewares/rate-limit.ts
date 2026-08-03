@@ -9,16 +9,7 @@ type RateLimiterConfig = {
   details: string
 }
 
-/**
- * Resolves the real client IP behind Cloudflare + an in-cluster ingress proxy.
- *
- * `req.ip`/Express's `trust proxy` hop-counting is fragile here: the app sits behind
  * two proxy hops (Cloudflare, then the ingress), and that count silently breaks if the
- * topology ever changes. `cf-connecting-ip` is set by Cloudflare itself at the edge
- * (it strips/overwrites any client-supplied value), so it's a more robust source of
- * truth than counting hops — as long as the origin only accepts traffic that actually
- * came through Cloudflare. Falls back to `req.ip` for direct/local access (e.g. dev).
- */
 function resolveClientIp(request: Request): string {
   const cfConnectingIp = request.headers['cf-connecting-ip']
   if (typeof cfConnectingIp === 'string' && cfConnectingIp.length > 0) {

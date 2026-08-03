@@ -13,6 +13,8 @@ import { swaggerDefinition } from 'interfaces/express/openapi'
 
 const application: express.Application = express()
 
+application.set('trust proxy', 1)
+
 // MIDDLEWARES
 const corsOptions = {
   origin: [process.env.FRONT_ADDRESS ?? 'http://localhost:3201'],

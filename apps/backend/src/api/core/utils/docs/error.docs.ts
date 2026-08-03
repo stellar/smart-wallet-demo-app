@@ -36,3 +36,7 @@ export const conflict = {
 export const unauthorized = {
   [HttpStatusCodes.UNAUTHORIZED]: defaultErrorDocStructure('Unauthorized'),
 }
+
+export const tooManyRequests = {
+  [HttpStatusCodes.TOO_MANY_REQUESTS]: defaultErrorDocStructure('Too Many Requests'),
+}
