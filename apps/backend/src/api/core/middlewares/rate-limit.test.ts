@@ -1,5 +1,7 @@
-import { NextFunction, Request, Response } from 'express'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import http from 'http'
+
+import express, { NextFunction, Request, Response } from 'express'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 import { TooManyRequestsException } from 'errors/exceptions/too-many-requests'
 
@@ -67,33 +69,91 @@ describe('rateLimiter middleware', () => {
     expect(mockNext).toHaveBeenCalledTimes(2)
     expect(mockNext).not.toHaveBeenCalledWith(expect.any(TooManyRequestsException))
   })
+})
 
-  it('keys by cf-connecting-ip instead of the immediate socket peer, when present', async () => {
-    // Same proxy IP (e.g. the in-cluster ingress) for two different real clients,
-    // distinguished only by the Cloudflare-set header — must not share one bucket.
-    const middleware = rateLimiter({ windowMs: 60_000, max: 1, details: 'too many' })
-    const proxyIp = '10.0.0.5'
+describe('rateLimiter behind a proxy (integration, real Express app)', () => {
+  // Reproduces the scenario from the bounty reporter's PoC: with `trust proxy` set to
+  // the real hop count (as configured in interfaces/express/index.ts for Heroku), a
+  // client-forged X-Forwarded-For must NOT let each request appear as a distinct IP.
+  function startApp(trustProxy: number | boolean | undefined): Promise<{ server: http.Server; port: number }> {
+    return new Promise(resolve => {
+      const app = express()
+      if (trustProxy !== undefined) app.set('trust proxy', trustProxy)
+      app.post('/recover', rateLimiter({ windowMs: 60_000, max: 5, details: 'too many' }), (req, res) =>
+        res.json({ seenIp: req.ip })
+      )
+      const server = app.listen(0, () => {
+        const address = server.address()
+        const port = typeof address === 'object' && address ? address.port : 0
+        resolve({ server, port })
+      })
+    })
+  }
 
-    await middleware(buildMockReq(proxyIp, { 'cf-connecting-ip': '203.0.113.10' }), buildMockRes(), mockNext)
-    await middleware(buildMockReq(proxyIp, { 'cf-connecting-ip': '203.0.113.20' }), buildMockRes(), mockNext)
+  function post(port: number, forwardedFor: string): Promise<{ status: number; seenIp?: string }> {
+    return new Promise((resolve, reject) => {
+      const req = http.request(
+        { host: '127.0.0.1', port, path: '/recover', method: 'POST', headers: { 'X-Forwarded-For': forwardedFor } },
+        res => {
+          let body = ''
+          res.on('data', chunk => (body += chunk))
+          res.on('end', () => {
+            try {
+              resolve({ status: res.statusCode ?? 0, seenIp: JSON.parse(body || '{}').seenIp })
+            } catch {
+              resolve({ status: res.statusCode ?? 0 })
+            }
+          })
+        }
+      )
+      req.on('error', reject)
+      req.end()
+    })
+  }
 
-    expect(mockNext).toHaveBeenCalledTimes(2)
-    expect(mockNext).not.toHaveBeenCalledWith(expect.any(TooManyRequestsException))
+  let server: http.Server | undefined
+
+  afterEach(() => {
+    server?.close()
   })
 
-  it('blocks a client behind the proxy once it exceeds the limit, even sharing the proxy IP with others', async () => {
-    const middleware = rateLimiter({ windowMs: 60_000, max: 1, details: 'too many' })
-    const proxyIp = '10.0.0.6'
-    const attackerHeaders = { 'cf-connecting-ip': '203.0.113.30' }
+  it('ignores a forged X-Forwarded-For and enforces the limit per real client, with trust proxy correctly set', async () => {
+    const started = await startApp(1) // Heroku: exactly one trusted hop
+    server = started.server
 
-    await middleware(buildMockReq(proxyIp, attackerHeaders), buildMockRes(), mockNext)
-    await middleware(buildMockReq(proxyIp, attackerHeaders), buildMockRes(), mockNext)
-    // A different real client behind the same proxy must be unaffected
-    await middleware(buildMockReq(proxyIp, { 'cf-connecting-ip': '203.0.113.40' }), buildMockRes(), mockNext)
+    const results = []
+    for (let i = 0; i < 10; i++) {
+      // Each request claims a different attacker-chosen IP, followed by the same
+      // "real" address the trusted hop would actually append.
+      results.push(await post(started.port, `10.0.0.${i}, 203.0.113.7`))
+    }
 
-    const calls = (mockNext as ReturnType<typeof vi.fn>).mock.calls
-    expect(calls[0][0]).toBeUndefined()
-    expect(calls[1][0]).toBeInstanceOf(TooManyRequestsException)
-    expect(calls[2][0]).toBeUndefined()
+    const okCount = results.filter(r => r.status === 200).length
+    const blockedCount = results.filter(r => r.status === 429).length
+    const distinctIpsSeen = new Set(results.map(r => r.seenIp).filter(Boolean))
+
+    expect(okCount).toBe(5)
+    expect(blockedCount).toBe(5)
+    expect(distinctIpsSeen).toEqual(new Set(['203.0.113.7']))
+  })
+
+  // Expect noisy stderr here: express-rate-limit's own validation logs
+  // ERR_ERL_UNEXPECTED_X_FORWARDED_FOR for this exact misconfiguration — that's the
+  // point of the test, not a bug in it.
+  it('does NOT enforce a meaningful per-client limit when trust proxy is left unset (regression guard)', async () => {
+    const started = await startApp(undefined)
+    server = started.server
+
+    const results = []
+    for (let i = 0; i < 10; i++) {
+      results.push(await post(started.port, `10.0.0.${i}, 203.0.113.7`))
+    }
+
+    const distinctIpsSeen = new Set(results.map(r => r.seenIp).filter(Boolean))
+    // Documents the failure mode this app must avoid: every request resolves to the
+    // same (proxy) address regardless of the forwarded chain, so all clients would
+    // share one bucket. This test exists to make sure `trust proxy` is never removed
+    // from interfaces/express/index.ts without this being noticed.
+    expect(distinctIpsSeen.size).toBe(1)
   })
 })

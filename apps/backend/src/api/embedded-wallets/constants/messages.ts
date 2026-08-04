@@ -12,6 +12,7 @@ export const messages = {
   UNABLE_TO_COMPLETE_PASSKEY_AUTHENTICATION: "We couldn't verify your passkey. Please try again.",
   ALREADY_SENT_RECOVERY_LINK: 'A recovery link has already been requested. Check your email or try again shortly.',
   TOO_MANY_RECOVERY_ATTEMPTS: 'Too many recovery attempts from this network. Please try again later.',
+  TOO_MANY_LOGIN_OPTIONS_ATTEMPTS: 'Too many attempts from this network. Please try again later.',
   RECOVERY_LINK_EXPIRED: 'The recovery link has expired. Try requesting a new link.',
   RECOVERY_LINK_PROVIDED_NOT_FOUND: 'The recovery link you provided is invalid or has already been used',
   RESEND_INVITE_CONFLICT:

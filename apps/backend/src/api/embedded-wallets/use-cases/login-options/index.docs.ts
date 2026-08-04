@@ -1,4 +1,4 @@
-import { badRequest } from 'api/core/utils/docs/error.docs'
+import { badRequest, tooManyRequests } from 'api/core/utils/docs/error.docs'
 import { Tags } from 'api/core/utils/docs/tags'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
 import { zodToSchema } from 'api/core/utils/zod'
@@ -19,6 +19,7 @@ export default {
         },
       },
       ...badRequest,
+      ...tooManyRequests,
     },
     parameters: [
       {

@@ -36,13 +36,24 @@ const recoveryLinkRateLimiter = rateLimiter({
   details: messages.TOO_MANY_RECOVERY_ATTEMPTS,
 })
 
+// Higher ceiling than the recovery limiter: this endpoint is hit on every login attempt
+// (including shared/NAT'd networks at events), not just account-recovery flows. Still
+// meaningfully slows down mass account enumeration.
+const loginOptionsRateLimiter = rateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  details: messages.TOO_MANY_LOGIN_OPTIONS_ATTEMPTS,
+})
+
 router.get(`${GetInvitationInfoEndpoint}`, async (req, res) => GetInvitationInfo.init().executeHttp(req, res))
 router.get(`${CreateWalletOptionsEndpoint}`, tokenValidation(), async (req, res) =>
   CreateWalletOptions.init().executeHttp(req, res)
 )
 router.post(`${CreateWalletEndpoint}`, tokenValidation(), async (req, res) => CreateWallet.init().executeHttp(req, res))
 router.post(`${CreateAccountEndpoint}`, authentication, async (req, res) => CreateAccount.init().executeHttp(req, res))
-router.get(`${LogInOptionsEndpoint}`, async (req, res) => LogInOptions.init().executeHttp(req, res))
+router.get(`${LogInOptionsEndpoint}`, loginOptionsRateLimiter, async (req, res) =>
+  LogInOptions.init().executeHttp(req, res)
+)
 router.post(`${LogInEndpoint}`, async (req, res) => LogIn.init().executeHttp(req, res))
 router.get(`${GetWalletEndpoint}`, authentication, async (req, res) => GetWallet.init().executeHttp(req, res))
 router.get(`${GetWalletHistoryEndpoint}`, authentication, async (req, res) =>
