@@ -13,9 +13,9 @@ export async function fetchDisbursementReceivers({ sdpUrl, apiKey, disbursementI
     const baseUrl = sdpUrl.replace(/\/$/, '');
     const receivers = [];
     let page = 1;
-    let total = Infinity;
+    let total = null;
 
-    while (receivers.length < total) {
+    while (total === null || receivers.length < total) {
         const url = `${baseUrl}/disbursements/${disbursementId}/receivers?page=${page}&page_limit=${pageLimit}`;
         const response = await fetch(url, {
             headers: {
@@ -31,12 +31,26 @@ export async function fetchDisbursementReceivers({ sdpUrl, apiKey, disbursementI
 
         const body = await response.json();
         const pageData = Array.isArray(body.data) ? body.data : [];
-        if (pageData.length === 0) {
-            break; // defensive: avoid looping forever if `total` is ever missing/wrong
+
+        if (typeof body.pagination?.total === 'number') {
+            total = body.pagination.total;
+        } else if (total === null) {
+            total = receivers.length + pageData.length;
+        }
+
+        // An empty page is only expected once we've already collected `total`
+        // receivers (checked by the while condition above). Getting one before
+        // that means SDP's data changed or is inconsistent between requests —
+        // abort loudly instead of silently writing a partial recipients list.
+        if (pageData.length === 0 && receivers.length < total) {
+            throw new Error(
+                `SDP returned an empty page (page=${page}) before reaching the reported total ` +
+                `(${receivers.length}/${total} receivers collected so far). Aborting instead of ` +
+                'writing an incomplete recipients list.'
+            );
         }
 
         receivers.push(...pageData);
-        total = body.pagination?.total ?? receivers.length;
         page += 1;
     }
 
