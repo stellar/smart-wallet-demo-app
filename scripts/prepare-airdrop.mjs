@@ -5,6 +5,7 @@ import { hideBin } from 'yargs/helpers';
 
 import { fetchDisbursementReceivers } from './helpers/sdp-client.mjs';
 import { computeContractAddressFromEmail, resolveNetworkPassphrase } from './helpers/contract-address.mjs';
+import { assetAmountToStroops } from './helpers/amount.mjs';
 import { logStep, logSuccess, logWarning, logError, logInfo } from './helpers/logs.mjs';
 
 // Resolves an SDP disbursement's recipients (by email) into the contract addresses
@@ -44,9 +45,13 @@ export async function resolveAirdropAddresses({
         }
         seenEmails.add(normalizedEmail);
 
-        const paymentAmount = receiver.payment?.amount;
-        if (expectedAmount != null && paymentAmount != null && Number(paymentAmount) !== Number(expectedAmount)) {
-            amountMismatches.push({ email, expected: expectedAmount, actual: paymentAmount });
+        // SDP reports payment.amount in decimal asset units (e.g. "0.1" XLM), while
+        // --amount and the rest of the airdrop pipeline use stroops — convert before comparing.
+        const paymentAmountStroops = receiver.payment?.amount != null
+            ? assetAmountToStroops(receiver.payment.amount)
+            : null;
+        if (expectedAmount != null && paymentAmountStroops != null && paymentAmountStroops !== BigInt(expectedAmount)) {
+            amountMismatches.push({ email, expected: expectedAmount, actual: paymentAmountStroops.toString() });
         }
 
         emails.push(email);
@@ -73,15 +78,10 @@ export async function resolveAirdropAddresses({
 
 async function main() {
     const argv = await yargs(hideBin(process.argv))
-        .usage('Usage: $0 --sdp-url <url> --sdp-api-key <key> --disbursement-id <id> --distribution-account <G...> --network <testnet|mainnet> [--amount <number>] [--output <path>]')
+        .usage('Usage: SDP_API_KEY=<key> $0 --sdp-url <url> --disbursement-id <id> --distribution-account <G...> --network <testnet|mainnet> [--amount <number>] [--output <path>]')
         .option('sdp-url', {
             type: 'string',
             description: 'Base URL of the SDP backend API',
-            demandOption: true
-        })
-        .option('sdp-api-key', {
-            type: 'string',
-            description: 'SDP API key with permission to read disbursement receivers',
             demandOption: true
         })
         .option('disbursement-id', {
@@ -118,10 +118,18 @@ async function main() {
         process.exit(1);
     }
 
+    // Read from an env var, not a CLI flag, so the key never lands in shell
+    // history or in `ps` output for other users on the same machine.
+    const apiKey = process.env.SDP_API_KEY;
+    if (!apiKey) {
+        logError('Missing SDP_API_KEY environment variable.');
+        process.exit(1);
+    }
+
     try {
         const { addresses, skipped, amountMismatches } = await resolveAirdropAddresses({
             sdpUrl: argv.sdpUrl,
-            apiKey: argv.sdpApiKey,
+            apiKey,
             disbursementId: argv.disbursementId,
             distributionAccount: argv.distributionAccount,
             network: argv.network,
