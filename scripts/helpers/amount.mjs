@@ -8,13 +8,25 @@ export function assetAmountToStroops(decimalAmount) {
     const trimmed = String(decimalAmount).trim();
     const isNegative = trimmed.startsWith('-');
     const unsigned = isNegative ? trimmed.slice(1) : trimmed;
-    const [wholePart = '', fractionalPart = ''] = unsigned.split('.');
+    const parts = unsigned.split('.');
+    if (parts.length > 2) {
+        throw new Error(`Invalid decimal amount: ${decimalAmount}`);
+    }
+    const [wholePart = '', fractionalPart = ''] = parts;
 
-    if (!/^\d*$/.test(wholePart) || !/^\d*$/.test(fractionalPart)) {
+    // Stellar amounts have at most 7 decimal places (stroops precision) — reject
+    // anything more precise instead of silently truncating it to fit. Also
+    // reject "" / "." / "-": at least one digit must be present somewhere.
+    if (
+        !/^\d*$/.test(wholePart) ||
+        !/^\d*$/.test(fractionalPart) ||
+        fractionalPart.length > 7 ||
+        (wholePart === '' && fractionalPart === '')
+    ) {
         throw new Error(`Invalid decimal amount: ${decimalAmount}`);
     }
 
-    const fractionalStroops = fractionalPart.padEnd(7, '0').slice(0, 7);
+    const fractionalStroops = fractionalPart.padEnd(7, '0');
     const stroops = BigInt(wholePart || '0') * STROOPS_PER_UNIT + BigInt(fractionalStroops || '0');
 
     return isNegative ? -stroops : stroops;
