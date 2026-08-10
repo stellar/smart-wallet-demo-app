@@ -13,7 +13,11 @@ import { swaggerDefinition } from 'interfaces/express/openapi'
 
 const application: express.Application = express()
 
-application.set('trust proxy', 1)
+// Trust exactly two hops: Cloudflare (confirmed in front of the public domain — see
+// `server: cloudflare` / cf-ray on the live edge response), then Heroku's own router.
+// Each appends its own entry to X-Forwarded-For, so req.ip needs both hops trusted to
+// resolve to the real client rather than the Cloudflare edge address.
+application.set('trust proxy', 2)
 
 // MIDDLEWARES
 const corsOptions = {

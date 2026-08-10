@@ -73,8 +73,10 @@ describe('rateLimiter middleware', () => {
 
 describe('rateLimiter behind a proxy (integration, real Express app)', () => {
   // Reproduces the scenario from the bounty reporter's PoC: with `trust proxy` set to
-  // the real hop count (as configured in interfaces/express/index.ts for Heroku), a
-  // client-forged X-Forwarded-For must NOT let each request appear as a distinct IP.
+  // the real hop count for this deployment (2 — Cloudflare, confirmed in front of the
+  // public domain, then Heroku's router; see interfaces/express/index.ts), a
+  // client-forged X-Forwarded-For must NOT let each request appear as a distinct IP,
+  // and the real client behind those two hops must still be resolved correctly.
   function startApp(trustProxy: number | boolean | undefined): Promise<{ server: http.Server; port: number }> {
     return new Promise(resolve => {
       const app = express()
@@ -118,14 +120,15 @@ describe('rateLimiter behind a proxy (integration, real Express app)', () => {
   })
 
   it('ignores a forged X-Forwarded-For and enforces the limit per real client, with trust proxy correctly set', async () => {
-    const started = await startApp(1) // Heroku: exactly one trusted hop
+    const started = await startApp(2) // Cloudflare + Heroku's router: two trusted hops
     server = started.server
 
     const results = []
     for (let i = 0; i < 10; i++) {
-      // Each request claims a different attacker-chosen IP, followed by the same
-      // "real" address the trusted hop would actually append.
-      results.push(await post(started.port, `10.0.0.${i}, 203.0.113.7`))
+      // Each request claims a different attacker-chosen prefix. The next entry is the
+      // real client (must be the one resolved), and the last is the address Cloudflare
+      // itself would append when forwarding to Heroku's router.
+      results.push(await post(started.port, `10.0.0.${i}, 203.0.113.7, 104.18.7.25`))
     }
 
     const okCount = results.filter(r => r.status === 200).length
@@ -135,6 +138,22 @@ describe('rateLimiter behind a proxy (integration, real Express app)', () => {
     expect(okCount).toBe(5)
     expect(blockedCount).toBe(5)
     expect(distinctIpsSeen).toEqual(new Set(['203.0.113.7']))
+  })
+
+  it('does not collapse distinct real clients onto the Cloudflare edge address when only one hop is trusted (regression guard for under-counting hops)', async () => {
+    const started = await startApp(1) // wrong: misses the Cloudflare hop
+    server = started.server
+
+    const results = []
+    for (let i = 0; i < 10; i++) {
+      results.push(await post(started.port, `10.0.0.${i}, 203.0.113.${i}, 104.18.7.25`))
+    }
+
+    const distinctIpsSeen = new Set(results.map(r => r.seenIp).filter(Boolean))
+    // With trust proxy under-counted, every distinct real client (203.0.113.0..9)
+    // resolves to the same Cloudflare edge address instead — exactly the milder bug
+    // the reporter caught in the previous round (trust proxy: 1 instead of 2).
+    expect(distinctIpsSeen).toEqual(new Set(['104.18.7.25']))
   })
 
   // Expect noisy stderr here: express-rate-limit's own validation logs
