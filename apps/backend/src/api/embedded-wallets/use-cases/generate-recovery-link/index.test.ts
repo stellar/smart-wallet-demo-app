@@ -6,8 +6,6 @@ import { User } from 'api/core/entities/user/types'
 import { mockOtpRepository } from 'api/core/services/otp/mocks'
 import { mockUserRepository } from 'api/core/services/user/mocks'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
-import { BadRequestException } from 'errors/exceptions/bad-request'
-import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
 import { mockEmailService } from 'interfaces/email-provider/mock'
 
 import { RequestSchemaT } from './types'
@@ -57,25 +55,29 @@ describe('GenerateRecoveryLink', () => {
     expect(mockedEmailService.sendEmail).not.toHaveBeenCalled()
   })
 
-  it('should thrown an error if user does not have a wallet', async () => {
+  it('should return a fake success response if user does not have a wallet, to avoid enumeration', async () => {
     mockedUserRepository.getUserByEmail.mockResolvedValue({
       ...mockedUser,
       contractAddress: undefined, // Simulating no wallet
     } as User)
 
-    await expect(useCase.handle({ email: mockedEmail })).rejects.toThrow(BadRequestException)
+    const result = await useCase.handle({ email: mockedEmail })
+
+    expect(result.data.email_sent).toBeTruthy()
     expect(mockedOtpRepository.createOtp).not.toHaveBeenCalled()
     expect(mockedEmailService.sendEmail).not.toHaveBeenCalled()
   })
 
-  it('should thrown an error if user already has an active OTP', async () => {
+  it('should return a fake success response if user already has an active OTP, to avoid enumeration', async () => {
     const activeOtp = { expiresAt: new Date(Date.now() + 1000 * 60 * 5) } as Otp
     mockedUserRepository.getUserByEmail.mockResolvedValue({
       ...mockedUser,
       otps: [activeOtp], // Simulating an active OTP
     } as User)
 
-    await expect(useCase.handle({ email: mockedEmail })).rejects.toThrow(ResourceConflictedException)
+    const result = await useCase.handle({ email: mockedEmail })
+
+    expect(result.data.email_sent).toBeTruthy()
     expect(mockedOtpRepository.createOtp).not.toHaveBeenCalled()
     expect(mockedEmailService.sendEmail).not.toHaveBeenCalled()
   })

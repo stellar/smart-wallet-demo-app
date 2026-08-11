@@ -10,10 +10,7 @@ import OtpRepository from 'api/core/services/otp'
 import UserRepository from 'api/core/services/user'
 import { tryReadFile } from 'api/core/utils/file'
 import { HttpStatusCodes } from 'api/core/utils/http/status-code'
-import { messages } from 'api/embedded-wallets/constants/messages'
 import { getValueFromEnv } from 'config/env-utils'
-import { BadRequestException } from 'errors/exceptions/bad-request'
-import { ResourceConflictedException } from 'errors/exceptions/resource-conflict'
 import { SendGridService } from 'interfaces/email-provider/sendgrid'
 import { EmailData, IEmailService } from 'interfaces/email-provider/types'
 
@@ -79,27 +76,19 @@ export class GenerateRecoveryLink extends UseCaseBase implements IUseCaseHttp<Re
       ...validatedData,
     }
 
-    // Check if user exists
     const user = await this.userRepository.getUserByEmail(requestBody.email, { relations: ['otps'] })
-    if (!user) {
-      // Fake response to protect against attackers
+    const activeOtp = user?.otps?.find(otp => otp.expiresAt > new Date())
+
+    // Fake response to protect against attackers: a non-existent user, a user with
+    // no wallet yet, and a user with a pending OTP must all be indistinguishable from
+    // the outside — otherwise this endpoint leaks account existence/state by status code.
+    if (!user || !user.contractAddress || activeOtp) {
       return {
         data: {
           email_sent: true,
         },
         message: 'Recovery link sent successfully',
       }
-    }
-
-    // Check if user has a wallet
-    if (!user.contractAddress) {
-      throw new BadRequestException(messages.USER_DOES_NOT_HAVE_WALLET)
-    }
-
-    // Check if user has any valid OTP
-    const activeOtp = user.otps?.find(otp => otp.expiresAt > new Date())
-    if (activeOtp) {
-      throw new ResourceConflictedException(messages.ALREADY_SENT_RECOVERY_LINK)
     }
 
     // Create new OTP

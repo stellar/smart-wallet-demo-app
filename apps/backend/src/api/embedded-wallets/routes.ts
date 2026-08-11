@@ -1,8 +1,10 @@
 import { Router } from 'express'
 
 import { authentication } from 'api/core/middlewares/authentication'
+import { rateLimiter } from 'api/core/middlewares/rate-limit'
 import { tokenValidation } from 'api/core/middlewares/token-validation'
 
+import { messages } from './constants/messages'
 import { AirdropComplete, endpoint as AirdropCompleteEndpoint } from './use-cases/airdrop-complete'
 import { AirdropOptions, endpoint as AirdropOptionsEndpoint } from './use-cases/airdrop-options'
 import { ClaimNft, endpoint as ClaimNftEndpoint } from './use-cases/claim-nft'
@@ -28,19 +30,38 @@ import { ValidateRecoveryLink, endpoint as ValidateRecoveryLinkEndpoint } from '
 
 const router = Router()
 
+const recoveryLinkRateLimiter = rateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  details: messages.TOO_MANY_RECOVERY_ATTEMPTS,
+})
+
+// Higher ceiling than the recovery limiter: this endpoint is hit on every login attempt
+// (including shared/NAT'd networks at events), not just account-recovery flows. Still
+// meaningfully slows down mass account enumeration.
+const loginOptionsRateLimiter = rateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  details: messages.TOO_MANY_LOGIN_OPTIONS_ATTEMPTS,
+})
+
 router.get(`${GetInvitationInfoEndpoint}`, async (req, res) => GetInvitationInfo.init().executeHttp(req, res))
 router.get(`${CreateWalletOptionsEndpoint}`, tokenValidation(), async (req, res) =>
   CreateWalletOptions.init().executeHttp(req, res)
 )
 router.post(`${CreateWalletEndpoint}`, tokenValidation(), async (req, res) => CreateWallet.init().executeHttp(req, res))
 router.post(`${CreateAccountEndpoint}`, authentication, async (req, res) => CreateAccount.init().executeHttp(req, res))
-router.get(`${LogInOptionsEndpoint}`, async (req, res) => LogInOptions.init().executeHttp(req, res))
+router.get(`${LogInOptionsEndpoint}`, loginOptionsRateLimiter, async (req, res) =>
+  LogInOptions.init().executeHttp(req, res)
+)
 router.post(`${LogInEndpoint}`, async (req, res) => LogIn.init().executeHttp(req, res))
 router.get(`${GetWalletEndpoint}`, authentication, async (req, res) => GetWallet.init().executeHttp(req, res))
 router.get(`${GetWalletHistoryEndpoint}`, authentication, async (req, res) =>
   GetWalletHistory.init().executeHttp(req, res)
 )
-router.post(`${GenerateRecoveryLinkEndpoint}`, async (req, res) => GenerateRecoveryLink.init().executeHttp(req, res))
+router.post(`${GenerateRecoveryLinkEndpoint}`, recoveryLinkRateLimiter, async (req, res) =>
+  GenerateRecoveryLink.init().executeHttp(req, res)
+)
 router.post(`${ValidateRecoveryLinkEndpoint}`, async (req, res) => ValidateRecoveryLink.init().executeHttp(req, res))
 router.get(`${RecoverWalletOptionsEndpoint}`, async (req, res) => RecoverWalletOptions.init().executeHttp(req, res))
 router.post(`${RecoverWalletEndpoint}`, async (req, res) => RecoverWallet.init().executeHttp(req, res))
