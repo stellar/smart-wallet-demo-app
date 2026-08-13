@@ -6,6 +6,7 @@ import { hideBin } from 'yargs/helpers';
 import { fetchDisbursementReceivers } from './helpers/sdp-client.mjs';
 import { computeContractAddressFromEmail, resolveNetworkPassphrase } from './helpers/contract-address.mjs';
 import { assetAmountToStroops } from './helpers/amount.mjs';
+import { maskEmail } from './helpers/mask-email.mjs';
 import { logStep, logSuccess, logWarning, logError, logInfo } from './helpers/logs.mjs';
 
 // Resolves an SDP disbursement's recipients (by email) into the contract addresses
@@ -26,6 +27,9 @@ export async function resolveAirdropAddresses({
     logInfo(`Found ${receivers.length} receiver(s)`);
 
     logStep('2/3', 'Validating receivers');
+    if (expectedAmount == null) {
+        logWarning('--amount was not provided — skipping the payment-amount sanity check entirely.');
+    }
     const seenEmails = new Set();
     const skipped = [];
     const amountMismatches = [];
@@ -40,7 +44,7 @@ export async function resolveAirdropAddresses({
 
         const normalizedEmail = email.toLowerCase();
         if (seenEmails.has(normalizedEmail)) {
-            skipped.push({ id: receiver.id, reason: `duplicate email ${email}` });
+            skipped.push({ id: receiver.id, reason: `duplicate email ${maskEmail(email)}` });
             continue;
         }
         seenEmails.add(normalizedEmail);
@@ -64,7 +68,7 @@ export async function resolveAirdropAddresses({
 
     if (amountMismatches.length > 0) {
         logWarning(`${amountMismatches.length} receiver(s) have a payment amount different from --amount (${expectedAmount}):`);
-        amountMismatches.forEach(m => logWarning(`  - ${m.email}: expected ${m.expected}, got ${m.actual}`));
+        amountMismatches.forEach(m => logWarning(`  - ${maskEmail(m.email)}: expected ${m.expected}, got ${m.actual}`));
         logWarning('This script only supports a single flat amount for the whole airdrop. Double-check --amount before continuing.');
     }
 
@@ -112,6 +116,11 @@ async function main() {
         })
         .help()
         .argv;
+
+    if (argv.amount != null && !Number.isInteger(argv.amount)) {
+        logError(`--amount must be a whole number of stroops (got ${argv.amount}).`);
+        process.exit(1);
+    }
 
     if (fs.existsSync(argv.output)) {
         logError(`Output file already exists: ${argv.output}`);

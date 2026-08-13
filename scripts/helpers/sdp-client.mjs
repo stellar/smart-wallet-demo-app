@@ -1,15 +1,28 @@
 const DEFAULT_PAGE_LIMIT = 200;
+const DEFAULT_TIMEOUT_MS = 15000;
 
 // GET /disbursements/{id}/receivers, per stellar-disbursement-platform-backend's
-// DisbursementHandler.GetDisbursementReceivers. Auth accepts a static API key
-// (Authorization: Bearer <key>) via middleware.APIKeyOrJWTAuthenticate, same
-// pattern already used for SDP_EMBEDDED_WALLETS_API_KEY elsewhere in this repo.
+// DisbursementHandler.GetDisbursementReceivers. The auth middleware
+// (internal/serve/middleware/api_keys_middleware.go) splits the Authorization
+// header on a single space and validates whatever comes after it (or the whole
+// header, if there's no space) as an SDP_ API key — so `Bearer <key>` works
+// fine here, even though SDP_EMBEDDED_WALLETS_API_KEY elsewhere in this repo
+// sends the raw key with no "Bearer " prefix instead; the two are not the same
+// convention, just both accepted by this particular middleware.
 //
 // Paginates by tracking `page`/`page_limit` against the response's
 // `pagination.total`, instead of following `pagination.next`: the server builds
 // that URL from the request it received, which can point at a host this script
 // cannot reach when SDP sits behind a reverse proxy (as it does in stg/dev).
-export async function fetchDisbursementReceivers({ sdpUrl, apiKey, disbursementId, pageLimit = DEFAULT_PAGE_LIMIT }) {
+export async function fetchDisbursementReceivers({
+    sdpUrl,
+    apiKey,
+    disbursementId,
+    pageLimit = DEFAULT_PAGE_LIMIT,
+    timeoutMs = DEFAULT_TIMEOUT_MS
+}) {
+    assertSecureUrl(sdpUrl);
+
     const baseUrl = sdpUrl.replace(/\/$/, '');
     const receivers = [];
     let page = 1;
@@ -17,12 +30,19 @@ export async function fetchDisbursementReceivers({ sdpUrl, apiKey, disbursementI
 
     while (total === null || receivers.length < total) {
         const url = `${baseUrl}/disbursements/${disbursementId}/receivers?page=${page}&page_limit=${pageLimit}`;
-        const response = await fetch(url, {
-            headers: {
-                Authorization: `Bearer ${apiKey}`,
-                Accept: 'application/json'
-            }
-        });
+
+        let response;
+        try {
+            response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${apiKey}`,
+                    Accept: 'application/json'
+                },
+                signal: AbortSignal.timeout(timeoutMs)
+            });
+        } catch (error) {
+            throw new Error(`SDP request to ${url} timed out or failed after ${timeoutMs}ms: ${error.message}`);
+        }
 
         if (!response.ok) {
             const body = await response.text().catch(() => '');
@@ -32,11 +52,17 @@ export async function fetchDisbursementReceivers({ sdpUrl, apiKey, disbursementI
         const body = await response.json();
         const pageData = Array.isArray(body.data) ? body.data : [];
 
-        if (typeof body.pagination?.total === 'number') {
-            total = body.pagination.total;
-        } else if (total === null) {
-            total = receivers.length + pageData.length;
+        // Real SDP always serializes pagination.total (no `omitempty`), even when
+        // it's 0. Requiring it — rather than guessing from the current page's
+        // size — avoids silently capping the result at whatever page 1 happened
+        // to contain.
+        if (typeof body.pagination?.total !== 'number') {
+            throw new Error(
+                `SDP response for page=${page} is missing a numeric pagination.total — ` +
+                'cannot safely determine when all receivers have been fetched.'
+            );
         }
+        total = body.pagination.total;
 
         // An empty page is only expected once we've already collected `total`
         // receivers (checked by the while condition above). Getting one before
@@ -55,4 +81,15 @@ export async function fetchDisbursementReceivers({ sdpUrl, apiKey, disbursementI
     }
 
     return receivers;
+}
+
+function assertSecureUrl(sdpUrl) {
+    const parsed = new URL(sdpUrl);
+    const isLocal = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
+    if (parsed.protocol !== 'https:' && !isLocal) {
+        throw new Error(
+            `Refusing to send the SDP API key over a non-HTTPS URL: ${sdpUrl}. ` +
+            'Use https:// (localhost is exempt for local testing).'
+        );
+    }
 }
