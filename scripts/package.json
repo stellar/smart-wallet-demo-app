@@ -5,7 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test helpers/*.test.mjs",
+    "test": "node --test *.test.mjs helpers/*.test.mjs",
     "prepare-airdrop": "node prepare-airdrop.mjs",
     "generate-proofs": "node generate-proofs.mjs",
     "upload-proofs": "node upload-proofs-to-db.mjs",
