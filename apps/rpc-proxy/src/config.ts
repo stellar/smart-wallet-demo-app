@@ -4,6 +4,25 @@ dotenv.config()
 
 export type NetworkType = 'testnet' | 'mainnet' | 'futurenet'
 
+const VALID_NETWORKS: NetworkType[] = ['testnet', 'mainnet', 'futurenet']
+
+function parseNetwork(value: string | undefined): NetworkType {
+  const network = value ?? 'testnet'
+  if (!(VALID_NETWORKS as string[]).includes(network)) {
+    throw new Error(`Invalid STELLAR_NETWORK: "${network}". Must be one of: ${VALID_NETWORKS.join(', ')}`)
+  }
+  return network as NetworkType
+}
+
+function parseIntEnv(name: string, value: string | undefined, defaultValue: number): number {
+  const raw = value ?? String(defaultValue)
+  const parsed = parseInt(raw, 10)
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error(`Invalid ${name}: "${raw}". Must be a positive integer.`)
+  }
+  return parsed
+}
+
 export interface ProxyConfig {
   rpcPort: number
   horizonPort: number
@@ -34,7 +53,7 @@ function getRpcProviders(network: NetworkType): string[] {
     futurenet: envProviders('SDF_FUTURENET_RPC', 'LIQUIFY_FUTURENET_RPC'),
   }
 
-  return byNetwork[network] ?? byNetwork.testnet
+  return byNetwork[network]
 }
 
 function getHorizonProviders(network: NetworkType): string[] {
@@ -44,15 +63,15 @@ function getHorizonProviders(network: NetworkType): string[] {
     futurenet: envProviders('HORIZON_PROVIDER_FUTURENET'),
   }
 
-  return byNetwork[network] ?? byNetwork.testnet
+  return byNetwork[network]
 }
 
 export function getConfig(): ProxyConfig {
-  const network = (process.env.STELLAR_NETWORK ?? 'testnet') as NetworkType
-  const rpcPort = parseInt(process.env.RPC_PROXY_PORT ?? '8301', 10)
-  const horizonPort = parseInt(process.env.HORIZON_PROXY_PORT ?? '8302', 10)
-  const timeout = parseInt(process.env.PROVIDER_TIMEOUT_MS ?? '10000', 10)
-  const readinessTimeout = parseInt(process.env.READINESS_TIMEOUT_MS ?? '3000', 10)
+  const network = parseNetwork(process.env.STELLAR_NETWORK)
+  const rpcPort = parseIntEnv('RPC_PROXY_PORT', process.env.RPC_PROXY_PORT, 8301)
+  const horizonPort = parseIntEnv('HORIZON_PROXY_PORT', process.env.HORIZON_PROXY_PORT, 8302)
+  const timeout = parseIntEnv('PROVIDER_TIMEOUT_MS', process.env.PROVIDER_TIMEOUT_MS, 10000)
+  const readinessTimeout = parseIntEnv('READINESS_TIMEOUT_MS', process.env.READINESS_TIMEOUT_MS, 3000)
 
   const customRpc = process.env.RPC_PROVIDERS?.split(',')
     .map(s => s.trim())

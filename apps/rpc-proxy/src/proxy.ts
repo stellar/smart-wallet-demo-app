@@ -49,10 +49,29 @@ function buildDownstreamHeaders(
   return headers
 }
 
+// The proxy is exposed on host ports with wildcard CORS, so an unbounded body read
+// is a memory-exhaustion DoS vector. 10 MB is generous headroom over any legitimate
+// JSON-RPC/Horizon request.
+const MAX_BODY_BYTES = 10 * 1024 * 1024
+
+export class PayloadTooLargeError extends Error {}
+
 async function readBody(req: http.IncomingMessage): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = []
-    req.on('data', chunk => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)))
+    let totalBytes = 0
+    req.on('data', (chunk: Buffer | string) => {
+      const buf = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
+      totalBytes += buf.length
+      if (totalBytes > MAX_BODY_BYTES) {
+        // Reject without destroying the socket — the caller still needs it to write
+        // the 413 response. The stream keeps draining but we stop buffering, so
+        // memory stays bounded regardless of how much more the client sends.
+        reject(new PayloadTooLargeError(`Request body exceeds ${MAX_BODY_BYTES} bytes`))
+        return
+      }
+      chunks.push(buf)
+    })
     req.on('end', () => resolve(Buffer.concat(chunks)))
     req.on('error', reject)
   })
@@ -122,27 +141,32 @@ export async function proxyWithFallback(
       const controller = new AbortController()
       const timer = setTimeout(() => controller.abort(), options.timeout)
 
-      const upstream = await request(url, {
-        method: (req.method ?? 'GET') as Dispatcher.HttpMethod,
-        headers: upstreamHeaders,
-        body: body.length > 0 ? body : undefined,
-        signal: controller.signal,
-      })
+      try {
+        const upstream = await request(url, {
+          method: (req.method ?? 'GET') as Dispatcher.HttpMethod,
+          headers: upstreamHeaders,
+          body: body.length > 0 ? body : undefined,
+          signal: controller.signal,
+        })
 
-      clearTimeout(timer)
+        // Retry on server errors (5xx) and rate limiting (429). Other 4xx and JSON-RPC application errors are valid responses.
+        if (upstream.statusCode >= 500 || upstream.statusCode === 429) {
+          lastError = `HTTP ${upstream.statusCode} from ${redactProvider(provider)}`
+          logger.warn(`[${options.mode}] ${lastError}`)
+          await upstream.body.dump()
+          continue
+        }
 
-      // Retry on server errors (5xx) and rate limiting (429). Other 4xx and JSON-RPC application errors are valid responses.
-      if (upstream.statusCode >= 500 || upstream.statusCode === 429) {
-        lastError = `HTTP ${upstream.statusCode} from ${redactProvider(provider)}`
-        logger.warn(`[${options.mode}] ${lastError}`)
-        await upstream.body.dump()
-        continue
+        const responseBody = Buffer.from(await upstream.body.arrayBuffer())
+        res.writeHead(upstream.statusCode, buildDownstreamHeaders(upstream.headers, responseBody.byteLength))
+        res.end(responseBody)
+        return
+      } finally {
+        // Cleared only once the body is fully read (or dumped) — clearing it right after
+        // the headers arrive would leave a stalled response body uncovered by the
+        // per-provider timeout.
+        clearTimeout(timer)
       }
-
-      const responseBody = Buffer.from(await upstream.body.arrayBuffer())
-      res.writeHead(upstream.statusCode, buildDownstreamHeaders(upstream.headers, responseBody.byteLength))
-      res.end(responseBody)
-      return
     } catch (err) {
       const isTimeout = err instanceof Error && err.name === 'AbortError'
       const msg = isTimeout ? `timeout after ${options.timeout}ms` : err instanceof Error ? err.message : String(err)
