@@ -224,7 +224,7 @@ describe('checkRpcReadiness', () => {
     mockFetch.mockResolvedValueOnce({ ok: true, status: 200 } as Response)
     const result = await checkRpcReadiness(['https://a.com', 'https://b.com'], 1000)
     expect(result.ready).toBe(true)
-    expect(result.reachable).toBe('https://a.com')
+    expect(result.reachable).toBe('a.com')
     expect(result.failures).toHaveLength(0)
     expect(mockFetch).toHaveBeenCalledTimes(1)
   })
@@ -235,7 +235,7 @@ describe('checkRpcReadiness', () => {
       .mockResolvedValueOnce({ ok: true, status: 200 } as Response)
     const result = await checkRpcReadiness(['https://a.com', 'https://b.com'], 1000)
     expect(result.ready).toBe(true)
-    expect(result.reachable).toBe('https://b.com')
+    expect(result.reachable).toBe('b.com')
     expect(result.failures).toHaveLength(1)
   })
 
@@ -253,5 +253,16 @@ describe('checkRpcReadiness', () => {
     const result = await checkRpcReadiness(['https://a.com', 'https://b.com'], 1000)
     expect(result.ready).toBe(true)
     expect(result.failures[0]).toContain('timeout')
+  })
+
+  it('never leaks a credential embedded in a provider URL', async () => {
+    const credentialedProvider = 'https://stellar.liquify.com/api=SECRET_KEY_1234/testnet'
+    mockFetch
+      .mockResolvedValueOnce({ ok: false, status: 503 } as Response)
+      .mockResolvedValueOnce({ ok: true, status: 200 } as Response)
+    const result = await checkRpcReadiness([credentialedProvider, 'https://b.com'], 1000)
+    expect(result.failures[0]).not.toContain('SECRET_KEY_1234')
+    expect(result.failures[0]).toBe('stellar.liquify.com: HTTP 503')
+    expect(result.reachable).toBe('b.com')
   })
 })

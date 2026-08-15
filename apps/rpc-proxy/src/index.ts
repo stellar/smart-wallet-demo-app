@@ -2,7 +2,7 @@ import http from 'http'
 
 import { getConfig } from './config'
 import { logger } from './logger'
-import { checkRpcReadiness, proxyWithFallback } from './proxy'
+import { checkRpcReadiness, proxyWithFallback, redactProvider } from './proxy'
 
 const config = getConfig()
 
@@ -20,7 +20,7 @@ function createServer(providers: string[], mode: 'rpc' | 'horizon', port: number
 
     if (req.url === '/health') {
       res.writeHead(200, { 'content-type': 'application/json' })
-      res.end(JSON.stringify({ status: 'ok', mode, network: config.network, providers }))
+      res.end(JSON.stringify({ status: 'ok', mode, network: config.network, providers: providers.map(redactProvider) }))
       return
     }
 
@@ -49,7 +49,7 @@ function createServer(providers: string[], mode: 'rpc' | 'horizon', port: number
 
   server.listen(port, () => {
     logger.info(`${mode.toUpperCase()} proxy on :${port} | network: ${config.network}`)
-    logger.info(`Providers (in order): ${providers.join(' → ')}`)
+    logger.info(`Providers (in order): ${providers.map(redactProvider).join(' → ')}`)
   })
 }
 

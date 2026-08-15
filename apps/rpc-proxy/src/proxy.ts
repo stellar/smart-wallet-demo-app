@@ -58,6 +58,17 @@ async function readBody(req: http.IncomingMessage): Promise<Buffer> {
   })
 }
 
+// Provider URLs can embed API keys (e.g. Liquify's `/api=<key>/`). Never let a full
+// provider URL reach a log line or an HTTP response — only the hostname identifies
+// which provider failed without disclosing the credential.
+export function redactProvider(url: string): string {
+  try {
+    return new URL(url).hostname
+  } catch {
+    return '[invalid-provider-url]'
+  }
+}
+
 const GET_HEALTH_BODY = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'getHealth' })
 
 export async function checkRpcReadiness(
@@ -76,12 +87,12 @@ export async function checkRpcReadiness(
         signal: controller.signal,
       })
       clearTimeout(timer)
-      if (res.ok) return { ready: true, reachable: provider, failures }
-      failures.push(`${provider}: HTTP ${res.status}`)
+      if (res.ok) return { ready: true, reachable: redactProvider(provider), failures }
+      failures.push(`${redactProvider(provider)}: HTTP ${res.status}`)
     } catch (err) {
       const msg =
         err instanceof Error && err.name === 'AbortError' ? 'timeout' : err instanceof Error ? err.message : String(err)
-      failures.push(`${provider}: ${msg}`)
+      failures.push(`${redactProvider(provider)}: ${msg}`)
     }
   }
   return { ready: false, reachable: null, failures }
@@ -105,7 +116,7 @@ export async function proxyWithFallback(
       const url = options.mode === 'rpc' ? provider : `${provider.replace(/\/$/, '')}${req.url ?? '/'}`
 
       if (i > 0) {
-        logger.warn(`[${options.mode}] provider[${i - 1}] failed → trying ${provider}`)
+        logger.warn(`[${options.mode}] provider[${i - 1}] failed → trying ${redactProvider(provider)}`)
       }
 
       const controller = new AbortController()
@@ -122,7 +133,7 @@ export async function proxyWithFallback(
 
       // Retry on server errors (5xx) and rate limiting (429). Other 4xx and JSON-RPC application errors are valid responses.
       if (upstream.statusCode >= 500 || upstream.statusCode === 429) {
-        lastError = `HTTP ${upstream.statusCode} from ${provider}`
+        lastError = `HTTP ${upstream.statusCode} from ${redactProvider(provider)}`
         logger.warn(`[${options.mode}] ${lastError}`)
         await upstream.body.dump()
         continue
@@ -135,7 +146,7 @@ export async function proxyWithFallback(
     } catch (err) {
       const isTimeout = err instanceof Error && err.name === 'AbortError'
       const msg = isTimeout ? `timeout after ${options.timeout}ms` : err instanceof Error ? err.message : String(err)
-      lastError = `${provider}: ${msg}`
+      lastError = `${redactProvider(provider)}: ${msg}`
       logger.warn(`[${options.mode}] provider unreachable — ${lastError}`)
     }
   }
