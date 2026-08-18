@@ -16,9 +16,11 @@ export function createServer(
   options: ServerOptions
 ): http.Server {
   const server = http.createServer(async (req, res) => {
+    const requestedCorsHeaders = req.headers['access-control-request-headers']
+
     res.setHeader('Access-Control-Allow-Origin', '*')
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', '*')
+    res.setHeader('Access-Control-Allow-Headers', requestedCorsHeaders ?? 'content-type, authorization')
 
     if (req.method === 'OPTIONS') {
       res.writeHead(204)
