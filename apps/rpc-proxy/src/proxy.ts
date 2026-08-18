@@ -37,11 +37,12 @@ function buildDownstreamHeaders(
 ): Record<string, string | string[]> {
   const headers: Record<string, string | string[]> = {}
   for (const [key, value] of Object.entries(upstream)) {
-    if (HOP_BY_HOP.has(key)) continue
+    const normalizedKey = key.toLowerCase()
+    if (HOP_BY_HOP.has(normalizedKey)) continue
     // The body is forwarded byte-for-byte (undici.request never decompresses),
     // so content-encoding stays valid; content-length is restated from the buffer
     // to also cover upstreams that responded with chunked transfer encoding.
-    if (key === 'content-length') continue
+    if (normalizedKey === 'content-length') continue
     if (value === undefined) continue
     headers[key] = value
   }
