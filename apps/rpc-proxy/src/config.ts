@@ -16,10 +16,17 @@ function parseNetwork(value: string | undefined): NetworkType {
 
 function parseIntEnv(name: string, value: string | undefined, defaultValue: number): number {
   const raw = value ?? String(defaultValue)
-  const parsed = parseInt(raw, 10)
-  if (!Number.isInteger(parsed) || parsed <= 0) {
+  const normalized = raw.trim()
+
+  if (!/^[0-9]+$/.test(normalized)) {
     throw new Error(`Invalid ${name}: "${raw}". Must be a positive integer.`)
   }
+
+  const parsed = Number(normalized)
+  if (!Number.isSafeInteger(parsed) || parsed <= 0) {
+    throw new Error(`Invalid ${name}: "${raw}". Must be a positive integer.`)
+  }
+
   return parsed
 }
 
