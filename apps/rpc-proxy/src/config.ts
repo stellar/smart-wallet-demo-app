@@ -87,13 +87,29 @@ export function getConfig(): ProxyConfig {
     .map(s => s.trim())
     .filter(Boolean)
 
+  const rpcProviders = customRpc?.length ? customRpc : getRpcProviders(network)
+  const horizonProviders = customHorizon?.length ? customHorizon : getHorizonProviders(network)
+
+  // Provider lists are entirely env-driven — nothing is hardcoded. Starting with an
+  // empty list would mean every proxied call fails, so fail fast and loud instead.
+  if (rpcProviders.length === 0) {
+    throw new Error(
+      `No RPC providers configured for network "${network}". Set at least one *_${network.toUpperCase()}_RPC provider env var or RPC_PROVIDERS.`
+    )
+  }
+  if (horizonProviders.length === 0) {
+    throw new Error(
+      `No Horizon providers configured for network "${network}". Set HORIZON_PROVIDER_${network.toUpperCase()} or HORIZON_PROVIDERS.`
+    )
+  }
+
   return {
     rpcPort,
     horizonPort,
     network,
     timeout,
     readinessTimeout,
-    rpcProviders: customRpc?.length ? customRpc : getRpcProviders(network),
-    horizonProviders: customHorizon?.length ? customHorizon : getHorizonProviders(network),
+    rpcProviders,
+    horizonProviders,
   }
 }

@@ -27,9 +27,15 @@ interface RawResponse {
   body: string
 }
 
-function call(port: number, method: string, path: string, body?: Buffer): Promise<RawResponse> {
+function call(
+  port: number,
+  method: string,
+  path: string,
+  body?: Buffer,
+  headers?: Record<string, string>
+): Promise<RawResponse> {
   return new Promise((resolve, reject) => {
-    const req = http.request({ host: '127.0.0.1', port, method, path }, res => {
+    const req = http.request({ host: '127.0.0.1', port, method, path, headers }, res => {
       const chunks: Buffer[] = []
       res.on('data', chunk => chunks.push(chunk))
       res.on('end', () =>
@@ -54,7 +60,20 @@ describe('createServer (real HTTP server)', () => {
       const res = await call(port, 'GET', '/health')
       expect(res.headers['access-control-allow-origin']).toBe('*')
       expect(res.headers['access-control-allow-methods']).toBe('GET, POST, OPTIONS')
-      expect(res.headers['access-control-allow-headers']).toBe('*')
+      expect(res.headers['access-control-allow-headers']).toBe('content-type, authorization')
+    } finally {
+      await close(server)
+    }
+  })
+
+  it('echoes the requested preflight headers instead of a wildcard', async () => {
+    const server = createServer(['https://a.com'], 'rpc', 0, TEST_OPTIONS)
+    const port = await waitForListening(server)
+    try {
+      const res = await call(port, 'OPTIONS', '/', undefined, {
+        'access-control-request-headers': 'x-custom-header, content-type',
+      })
+      expect(res.headers['access-control-allow-headers']).toBe('x-custom-header, content-type')
     } finally {
       await close(server)
     }
