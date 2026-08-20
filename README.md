@@ -1,3 +1,5 @@
+> **Security Policy**: This repository is out of scope for the [Stellar HackerOne program](https://hackerone.com/stellar). It is no longer actively maintained, and does not receive security patches. Please do not submit vulnerability reports against this repo. Any vulnerability reports submitted against this repository will be closed as informational.
+
 ## Instructions
 
 ### SDP
