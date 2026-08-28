@@ -4,7 +4,9 @@
   "description": "Smart Wallet Demo App",
   "private": true,
   "workspaces": [
-    "apps/*",
+    "apps/backend",
+    "apps/web",
+    "apps/rpc-proxy",
     "scripts"
   ],
   "scripts": {

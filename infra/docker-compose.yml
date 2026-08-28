@@ -4,6 +4,12 @@
 version: '3'
 name: mp
 services:
+  # ================================ RPC Proxy ================================
+  rpc-proxy:
+    extends:
+      file: ../docker-compose.yml
+      service: rpc-proxy
+
   # ================================ Wallet Backend ================================
   wb-db:
     extends:
@@ -18,9 +24,14 @@ services:
       service: wb-api
     environment:
       BASE_FEE: "42949672"
+      RPC_URL: http://rpc-proxy:8301
     depends_on:
       wb-db:
-        condition: service_started
+        condition: service_healthy
+      wb-ingest:
+        condition: service_healthy
+      rpc-proxy:
+        condition: service_healthy
 
   wb-ingest:
     extends:
@@ -28,9 +39,12 @@ services:
       service: wb-ingest
     environment:
       BASE_FEE: "42949672"
+      RPC_URL: http://rpc-proxy:8301
     depends_on:
       wb-db:
-        condition: service_started
+        condition: service_healthy
+      rpc-proxy:
+        condition: service_healthy
 
   # ================================ Stellar Disbursement Platform ================================
   sdp-db:
@@ -48,9 +62,13 @@ services:
       service: sdp-api
     environment:
       MAX_BASE_FEE: "42949672"
+      RPC_URL: http://rpc-proxy:8301
+      HORIZON_URL: http://rpc-proxy:8302
     depends_on:
       sdp-db:
         condition: service_started
+      rpc-proxy:
+        condition: service_healthy
     # Override volumes to remove problematic bind mounts
     volumes:
       - /dev/null:/app/github.com/stellar/stellar-disbursement-platform/dev/scripts/add_test_users.sh:ro
@@ -62,9 +80,15 @@ services:
       service: sdp-tss
     environment:
       MAX_BASE_FEE: "42949672"
+      RPC_URL: http://rpc-proxy:8301
+      HORIZON_URL: http://rpc-proxy:8302
     depends_on:
-      - sdp-db
-      - sdp-api
+      sdp-db:
+        condition: service_started
+      sdp-api:
+        condition: service_started
+      rpc-proxy:
+        condition: service_healthy
 
   sdp-frontend:
     container_name: sdp-frontend
@@ -74,7 +98,7 @@ services:
     ports:
       - "3001:80"
     volumes:
-      - ./external/stellar-disbursement-platform-backend/dev/env-config.js:/usr/share/nginx/html/settings/env-config.js
+      - ./env-config.js:/usr/share/nginx/html/settings/env-config.js
 
   # ================================ Smart Wallet ================================
   backend-db:
@@ -91,6 +115,8 @@ services:
     depends_on:
       backend-db:
         condition: service_started
+      rpc-proxy:
+        condition: service_healthy
 
   web:
     container_name: smart-wallet-web

@@ -5,7 +5,7 @@
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "module",
-    "project": ["apps/backend/tsconfig.json", "apps/web/tsconfig.json"],
+    "project": ["apps/backend/tsconfig.json", "apps/web/tsconfig.json", "apps/rpc-proxy/tsconfig.json"],
   },
   "env": {
     "browser": true,
@@ -141,7 +141,7 @@
   "settings": {
     "import/resolver": {
       "typescript": {
-        "project": ["./apps/backend/tsconfig.json", "./apps/web/tsconfig.json"],
+        "project": ["./apps/backend/tsconfig.json", "./apps/web/tsconfig.json", "./apps/rpc-proxy/tsconfig.json"],
       },
     },
     "react": {
