@@ -4,7 +4,7 @@ members = ["*"]
 exclude = ["target"]
 
 [workspace.dependencies]
-soroban-sdk = "22.0.8"
+soroban-sdk = "22.0.9"
 stellar-fungible = { git = "https://github.com/OpenZeppelin/stellar-contracts", tag = "v0.3.0" }
 stellar-ownable = { git = "https://github.com/OpenZeppelin/stellar-contracts", tag = "v0.3.0" }
 stellar-crypto = { git = "https://github.com/OpenZeppelin/stellar-contracts", tag = "v0.3.0" }
