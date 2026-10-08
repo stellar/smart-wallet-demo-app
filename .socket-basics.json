@@ -1,0 +1,13 @@
+{
+  "workspace": ".",
+  "javascript_sast_enabled": true,
+  "rust_sast_enabled": true,
+  "javascript_disabled_rules": "js-sensitive-data-in-logs,js-unhandled-promise-rejection",
+  "sast_ignore_overrides": "js-code-injection-eval:apps/web/src/components/organisms/layout/index.tsx,js-missing-auth-check:apps/backend/src/api/embedded-wallets/routes.ts,js-express-async-no-error-handler:apps/backend/src/api/core/routes.ts,js-express-async-no-error-handler:apps/backend/src/api/embedded-wallets/routes.ts,js-express-async-no-error-handler:apps/backend/src/api/general-settings/routes.ts,js-express-async-no-error-handler:scripts/nft/deploy-nft-ipfs.mjs,rust-panic-in-production:contracts/airdrop/src/lib.rs,rust-panic-in-production:contracts/nft/src/contract.rs",
+  "secret_scanning_enabled": true,
+  "console_tabular_enabled": true,
+  "dockerfiles": "apps/backend/Dockerfile,apps/web/Dockerfile",
+  "socket_tier_1_enabled": false,
+  "trivy_vuln_enabled": false,
+  "trufflehog_exclude_dir": "node_modules,dist,build,target,.git,yarn.lock,package-lock.json,pnpm-lock.yaml,Cargo.lock,go.sum,poetry.lock,Gemfile.lock,composer.lock,external/wallet-backend,external/stellar-disbursement-platform-backend,infra/external/wallet-backend,infra/external/stellar-disbursement-platform-backend,infra/external/stellar-disbursement-platform-frontend"
+}
