@@ -51,6 +51,24 @@ GCJVXKQVGXSTRGAK7WDPUPH6LGRQFVMUJ6XJMTQZX7LGMVKVGVQF7QTJ
 CAZDTOPFCY47C62SH7K5SXIVV46CMFDO3L7T4V42VK6VHGN3LUBY65ZE
 ```
 
+If your recipients come from an SDP disbursement, don't build this file by
+hand — it requires manually cross-referencing SDP's recipient emails against
+separately-computed contract addresses, which is easy to get wrong. Generate
+it instead with:
+
+```bash
+SDP_API_KEY=<key> npm run --workspace=scripts prepare-airdrop -- \
+  --sdp-url <sdp-base-url> \
+  --disbursement-id <disbursement-id> \
+  --distribution-account <distribution-account-public-key> \
+  --network <testnet|mainnet> \
+  --amount <stroops-per-recipient> \
+  --output recipients.txt
+```
+
+This pulls the disbursement's receivers directly from SDP and derives each
+contract address locally.
+
 #### Environment Variables
 
 Also, we're assuming these env variables are set:

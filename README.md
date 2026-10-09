@@ -125,9 +125,13 @@ The backend includes airdrop functionality through the embedded wallets API for 
 ### Setup
 
 1. Deploy an airdrop contract (see [contracts/](./contracts))
-2. Generate proofs: `npm run --workspace=scripts generate-proofs`
-3. Upload proofs: `npm run --workspace=scripts upload-proofs`
-4. Get airdrop options: `GET /api/embedded-wallets/airdrop/options`
-5. Complete airdrop claim: `POST /api/embedded-wallets/airdrop/complete`
+2. Resolve recipients: if they come from an SDP disbursement, run
+   `npm run --workspace=scripts prepare-airdrop` (see
+   [contracts/airdrop/README.md](./contracts/airdrop/README.md#recipients-file))
+   instead of building `recipients.txt` by hand
+3. Generate proofs: `npm run --workspace=scripts generate-proofs`
+4. Upload proofs: `npm run --workspace=scripts upload-proofs`
+5. Get airdrop options: `GET /api/embedded-wallets/airdrop/options`
+6. Complete airdrop claim: `POST /api/embedded-wallets/airdrop/complete`
 
 ---

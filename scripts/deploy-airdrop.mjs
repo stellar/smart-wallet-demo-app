@@ -4,6 +4,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { generateProofsFromFile } from './generate-proofs.mjs';
 import { uploadProofsToDB } from './upload-proofs-to-db.mjs';
+import { resolveNetworkPassphrase } from './helpers/contract-address.mjs';
 
 const execAsync = promisify(exec);
 
@@ -73,9 +74,7 @@ const {
     'database-url': databaseUrl
 } = argv;
 
-const networkPassphrase = network === 'mainnet' 
-    ? 'Public Global Stellar Network ; September 2015'
-    : 'Test SDF Network ; September 2015';
+const networkPassphrase = resolveNetworkPassphrase(network);
 
 
 async function deployContract(rootHash) {
